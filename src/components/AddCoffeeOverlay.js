@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
 } from 'react-native';
+import { typography } from '../theme/token';
 import AddCoffeeScreen from '../screens/AddCoffeeScreen';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -82,6 +83,6 @@ const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 22,
     color: '#2f241f',
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
   },
 });

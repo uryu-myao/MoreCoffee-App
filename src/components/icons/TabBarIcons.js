@@ -1,15 +1,12 @@
 import Svg, { Path, Rect } from 'react-native-svg';
-
-const ACTIVE_COLOR = '#2f241f';
-const INACTIVE_COLOR = '#9b8f87';
+import { colors } from '../../theme/token';
 
 function getColor(isActive) {
-  return isActive ? ACTIVE_COLOR : INACTIVE_COLOR;
+  return isActive ? colors.tab.active : colors.brand.lightBlue;
 }
 
 export function HomeIcon({ isActive = false }) {
   const fill = getColor(isActive);
-
   return (
     <Svg width={20} height={20} viewBox="0 0 20 20" fill="none">
       <Path
@@ -22,7 +19,6 @@ export function HomeIcon({ isActive = false }) {
 
 export function CoffeeListIcon({ isActive = false }) {
   const fill = getColor(isActive);
-
   return (
     <Svg width={18} height={20} viewBox="0 0 18 20" fill="none">
       <Path
@@ -33,23 +29,27 @@ export function CoffeeListIcon({ isActive = false }) {
   );
 }
 
-export function SearchIcon({ isActive = false }) {
+export function CalendarIcon({ isActive = false }) {
   const fill = getColor(isActive);
-  const accent = isActive ? '#8c7aa8' : '#c6bbd3';
-
+  const accent = isActive ? '#D4C5E2' : colors.tab.background;
   return (
     <Svg width={20} height={20} viewBox="0 0 20 20" fill="none">
-      <Path d="M0 8H20V18C20 19.1046 19.1046 20 18 20H2C0.895431 20 0 19.1046 0 18V8Z" fill={fill} />
-      <Path d="M0 3C0 1.89543 0.895431 1 2 1H18C19.1046 1 20 1.89543 20 3V6H0V3Z" fill={fill} />
+      <Path
+        d="M0 8H20V18C20 19.1046 19.1046 20 18 20H2C0.895431 20 0 19.1046 0 18V8Z"
+        fill={fill}
+      />
+      <Path
+        d="M0 3C0 1.89543 0.895431 1 2 1H18C19.1046 1 20 1.89543 20 3V6H0V3Z"
+        fill={fill}
+      />
       <Rect x={5} width={2} height={4} fill={accent} />
       <Rect x={13} width={2} height={4} fill={accent} />
     </Svg>
   );
 }
 
-export function AccountIcon({ isActive = false }) {
+export function ProfileIcon({ isActive = false }) {
   const fill = getColor(isActive);
-
   return (
     <Svg width={20} height={19} viewBox="0 0 20 19" fill="none">
       <Path
@@ -65,8 +65,14 @@ export function AddCoffeeIcon() {
     <Svg width={44} height={34} viewBox="0 0 44 34" fill="none">
       <Rect width={44} height={34} rx={10} fill="#D6D3F0" />
       <Rect x={12} y={15} width={20} height={4} fill="#FFFFFF" />
-      <Rect x={20} y={27} width={20} height={4} transform="rotate(-90 20 27)" fill="#FFFFFF" />
+      <Rect
+        x={20}
+        y={27}
+        width={20}
+        height={4}
+        transform="rotate(-90 20 27)"
+        fill="#FFFFFF"
+      />
     </Svg>
   );
 }
-

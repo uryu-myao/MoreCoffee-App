@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { typography } from '../theme/token';
 
 export default function ScreenFrame({ title, subtitle }) {
   return (
@@ -28,7 +29,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#2f241f',
   },
   pageWrap: {
@@ -39,6 +40,7 @@ const styles = StyleSheet.create({
   },
   pageSubtitle: {
     fontSize: 16,
+    fontFamily: typography.family.regular,
     color: '#75635b',
     textAlign: 'center',
   },

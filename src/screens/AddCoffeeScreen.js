@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { typography } from '../theme/token';
 
 export default function AddCoffeeScreen() {
   return (
@@ -18,12 +19,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 36,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#2f241f',
   },
   hint: {
     marginTop: 10,
     fontSize: 16,
+    fontFamily: typography.family.regular,
     color: '#75635b',
     textAlign: 'center',
   },
