@@ -2,12 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
-  Pressable,
   SafeAreaView,
   StyleSheet,
-  Text,
 } from 'react-native';
-import { typography } from '../theme/token';
 import AddCoffeeScreen from '../screens/AddCoffeeScreen';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -50,14 +47,7 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
         },
       ]}>
       <SafeAreaView style={styles.container}>
-        <Pressable
-          style={styles.closeButton}
-          onPress={closeWithAnimation}
-          accessibilityRole="button"
-          accessibilityLabel="Close AddCoffee">
-          <Text style={styles.closeButtonText}>✖</Text>
-        </Pressable>
-        <AddCoffeeScreen />
+        <AddCoffeeScreen onClose={closeWithAnimation} />
       </SafeAreaView>
     </Animated.View>
   );
@@ -71,18 +61,5 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-  },
-  closeButton: {
-    marginTop: 50,
-    marginLeft: 10,
-    width: 42,
-    height: 42,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  closeButtonText: {
-    fontSize: 22,
-    color: '#2f241f',
-    fontFamily: typography.family.bold,
   },
 });
