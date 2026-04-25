@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
 import AddCoffeeOverlay from './components/AddCoffeeOverlay';
 import FooterNav from './components/FooterNav';
 import { SCREEN_COMPONENTS } from './screens';
@@ -15,7 +15,9 @@ export default function AppShell() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ActiveScreen />
+      <View style={styles.screenContainer}>
+        <ActiveScreen />
+      </View>
 
       <FooterNav
         activeTab={activeTab}
@@ -32,6 +34,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f7f4ef',
+  },
+  screenContainer: {
+    flex: 1,
   },
 });
 

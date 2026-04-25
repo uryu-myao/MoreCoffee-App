@@ -218,35 +218,6 @@ export default function AddCoffeeScreen({ onClose }) {
             <StarRating value={rating} onChange={setRating} />
           </View>
 
-          {/* Validation warning */}
-          {saveAttempted && !quickComplete && (
-            <Text style={styles.warningText}>
-              Fill in all required fields to save
-            </Text>
-          )}
-
-          {/* Save button */}
-          <Pressable style={styles.saveBtn} onPress={handleQuickSave}>
-            <Text style={styles.saveBtnText}>Save</Text>
-          </Pressable>
-
-          {/* Continue button */}
-          <Pressable
-            style={[styles.continueBtn, !quickComplete && styles.continueBtnDisabled]}
-            onPress={() => quickComplete && setActiveTab('tasting')}
-            disabled={!quickComplete}>
-            <Text
-              style={[
-                styles.continueBtnText,
-                !quickComplete && styles.continueBtnTextDisabled,
-              ]}>
-              Continue to tasting note →
-            </Text>
-          </Pressable>
-
-          <Text style={styles.footerText}>
-            You can update these details anytime.
-          </Text>
         </ScrollView>
       ) : (
         <ScrollView
@@ -314,16 +285,37 @@ export default function AddCoffeeScreen({ onClose }) {
             />
           </View>
 
-          {/* Save button */}
-          <Pressable style={styles.saveBtn} onPress={handleTastingSave}>
-            <Text style={styles.saveBtnText}>Save</Text>
-          </Pressable>
-
-          <Text style={styles.footerText}>
-            You can update these details anytime.
-          </Text>
         </ScrollView>
       )}
+
+      {/* Floating footer — no background, hovers over scroll content */}
+      <View style={styles.floatingFooter} pointerEvents="box-none">
+        {activeTab === 'quick' && saveAttempted && !quickComplete && (
+          <Text style={styles.warningText}>
+            Fill in all required fields to save
+          </Text>
+        )}
+        <Pressable
+          style={styles.saveBtn}
+          onPress={activeTab === 'quick' ? handleQuickSave : handleTastingSave}>
+          <Text style={styles.saveBtnText}>Save</Text>
+        </Pressable>
+        {activeTab === 'quick' && (
+          <Pressable
+            style={[styles.continueBtn, !quickComplete && styles.continueBtnDisabled]}
+            onPress={() => quickComplete && setActiveTab('tasting')}
+            disabled={!quickComplete}>
+            <Text
+              style={[
+                styles.continueBtnText,
+                !quickComplete && styles.continueBtnTextDisabled,
+              ]}>
+              Continue to tasting note →
+            </Text>
+          </Pressable>
+        )}
+        <Text style={styles.footerText}>You can update these details anytime.</Text>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -409,7 +401,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
-    paddingBottom: 40,
+    paddingBottom: 160,
   },
 
   // Section header with dot
@@ -503,9 +495,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
+  // Floating footer
+  floatingFooter: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
+    paddingTop: spacing.md,
+  },
+
   // Save button
   saveBtn: {
-    marginTop: spacing.xl,
     backgroundColor: colors.brand.blue,
     borderRadius: radius.pill,
     paddingVertical: spacing.md + 2,

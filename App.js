@@ -6,6 +6,7 @@ import {
   Poppins_700Bold,
   useFonts,
 } from '@expo-google-fonts/poppins';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppShell from './src/AppShell';
 
 export default function App() {
@@ -19,9 +20,9 @@ export default function App() {
   if (!fontsLoaded) return null;
 
   return (
-    <>
+    <SafeAreaProvider>
       <AppShell />
       <StatusBar style="dark" />
-    </>
+    </SafeAreaProvider>
   );
 }

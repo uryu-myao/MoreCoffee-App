@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ProfileIcon,
   AddCoffeeIcon,
@@ -11,8 +12,10 @@ import { TABS } from '../constants/navigation';
 import { colors, radius, shadows, spacing } from '../theme/token';
 
 export default function FooterNav({ activeTab, onTabPress, onAddPress }) {
+  const { bottom } = useSafeAreaInsets();
+
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, { paddingBottom: bottom + spacing.sm }]}>
       <View style={styles.footer}>
         <FooterTab
           label={TABS[0].label}
@@ -73,10 +76,13 @@ function FooterTab({ label, icon, isActive, onPress }) {
 
 const styles = StyleSheet.create({
   wrapper: {
-    width: '100%',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    paddingBottom: spacing.sm,
     paddingTop: spacing.xs,
+    pointerEvents: 'box-none',
   },
   footer: {
     width: '88%',
