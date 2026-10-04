@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import FieldRow from '../../components/base/FieldRow';
+import HardShadow from '../../components/base/HardShadow';
 import SectionLabel from '../../components/base/SectionLabel';
 import { color, shape, spacing, state } from '../../theme/tokens';
 import { HarnessCase, HarnessGroup, HarnessPage } from '../harness';
@@ -7,7 +8,11 @@ import { SAMPLE } from '../samples';
 
 /** The 2px-outlined card FieldRows sit in (design-system.md §9 Card). Harness-only. */
 function Group({ error = false, children }) {
-  return <View style={[styles.group, error && styles.groupError]}>{children}</View>;
+  return (
+    <HardShadow shadow={error ? state.error.shadow : null}>
+      <View style={[styles.group, error && styles.groupError]}>{children}</View>
+    </HardShadow>
+  );
 }
 
 export default function FieldRowPage() {

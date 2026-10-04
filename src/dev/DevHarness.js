@@ -6,6 +6,7 @@ import { color, layout, shape, spacing } from '../theme/tokens';
 import FieldRowPage from './pages/FieldRowPage';
 import SectionLabelPage from './pages/SectionLabelPage';
 import SegmentedControlPage from './pages/SegmentedControlPage';
+import StarRatingPage from './pages/StarRatingPage';
 import TextPage from './pages/TextPage';
 import TokenSheet from './TokenSheet';
 
@@ -19,6 +20,7 @@ const PAGES = [
   { key: 'sectionLabel', title: 'SectionLabel', Page: SectionLabelPage },
   { key: 'fieldRow', title: 'FieldRow', Page: FieldRowPage },
   { key: 'segmented', title: 'SegmentedControl', Page: SegmentedControlPage },
+  { key: 'starRating', title: 'StarRating', Page: StarRatingPage },
 ];
 
 export default function DevHarness() {

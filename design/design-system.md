@@ -354,7 +354,7 @@ All hard: blur 0, isotropic offset, single ink. Offset **scales with the element
 | `shadow.primary` | `5px 5px 0` `color.text.primary` | full-width primary buttons (h56, w100%) | 13 uses |
 | `state.error.shadow` | `4px 4px 0` `#9E5202` | error state (5d) **A** | 3 uses |
 
-**RN implementation note**: a blur-0 isotropic hard shadow probably cannot be reproduced with standard RN shadow props — iOS exposes `shadowOffset`/`shadowRadius`/`shadowOpacity`, Android only `elevation`, and `elevation` cannot express zero blur. Options: an absolutely-positioned View layered behind, or drawing via react-native-svg. See OQ-6; tokens are unchanged.
+**RN implementation note**: a blur-0 isotropic hard shadow cannot be reproduced with standard RN shadow props — iOS exposes `shadowOffset`/`shadowRadius`/`shadowOpacity`, Android only `elevation`, and `elevation` cannot express zero blur. **Decided (OQ-6)**: the base `HardShadow` component layers an ink-filled View the size of the element behind it, translated by the token's offset. Same result on both platforms, no new dependency. Tokens are unchanged.
 
 ---
 
@@ -419,7 +419,7 @@ Also standing: `rotation.sticker = -3` (4 screens; RN wants the number, formatte
 3. **`beanFreshness.peakBand` changes colour by state and we cannot tell whether that is intent.** Interpretation (a): a window that has passed drops its saturation and yields attention to `elapsed`. Interpretation (b): drift — the band's colour was changed along with the state. The drinking window is a property of the bag, not of the state, which is what makes (b) plausible. **Decided by the third state (resting / too fresh): if peakBand is mint again there, (a); if it stays beige, (b).** Until then the state-dependent definition stands; do not unify or split.
 4. **`beanFreshness` has no third state.** The peak band starts at 17% of the track, so days 0–4 (degassing) have no defined state. Logically a "resting" / "too fresh" state should exist. Not invented here.
 5. **`state.archived` cannot be implemented as-is.** RN style has no `filter` (newer RN has experimental support; availability in this project is unverified). Four options, none eliminated: (a) keep separately desaturated colour values, (b) process on the image side, (c) react-native-svg `feColorMatrix`, (d) a translucent overlay.
-6. **Hard-shadow implementation undecided** — see §7.
+6. ~~**Hard-shadow implementation undecided**~~ — **resolved 2026-10-04**: layered offset View (`HardShadow`). See §7.
 7. **`motion.expand` implementation undecided.** CSS transitions do not exist in RN; reproduce with Animated/Reanimated as `Easing.bezier(0.22, 0.61, 0.36, 1)`. The token carries duration and four control points, never a CSS string.
 8. **6a is the only screen with a shallow header** (root top 44 vs 60 elsewhere). Exception recorded, but it is also a structural fact: Profile's header is built differently. Confirm whether that is intended when the screen-shell template is specified.
 9. **`margin.container` is not unified anywhere in the product.** Every other spacing role converged on a two-axis default; this one's mode represents only 20% of 66 uses. Layout is built from padding and gap, and margin appears to be used for ad-hoc nudges. **When specifying components, check each margin use individually for whether it is needed at all.**
@@ -437,3 +437,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 
 - 2026-10-04 — §3.1 added: truncation policy (`name` 2 / `meta` 1 / `note` 3 / `none`), landed in the base `Text` component because user-input text had no defined behaviour (`gaps.md` 1).
 - 2026-10-04 — OQ-14 added: CJK fallback renders at regular weight, found while validating §3.1 with ja/zh strings.
+- 2026-10-04 — OQ-6 resolved: hard shadows render as an offset ink View behind the element, because Android `elevation` cannot express blur 0.
