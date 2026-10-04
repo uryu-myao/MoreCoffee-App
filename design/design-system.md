@@ -428,6 +428,8 @@ Differs from the sheet: **no scrim, no handle, and a gradient fade above it** (`
 ### Buttons
 Primary: `size.button.primary` tall, `color.action.bg`, `2px solid` outline, `shadow.primary`, `button.caps`. Secondary: same geometry on `color.surface.ground` with `color.text.primary`. Tertiary: no background, no border, `label.caps`.
 
+Icon button (base `IconButton`): `size.tapTarget` square, `2px solid` `color.border.strong` on `color.surface.raised`, one `icon.md` glyph in `color.icon.default`, no shadow. It is the header close / back control on 3a–3f, 5a, 5b, 5d and 5e. 6d, 7a, 7b and 8e–8m use the same button with the `-2` optical nudge applied at the point of use. The `1.5px` `color.border.muted` frame (3b, 8e) and the `color.badge.bg.accent` fill (2a, 3b) are variants that have not been built.
+
 Disabled (decided 2026-10-04, `gaps.md` 4 — not in the shipped screens): either variant drops to `color.surface.ground` fill, `color.border.muted` outline, `color.text.muted` label, and no shadow. This reuses the `border.empty.disabled` vocabulary from 5d (muted border = cannot be actioned) rather than introducing opacity, which the design uses only for the scrim backdrop.
 
 ---
@@ -484,4 +486,5 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-04 — OQ-14 direction fixed for V1.1: (family, weight, lang) mapping, Hiragino / PingFang per-weight on iOS, Noto Sans CJK subset on Android. `label.eyebrow` CJK letter spacing is batched into the same pass. Recorded so it is not re-decided.
 - 2026-10-04 — Findability: `HardShadow` (§7) and `DashedRule` (§8) are base primitives that shipped inside the StarRating commit (`e6f5779`), not in commits of their own. The history is left as is.
 - 2026-10-04 — **Token added: `state.pressed.surface` (alias of `surface.muted`) and `state.pressed.action` (`#05639C`), plus the §1 Pressed Hard Rule.** Pressed appears in every tappable component, which clears the rule of two. It darkens the fill rather than lowering opacity, because opacity washes out `HardShadow` and the ink borders on the warm ground. `surface.muted` was chosen over `surface.sunken` because sunken sits only ΔE00 3.16 below ground.
+- 2026-10-04 — §9: IconButton pattern documented and the base component built. The pressed Hard Rule lists it as a target and it did not exist yet; the header close / back button is the variant used across the 3x, 5x, 6d, 7x and 8x screens.
 - 2026-10-04 — Loading state: deliberately not needed, rather than deferred. Saves write to local SQLite and are instant. Loading TODOs removed; revisit when Step 5 adds real async (MapKit, barcode lookup).

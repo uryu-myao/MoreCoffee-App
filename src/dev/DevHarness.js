@@ -5,6 +5,7 @@ import Text from '../components/base/Text';
 import { color, layout, shape, spacing } from '../theme/tokens';
 import ButtonPage from './pages/ButtonPage';
 import FieldRowPage from './pages/FieldRowPage';
+import IconButtonPage from './pages/IconButtonPage';
 import SectionLabelPage from './pages/SectionLabelPage';
 import SegmentedControlPage from './pages/SegmentedControlPage';
 import StarRatingPage from './pages/StarRatingPage';
@@ -23,6 +24,7 @@ const PAGES = [
   { key: 'segmented', title: 'SegmentedControl', Page: SegmentedControlPage },
   { key: 'starRating', title: 'StarRating', Page: StarRatingPage },
   { key: 'button', title: 'Button', Page: ButtonPage },
+  { key: 'iconButton', title: 'IconButton', Page: IconButtonPage },
 ];
 
 export default function DevHarness() {

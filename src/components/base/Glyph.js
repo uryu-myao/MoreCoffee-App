@@ -7,6 +7,7 @@ import Svg, { Circle, Path, Rect } from 'react-native-svg';
 const SHAPES = {
   check: [<Path key="p" d="M5 12.5l4.5 4.5L19 7" />],
   chevronRight: [<Path key="p" d="M9 6l6 6-6 6" />],
+  chevronLeft: [<Path key="p" d="M15 6l-6 6 6 6" />],
   close: [<Path key="p" d="M6 6l12 12M18 6L6 18" />],
   plus: [<Path key="a" d="M12 6v12" />, <Path key="b" d="M6 12h12" />],
   alert: [<Path key="a" d="M12 7v6" />, <Path key="b" d="M12 16.5h.01" />],
