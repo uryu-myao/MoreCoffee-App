@@ -1,47 +1,55 @@
-import { StyleSheet, Text, View } from 'react-native';
-import { typography } from '../theme/token';
+import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Text from '../components/base/Text';
+import { color, layout, shape, spacing } from '../theme/tokens';
 
-export default function ScreenFrame({ title, subtitle }) {
+/**
+ * Screen shell (design-system.md §9): header block — optional leading control
+ * (e.g. a close IconButton, as in 5a) above the display.lg title — closed by a
+ * 2px ink rule, then the screen body. layout.gutter is the only horizontal
+ * padding.
+ *
+ * layout.screen.top is measured from the screen edge, as in the source frames,
+ * so it already contains the status bar; it is never allowed to sit inside the
+ * safe-area inset on devices whose inset is taller.
+ *
+ * Props
+ *   title     screen title (display.lg)
+ *   leading   optional node above the title
+ *   children  screen body
+ */
+export default function ScreenFrame({ title, leading, children }) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{title}</Text>
+    <View style={styles.screen}>
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, layout.screen.top) }]}>
+        {leading}
+        <Text variant="displayLg" accessibilityRole="header">
+          {title}
+        </Text>
       </View>
-
-      <View style={styles.pageWrap}>
-        <Text style={styles.pageSubtitle}>{subtitle}</Text>
-      </View>
+      <View style={styles.body}>{children}</View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
+    backgroundColor: color.surface.ground,
   },
   header: {
-    height: 64,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e7ded6',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: '#fdfaf6',
+    alignItems: 'flex-start',
+    gap: spacing.gap.row,
+    paddingHorizontal: layout.gutter,
+    paddingBottom: spacing.inset.container.v,
+    borderBottomWidth: shape.borderWidth.box,
+    borderBottomColor: color.border.strong,
   },
-  headerTitle: {
-    fontSize: 22,
-    fontFamily: typography.family.bold,
-    color: '#2f241f',
-  },
-  pageWrap: {
+  body: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  pageSubtitle: {
-    fontSize: 16,
-    fontFamily: typography.family.regular,
-    color: '#75635b',
-    textAlign: 'center',
+    paddingHorizontal: layout.gutter,
+    paddingTop: spacing.inset.container.v,
   },
 });

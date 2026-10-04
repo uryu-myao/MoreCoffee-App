@@ -16,6 +16,7 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 | D-8 | 5d | body copy | `font-size: 12.5px` (3 uses) | `body.sm` = 12 | Fractional type size with no counterpart elsewhere |
 | D-9 | 8m | body copy | `font-size: 13.5px` (3 uses) | `body` = 14 | Same |
 | D-10 | 3b, 5a, 1b | secondary full-width button ("Add tasting note" and siblings) | `height: 52px` (3b ×3, 5a ×2) / `50px` (1b ×1), label `14px / .08em` caps | `size.button.primary` = 56, `button.caps` | §9: secondary is the primary's geometry on `color.surface.ground`. `button.caps` already absorbs 14/.08em. Six uses on three screens with two different heights is drift, not a second button size — the base `Button` ships 56. Recorded 2026-10-04 |
+| D-11 | 6a, 8d | floating bar fade | `linear-gradient(to bottom, rgba(244,237,234,0), #F4EDEA 40%)` across the whole wrapper. With `padding: 30 0 34` and a 60px bar the wrapper is 124px, so the fade goes solid at ~50px, 20px below the bar's top edge; at the bar edge it is ~60% opaque | fade band = `layout.fade.top` (30): transparent at the wrapper top → `color.surface.ground` at the bar's top edge, solid below | `layout.fade.top` is defined as "the fade band above a floating bar". A percentage stop ties the band to the wrapper height, which changes with the bottom safe-area inset. The base `FooterNav` ships the 30px band. Recorded 2026-10-04 |
 
 ## Not drift — recorded so they are not "fixed" by mistake
 
@@ -23,4 +24,5 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 - **`gap.axis` (20) > `gap.section` (12)** is intentional: it is one component's internal rhythm, not a general rule that enclosure means more room.
 - **Two tokens share `#E4D6CC`** (`color.border.subtle` and `texture.dot` / `texture.rule`). Deliberate, so texture density can be tuned without touching borders.
 - **`#5C5049` / `#6B5D55`** and **`#9E5202` / `#8A4602`** are deliberate two-tier pairs (Gate A). Never merge.
+- **The tab bar icon colours `#9B8F87` / `#C6BBD3`** (1b, 2a, 4a, 4b, 6a, 8d) are not drift. The original extraction missed them (lowercase hex in the source), and they qualify on their own (6 and 5 screens), so they are tokens: `component.tabBar.icon`. Recorded 2026-10-04.
 - **The 6 items in `exceptions.md`** are unresolved, not wrong. Do not normalise them without the re-check described there.

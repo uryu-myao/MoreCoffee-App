@@ -1,12 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import AppShell from './src/AppShell';
 import DevHarness from './src/dev/DevHarness';
 import { fontAssets } from './src/theme/fonts';
 
-// TODO: render AppShell again once the screens are rebuilt on tokens.ts.
-// The current screens still import the removed theme/token module, so the
-// entry point shows the base-component dev harness in the meantime.
+// The base-component dev harness stays reachable for development:
+//   EXPO_PUBLIC_DEV_HARNESS=1 npx expo start
+const SHOW_DEV_HARNESS = __DEV__ && process.env.EXPO_PUBLIC_DEV_HARNESS === '1';
+
 export default function App() {
   const [fontsLoaded] = useFonts(fontAssets);
 
@@ -14,7 +16,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <DevHarness />
+      {SHOW_DEV_HARNESS ? <DevHarness /> : <AppShell />}
       <StatusBar style="dark" />
     </SafeAreaProvider>
   );

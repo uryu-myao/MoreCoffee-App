@@ -353,6 +353,25 @@ export const component = {
     /** movement since the last value */
     delta:  { height: 2, background: color.border.medium },
   },
+  /**
+   * Bottom tab bar, carried by the floating bar (design-system.md §9).
+   * Four tab slots + one wider add slot, centred in the bar.
+   * The two raw icon colours were missed by the original extraction (lowercase
+   * hex in the source) and added 2026-10-04: 6 and 5 screens, see changelog.
+   */
+  tabBar: {
+    slot: { w: 60, h: 40 },
+    addSlot: { w: 68, h: 40 },
+    icon: {
+      active: color.action.bg,
+      inactive: '#9B8F87',
+      /** the calendar glyph's binding marks */
+      accentInactive: '#C6BBD3',
+      accentActive: color.text.primary,
+    },
+    /** the add button: ink square with a ground-coloured plus */
+    add: { background: color.surface.inverse, mark: color.text.onInverse },
+  },
 } as const;
 
 export const tokens = {

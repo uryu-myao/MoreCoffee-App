@@ -200,6 +200,18 @@ The marker is intentionally one step darker than the fill it sits on — it is a
 
 The readonly/editable split lines up exactly with the `dashed` semantics below.
 
+**C. `tabBar`** — the bottom tab bar carried by the floating bar (§9). Four tab slots and one wider add slot, centred in the bar. Appears on 1b, 2a, 4a, 4b, 6a and 8d. *Added 2026-10-04.* The original extraction missed its two raw icon colours, which are written as lowercase hex in the source; they are the only lowercase hex values on the in-scope screens.
+
+| part | value | notes |
+|---|---|---|
+| `tabBar.slot` | `60 × 40` | Visual box of each tab. The touch area stretches to the bar's inner height (56) to clear `size.tapTarget` |
+| `tabBar.addSlot` | `68 × 40` | The centre add slot |
+| `tabBar.icon.active` | alias `color.action.bg` (`#067BC2`) | the current tab's fill glyph |
+| `tabBar.icon.inactive` | `#9B8F87` | 6 screens / 23 uses. No in-role sibling to merge into: the fill-icon role otherwise holds only the rating gold |
+| `tabBar.icon.accentInactive` | `#C6BBD3` | 5 screens / 10 uses. The calendar glyph's two binding marks |
+| `tabBar.icon.accentActive` | alias `color.text.primary` | the same marks when Try next is active (8d) |
+| `tabBar.add` | `color.surface.inverse` square, `color.text.onInverse` plus | 44 × 34 glyph, square (no radius) |
+
 ---
 
 ## 3. Text Styles
@@ -371,6 +383,8 @@ Icons are stroke-based and take `currentColor`. `icon.xl` widens the stroke back
 | `icon.fill.sm` | 14 | `color.icon.rating` | 17 uses — rating stars |
 | `icon.fill.xl` | 38 | `color.icon.rating` | 7 uses — hero rating star |
 
+*Correction (2026-10-04)*: fill glyphs have a second job. The tab bar's icons are also fills; their colours live in the component anatomy (`component.tabBar.icon`, §2 C), not in `icon.fill`. The extraction missed them, which is why this section originally said "one job".
+
 Three 16px fill icons in 3b use other colours and are true exceptions (`exceptions.md`).
 
 ---
@@ -411,6 +425,8 @@ All hard: blur 0, isotropic offset, single ink. Offset **scales with the element
 ### Screen shell
 Every screen is `layout.screen.top` (60) → content → `layout.screen.bottom` (34), with `layout.gutter` (22) as the only horizontal padding. The header block is title + optional right-aligned meta, closed by a `2px solid` bottom border. 6a is the one screen with a shallower top (44) — see `exceptions.md` and OQ-8.
 
+**RN implementation note (base `ScreenFrame`, 2026-10-04)**: the source frames measure 60 / 34 from the device edge, so they already include the status bar and home indicator. On device: top = `max(safe-area top, layout.screen.top)` and bottom = `max(safe-area bottom, layout.screen.bottom)`. On notched iPhones the inset wins (e.g. 62 at the top on iPhone 16 Pro). On devices without a notch the design value wins. An optional leading control (the 5a close button) sits above the title at `gap.row`. The source's 10px header gap is an equidistant value the scale already absorbed, so it is not drift.
+
 ### Section rhythm
 Section heading = a `size.dot.bullet` square (`marker.required` / `marker.optional`) + `label.eyebrow`, optionally a right-aligned status (`icon.xs` + `color.text.success`). Then `gap.section` to the content.
 
@@ -425,6 +441,12 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 
 ### Floating bar (2 uses: 8d, 6a — 6a is one screen shown in three scroll states; do not count it as three)
 Differs from the sheet: **no scrim, no handle, and a gradient fade above it** (`color.fade.stop` → `color.surface.ground`, `layout.fade.top` = 30). Contains a `size.tabBar.height` (60) bar at 90% width with `shadow.floating`.
+
+**As shipped in the shell (base `FooterNav`, 2026-10-04)**: the bar carries the tab bar (§2 C, `component.tabBar`) — Home · Records · [add] · Try next · Profile — on `color.surface.raised` with a `2px` ink border and `space.4` side padding.
+- The floating form is used on every tab. 1b, 2a, 4a and 4b draw the same bar in flow at the end of the page; rebuilt tab screens must leave `layout.empty.block` of room under their content.
+- Bottom padding follows the Screen shell note: `max(safe-area bottom, 34)`.
+- The fade is a 30px band ending at the bar's top edge (`drift.md` D-11).
+- Pressed darkens a slot's 60 × 40 (or 68 × 40) box to `state.pressed.surface`; the ink add square stays as it is. Touches in the fade band pass through to the content.
 
 ### Star rating (base `StarRating`)
 Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control.row` (52) tap targets spread with space-between. Filled star `icon.fill.xl`, empty star `icon.xl` stroke in `color.border.muted`; optional caption under `divider.soft`; 5d error state per `state.error.*`.
@@ -501,4 +523,7 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-04 — `SegmentedControl` chips centre their label (`justifyContent` / `alignItems: center`), because a row stretches every chip to its tallest. A chip with a shorter line box kept its text at the top, with the surplus below — the zh "more padding below" seen in device review. No per-language padding; the PingFang / Hiragino metric gap goes to OQ-14.
 - 2026-10-04 — StarRating pressed fill changed from the 52px square to a 48px disc, 1px below the box centre (§9 Star rating). It is the product's one circle, recorded as `exceptions.md` E-7 rather than a token because it has a single use. The pressed Hard Rule is unchanged.
 - 2026-10-04 — **§1 Shape rewritten; E-7 removed.** The old rule ("no border radius, anywhere") conflated container geometry with press feedback. It now reads: containers are square-cornered, and press feedback follows the shape of the element it sits behind (square for rectangular controls, circle for radial ones). Narrowing the rule removes the need for an exception, so E-7 is deleted from `exceptions.md` and its §1 / §10 pointers are dropped. The StarRating disc and its +1px offset stay in §9 as an implementation note.
-- 2026-10-04 — Loading state: deliberately not needed, rather than deferred. Saves write to local SQLite and are instant. Loading TODOs removed; revisit when Step 5 adds real async (MapKit, barcode lookup).
+- 2026-10-04 — Loading state: deliberately not needed, rather than deferred.
+- 2026-10-04 — **Token added: `component.tabBar`** (slot 60 × 40, add slot 68 × 40, icon colours `#9B8F87` inactive / `#C6BBD3` calendar accent, plus aliases). Rebuilding the bottom bar found that the extraction had missed both icon colours, because the source writes them in lowercase hex; they are the only lowercase values on in-scope screens. Both clear the ≥3-screen threshold (6 and 5 screens), so they become tokens instead of being snapped to the nearest existing colour. §2 C, §6 correction, `drift.md` "not drift".
+- 2026-10-04 — `drift.md` D-11: the 6a / 8d fade goes solid at 40% of its wrapper; the shell ships the token's 30px band ending at the bar edge.
+- 2026-10-04 — Shell moved to tokens: `ScreenFrame`, `FooterNav` (rebuilt to the §9 floating bar), tab icons, the Record overlay (now `motion.expand`), `AppShell`. The old `theme/token.ts` was deleted. Screens not yet rebuilt render a plain placeholder; their retired files stay on disk, unreferenced. §9 notes the safe-area rule for 60 / 34. Saves write to local SQLite and are instant. Loading TODOs removed; revisit when Step 5 adds real async (MapKit, barcode lookup).
