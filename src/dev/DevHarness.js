@@ -1,15 +1,19 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { resolveTextStyle } from '../theme/fonts';
-import { color, layout, shape, spacing, textStyle } from '../theme/tokens';
+import Text from '../components/base/Text';
+import { color, layout, shape, spacing } from '../theme/tokens';
+import TextPage from './pages/TextPage';
 import TokenSheet from './TokenSheet';
 
 /**
  * Dev harness: one page per base component, each rendering every state.
  * Register new pages here as components land.
  */
-const PAGES = [{ key: 'tokens', title: 'Tokens', Page: TokenSheet }];
+const PAGES = [
+  { key: 'tokens', title: 'Tokens', Page: TokenSheet },
+  { key: 'text', title: 'Text', Page: TextPage },
+];
 
 export default function DevHarness() {
   const [active, setActive] = useState(PAGES[0].key);
@@ -31,7 +35,7 @@ export default function DevHarness() {
               accessibilityRole="tab"
               accessibilityState={{ selected: on }}
               style={[styles.navItem, on && styles.navItemOn]}>
-              <Text style={[resolveTextStyle(textStyle.labelCaps), on ? styles.navTextOn : styles.navText]}>
+              <Text variant="labelCaps" color={on ? color.badge.fg.selected : color.badge.fg.neutral}>
                 {title}
               </Text>
             </Pressable>
@@ -70,12 +74,6 @@ const styles = StyleSheet.create({
   navItemOn: {
     borderColor: color.badge.bg.selected,
     backgroundColor: color.badge.bg.selected,
-  },
-  navText: {
-    color: color.badge.fg.neutral,
-  },
-  navTextOn: {
-    color: color.badge.fg.selected,
   },
   page: {
     flex: 1,

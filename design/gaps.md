@@ -16,6 +16,8 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 **Needs designing**: line count per surface (list-row title, card title, note preview, profile name), the truncation form (ellipsis vs clamp vs shrink), and the full-text affordance (tap to expand vs detail screen).
 
+**Status (2026-10-04)**: decided in code, pending design review — see `design-system.md` §3.1. Tail ellipsis; `name` 2 lines, `meta` 1, `note` 3; full text on the detail screen.
+
 ---
 
 ## 2. No focus state exists — **high risk for accessibility and TV/keyboard input**

@@ -226,6 +226,23 @@ The seven stray display sizes (27/31/33/34/36/38/42) collapse into two steps. Si
 
 **`text.inlineAction`** is the only expression of "this word is tappable" (3f "Reopen bag", 5d "Go to first"). It pairs with `color.text.link`, which qualifies independently on 4 screens. Two screens is a reflection of how many screens have inline actions so far. In RN, `textDecorationLine: 'underline'` is supported; `textDecorationColor` is a separate property — confirm it inherits the text colour, and add it to the token if it does not.
 
+### 3.1 Truncation policy (resolves `gaps.md` item 1 in code — pending design review)
+
+The shipped screens define no long-text behaviour (`text-overflow` / `line-clamp` 0 uses). This policy is set by the base `Text` component as a closed vocabulary — callers pick a preset, never a raw line count — so every surface showing the same kind of user string clips it the same way.
+
+| preset | lines | applies to |
+|---|---|---|
+| `name` | 2 | user-supplied names: café, bean, roaster, gear, drink, profile name — list-row titles, field-row values, card titles |
+| `meta` | 1 | the provenance / secondary line under a name (`body.sm`, `meta`) |
+| `note` | 3 | tasting-note and memo previews |
+| `none` | — | fixed copy (labels, buttons, chips), and detail screens where the full text belongs |
+
+- **Form**: tail ellipsis. Never shrink-to-fit (that patches a composite style — §3 forbids it), never a silent clip by a fixed-height parent.
+- **Full text**: reached through the detail screen the row already leads to. No tap-to-expand — it would be an invented interaction.
+- **Why `name` is 2, not 1**: roaster/origin names put the distinguishing part last ("…Natural Anaerobic, Lot 17"). One line would hide it. Rows have no fixed height (padding-based), and the right meta column is fixed-width, so a second line keeps the column aligned.
+- **CJK**: iOS uses `lineBreakStrategyIOS: 'standard'` (system kinsoku — no line-leading `。、」`, no line-ending `「`); Android keeps `highQuality` breaking with hyphenation off. Tail ellipsis works for CJK as-is.
+- **Fixed copy is out of scope**: nowrap chips under translation remain `gaps.md` item 7.
+
 ---
 
 ## 4. Spacing & Layout
@@ -410,3 +427,13 @@ Also standing: `rotation.sticker = -3` (4 screens; RN wants the number, formatte
 11. **Finding, not a gap: there is only one hairline divider tier** (`#E4D6CC` / `#D8C9BF` at 1.5px). This matches border width being binary and border style being binary — deliberate restraint. If stronger separation is ever needed, use a `2px` box outline rather than adding a hairline tier.
 12. **The active-day underline in the weekday strip is unimplemented.** The date numerals carry `border-bottom: 2px solid transparent`, and the current day is distinguished only by ink colour (`color.text.primary` vs `color.text.muted`). Decide whether the underline should render.
 13. **Only 3 chips in the entire product are tappable**, and the sort chips in 3f and the range chips in 2b — which read as controls — are plain `<span>`s with no pointer affordance and no selected state. Confirm which chips are meant to be interactive.
+14. **CJK text loses its weight.** Archivo has no CJK glyphs, so ja/zh fall back to the system font. Because RN selects weight by face (`Archivo_700Bold`) rather than by `fontWeight`, the fallback renders at regular weight — a bold `title` in Japanese looks like `body`. Observed on web in the dev harness; confirm on iOS/Android. Options: (a) pair Archivo with a CJK face per weight (e.g. Noto Sans JP/SC 500/600/700), (b) pass `fontWeight` alongside the face and accept possible synthetic bold on Latin. Neither is a token change until a CJK family is chosen.
+
+---
+
+## 12. Changelog
+
+One line per change to this document or `tokens.ts`, with the reason.
+
+- 2026-10-04 — §3.1 added: truncation policy (`name` 2 / `meta` 1 / `note` 3 / `none`), landed in the base `Text` component because user-input text had no defined behaviour (`gaps.md` 1).
+- 2026-10-04 — OQ-14 added: CJK fallback renders at regular weight, found while validating §3.1 with ja/zh strings.
