@@ -16,7 +16,7 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 **Needs designing**: line count per surface (list-row title, card title, note preview, profile name), the truncation form (ellipsis vs clamp vs shrink), and the full-text affordance (tap to expand vs detail screen).
 
-**Status: RESOLVED (2026-10-04)** — confirmed by design. See `design-system.md` §3.1: tail ellipsis; `name` 2 lines, `meta` 1, `note` 3; full text on the detail screen.
+**Status: RESOLVED (2026-10-04)** — confirmed by design, and verified on device (ja long strings hold at 2 lines). See `design-system.md` §3.1: tail ellipsis; `name` 2 lines, `meta` 1, `note` 3; full text on the detail screen.
 
 ---
 
@@ -120,3 +120,18 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 **What happens if left alone**: minor — ink contrast alone is a weak "today" signal, and the placeholder invites someone to guess a colour.
 
 **Needs designing**: whether the underline renders, and in which colour.
+
+---
+
+## Step 4 device verification — RESOLVED (2026-10-04)
+
+The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.
+
+| item | component | status |
+|---|---|---|
+| Selection haptic on star tap | `StarRating` | **Resolved** — fires on device |
+| Hard shadow renders blur-0 with the token offset on native (OQ-6 decision) | `HardShadow` — Button primary, 5d error cards | **Resolved** |
+| Single-edge dashed line renders on iOS | `DashedRule` — StarRating caption divider | **Resolved** |
+| ja long strings hold at the `name` preset's 2 lines with a tail ellipsis | `Text` (item 1 above) | **Resolved** |
+
+Still open, and outside Step 4: CJK weight and CJK chip metrics (`design-system.md` OQ-14, scheduled for the V1.1 i18n pass).
