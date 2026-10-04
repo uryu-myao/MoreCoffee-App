@@ -1,16 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, useWindowDimensions } from 'react-native';
-import PlaceholderScreen from '../screens/PlaceholderScreen';
+import RecordCoffeeScreen from '../screens/RecordCoffeeScreen';
 import { color, motion } from '../theme/tokens';
-import IconButton from './base/IconButton';
 
 const easing = Easing.bezier(...motion.expand.controlPoints);
 
 /**
  * Record coffee, presented over the tabs as a full-screen sheet that slides up.
  * Uses the product's one motion (motion.expand) for both present and dismiss.
- *
- * TODO(Step 5): replace the placeholder with Record coffee rebuilt from 5a–5e.
  */
 export default function AddCoffeeOverlay({ visible, onClose }) {
   const { height } = useWindowDimensions();
@@ -48,10 +45,7 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
     // latter, and spreading it silently drops the positioning (the sheet then
     // lays out at 0 height). react-native-web still ships it, so web hides this.
     <Animated.View style={[StyleSheet.absoluteFill, styles.overlay, { transform: [{ translateY }] }]}>
-      <PlaceholderScreen
-        title="Record coffee"
-        leading={<IconButton icon="close" accessibilityLabel="Close" onPress={dismiss} />}
-      />
+      <RecordCoffeeScreen onClose={dismiss} />
     </Animated.View>
   );
 }
