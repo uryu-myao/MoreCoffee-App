@@ -16,8 +16,8 @@ web-build/
 *.key
 *.mobileprovision
 
-# Prebuild output (Continuous Native Generation). No custom native modules —
-# the app runs in Expo Go — so ios/ is regenerated from app.json on prebuild
+# Prebuild output (Continuous Native Generation). The app ships as a
+# development build; ios/ is regenerated from app.json on every prebuild
 # and must not be hand-maintained across SDK upgrades.
 /ios
 
