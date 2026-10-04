@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { color, shadow, shape, size, spacing } from '../../theme/tokens';
+import { color, shadow, shape, size, spacing, state } from '../../theme/tokens';
 import HardShadow from './HardShadow';
 import Text from './Text';
 
@@ -10,18 +10,23 @@ import Text from './Text';
  *   secondary  same geometry on surface.ground, ink label, no shadow
  *   disabled   either variant: ground fill, border.muted outline, text.muted
  *              label, no shadow — the border.empty.disabled vocabulary from 5d
+ *   pressed    the fill darkens (state.pressed.action / .surface); outline,
+ *              label and shadow stay — Hard Rule, design-system.md §1
+ *
+ * No loading state, deliberately: saves write to local SQLite and complete
+ * instantly. Revisit when real async arrives (Step 5: MapKit, barcode lookup).
  *
  * Props
  *   label     fixed copy
  *   variant   'primary' | 'secondary' (default 'primary')
  *   disabled
  *   onPress
+ *   testOnly_pressed   force the pressed look (dev harness)
  */
-export default function Button({ label, variant = 'primary', disabled = false, onPress }) {
+export default function Button({ label, variant = 'primary', disabled = false, onPress, testOnly_pressed }) {
   const primary = variant === 'primary' && !disabled;
   const labelColor = disabled ? 'muted' : primary ? color.action.fg : 'primary';
 
-  // TODO: pressed and loading states are undesigned (gaps.md 4).
   return (
     <HardShadow shadow={primary ? shadow.primary : null}>
       <Pressable
@@ -29,11 +34,13 @@ export default function Button({ label, variant = 'primary', disabled = false, o
         disabled={disabled}
         accessibilityRole="button"
         accessibilityState={{ disabled }}
-        style={[
+        testOnly_pressed={testOnly_pressed}
+        style={({ pressed }) => [
           styles.base,
           primary && styles.primary,
           variant === 'secondary' && styles.secondary,
           disabled && styles.disabled,
+          pressed && !disabled && (primary ? styles.primaryPressed : styles.secondaryPressed),
         ]}>
         <View style={styles.labelWrap}>
           <Text variant="buttonCaps" color={labelColor} style={styles.label}>
@@ -59,6 +66,12 @@ const styles = StyleSheet.create({
   },
   secondary: {
     backgroundColor: color.surface.ground,
+  },
+  primaryPressed: {
+    backgroundColor: state.pressed.action,
+  },
+  secondaryPressed: {
+    backgroundColor: state.pressed.surface,
   },
   disabled: {
     backgroundColor: color.surface.ground,

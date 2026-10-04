@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { color, shape, spacing } from '../../theme/tokens';
+import { color, shape, spacing, state } from '../../theme/tokens';
 import Text from './Text';
 
 /**
@@ -11,13 +11,18 @@ import Text from './Text';
  * under control-inset, not badge-inset. It also brings the chip to 44px
  * (size.tapTarget), which closes gaps.md 3 for these chips without a hit-slop.
  *
+ * Pressed: an unselected chip darkens to state.pressed.surface. The selected
+ * chip is already ink — no darker tier, and pressing it is a no-op — so it
+ * does not respond (Hard Rule, design-system.md §1).
+ *
  * Props
  *   options   [{ value, label }]
  *   value     selected option value
  *   onChange  (value) => void
+ *   testOnly_pressedValue   force the pressed look on one option (dev harness)
  */
-export default function SegmentedControl({ options, value, onChange }) {
-  // TODO: pressed and disabled chip states are undesigned (gaps.md 3, 4).
+export default function SegmentedControl({ options, value, onChange, testOnly_pressedValue }) {
+  // TODO: disabled chip state is undesigned (gaps.md 4).
   return (
     <View style={styles.group} accessibilityRole="radiogroup">
       {options.map((opt) => {
@@ -28,7 +33,8 @@ export default function SegmentedControl({ options, value, onChange }) {
             onPress={() => onChange(opt.value)}
             accessibilityRole="radio"
             accessibilityState={{ checked: on }}
-            style={[styles.chip, on && styles.chipOn]}>
+            testOnly_pressed={opt.value === testOnly_pressedValue}
+            style={({ pressed }) => [styles.chip, on ? styles.chipOn : pressed && styles.chipPressed]}>
             <Text variant="labelCaps" color={on ? color.badge.fg.selected : color.badge.fg.neutral}>
               {opt.label}
             </Text>
@@ -51,6 +57,9 @@ const styles = StyleSheet.create({
     borderWidth: shape.borderWidth.divider,
     borderColor: color.border.muted,
     backgroundColor: color.badge.bg.raised,
+  },
+  chipPressed: {
+    backgroundColor: state.pressed.surface,
   },
   chipOn: {
     borderColor: color.badge.bg.selected,

@@ -27,9 +27,18 @@ export default function ButtonPage() {
         </HarnessCase>
       </HarnessGroup>
 
+      <HarnessGroup title="pressed (fill darkens; outline, label, shadow stay)">
+        <HarnessCase label="primary, pressed — state.pressed.action">
+          <Button label="Save this cup" testOnly_pressed onPress={() => {}} />
+        </HarnessCase>
+        <HarnessCase label="secondary, pressed — state.pressed.surface">
+          <Button variant="secondary" label="Add tasting note" testOnly_pressed onPress={() => {}} />
+        </HarnessCase>
+      </HarnessGroup>
+
       <HarnessGroup title="disabled">
-        <HarnessCase label="primary, disabled">
-          <Button label="Save this cup" disabled onPress={() => {}} />
+        <HarnessCase label="primary, disabled (does not respond to press)">
+          <Button label="Save this cup" disabled testOnly_pressed onPress={() => {}} />
         </HarnessCase>
         <HarnessCase label="secondary, disabled">
           <Button variant="secondary" label="Add tasting note" disabled onPress={() => {}} />

@@ -42,6 +42,8 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 **Needs designing**: the tappable chip's height (padding or an invisible hit-slop), plus its pressed / selected / disabled states. Deciding which chips are interactive at all is OQ-13.
 
+**Status (2026-10-04)** for the maker chips (`SegmentedControl`): height is resolved by `inset.control` (44px, no hit-slop). Selected is the 5a ink fill. Pressed follows the §1 Hard Rule. Disabled is still undesigned. The 3f / 2b chips remain open under OQ-13.
+
 ---
 
 ## 4. Pressed, disabled and loading states are undesigned for every component
@@ -54,7 +56,10 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 **Needs designing**: press (shadow offset → 0? translate?), disabled (which of ink/border/surface changes), loading (spinner vs skeleton vs label swap) for each component in the base set.
 
-**Status (2026-10-04)**: Button disabled is decided — see `design-system.md` §9. Press and loading remain undesigned for every component, and disabled remains undesigned for chips, rows and fields.
+**Status (2026-10-04)**:
+- **Pressed — decided.** System-wide Hard Rule: the fill darkens (`state.pressed.surface` / `state.pressed.action`), never opacity. Border, label and shadow stay. See `design-system.md` §1. Applied to Button, SegmentedControl, FieldRow, StarRating and IconButton.
+- **Disabled — decided for Button only** (§9). Still undesigned for chips, rows and fields.
+- **Loading — deliberately not needed.** This is not deferred pending design. Saves write to local SQLite and are instant, so there is no in-flight state to show. Revisit only when Step 5 introduces real async (MapKit lookup, barcode lookup).
 
 ---
 

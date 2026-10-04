@@ -43,6 +43,20 @@ export default function FieldRowPage() {
         </HarnessCase>
       </HarnessGroup>
 
+      <HarnessGroup title="pressed">
+        <HarnessCase label="second row pressed — row fill darkens">
+          <Group>
+            <FieldRow swatch label="Beans" value="Ethiopia Guji" meta="Blue Bottle · day 7, drink now" />
+            <FieldRow divided testOnly_pressed label="Method" value="V60 · Comandante C40" meta="Your default brewer" />
+          </Group>
+        </HarnessCase>
+        <HarnessCase label="error row pressed">
+          <Group error>
+            <FieldRow error testOnly_pressed icon="pin" label="Café · required" value="Which café?" />
+          </Group>
+        </HarnessCase>
+      </HarnessGroup>
+
       <HarnessGroup title="error (5d)">
         <HarnessCase label="missing field with a valid sibling">
           <View style={styles.stack}>

@@ -19,8 +19,12 @@ const STARS = [1, 2, 3, 4, 5];
  *   caption   optional line under a dashed rule ("Would order again")
  *   error     optional message; switches the card to the 5d error state and
  *             replaces the caption
+ *   testOnly_pressedStar   force the pressed look on star n (dev harness)
+ *
+ * Pressed: the star's 52px square darkens to state.pressed.surface (Hard Rule,
+ * design-system.md §1).
  */
-export default function StarRating({ value = 0, onChange, caption, error }) {
+export default function StarRating({ value = 0, onChange, caption, error, testOnly_pressedStar }) {
   const press = (n) => {
     if (Platform.OS !== 'web') Haptics.selectionAsync();
     onChange?.(n);
@@ -50,7 +54,8 @@ export default function StarRating({ value = 0, onChange, caption, error }) {
                 accessibilityRole="button"
                 accessibilityLabel={n === 1 ? '1 star' : `${n} stars`}
                 accessibilityState={{ selected: n === value }}
-                style={styles.star}>
+                testOnly_pressed={n === testOnly_pressedStar}
+                style={({ pressed }) => [styles.star, pressed && styles.starPressed]}>
                 {filled ? (
                   <Glyph name="star" token={icon.fill.xl} filled />
                 ) : (
@@ -93,6 +98,9 @@ const styles = StyleSheet.create({
     height: size.control.row,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  starPressed: {
+    backgroundColor: state.pressed.surface,
   },
   footer: {
     gap: spacing.gap.section,

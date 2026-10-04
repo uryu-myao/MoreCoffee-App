@@ -99,6 +99,20 @@ export const state = {
   archived: { filter: 'saturate(0.7)' },
   /** Scroll fade above a floating bar: transparent stop -> ground. */
   fade: { from: 'rgba(244, 237, 234, 0)', to: '#F4EDEA', height: 30 },
+  /**
+   * Pressed (Hard Rule, design-system.md §1): the fill steps one tier darker.
+   * Never opacity — it would wash out HardShadow and the borders on the warm
+   * ground. Border, ink, label and shadow do not change.
+   */
+  pressed: {
+    /** raised / ground / transparent-over-raised fills. Alias of surface.muted. */
+    surface: color.surface.muted,
+    /**
+     * action.bg fill. Same value as color.text.link but a separate role (fill vs
+     * link text) — cf. border.subtle and texture sharing #E4D6CC. Never merge.
+     */
+    action: '#05639C',
+  },
 } as const;
 
 /**

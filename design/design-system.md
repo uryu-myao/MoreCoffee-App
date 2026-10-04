@@ -39,6 +39,13 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 ### Motion
 - **The design defines exactly one motion**: `340ms cubic-bezier(0.22, 0.61, 0.36, 1)` (5a, height expand). `animation` is 0 occurrences. **Use this easing first for any new animation; discuss before introducing a second.**
 
+### Pressed (added 2026-10-04 — not in the shipped screens, which have 0 `:active`)
+- **Pressed darkens the fill. It never changes opacity.** One rule for every tappable component. Opacity would wash out the hard shadow and the 2px ink borders, and reads muddy against the warm ground.
+- Light fills — `color.surface.raised`, `color.surface.ground`, or transparent over a raised card — go to **`state.pressed.surface`** (alias of `color.surface.muted`). The action fill `color.action.bg` goes to **`state.pressed.action`**.
+- **Nothing else changes**: border, label/ink, glyph and `HardShadow` stay as they are. The change is instant (no motion).
+- A fill that is already ink (the selected chip) has no darker tier and does not respond. Pressing it is a no-op anyway. Disabled controls do not respond.
+- Applies to: Button, SegmentedControl options, FieldRow, StarRating stars, IconButton — and to any tappable component added later.
+
 ### Declarations that appear zero times in 30 screens
 These absences are design facts, not oversights — but several of them are also why `gaps.md` exists.
 
@@ -131,6 +138,14 @@ Only one hairline tier exists in the whole product.
 |---|---|---|
 | `color.action.bg` | `#067BC2` | primary buttons, 3 screens+ |
 | `color.action.fg` | `#FFFFFF` | |
+
+### Pressed (added 2026-10-04 — see Hard Rules)
+Not in the shipped screens. Promoted because the pressed state appears in every tappable component. That is six uses in the base set (Button primary and secondary, SegmentedControl, FieldRow, StarRating, IconButton), with more on every screen, so it clears the rule of two.
+
+| token | value | applies to | why this value |
+|---|---|---|---|
+| `state.pressed.surface` | alias of `color.surface.muted` (`#E4D6CC`) | raised, ground and transparent-over-raised fills | `surface.sunken` was the semantic first choice but sits only ΔE00 3.16 below ground, too faint for the secondary button. `surface.muted` reads clearly from both raised (ΔE00 9.40) and ground (6.18). Ink stays at 8.32:1 and `badge.fg.neutral` at 5.48:1. `text.muted` (FieldRow meta) drops to 4.45:1, just under AA for 12px, but only while a finger is down. No new hex |
+| `state.pressed.action` | `#05639C` | the `color.action.bg` fill | No existing fill token is a darker action blue. Reuses the value of `color.text.link` as a separate role (fill vs link text), the same precedent as `border.subtle` / `texture` sharing `#E4D6CC`. ΔE00 9.19 below `#067BC2`; white label contrast rises from 4.55 to 6.42:1 |
 
 ### Texture — same value, two geometries
 Colour was unified to `#E4D6CC`; the two textures differ in **geometry, not colour**. Two tokens sharing one value is intentional, so that texture density can be tuned without touching the border role.
@@ -468,3 +483,5 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-04 — §3.2 added: documents the (family, weight) → face mapping in `src/theme/fonts.js`, because it is a system component that OQ-14 extends, not a TokenSheet detail.
 - 2026-10-04 — OQ-14 direction fixed for V1.1: (family, weight, lang) mapping, Hiragino / PingFang per-weight on iOS, Noto Sans CJK subset on Android. `label.eyebrow` CJK letter spacing is batched into the same pass. Recorded so it is not re-decided.
 - 2026-10-04 — Findability: `HardShadow` (§7) and `DashedRule` (§8) are base primitives that shipped inside the StarRating commit (`e6f5779`), not in commits of their own. The history is left as is.
+- 2026-10-04 — **Token added: `state.pressed.surface` (alias of `surface.muted`) and `state.pressed.action` (`#05639C`), plus the §1 Pressed Hard Rule.** Pressed appears in every tappable component, which clears the rule of two. It darkens the fill rather than lowering opacity, because opacity washes out `HardShadow` and the ink borders on the warm ground. `surface.muted` was chosen over `surface.sunken` because sunken sits only ΔE00 3.16 below ground.
+- 2026-10-04 — Loading state: deliberately not needed, rather than deferred. Saves write to local SQLite and are instant. Loading TODOs removed; revisit when Step 5 adds real async (MapKit, barcode lookup).

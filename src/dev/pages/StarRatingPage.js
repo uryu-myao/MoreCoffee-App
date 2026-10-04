@@ -47,6 +47,15 @@ export default function StarRatingPage() {
         </HarnessCase>
       </HarnessGroup>
 
+      <HarnessGroup title="pressed">
+        <HarnessCase label="star 3 pressed — its 52px square darkens">
+          <StarRating value={4} caption="Would order again" testOnly_pressedStar={3} />
+        </HarnessCase>
+        <HarnessCase label="star 5 pressed, error state">
+          <StarRating value={0} error="Tap a star — this is the one thing the app can't guess." testOnly_pressedStar={5} />
+        </HarnessCase>
+      </HarnessGroup>
+
       <HarnessGroup title="values">
         {[1, 2, 3, 4, 5].map((n) => (
           <HarnessCase key={n} label={`value ${n}`}>

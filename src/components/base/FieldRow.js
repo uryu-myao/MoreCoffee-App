@@ -19,6 +19,9 @@ import Text from './Text';
  *   divided   hairline above the row
  *   error     5d missing-field state: dashed swatch with a plus, error-toned text
  *   onPress
+ *   testOnly_pressed   force the pressed look (dev harness)
+ *
+ * Pressed: the row fill darkens to state.pressed.surface (Hard Rule, design-system.md §1).
  */
 export default function FieldRow({
   label,
@@ -29,17 +32,18 @@ export default function FieldRow({
   divided = false,
   error = false,
   onPress,
+  testOnly_pressed,
 }) {
   const hasSwatch = swatch || Boolean(iconName);
   const ink = error ? state.error.text : color.icon.default;
 
-  // TODO: pressed state is undesigned (gaps.md 4) — no feedback is drawn.
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={[label, value, meta].filter(Boolean).join(', ')}
-      style={[styles.row, divided && styles.divided]}>
+      testOnly_pressed={testOnly_pressed}
+      style={({ pressed }) => [styles.row, divided && styles.divided, pressed && styles.pressed]}>
       {hasSwatch ? (
         <View style={[styles.swatch, error && styles.swatchError]}>
           {error ? (
@@ -78,6 +82,9 @@ const styles = StyleSheet.create({
     gap: space[12],
     paddingVertical: spacing.inset.control.v,
     paddingHorizontal: spacing.inset.control.h,
+  },
+  pressed: {
+    backgroundColor: state.pressed.surface,
   },
   divided: {
     borderTopWidth: shape.borderWidth.divider,

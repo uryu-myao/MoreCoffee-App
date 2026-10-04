@@ -51,6 +51,12 @@ export default function SegmentedControlPage() {
         <HarnessCase label="packaged">
           <SegmentedControl options={MAKERS} value="packaged" onChange={() => {}} />
         </HarnessCase>
+        <HarnessCase label="pressed — unselected chip darkens">
+          <SegmentedControl options={MAKERS} value="mine" testOnly_pressedValue="barista" onChange={() => {}} />
+        </HarnessCase>
+        <HarnessCase label="pressed — selected chip does not respond">
+          <SegmentedControl options={MAKERS} value="mine" testOnly_pressedValue="mine" onChange={() => {}} />
+        </HarnessCase>
         <HarnessCase label="none selected">
           <SegmentedControl options={MAKERS} value={null} onChange={() => {}} />
         </HarnessCase>
