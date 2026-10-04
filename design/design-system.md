@@ -19,7 +19,8 @@ Companion documents: `drift.md` (values to correct), `gaps.md` (states never des
 Non-negotiable, and each one is a measured fact rather than a preference.
 
 ### Shape
-- **No border radius, anywhere.** `border-radius` appears **0 times across all 30 screens**. Every corner in this product is square. *One sanctioned exception*: the StarRating pressed disc (`exceptions.md` E-7, §9 Star rating).
+- **Containers are square-cornered.** `border-radius` appears **0 times across all 30 screens**: every card, sheet, field, chip, button and thumbnail has square corners. Do not round a container.
+- **Press feedback follows the shape of the element it sits behind.** Rectangular controls get a square fill; radial controls get a circle (the StarRating star, §9 Star rating). A press fill is feedback, not a container, so the container rule above does not govern its shape.
 - **Border width is binary: `1.5` or `2`.** Both appear on all 30 screens and they are role-separated — `2` is the outline of a box, `1.5` is an internal divider or a weak frame. No other width exists; do not introduce one.
 - **Border style is binary: `solid` or `dashed`.** No dotted, no double.
 - Shadows are **hard**: blur 0, isotropic offset (x = y), single ink colour. No soft or directional shadows exist.
@@ -428,7 +429,7 @@ Differs from the sheet: **no scrim, no handle, and a gradient fade above it** (`
 ### Star rating (base `StarRating`)
 Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control.row` (52) tap targets spread with space-between. Filled star `icon.fill.xl`, empty star `icon.xl` stroke in `color.border.muted`; optional caption under `divider.soft`; 5d error state per `state.error.*`.
 
-**Pressed**: a **48px disc** in `state.pressed.surface` behind the star. The 52px touch target is unchanged; only the visual changes. This is the product's one circle (`exceptions.md` E-7).
+**Pressed**: a **48px disc** in `state.pressed.surface` behind the star. The 52px touch target is unchanged; only the visual changes. It is a circle because the star is a radial control (§1 Shape: press feedback follows the element's shape).
 - **Optical offset: disc centre 1px *below* the 52px box centre** (disc top inset 3, left inset 2).
 - Why down, not up: the star's mass does sit low relative to its own bounding box (area centroid y = 12.53 vs bbox centre 11.50 in the 24-unit viewBox). But the glyph is drawn centred on its viewBox (y = 12), not on its bbox, so the 52px box centre is already *above* the star's mass: centroid +0.84px, circumcentre +0.81px at 38px.
 - Tuned by eye at 3× across −2…+2px: at +1 the top tip clears the disc edge by 7.17px and the bottom tips by 7.52px; at 0 the star reads low and at +2 it reads high.
@@ -445,7 +446,7 @@ Disabled (decided 2026-10-04, `gaps.md` 4 — not in the shipped screens): eithe
 
 ## 10. Exceptions
 
-Six true one-offs survive extraction, and a seventh was added by decision. Full records — verbatim source, context, all candidate distances, re-check trigger — are in `exceptions.md`.
+Six true one-offs survive. Full records — verbatim source, context, all candidate distances, re-check trigger — are in `exceptions.md`.
 
 1. `#DBCCC3` — skeleton row title inside the 2b sheet
 2. Three 16px fill icons in 3b
@@ -453,7 +454,6 @@ Six true one-offs survive extraction, and a seventh was added by decision. Full 
 4. `rotate(-4deg)` — the 6a "Home brewer" badge (vs `rotation.sticker` = −3)
 5. Footer bottom padding 38 in 8c (19 other screens use 34)
 6. Root top padding 44 in 6a (18 other screens use 60)
-7. Circle — the StarRating pressed disc, the only `border-radius` in the product (added 2026-10-04)
 
 Also standing: `rotation.sticker = -3` (4 screens; RN wants the number, formatted as `'-3deg'` at use).
 
@@ -500,4 +500,5 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-04 — §9: IconButton pattern documented and the base component built. The pressed Hard Rule lists it as a target and it did not exist yet; the header close / back button is the variant used across the 3x, 5x, 6d, 7x and 8x screens.
 - 2026-10-04 — `SegmentedControl` chips centre their label (`justifyContent` / `alignItems: center`), because a row stretches every chip to its tallest. A chip with a shorter line box kept its text at the top, with the surplus below — the zh "more padding below" seen in device review. No per-language padding; the PingFang / Hiragino metric gap goes to OQ-14.
 - 2026-10-04 — StarRating pressed fill changed from the 52px square to a 48px disc, 1px below the box centre (§9 Star rating). It is the product's one circle, recorded as `exceptions.md` E-7 rather than a token because it has a single use. The pressed Hard Rule is unchanged.
+- 2026-10-04 — **§1 Shape rewritten; E-7 removed.** The old rule ("no border radius, anywhere") conflated container geometry with press feedback. It now reads: containers are square-cornered, and press feedback follows the shape of the element it sits behind (square for rectangular controls, circle for radial ones). Narrowing the rule removes the need for an exception, so E-7 is deleted from `exceptions.md` and its §1 / §10 pointers are dropped. The StarRating disc and its +1px offset stay in §9 as an implementation note.
 - 2026-10-04 — Loading state: deliberately not needed, rather than deferred. Saves write to local SQLite and are instant. Loading TODOs removed; revisit when Step 5 adds real async (MapKit, barcode lookup).

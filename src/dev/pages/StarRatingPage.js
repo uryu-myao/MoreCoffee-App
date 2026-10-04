@@ -48,7 +48,7 @@ export default function StarRatingPage() {
       </HarnessGroup>
 
       <HarnessGroup title="pressed">
-        <HarnessCase label="star 3 pressed — 48px disc, 1px below box centre (E-7)">
+        <HarnessCase label="star 3 pressed — 48px disc, 1px below box centre (§9)">
           <StarRating value={4} caption="Would order again" testOnly_pressedStar={3} />
         </HarnessCase>
         <HarnessCase label="star 5 pressed, error state">

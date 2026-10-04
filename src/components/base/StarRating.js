@@ -9,8 +9,9 @@ import Text from './Text';
 const STARS = [1, 2, 3, 4, 5];
 
 /**
- * Pressed disc — exceptions.md E-7, the product's only round shape. Single use,
- * so these are local values, not tokens. The disc sits inside the 52px tap
+ * Pressed disc. A circle because the star is a radial control — press feedback
+ * follows the shape of the element (design-system.md §1 Shape). Single use, so
+ * these are local values, not tokens. The disc sits inside the 52px tap
  * target and is centred on the star's optical centre: the glyph is centred on
  * its viewBox, which puts the star's mass ~0.8px below the box centre, so the
  * disc moves 1px DOWN (tuned by eye at 3x; design-system.md §9 Star rating).
