@@ -4,12 +4,12 @@ import Text from './Text';
 
 /**
  * Single-choice chip group — the 5a "Who made it?" maker picker
- * (I made it / Barista / Ready-to-drink). Chips wrap rather than squeeze,
+ * (I made it / Barista / Packaged). Chips wrap rather than squeeze,
  * matching the source's flex-wrap.
  *
  * Padding is `inset.control`: process/roles.md files the maker chip's padding
- * under control-inset, not badge-inset. It also lifts the chip to ~46px, past
- * size.tapTarget, which closes gaps.md 3 for these chips without a hit-slop.
+ * under control-inset, not badge-inset. It also brings the chip to 44px
+ * (size.tapTarget), which closes gaps.md 3 for these chips without a hit-slop.
  *
  * Props
  *   options   [{ value, label }]

@@ -8,13 +8,20 @@ import { HarnessCase, HarnessGroup, HarnessPage } from '../harness';
 const MAKERS = [
   { value: 'mine', label: 'I made it' },
   { value: 'barista', label: 'Barista' },
-  { value: 'rtd', label: 'Ready-to-drink' },
+  { value: 'packaged', label: 'Packaged' },
 ];
 
 const MAKERS_JA = [
   { value: 'mine', label: '自分で淹れた' },
   { value: 'barista', label: 'バリスタ' },
-  { value: 'rtd', label: 'レディ・トゥ・ドリンク（缶・ボトル）' },
+  { value: 'packaged', label: '市販品' },
+];
+
+// Only 市販品 / 市售 are decided (design/i18n-notes.md); the rest are placeholders.
+const MAKERS_ZH = [
+  { value: 'mine', label: '自己冲的' },
+  { value: 'barista', label: '咖啡师' },
+  { value: 'packaged', label: '市售' },
 ];
 
 function Live({ options, initial }) {
@@ -41,17 +48,20 @@ export default function SegmentedControlPage() {
         <HarnessCase label="barista (5d)">
           <SegmentedControl options={MAKERS} value="barista" onChange={() => {}} />
         </HarnessCase>
-        <HarnessCase label="rtd">
-          <SegmentedControl options={MAKERS} value="rtd" onChange={() => {}} />
+        <HarnessCase label="packaged">
+          <SegmentedControl options={MAKERS} value="packaged" onChange={() => {}} />
         </HarnessCase>
         <HarnessCase label="none selected">
           <SegmentedControl options={MAKERS} value={null} onChange={() => {}} />
         </HarnessCase>
       </HarnessGroup>
 
-      <HarnessGroup title="long copy (gaps.md 7)">
-        <HarnessCase label="ja — chips wrap to a new row" framed>
+      <HarnessGroup title="translated copy (gaps.md 7)">
+        <HarnessCase label="ja" framed>
           <Live options={MAKERS_JA} initial="barista" />
+        </HarnessCase>
+        <HarnessCase label="zh" framed>
+          <Live options={MAKERS_ZH} initial="packaged" />
         </HarnessCase>
       </HarnessGroup>
     </HarnessPage>

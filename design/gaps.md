@@ -90,6 +90,8 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 **Needs designing**: per-locale behaviour for chips — shorter strings, wrapping allowed, or horizontal scroll.
 
+**Update (2026-10-04)**: the maker chip "Ready-to-drink" is renamed **"Packaged"** (ja 市販品, zh 市售) — see `i18n-notes.md`. The three maker chips now fit on one line at 390 / 393pt. Brew-method chips and `Best rated` are unchanged.
+
 ---
 
 ## 8. `beanFreshness` has no state for a freshly opened bag

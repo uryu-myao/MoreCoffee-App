@@ -441,3 +441,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-04 — OQ-14 added: CJK fallback renders at regular weight, found while validating §3.1 with ja/zh strings.
 - 2026-10-04 — OQ-6 resolved: hard shadows render as an offset ink View behind the element, because Android `elevation` cannot express blur 0.
 - 2026-10-04 — §9 Buttons: disabled state defined from existing tokens (ground / border.muted / text.muted, no shadow), because the base Button needed one and no screen designs it.
+- 2026-10-04 — Copy: maker chip "Ready-to-drink" → "Packaged" (ja 市販品, zh 市售), because the axis is who made it, not the container. Recorded in `i18n-notes.md`; the three chips now fit one line at 390 / 393pt.
