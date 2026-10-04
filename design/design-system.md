@@ -212,6 +212,8 @@ The readonly/editable split lines up exactly with the `dashed` semantics below.
 | `tabBar.icon.accentActive` | alias `color.text.primary` | the same marks when Try next is active (8d) |
 | `tabBar.add` | `color.surface.inverse` square, `color.text.onInverse` plus | 44 × 34 glyph, square (no radius) |
 
+**Review trigger — `tabBar.icon.accentInactive` (`#C6BBD3`)**: its only referent today is the calendar glyph's binding marks, and that calendar is a placeholder standing in for the Try next icon. When the Try next icon and its colours are designed, check whether anything still uses this token. If nothing does, remove it (and `accentActive` with it) rather than leaving it in the set.
+
 ---
 
 ## 3. Text Styles
