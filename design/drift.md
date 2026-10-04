@@ -15,6 +15,7 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 | D-7 | 4a, 4b | letter-spacing notation | `0.16em` | `.16em` | Same computed value; notation only. Normalise for diffability |
 | D-8 | 5d | body copy | `font-size: 12.5px` (3 uses) | `body.sm` = 12 | Fractional type size with no counterpart elsewhere |
 | D-9 | 8m | body copy | `font-size: 13.5px` (3 uses) | `body` = 14 | Same |
+| D-10 | 3b, 5a, 1b | secondary full-width button ("Add tasting note" and siblings) | `height: 52px` (3b ×3, 5a ×2) / `50px` (1b ×1), label `14px / .08em` caps | `size.button.primary` = 56, `button.caps` | §9: secondary is the primary's geometry on `color.surface.ground`. `button.caps` already absorbs 14/.08em. Six uses on three screens with two different heights is drift, not a second button size — the base `Button` ships 56. Recorded 2026-10-04 |
 
 ## Not drift — recorded so they are not "fixed" by mistake
 

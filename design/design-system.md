@@ -226,7 +226,7 @@ The seven stray display sizes (27/31/33/34/36/38/42) collapse into two steps. Si
 
 **`text.inlineAction`** is the only expression of "this word is tappable" (3f "Reopen bag", 5d "Go to first"). It pairs with `color.text.link`, which qualifies independently on 4 screens. Two screens is a reflection of how many screens have inline actions so far. In RN, `textDecorationLine: 'underline'` is supported; `textDecorationColor` is a separate property — confirm it inherits the text colour, and add it to the token if it does not.
 
-### 3.1 Truncation policy (resolves `gaps.md` item 1 in code — pending design review)
+### 3.1 Truncation policy (resolves `gaps.md` item 1 — confirmed by design 2026-10-04)
 
 The shipped screens define no long-text behaviour (`text-overflow` / `line-clamp` 0 uses). This policy is set by the base `Text` component as a closed vocabulary — callers pick a preset, never a raw line count — so every surface showing the same kind of user string clips it the same way.
 
@@ -242,6 +242,22 @@ The shipped screens define no long-text behaviour (`text-overflow` / `line-clamp
 - **Why `name` is 2, not 1**: roaster/origin names put the distinguishing part last ("…Natural Anaerobic, Lot 17"). One line would hide it. Rows have no fixed height (padding-based), and the right meta column is fixed-width, so a second line keeps the column aligned.
 - **CJK**: iOS uses `lineBreakStrategyIOS: 'standard'` (system kinsoku — no line-leading `。、」`, no line-ending `「`); Android keeps `highQuality` breaking with hyphenation off. Tail ellipsis works for CJK as-is.
 - **Fixed copy is out of scope**: nowrap chips under translation remain `gaps.md` item 7.
+
+### 3.2 Font face resolution — the (family, weight) → face mapping
+
+Text styles name a family and a weight the way the design does (`Archivo` + `700`). React Native cannot select a weight inside a custom family: every weight is its own registered face. A single mapping layer, `src/theme/fonts.js`, is the system component that bridges the two. It is not a TokenSheet detail; every `Text` goes through it, and OQ-14 extends it.
+
+| family | weight | face (registered name) |
+|---|---|---|
+| Archivo | 500 | `Archivo_500Medium` |
+| Archivo | 600 | `Archivo_600SemiBold` |
+| Archivo | 700 | `Archivo_700Bold` |
+| Instrument Serif | 400 | `InstrumentSerif_400Regular` |
+
+- `fontAssets` is the face list passed to `useFonts()` at the app entry. Only these four faces load, matching the three-weight rule and the serif's single weight.
+- `resolveTextStyle(token)` replaces `fontFamily` with the face for that weight and **drops `fontWeight`**, so the platform cannot synthesize bold on top of an already-bold face. A (family, weight) pair with no face warns in development.
+- Token values are unchanged: the mapping is how the platform reaches them, not a correction to them.
+- **Planned extension (OQ-14, V1.1)**: the key becomes (family, weight, lang) so ja / zh text resolves to a CJK face of the same weight.
 
 ---
 
@@ -370,6 +386,8 @@ All hard: blur 0, isotropic offset, single ink. Offset **scales with the element
 | `border.track` | `1.5px dashed` `color.border.muted` | a measuring rail or placeholder frame — `axis.rail.readonly`, the search placeholder | 14 uses |
 | `state.error.dashed` | `1.5px dashed` `#9E5202` | error emphasis (5d) **A** | 1 use |
 
+**RN implementation note**: iOS cannot dash a single border side. Single-edge dashed lines (`divider.soft` and the like) render through the base `DashedRule` component, which clips a fully dashed box to its top edge. Full dashed frames (`border.empty`, the 5d error swatch) use `borderStyle: 'dashed'` directly.
+
 ---
 
 ## 9. Patterns — screen-level regularities
@@ -429,7 +447,9 @@ Also standing: `rotation.sticker = -3` (4 screens; RN wants the number, formatte
 11. **Finding, not a gap: there is only one hairline divider tier** (`#E4D6CC` / `#D8C9BF` at 1.5px). This matches border width being binary and border style being binary — deliberate restraint. If stronger separation is ever needed, use a `2px` box outline rather than adding a hairline tier.
 12. **The active-day underline in the weekday strip is unimplemented.** The date numerals carry `border-bottom: 2px solid transparent`, and the current day is distinguished only by ink colour (`color.text.primary` vs `color.text.muted`). Decide whether the underline should render.
 13. **Only 3 chips in the entire product are tappable**, and the sort chips in 3f and the range chips in 2b — which read as controls — are plain `<span>`s with no pointer affordance and no selected state. Confirm which chips are meant to be interactive.
-14. **CJK text loses its weight.** Archivo has no CJK glyphs, so ja/zh fall back to the system font. Because RN selects weight by face (`Archivo_700Bold`) rather than by `fontWeight`, the fallback renders at regular weight — a bold `title` in Japanese looks like `body`. Observed on web in the dev harness; confirm on iOS/Android. Options: (a) pair Archivo with a CJK face per weight (e.g. Noto Sans JP/SC 500/600/700), (b) pass `fontWeight` alongside the face and accept possible synthetic bold on Latin. Neither is a token change until a CJK family is chosen.
+14. **CJK text loses its weight.** Archivo has no CJK glyphs, so ja/zh fall back to the system font. Because RN selects weight by face (`Archivo_700Bold`) rather than by `fontWeight`, the fallback renders at regular weight — a bold `title` in Japanese looks like `body`. Observed on web in the dev harness; confirm on iOS/Android.
+    **Decided direction — deferred to V1.1, do not re-decide**: extend the §3.2 mapping from (family, weight) to **(family, weight, lang)**. On **iOS**, ja / zh resolve to explicit per-weight system families — Hiragino Sans for ja, PingFang SC for zh — named per weight rather than relying on `fontWeight` (exact face names to be verified when implemented). On **Android**, ship a **Noto Sans CJK subset** per weight, loaded through the same `fontAssets` path. Not adopted: passing `fontWeight` alongside the Latin face (risks synthetic bold on Archivo).
+    **Batched with it**: `label.eyebrow`'s letter spacing (1.6) is tuned for Latin capitals and is wrong for CJK. It is fixed in the same V1.1 i18n pass, most likely as a per-lang value through the same mapping. No change before then.
 
 ---
 
@@ -442,3 +462,9 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-04 — OQ-6 resolved: hard shadows render as an offset ink View behind the element, because Android `elevation` cannot express blur 0.
 - 2026-10-04 — §9 Buttons: disabled state defined from existing tokens (ground / border.muted / text.muted, no shadow), because the base Button needed one and no screen designs it.
 - 2026-10-04 — Copy: maker chip "Ready-to-drink" → "Packaged" (ja 市販品, zh 市售), because the axis is who made it, not the container. Recorded in `i18n-notes.md`; the three chips now fit one line at 390 / 393pt.
+- 2026-10-04 — §3.1 truncation policy confirmed by design; `gaps.md` 1 marked resolved.
+- 2026-10-04 — `drift.md` D-10: the 52 / 50px secondary buttons in 3b, 5a and 1b are drift. Secondary is 56px with `button.caps` per §9, because it shares the primary's geometry.
+- 2026-10-04 — StarRating card padding confirmed as `inset.container` (14/16), per the §9 Card pattern. The 18/16 in 5a / 5d is not an exception.
+- 2026-10-04 — §3.2 added: documents the (family, weight) → face mapping in `src/theme/fonts.js`, because it is a system component that OQ-14 extends, not a TokenSheet detail.
+- 2026-10-04 — OQ-14 direction fixed for V1.1: (family, weight, lang) mapping, Hiragino / PingFang per-weight on iOS, Noto Sans CJK subset on Android. `label.eyebrow` CJK letter spacing is batched into the same pass. Recorded so it is not re-decided.
+- 2026-10-04 — Findability: `HardShadow` (§7) and `DashedRule` (§8) are base primitives that shipped inside the StarRating commit (`e6f5779`), not in commits of their own. The history is left as is.
