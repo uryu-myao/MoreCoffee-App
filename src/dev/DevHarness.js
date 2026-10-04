@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Text from '../components/base/Text';
 import { color, layout, shape, spacing } from '../theme/tokens';
+import SectionLabelPage from './pages/SectionLabelPage';
 import TextPage from './pages/TextPage';
 import TokenSheet from './TokenSheet';
 
@@ -13,6 +14,7 @@ import TokenSheet from './TokenSheet';
 const PAGES = [
   { key: 'tokens', title: 'Tokens', Page: TokenSheet },
   { key: 'text', title: 'Text', Page: TextPage },
+  { key: 'sectionLabel', title: 'SectionLabel', Page: SectionLabelPage },
 ];
 
 export default function DevHarness() {
