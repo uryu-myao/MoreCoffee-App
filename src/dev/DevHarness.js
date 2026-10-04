@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Text from '../components/base/Text';
 import { color, layout, shape, spacing } from '../theme/tokens';
+import ButtonPage from './pages/ButtonPage';
 import FieldRowPage from './pages/FieldRowPage';
 import SectionLabelPage from './pages/SectionLabelPage';
 import SegmentedControlPage from './pages/SegmentedControlPage';
@@ -21,6 +22,7 @@ const PAGES = [
   { key: 'fieldRow', title: 'FieldRow', Page: FieldRowPage },
   { key: 'segmented', title: 'SegmentedControl', Page: SegmentedControlPage },
   { key: 'starRating', title: 'StarRating', Page: StarRatingPage },
+  { key: 'button', title: 'Button', Page: ButtonPage },
 ];
 
 export default function DevHarness() {

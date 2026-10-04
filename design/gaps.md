@@ -54,6 +54,8 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 **Needs designing**: press (shadow offset → 0? translate?), disabled (which of ink/border/surface changes), loading (spinner vs skeleton vs label swap) for each component in the base set.
 
+**Status (2026-10-04)**: Button disabled is decided — see `design-system.md` §9. Press and loading remain undesigned for every component, and disabled remains undesigned for chips, rows and fields.
+
 ---
 
 ## 5. Empty states exist for only one surface

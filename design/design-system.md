@@ -395,6 +395,8 @@ Differs from the sheet: **no scrim, no handle, and a gradient fade above it** (`
 ### Buttons
 Primary: `size.button.primary` tall, `color.action.bg`, `2px solid` outline, `shadow.primary`, `button.caps`. Secondary: same geometry on `color.surface.ground` with `color.text.primary`. Tertiary: no background, no border, `label.caps`.
 
+Disabled (decided 2026-10-04, `gaps.md` 4 — not in the shipped screens): either variant drops to `color.surface.ground` fill, `color.border.muted` outline, `color.text.muted` label, and no shadow. This reuses the `border.empty.disabled` vocabulary from 5d (muted border = cannot be actioned) rather than introducing opacity, which the design uses only for the scrim backdrop.
+
 ---
 
 ## 10. Exceptions
@@ -438,3 +440,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-04 — §3.1 added: truncation policy (`name` 2 / `meta` 1 / `note` 3 / `none`), landed in the base `Text` component because user-input text had no defined behaviour (`gaps.md` 1).
 - 2026-10-04 — OQ-14 added: CJK fallback renders at regular weight, found while validating §3.1 with ja/zh strings.
 - 2026-10-04 — OQ-6 resolved: hard shadows render as an offset ink View behind the element, because Android `elevation` cannot express blur 0.
+- 2026-10-04 — §9 Buttons: disabled state defined from existing tokens (ground / border.muted / text.muted, no shadow), because the base Button needed one and no screen designs it.
