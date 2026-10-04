@@ -10,10 +10,18 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import SegmentedControl from '../components/SegmentedControl';
 import { colors, radius, shadows, spacing, typography } from '../theme/token';
 
 const SOURCE_OPTIONS = ['Café', 'Home', 'Bottled'];
-const WAY_OPTIONS = ['Black', 'with Sugar', 'with Milk', 'Hot', 'Iced', 'with Chocolate'];
+const WAY_OPTIONS = [
+  'Black',
+  'with Sugar',
+  'with Milk',
+  'Hot',
+  'Iced',
+  'with Chocolate',
+];
 const THUMB_SIZE = 36;
 
 function SectionHeader({ label, filled }) {
@@ -22,7 +30,11 @@ function SectionHeader({ label, filled }) {
       <View
         style={[
           styles.dot,
-          { backgroundColor: filled ? colors.brand.lightBlue : colors.brand.brown },
+          {
+            backgroundColor: filled
+              ? colors.brand.lightBlue
+              : colors.brand.brown,
+          },
         ]}
       />
       <Text style={styles.sectionLabel}>{label}</Text>
@@ -33,9 +45,11 @@ function SectionHeader({ label, filled }) {
 function StarRating({ value, onChange }) {
   return (
     <View style={styles.starsRow}>
-      {[1, 2, 3, 4, 5].map(star => (
+      {[1, 2, 3, 4, 5].map((star) => (
         <Pressable key={star} onPress={() => onChange(star)} hitSlop={6}>
-          <Text style={[styles.star, star <= value && styles.starFilled]}>★</Text>
+          <Text style={[styles.star, star <= value && styles.starFilled]}>
+            ★
+          </Text>
         </Pressable>
       ))}
     </View>
@@ -63,13 +77,16 @@ function SliderRow({ leftLabel, rightLabel, value, onChange }) {
         const range = trackWidthRef.current - THUMB_SIZE;
         if (range <= 0) return;
         const delta = (g.dx / range) * 100;
-        const next = Math.round(Math.max(0, Math.min(100, startValRef.current + delta)));
+        const next = Math.round(
+          Math.max(0, Math.min(100, startValRef.current + delta))
+        );
         onChange(next);
       },
     })
   ).current;
 
-  const thumbLeft = trackWidth > 0 ? (value / 100) * (trackWidth - THUMB_SIZE) : 0;
+  const thumbLeft =
+    trackWidth > 0 ? (value / 100) * (trackWidth - THUMB_SIZE) : 0;
   const fillWidth = Math.max(0, thumbLeft + THUMB_SIZE / 2);
 
   return (
@@ -77,7 +94,7 @@ function SliderRow({ leftLabel, rightLabel, value, onChange }) {
       <Text style={styles.sliderLabel}>{leftLabel}</Text>
       <View
         style={styles.sliderTrack}
-        onLayout={e => {
+        onLayout={(e) => {
           trackWidthRef.current = e.nativeEvent.layout.width;
           setTrackWidth(e.nativeEvent.layout.width);
         }}>
@@ -89,7 +106,9 @@ function SliderRow({ leftLabel, rightLabel, value, onChange }) {
           <Text style={styles.sliderThumbText}>{value}</Text>
         </View>
       </View>
-      <Text style={[styles.sliderLabel, styles.sliderLabelRight]}>{rightLabel}</Text>
+      <Text style={[styles.sliderLabel, styles.sliderLabelRight]}>
+        {rightLabel}
+      </Text>
     </View>
   );
 }
@@ -108,7 +127,8 @@ export default function AddCoffeeScreen({ onClose }) {
   const [ways, setWays] = useState([]);
   const [memo, setMemo] = useState('');
 
-  const quickComplete = source !== null && coffeeName.trim() !== '' && rating > 0;
+  const quickComplete =
+    source !== null && coffeeName.trim() !== '' && rating > 0;
 
   function handleQuickSave() {
     if (!quickComplete) {
@@ -125,8 +145,8 @@ export default function AddCoffeeScreen({ onClose }) {
   }
 
   function toggleWay(way) {
-    setWays(prev =>
-      prev.includes(way) ? prev.filter(w => w !== way) : [...prev, way]
+    setWays((prev) =>
+      prev.includes(way) ? prev.filter((w) => w !== way) : [...prev, way]
     );
   }
 
@@ -147,33 +167,15 @@ export default function AddCoffeeScreen({ onClose }) {
       </View>
 
       {/* Tab switcher */}
-      <View style={styles.tabRow}>
-        <Pressable
-          style={[styles.tabBtn, activeTab === 'quick' && styles.tabBtnActive]}
-          onPress={() => setActiveTab('quick')}>
-          {quickComplete && <View style={styles.tabCheckDot} />}
-          <Text style={[styles.tabLabel, activeTab === 'quick' && styles.tabLabelActive]}>
-            Quick log
-          </Text>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.tabBtn,
-            activeTab === 'tasting' && styles.tabBtnActive,
-            !quickComplete && styles.tabBtnLocked,
-          ]}
-          onPress={() => {
-            if (!quickComplete) {
-              setSaveAttempted(true);
-              return;
-            }
-            setActiveTab('tasting');
-          }}>
-          <Text style={[styles.tabLabel, activeTab === 'tasting' && styles.tabLabelActive, !quickComplete && styles.tabLabelLocked]}>
-            Tasting note
-          </Text>
-        </Pressable>
-      </View>
+      <SegmentedControl
+        options={['Quick log', 'Tasting note']}
+        value={activeTab === 'quick' ? 'Quick log' : 'Tasting note'}
+        onChange={(opt) => setActiveTab(opt === 'Quick log' ? 'quick' : 'tasting')}
+        indicatorKey={quickComplete ? 'Quick log' : undefined}
+        disabledKeys={quickComplete ? [] : ['Tasting note']}
+        onDisabledPress={() => setSaveAttempted(true)}
+        style={styles.tabRow}
+      />
 
       {activeTab === 'quick' ? (
         <ScrollView
@@ -181,17 +183,25 @@ export default function AddCoffeeScreen({ onClose }) {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
-
           {/* Where was it from */}
           <View style={styles.card}>
-            <SectionHeader label="Where was it from?" filled={source !== null} />
+            <SectionHeader
+              label="Where was it from?"
+              filled={source !== null}
+            />
             <View style={styles.pillsRow}>
-              {SOURCE_OPTIONS.map(opt => (
+              {SOURCE_OPTIONS.map((opt) => (
                 <Pressable
                   key={opt}
                   style={[styles.pill, source === opt && styles.pillActive]}
-                  onPress={() => setSource(prev => (prev === opt ? null : opt))}>
-                  <Text style={[styles.pillText, source === opt && styles.pillTextActive]}>
+                  onPress={() =>
+                    setSource((prev) => (prev === opt ? null : opt))
+                  }>
+                  <Text
+                    style={[
+                      styles.pillText,
+                      source === opt && styles.pillTextActive,
+                    ]}>
                     {opt}
                   </Text>
                 </Pressable>
@@ -201,7 +211,10 @@ export default function AddCoffeeScreen({ onClose }) {
 
           {/* Coffee name */}
           <View style={styles.card}>
-            <SectionHeader label="Coffee name" filled={coffeeName.trim() !== ''} />
+            <SectionHeader
+              label="Coffee name"
+              filled={coffeeName.trim() !== ''}
+            />
             <TextInput
               style={styles.textInput}
               placeholder="e.g. Ethiopia Yirgacheffe"
@@ -217,7 +230,6 @@ export default function AddCoffeeScreen({ onClose }) {
             <SectionHeader label="Overall rating" filled={rating > 0} />
             <StarRating value={rating} onChange={setRating} />
           </View>
-
         </ScrollView>
       ) : (
         <ScrollView
@@ -225,7 +237,6 @@ export default function AddCoffeeScreen({ onClose }) {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
-
           {/* Flavor profile */}
           <View style={styles.card}>
             <Text style={styles.cardSectionTitle}>Flavor profile</Text>
@@ -233,21 +244,21 @@ export default function AddCoffeeScreen({ onClose }) {
               leftLabel="Acid"
               rightLabel="Bitter"
               value={flavor.acid}
-              onChange={v => setFlavor(f => ({ ...f, acid: v }))}
+              onChange={(v) => setFlavor((f) => ({ ...f, acid: v }))}
             />
             <View style={styles.sliderDivider} />
             <SliderRow
               leftLabel="Light body"
               rightLabel="Full body"
               value={flavor.body}
-              onChange={v => setFlavor(f => ({ ...f, body: v }))}
+              onChange={(v) => setFlavor((f) => ({ ...f, body: v }))}
             />
             <View style={styles.sliderDivider} />
             <SliderRow
               leftLabel="Light roast"
               rightLabel="Dark roast"
               value={flavor.roast}
-              onChange={v => setFlavor(f => ({ ...f, roast: v }))}
+              onChange={(v) => setFlavor((f) => ({ ...f, roast: v }))}
             />
           </View>
 
@@ -258,12 +269,16 @@ export default function AddCoffeeScreen({ onClose }) {
               <Text style={styles.manageLink}>Manage ways &gt;</Text>
             </View>
             <View style={styles.pillsRow}>
-              {WAY_OPTIONS.map(way => (
+              {WAY_OPTIONS.map((way) => (
                 <Pressable
                   key={way}
                   style={[styles.pill, ways.includes(way) && styles.pillActive]}
                   onPress={() => toggleWay(way)}>
-                  <Text style={[styles.pillText, ways.includes(way) && styles.pillTextActive]}>
+                  <Text
+                    style={[
+                      styles.pillText,
+                      ways.includes(way) && styles.pillTextActive,
+                    ]}>
                     {way}
                   </Text>
                 </Pressable>
@@ -284,7 +299,6 @@ export default function AddCoffeeScreen({ onClose }) {
               returnKeyType="done"
             />
           </View>
-
         </ScrollView>
       )}
 
@@ -302,7 +316,10 @@ export default function AddCoffeeScreen({ onClose }) {
         </Pressable>
         {activeTab === 'quick' && (
           <Pressable
-            style={[styles.continueBtn, !quickComplete && styles.continueBtnDisabled]}
+            style={[
+              styles.continueBtn,
+              !quickComplete && styles.continueBtnDisabled,
+            ]}
             onPress={() => quickComplete && setActiveTab('tasting')}
             disabled={!quickComplete}>
             <Text
@@ -314,7 +331,9 @@ export default function AddCoffeeScreen({ onClose }) {
             </Text>
           </Pressable>
         )}
-        <Text style={styles.footerText}>You can update these details anytime.</Text>
+        <Text style={styles.footerText}>
+          You can update these details anytime.
+        </Text>
       </View>
     </KeyboardAvoidingView>
   );
@@ -354,44 +373,8 @@ const styles = StyleSheet.create({
 
   // Tab switcher
   tabRow: {
-    flexDirection: 'row',
     marginHorizontal: spacing.lg,
     marginBottom: spacing.md,
-    backgroundColor: colors.background.card,
-    borderRadius: radius.pill,
-    padding: 3,
-  },
-  tabBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-    gap: 6,
-  },
-  tabBtnActive: {
-    backgroundColor: colors.brand.blue,
-  },
-  tabLabel: {
-    fontSize: 14,
-    fontFamily: typography.family.medium,
-    color: colors.text.secondary,
-  },
-  tabLabelActive: {
-    color: colors.brand.white,
-  },
-  tabBtnLocked: {
-    opacity: 0.4,
-  },
-  tabLabelLocked: {
-    color: colors.text.muted,
-  },
-  tabCheckDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.brand.white,
   },
 
   // Scroll
@@ -498,7 +481,7 @@ const styles = StyleSheet.create({
   // Floating footer
   floatingFooter: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 10,
     left: 0,
     right: 0,
     paddingHorizontal: spacing.lg,

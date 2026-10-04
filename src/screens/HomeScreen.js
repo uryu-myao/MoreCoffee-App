@@ -104,7 +104,10 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Home</Text>
-        {/* TODO: v-next — notice entry, unhide when notification system is ready */}
+        <TouchableOpacity style={styles.noticeBtn} onPress={openNoticeList}>
+          <NoticeIcon />
+          {unreadCount > 0 && <View style={styles.badge} />}
+        </TouchableOpacity>
       </View>
       <View style={styles.pageWrap}>
         <Text style={styles.pageSubtitle}>Overview of your coffee activity.</Text>
@@ -146,7 +149,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#E03A3A',
+    backgroundColor: colors.brand.brown,
   },
   pageWrap: {
     flex: 1,
