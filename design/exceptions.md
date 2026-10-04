@@ -1,6 +1,6 @@
 # MoreCoffee — True exceptions
 
-Six values that are genuinely one-off: unique in their role, not part of any mechanism, and with no sibling value to pair with. They are recorded rather than folded, because collapsing them would silently delete a possible decision and a placeholder would eventually be filled in by guesswork.
+Seven values that are genuinely one-off (six extracted from the screens, E-7 added by decision on 2026-10-04): unique in their role, not part of any mechanism, and with no sibling value to pair with. They are recorded rather than folded, because collapsing them would silently delete a possible decision and a placeholder would eventually be filled in by guesswork.
 
 Started from ~60 low-frequency values; after role-scoped thresholds, the two merge gates, mechanism-bound (class A) promotion and the orphan-alias rule, six remain.
 
@@ -122,3 +122,21 @@ The scroll container's top padding (its bottom, 100, is `layout.empty.block`).
 **Critical distinction — do not unify**: this `44` is a **padding**. `size.tapTarget` is also `44` (26 screens / 79 uses) but is the minimum hit area of a control. **The shared number is a coincidence.** Merging them would tie screen chrome to interaction sizing.
 
 **Re-check trigger**: *"Every other screen root is 60 at the top. Re-check when a second shallow-header screen is designed."* This is also a structural question, not only a spacing one — see OQ-8.
+
+---
+
+## E-7 · Circle (`border-radius`) — StarRating pressed disc
+
+*Added 2026-10-04 by decision, not extracted from the screens.*
+
+**Where**: the pressed state of each star in the base `StarRating`, 1 use. A 48px disc in `state.pressed.surface` appears behind the star while it is held. The 52px touch target (`size.control.row`) is unchanged.
+
+**Why exceptional**: it is the **only round shape in the product**. `border-radius` appears 0 times across the 30 shipped screens, and §1 Shape says every corner is square. It replaced the original square 52px fill after device review on 2026-10-04.
+
+**Values (local to `StarRating.js`, not tokens)**:
+- diameter `48` — sits inside the 52px target, 2px clear on each side
+- optical offset `+1` (down) — centres the disc on the star's mass, not on the box. The glyph is centred on its 24-unit viewBox, which puts the star's area centroid 0.84px and its circumcentre 0.81px *below* the box centre at 38px. Tuned by eye at 3× across −2…+2: at +1 the top tip clears the edge by 7.17px and the bottom tips by 7.52px. See `design-system.md` §9 Star rating.
+
+**Why not a token**: one use. The rule of two applies — a token waits for a second occurrence.
+
+**Re-check trigger**: *"When a second round pressed / selection shape is designed, promote a radius token and amend §1 Shape. If none appears, keep E-7 as the single sanctioned circle."*

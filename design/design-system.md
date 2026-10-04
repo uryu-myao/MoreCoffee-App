@@ -19,7 +19,7 @@ Companion documents: `drift.md` (values to correct), `gaps.md` (states never des
 Non-negotiable, and each one is a measured fact rather than a preference.
 
 ### Shape
-- **No border radius, anywhere.** `border-radius` appears **0 times across all 30 screens**. Every corner in this product is square.
+- **No border radius, anywhere.** `border-radius` appears **0 times across all 30 screens**. Every corner in this product is square. *One sanctioned exception*: the StarRating pressed disc (`exceptions.md` E-7, §9 Star rating).
 - **Border width is binary: `1.5` or `2`.** Both appear on all 30 screens and they are role-separated — `2` is the outline of a box, `1.5` is an internal divider or a weak frame. No other width exists; do not introduce one.
 - **Border style is binary: `solid` or `dashed`.** No dotted, no double.
 - Shadows are **hard**: blur 0, isotropic offset (x = y), single ink colour. No soft or directional shadows exist.
@@ -425,6 +425,15 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 ### Floating bar (2 uses: 8d, 6a — 6a is one screen shown in three scroll states; do not count it as three)
 Differs from the sheet: **no scrim, no handle, and a gradient fade above it** (`color.fade.stop` → `color.surface.ground`, `layout.fade.top` = 30). Contains a `size.tabBar.height` (60) bar at 90% width with `shadow.floating`.
 
+### Star rating (base `StarRating`)
+Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control.row` (52) tap targets spread with space-between. Filled star `icon.fill.xl`, empty star `icon.xl` stroke in `color.border.muted`; optional caption under `divider.soft`; 5d error state per `state.error.*`.
+
+**Pressed**: a **48px disc** in `state.pressed.surface` behind the star. The 52px touch target is unchanged; only the visual changes. This is the product's one circle (`exceptions.md` E-7).
+- **Optical offset: disc centre 1px *below* the 52px box centre** (disc top inset 3, left inset 2).
+- Why down, not up: the star's mass does sit low relative to its own bounding box (area centroid y = 12.53 vs bbox centre 11.50 in the 24-unit viewBox). But the glyph is drawn centred on its viewBox (y = 12), not on its bbox, so the 52px box centre is already *above* the star's mass: centroid +0.84px, circumcentre +0.81px at 38px.
+- Tuned by eye at 3× across −2…+2px: at +1 the top tip clears the disc edge by 7.17px and the bottom tips by 7.52px; at 0 the star reads low and at +2 it reads high.
+- Implementation note: the glyph sits in its own View so it paints above the absolute disc on web as well as native.
+
 ### Buttons
 Primary: `size.button.primary` tall, `color.action.bg`, `2px solid` outline, `shadow.primary`, `button.caps`. Secondary: same geometry on `color.surface.ground` with `color.text.primary`. Tertiary: no background, no border, `label.caps`.
 
@@ -436,7 +445,7 @@ Disabled (decided 2026-10-04, `gaps.md` 4 — not in the shipped screens): eithe
 
 ## 10. Exceptions
 
-Six true one-offs survive. Full records — verbatim source, context, all candidate distances, re-check trigger — are in `exceptions.md`.
+Six true one-offs survive extraction, and a seventh was added by decision. Full records — verbatim source, context, all candidate distances, re-check trigger — are in `exceptions.md`.
 
 1. `#DBCCC3` — skeleton row title inside the 2b sheet
 2. Three 16px fill icons in 3b
@@ -444,6 +453,7 @@ Six true one-offs survive. Full records — verbatim source, context, all candid
 4. `rotate(-4deg)` — the 6a "Home brewer" badge (vs `rotation.sticker` = −3)
 5. Footer bottom padding 38 in 8c (19 other screens use 34)
 6. Root top padding 44 in 6a (18 other screens use 60)
+7. Circle — the StarRating pressed disc, the only `border-radius` in the product (added 2026-10-04)
 
 Also standing: `rotation.sticker = -3` (4 screens; RN wants the number, formatted as `'-3deg'` at use).
 
@@ -467,6 +477,7 @@ Also standing: `rotation.sticker = -3` (4 screens; RN wants the number, formatte
 14. **CJK text loses its weight.** Archivo has no CJK glyphs, so ja/zh fall back to the system font. Because RN selects weight by face (`Archivo_700Bold`) rather than by `fontWeight`, the fallback renders at regular weight — a bold `title` in Japanese looks like `body`. Observed on web in the dev harness; confirm on iOS/Android.
     **Decided direction — deferred to V1.1, do not re-decide**: extend the §3.2 mapping from (family, weight) to **(family, weight, lang)**. On **iOS**, ja / zh resolve to explicit per-weight system families — Hiragino Sans for ja, PingFang SC for zh — named per weight rather than relying on `fontWeight` (exact face names to be verified when implemented). On **Android**, ship a **Noto Sans CJK subset** per weight, loaded through the same `fontAssets` path. Not adopted: passing `fontWeight` alongside the Latin face (risks synthetic bold on Archivo).
     **Batched with it**: `label.eyebrow`'s letter spacing (1.6) is tuned for Latin capitals and is wrong for CJK. It is fixed in the same V1.1 i18n pass, most likely as a per-lang value through the same mapping. No change before then.
+    **Also batched — CJK chip height (found 2026-10-04 in device review)**: zh chips render taller than ja because of font metrics, not layout. At 12px, PingFang SC's line box is 17px (ascent 13 / descent 4, about 1.4em) against Hiragino Sans's 12px (11 / 1, about 1.0em). The ink is about 11px in both, so zh carries roughly 3px of extra empty line box above and below the glyphs. A second effect makes it uneven within a row: Hiragino Sans has no simplified glyphs such as 师, so on a device that falls back to Hiragino, 咖啡师 mixes in PingFang and gets a taller line box than its row-mates. The layout half is fixed (chips centre their label, `SegmentedControl`). The metric gap is left to the (family, weight, lang) mapping, which resolves zh to PingFang for the whole label. Any per-lang vertical tuning belongs to that mapping, not to per-language padding overrides in components.
 
 ---
 
@@ -487,4 +498,6 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-04 — Findability: `HardShadow` (§7) and `DashedRule` (§8) are base primitives that shipped inside the StarRating commit (`e6f5779`), not in commits of their own. The history is left as is.
 - 2026-10-04 — **Token added: `state.pressed.surface` (alias of `surface.muted`) and `state.pressed.action` (`#05639C`), plus the §1 Pressed Hard Rule.** Pressed appears in every tappable component, which clears the rule of two. It darkens the fill rather than lowering opacity, because opacity washes out `HardShadow` and the ink borders on the warm ground. `surface.muted` was chosen over `surface.sunken` because sunken sits only ΔE00 3.16 below ground.
 - 2026-10-04 — §9: IconButton pattern documented and the base component built. The pressed Hard Rule lists it as a target and it did not exist yet; the header close / back button is the variant used across the 3x, 5x, 6d, 7x and 8x screens.
+- 2026-10-04 — `SegmentedControl` chips centre their label (`justifyContent` / `alignItems: center`), because a row stretches every chip to its tallest. A chip with a shorter line box kept its text at the top, with the surplus below — the zh "more padding below" seen in device review. No per-language padding; the PingFang / Hiragino metric gap goes to OQ-14.
+- 2026-10-04 — StarRating pressed fill changed from the 52px square to a 48px disc, 1px below the box centre (§9 Star rating). It is the product's one circle, recorded as `exceptions.md` E-7 rather than a token because it has a single use. The pressed Hard Rule is unchanged.
 - 2026-10-04 — Loading state: deliberately not needed, rather than deferred. Saves write to local SQLite and are instant. Loading TODOs removed; revisit when Step 5 adds real async (MapKit, barcode lookup).

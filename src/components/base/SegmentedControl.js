@@ -52,6 +52,13 @@ const styles = StyleSheet.create({
     gap: spacing.gap.row,
   },
   chip: {
+    // The chip owns its height (padding + content) and centres the label in it.
+    // Chips in one row stretch to the tallest (row default alignItems: stretch);
+    // without centring, a chip whose label has a shorter line box — e.g. a
+    // Hiragino label next to one that falls back to PingFang — keeps its text
+    // pinned to the top and the extra space lands below it.
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingVertical: spacing.inset.control.v,
     paddingHorizontal: spacing.inset.control.h,
     borderWidth: shape.borderWidth.divider,

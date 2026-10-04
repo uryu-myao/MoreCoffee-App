@@ -9,6 +9,15 @@ import Text from './Text';
 const STARS = [1, 2, 3, 4, 5];
 
 /**
+ * Pressed disc — exceptions.md E-7, the product's only round shape. Single use,
+ * so these are local values, not tokens. The disc sits inside the 52px tap
+ * target and is centred on the star's optical centre: the glyph is centred on
+ * its viewBox, which puts the star's mass ~0.8px below the box centre, so the
+ * disc moves 1px DOWN (tuned by eye at 3x; design-system.md §9 Star rating).
+ */
+const PRESSED_DISC = { diameter: 48, opticalOffsetY: 1 };
+
+/**
  * The "How was it?" rating card (5a), with its required/error state (5d).
  * Five 52px (size.control.row) tap targets spread across the card; filled stars
  * are the icon.fill.xl glyph, empty stars the icon.xl stroke in border.muted.
@@ -21,8 +30,8 @@ const STARS = [1, 2, 3, 4, 5];
  *             replaces the caption
  *   testOnly_pressedStar   force the pressed look on star n (dev harness)
  *
- * Pressed: the star's 52px square darkens to state.pressed.surface (Hard Rule,
- * design-system.md §1).
+ * Pressed: a 48px disc in state.pressed.surface appears behind the star (Hard
+ * Rule, design-system.md §1). The 52px touch target is unchanged.
  */
 export default function StarRating({ value = 0, onChange, caption, error, testOnly_pressedStar }) {
   const press = (n) => {
@@ -55,11 +64,20 @@ export default function StarRating({ value = 0, onChange, caption, error, testOn
                 accessibilityLabel={n === 1 ? '1 star' : `${n} stars`}
                 accessibilityState={{ selected: n === value }}
                 testOnly_pressed={n === testOnly_pressedStar}
-                style={({ pressed }) => [styles.star, pressed && styles.starPressed]}>
-                {filled ? (
-                  <Glyph name="star" token={icon.fill.xl} filled />
-                ) : (
-                  <Glyph name="star" token={icon.xl} color={color.border.muted} />
+                style={styles.star}>
+                {({ pressed }) => (
+                  <>
+                    {pressed ? <View style={styles.pressedDisc} /> : null}
+                    {/* The View keeps the glyph above the absolute disc on web too,
+                        where positioned elements otherwise paint over plain siblings. */}
+                    <View>
+                      {filled ? (
+                        <Glyph name="star" token={icon.fill.xl} filled />
+                      ) : (
+                        <Glyph name="star" token={icon.xl} color={color.border.muted} />
+                      )}
+                    </View>
+                  </>
                 )}
               </Pressable>
             );
@@ -99,7 +117,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  starPressed: {
+  pressedDisc: {
+    position: 'absolute',
+    top: (size.control.row - PRESSED_DISC.diameter) / 2 + PRESSED_DISC.opticalOffsetY,
+    left: (size.control.row - PRESSED_DISC.diameter) / 2,
+    width: PRESSED_DISC.diameter,
+    height: PRESSED_DISC.diameter,
+    borderRadius: PRESSED_DISC.diameter / 2,
     backgroundColor: state.pressed.surface,
   },
   footer: {

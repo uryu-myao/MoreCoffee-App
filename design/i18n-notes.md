@@ -18,3 +18,4 @@ Both are recorded in `design-system.md` §11 (OQ-14):
 
 - CJK bold — extend the font-face mapping to (family, weight, lang).
 - `labelEyebrow` letter-spacing (1.6) is tuned for Latin capitals and reads too loose on CJK.
+- zh chips sit taller than ja: PingFang SC's line box is about 1.4em against Hiragino Sans's 1.0em. Hiragino also lacks some simplified glyphs (e.g. 师), so a zh label can mix fonts. Layout centring is fixed; the metric gap is left to the mapping.
