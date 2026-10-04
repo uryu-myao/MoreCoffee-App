@@ -16,6 +16,11 @@ const SHAPES = {
     <Circle key="c" cx="12" cy="10" r="2.4" />,
   ],
   can: [<Rect key="r" x="7" y="4" width="10" height="17" rx="2" />, <Path key="p" d="M7 9h10" />],
+  camera: [
+    <Path key="p" d="M3 8.5A1.5 1.5 0 0 1 4.5 7h3L9 4.5h6L16.5 7h3A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z" />,
+    <Circle key="c" cx="12" cy="12.5" r="3.2" />,
+  ],
+  arrowRight: [<Path key="a" d="M5 12h14" />, <Path key="b" d="M13 6l6 6-6 6" />],
   star: [<Path key="p" d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />],
 };
 

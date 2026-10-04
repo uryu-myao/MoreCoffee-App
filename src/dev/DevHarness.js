@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Text from '../components/base/Text';
 import { color, layout, shape, spacing } from '../theme/tokens';
 import ButtonPage from './pages/ButtonPage';
+import EmptySlotPage from './pages/EmptySlotPage';
 import FieldRowPage from './pages/FieldRowPage';
 import IconButtonPage from './pages/IconButtonPage';
 import SectionLabelPage from './pages/SectionLabelPage';
@@ -25,6 +26,7 @@ const PAGES = [
   { key: 'starRating', title: 'StarRating', Page: StarRatingPage },
   { key: 'button', title: 'Button', Page: ButtonPage },
   { key: 'iconButton', title: 'IconButton', Page: IconButtonPage },
+  { key: 'emptySlot', title: 'EmptySlot', Page: EmptySlotPage },
 ];
 
 export default function DevHarness() {

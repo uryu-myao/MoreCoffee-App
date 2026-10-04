@@ -45,11 +45,29 @@ export default function ButtonPage() {
         </HarnessCase>
       </HarnessGroup>
 
+      <HarnessGroup title="trailing icon (5a Add tasting note →)">
+        <HarnessCase label="secondary + arrowRight">
+          <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" onPress={() => {}} />
+        </HarnessCase>
+        <HarnessCase label="primary + arrowRight (icon takes onAction)">
+          <Button label="Save this cup" trailingIcon="arrowRight" onPress={() => {}} />
+        </HarnessCase>
+        <HarnessCase label="secondary + icon, pressed">
+          <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" testOnly_pressed onPress={() => {}} />
+        </HarnessCase>
+        <HarnessCase label="secondary + icon, disabled (icon muted)">
+          <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" disabled onPress={() => {}} />
+        </HarnessCase>
+        <HarnessCase label="long label + icon">
+          <Button variant="secondary" label="Add a tasting note for this cup" trailingIcon="arrowRight" onPress={() => {}} />
+        </HarnessCase>
+      </HarnessGroup>
+
       <HarnessGroup title="in a footer stack (5a)">
         <HarnessCase label="primary over secondary — gap.section">
           <View style={styles.footer}>
             <Button label="Save this cup" onPress={() => {}} />
-            <Button variant="secondary" label="Add tasting note" onPress={() => {}} />
+            <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" onPress={() => {}} />
           </View>
         </HarnessCase>
       </HarnessGroup>

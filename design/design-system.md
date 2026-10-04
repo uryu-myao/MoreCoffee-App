@@ -474,6 +474,13 @@ Differs from the sheet: **no scrim, no handle, and a gradient fade above it** (`
 - The fade is a 30px band ending at the bar's top edge (`drift.md` D-11).
 - Pressed darkens a slot's 60 × 40 (or 68 × 40) box to `state.pressed.surface`; the ink add square stays as it is. Touches in the fade band pass through to the content.
 
+### Empty slot (base `EmptySlot`, 2026-10-05)
+The `border.empty` slot as a component: always a button, full width. It is the row form from 3a, 3b, 3d, 5a, 5d and 5e.
+- **Anatomy**: `dashed.empty` frame (2px dashed ink) on a transparent ground, `inset.control` padding, then glyph → label → optional trailing tag, `space.12` apart. The glyph is `icon.md` by default (5a's camera); 3b's plus is `icon.sm`. The label is `label.caps` in ink. The tag is `label.caps` in `color.text.muted`, pushed to the right edge.
+- **Source fit**: 3x pads 14 / 16 (`inset.control` exactly); 5x pads 16, folded to it. The 10–11px glyph-label gap folds to `space.12`. The tag is `label.caps` on 3b and 3d; 5a, 5d and 5e set it at 11/600 (`drift.md` D-12).
+- **States**: default; **pressed**, where the fill darkens to `state.pressed.surface` (§1 Hard Rule); **disabled** (5d), where the frame drops to `dashed.emptyDisabled`, the glyph to `color.icon.muted` and the label to `color.text.secondary`. A disabled slot does not respond to press.
+- **Not part of this component**: the 76px square photo slot (3c), the 2a empty-list frame (not a button), and the "Try next — opens at 5 cups" teaser card (1b, 4a, 4b, 5c).
+
 ### Star rating (base `StarRating`)
 Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control.row` (52) tap targets spread with space-between. Filled star `icon.fill.xl`, empty star `icon.xl` stroke in `color.border.muted`; optional caption under `divider.soft`; 5d error state per `state.error.*`.
 
@@ -485,6 +492,8 @@ Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control
 
 ### Buttons
 Primary: `size.button.primary` tall, `color.action.bg`, `2px solid` outline, `shadow.primary`, `button.caps`. Secondary: same geometry on `color.surface.ground` with `color.text.primary`. Tertiary: no background, no border, `label.caps`.
+
+Trailing icon (base `Button`, 2026-10-05): an optional glyph after the label (5a "Add tasting note →"), `icon.sm`, `gap.row` from the label, coloured like the label: `color.icon.onAction` on primary, `color.icon.default` on secondary, `color.icon.muted` when disabled. 1b's buttons carry a *leading* icon instead; that form has not been built.
 
 Icon button (base `IconButton`): `size.tapTarget` square, `2px solid` `color.border.strong` on `color.surface.raised`, one `icon.md` glyph in `color.icon.default`, no shadow. It is the header close / back control on 3a–3f, 5a, 5b, 5d and 5e. 6d, 7a, 7b and 8e–8m use the same button with the `-2` optical nudge applied at the point of use. The `1.5px` `color.border.muted` frame (3b, 8e) and the `color.badge.bg.accent` fill (2a, 3b) are variants that have not been built.
 
@@ -555,3 +564,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-04 — Shell moved to tokens: `ScreenFrame`, `FooterNav` (rebuilt to the §9 floating bar), tab icons, the Record overlay (now `motion.expand`), `AppShell`. The old `theme/token.ts` was deleted. Screens not yet rebuilt render a plain placeholder; their retired files stay on disk, unreferenced. §9 notes the safe-area rule for 60 / 34. Saves write to local SQLite and are instant. Loading TODOs removed; revisit when Step 5 adds real async (MapKit, barcode lookup).
 - 2026-10-04 — §3.2 platform note + iOS adjustment: on iOS a `lineHeight` below the face's natural line box is dropped. Measured on device: iOS takes the whole deficit from above the baseline and clips to the frame (the "f" in `display.lg` was cut flat), while CSS splits it evenly. The tokens are unchanged, because they are correct in CSS terms. The header's title-to-rule distance is now a container padding (`space.8` → baseline-to-rule 20.4, the source's value) instead of line-box leftover (§9).
 - 2026-10-04 — §9: the ~5.5pt lower title on iOS is reclassified from an open item to an accepted platform difference. The spec follows CSS line-box rules, and matching it would require clipping the top of the line box, which is the bug just fixed.
+- 2026-10-05 — Base components added: `EmptySlot` (the `border.empty` row slot, with default / pressed / disabled states) and a trailing icon on `Button`. Both were needed by Record coffee (5a) but are owned by the base set, not the screen. No new tokens; `drift.md` D-12 records 5x's 11/600 tag against `label.caps`.

@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { color, shadow, shape, size, spacing, state } from '../../theme/tokens';
+import { color, icon, shadow, shape, size, spacing, state } from '../../theme/tokens';
+import Glyph from './Glyph';
 import HardShadow from './HardShadow';
 import Text from './Text';
 
@@ -13,19 +14,32 @@ import Text from './Text';
  *   pressed    the fill darkens (state.pressed.action / .surface); outline,
  *              label and shadow stay — Hard Rule, design-system.md §1
  *
+ * Optional trailing glyph (5a "Add tasting note →"): icon.sm, gap.row after the
+ * label, coloured like the label — onAction on primary, ink on secondary,
+ * muted when disabled. 1b's leading-icon form is not built.
+ *
  * No loading state, deliberately: saves write to local SQLite and complete
  * instantly. Revisit when real async arrives (Step 5: MapKit, barcode lookup).
  *
  * Props
  *   label     fixed copy
  *   variant   'primary' | 'secondary' (default 'primary')
+ *   trailingIcon   optional Glyph name drawn after the label
  *   disabled
  *   onPress
  *   testOnly_pressed   force the pressed look (dev harness)
  */
-export default function Button({ label, variant = 'primary', disabled = false, onPress, testOnly_pressed }) {
+export default function Button({
+  label,
+  variant = 'primary',
+  trailingIcon,
+  disabled = false,
+  onPress,
+  testOnly_pressed,
+}) {
   const primary = variant === 'primary' && !disabled;
   const labelColor = disabled ? 'muted' : primary ? color.action.fg : 'primary';
+  const iconColor = disabled ? color.icon.muted : primary ? color.icon.onAction : color.icon.default;
 
   return (
     <HardShadow shadow={primary ? shadow.primary : null}>
@@ -42,10 +56,11 @@ export default function Button({ label, variant = 'primary', disabled = false, o
           disabled && styles.disabled,
           pressed && !disabled && (primary ? styles.primaryPressed : styles.secondaryPressed),
         ]}>
-        <View style={styles.labelWrap}>
+        <View style={styles.content}>
           <Text variant="buttonCaps" color={labelColor} style={styles.label}>
             {label}
           </Text>
+          {trailingIcon ? <Glyph name={trailingIcon} token={icon.sm} color={iconColor} /> : null}
         </View>
       </Pressable>
     </HardShadow>
@@ -77,10 +92,15 @@ const styles = StyleSheet.create({
     backgroundColor: color.surface.ground,
     borderColor: color.border.muted,
   },
-  labelWrap: {
+  content: {
     alignSelf: 'stretch',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.gap.row,
   },
   label: {
+    flexShrink: 1,
     textAlign: 'center',
   },
 });
