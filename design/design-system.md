@@ -287,6 +287,26 @@ Text styles name a family and a weight the way the design does (`Archivo` + `700
 - Token values are unchanged: the mapping is how the platform reaches them, not a correction to them.
 - **Planned extension (OQ-14, V1.1)**: the key becomes (family, weight, lang) so ja / zh text resolves to a CJK face of the same weight.
 
+**Platform note — line boxes shorter than the font's natural box (2026-10-04, measured on device)**
+
+Each face's natural line box (ascent + descent + lineGap) comes from its font file. hhea, typo and win agree, and CoreText reports the same values, so every engine sees identical metrics:
+
+| face | ascent / descent / gap (per 1000) | natural box | e.g. |
+|---|---|---|---|
+| Instrument Serif | 990 / 310 / 0 | 1.300 em | 52 at 40 |
+| Archivo (500/600/700) | 878 / 210 / 0 | 1.088 em | 15.2 at 14 |
+
+All four serif styles carry a `lineHeight` below their natural box (`display.lg` 41 < 52, `display.sm` 31 < 39, `numeral.hero` 79 < 124.8, `numeral.inline` 22 < 28.6). No Archivo style does.
+- **CSS / web** spreads the deficit evenly as negative half-leading, and ink overflows the box without clipping. The token values describe the design correctly in these terms.
+- **iOS** takes the whole deficit from *above* the baseline, keeps the full descent *below* it, and clips the text to its frame. Measured on `display.lg`: frame 41, baseline 28.6 from the top, tallest ink ("f", 29.9 above the baseline) cut flat at the frame top, and 12.4 of empty descent above the rule.
+
+This is a platform difference, not a token error.
+
+**iOS adjustment**: `resolveTextStyle` drops a `lineHeight` that is shorter than the face's natural box, so those styles render on the natural box. That box contains every glyph by construction (ascent 39.6 ≥ "f" 29.9; descent 12.4 ≥ "g" 8.6 at 40). Spacing around such text is then set by its container, never by line-box leftover (see §9 Screen shell for the header).
+- The rule applies to all four serif styles. Only `display.lg` is in use today; `display.sm`, `numeral.hero` and `numeral.inline` get taller boxes on iOS (e.g. 124.8 for the hero numeral). Their containers must be set when each is first used.
+- Web keeps the CSS behaviour; it is a harness target, not a ship target.
+- Android is unverified. Check it on the first Android build.
+
 ---
 
 ## 4. Spacing & Layout
@@ -427,6 +447,10 @@ Every screen is `layout.screen.top` (60) → content → `layout.screen.bottom` 
 
 **RN implementation note (base `ScreenFrame`, 2026-10-04)**: the source frames measure 60 / 34 from the device edge, so they already include the status bar and home indicator. On device: top = `max(safe-area top, layout.screen.top)` and bottom = `max(safe-area bottom, layout.screen.bottom)`. On notched iPhones the inset wins (e.g. 62 at the top on iPhone 16 Pro). On devices without a notch the design value wins. An optional leading control (the 5a close button) sits above the title at `gap.row`. The source's 10px header gap is an equidistant value the scale already absorbed, so it is not drift.
 
+**Title-to-rule distance (2026-10-04)**: set by the header's bottom padding, `space.8`, not by line-box leftover. On iOS the title renders on Instrument Serif's natural box (§3.2), which ends at the descender line, 12.4 below the baseline. So baseline → rule = 12.4 + 8 = **20.4**, the source's distance (40px box + 14px padding).
+- Measured on device for "Profile", "Home", "Record coffee" and a descender test string ("Typography"): nothing clips at the top or the bottom; descenders clear the rule by 11.7.
+- Known remainder: the natural box also reserves 39.6 above the baseline, against CSS's 34.1. Title ink therefore sits about 5.5pt lower in the header than in the source, and the header is 5pt taller (52 + 8 against 41 + 14). Closing that would mean trimming the top of the line box. It is left open, not patched.
+
 ### Section rhythm
 Section heading = a `size.dot.bullet` square (`marker.required` / `marker.optional`) + `label.eyebrow`, optionally a right-aligned status (`icon.xs` + `color.text.success`). Then `gap.section` to the content.
 
@@ -527,3 +551,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-04 — **Token added: `component.tabBar`** (slot 60 × 40, add slot 68 × 40, icon colours `#9B8F87` inactive / `#C6BBD3` calendar accent, plus aliases). Rebuilding the bottom bar found that the extraction had missed both icon colours, because the source writes them in lowercase hex; they are the only lowercase values on in-scope screens. Both clear the ≥3-screen threshold (6 and 5 screens), so they become tokens instead of being snapped to the nearest existing colour. §2 C, §6 correction, `drift.md` "not drift".
 - 2026-10-04 — `drift.md` D-11: the 6a / 8d fade goes solid at 40% of its wrapper; the shell ships the token's 30px band ending at the bar edge.
 - 2026-10-04 — Shell moved to tokens: `ScreenFrame`, `FooterNav` (rebuilt to the §9 floating bar), tab icons, the Record overlay (now `motion.expand`), `AppShell`. The old `theme/token.ts` was deleted. Screens not yet rebuilt render a plain placeholder; their retired files stay on disk, unreferenced. §9 notes the safe-area rule for 60 / 34. Saves write to local SQLite and are instant. Loading TODOs removed; revisit when Step 5 adds real async (MapKit, barcode lookup).
+- 2026-10-04 — §3.2 platform note + iOS adjustment: on iOS a `lineHeight` below the face's natural line box is dropped. Measured on device: iOS takes the whole deficit from above the baseline and clips to the frame (the "f" in `display.lg` was cut flat), while CSS splits it evenly. The tokens are unchanged, because they are correct in CSS terms. The header's title-to-rule distance is now a container padding (`space.8` → baseline-to-rule 20.4, the source's value) instead of line-box leftover (§9).

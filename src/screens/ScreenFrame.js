@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Text from '../components/base/Text';
-import { color, layout, shape, spacing } from '../theme/tokens';
+import { color, layout, shape, space, spacing } from '../theme/tokens';
 
 /**
  * Screen shell (design-system.md §9): header block — optional leading control
@@ -43,7 +43,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: spacing.gap.row,
     paddingHorizontal: layout.gutter,
-    paddingBottom: spacing.inset.container.v,
+    // The title-to-rule distance is this padding, not line-box leftover. The
+    // title renders on Instrument Serif's natural box (§3.2), which ends at the
+    // descender line, 12.4 below the baseline at 40. 12.4 + 8 = 20.4 from the
+    // baseline to the rule, matching the source (40px box + 14px padding).
+    paddingBottom: space[8],
     borderBottomWidth: shape.borderWidth.box,
     borderBottomColor: color.border.strong,
   },
