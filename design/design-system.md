@@ -309,6 +309,8 @@ This is a platform difference, not a token error.
 - Web keeps the CSS behaviour; it is a harness target, not a ship target.
 - Android is unverified. Check it on the first Android build.
 
+**Platform note — no glyph baseline for Yoga on iOS (2026-10-05, measured on device)**: RN on iOS does not report a Text's glyph baseline to Yoga, so `alignItems: 'baseline'` aligns to the bottom of the text frame instead. Measured on `display.lg`: the true baseline was at 99.6 and the aligned box's bottom landed at 112.7. Do not rely on `baseline` alignment; it silently behaves like `flex-end`.
+
 ---
 
 ## 4. Spacing & Layout
@@ -458,6 +460,15 @@ Every screen is `layout.screen.top` (60) → content → `layout.screen.bottom` 
 - **Scroll**: `scroll` makes the whole page scroll, header included, as in 5a's `overflow: auto` root.
 - **Footer**: the footer panel follows the body. It sits on `color.surface.raised` with a 2px ink top rule, padding `space.20` on top, `layout.gutter` at the sides and `max(safe-area bottom, layout.screen.bottom)` below, and stacks its children `gap.section` apart. Like the source's `margin-top: auto`, it sits at the bottom when the content is short and follows the content when it is long. The body keeps `gap.section` of bottom padding so the last block never touches the footer rule (the source's `auto` can collapse to 0).
 
+**Compact header (base `ScreenFrame` `compact`, 2026-10-05, Record coffee)**: an evaluation layout that reclaims vertical space and keeps the close control reachable.
+- **Layout**: the close `IconButton` and the title column share one row, `gap.row` apart. The title column is the `display.lg` title, then `gap.tight` (heading + caption are one meaning unit), then the date / time on one line (`label.caps`, `gap.row` between the two strings). The title stays at `display.lg`; ja / zh titles need its width budget.
+- **Spacing to the rule**: `inset.container.v` (14). The header now ends on an Archivo line whose natural box matches the CSS line box, so the source's 14 applies as-is. The `space.8` of the stacked header only ever corrected for the serif title's 12.4 descent box.
+- **Vertical alignment**: the button is centred on the title column's line boxes (title + `gap.tight` + date line), then shifted **+4pt down** as an optical correction. The column's visible ink starts 10.8 below its top (Instrument Serif's empty ascent above cap height) and ends 2.5 above its bottom (the date line's descent), so the box centre sits about 4 above the ink centre. Tuned by eye at 3× across 0…5 on the 390pt device: 0 and 3 read high, **4** reads centred, 5 reads low.
+- **ja**: pure centring is correct for ja. Hiragino's 40pt line box leaves only 3.4 empty above the ink, and 0 reads centred. The fixed +4 makes ja read about 4pt low. Decided 2026-10-05: ship +4 (English is the only shipping locale) and move the per-language value into the OQ-14 mapping.
+- **Pinned**: with `scroll`, the header (rule included) stays fixed and only the content below the rule scrolls. The ScrollView starts at the rule and clips there. Verified: header pixels are byte-identical between scroll positions.
+- **Measured (390 × 844)**: header to the rule bottom 145.3 (the stacked header was 174); viewport below the rule 698.7, content 728, so it scrolls 29.3. The button + "Log a cup" take 180 of the 346pt row, with 166 clear. 「コーヒーを記録」 and 「コーヒーの記録」 are both 278 wide, fitting the 294 title budget with 16 clear.
+- **Do not use `alignItems: 'baseline'`** for this row: see the §3.2 platform note.
+
 ### Section rhythm
 Section heading = a `size.dot.bullet` square (`marker.required` / `marker.optional`) + `label.eyebrow`, optionally a right-aligned status (`icon.xs` + `color.text.success`). Then `gap.section` to the content.
 
@@ -540,6 +551,7 @@ Also standing: `rotation.sticker = -3` (4 screens; RN wants the number, formatte
     **Decided direction — deferred to V1.1, do not re-decide**: extend the §3.2 mapping from (family, weight) to **(family, weight, lang)**. On **iOS**, ja / zh resolve to explicit per-weight system families — Hiragino Sans for ja, PingFang SC for zh — named per weight rather than relying on `fontWeight` (exact face names to be verified when implemented). On **Android**, ship a **Noto Sans CJK subset** per weight, loaded through the same `fontAssets` path. Not adopted: passing `fontWeight` alongside the Latin face (risks synthetic bold on Archivo).
     **Batched with it**: `label.eyebrow`'s letter spacing (1.6) is tuned for Latin capitals and is wrong for CJK. It is fixed in the same V1.1 i18n pass, most likely as a per-lang value through the same mapping. No change before then.
     **Also batched — CJK chip height (found 2026-10-04 in device review)**: zh chips render taller than ja because of font metrics, not layout. At 12px, PingFang SC's line box is 17px (ascent 13 / descent 4, about 1.4em) against Hiragino Sans's 12px (11 / 1, about 1.0em). The ink is about 11px in both, so zh carries roughly 3px of extra empty line box above and below the glyphs. A second effect makes it uneven within a row: Hiragino Sans has no simplified glyphs such as 师, so on a device that falls back to Hiragino, 咖啡师 mixes in PingFang and gets a taller line box than its row-mates. The layout half is fixed (chips centre their label, `SegmentedControl`). The metric gap is left to the (family, weight, lang) mapping, which resolves zh to PingFang for the whole label. Any per-lang vertical tuning belongs to that mapping, not to per-language padding overrides in components.
+    **Also batched — compact header optical offset (2026-10-05)**: the close button's optical correction is +4 for Latin titles and 0 for ja (§9 Compact header). When the mapping becomes (family, weight, lang), it carries this per-language value too.
 
 ---
 
@@ -571,3 +583,5 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-04 — §9: the ~5.5pt lower title on iOS is reclassified from an open item to an accepted platform difference. The spec follows CSS line-box rules, and matching it would require clipping the top of the line box, which is the bug just fixed.
 - 2026-10-05 — Base components added: `EmptySlot` (the `border.empty` row slot, with default / pressed / disabled states) and a trailing icon on `Button`. Both were needed by Record coffee (5a) but are owned by the base set, not the screen. No new tokens; `drift.md` D-12 records 5x's 11/600 tag against `label.caps`.
 - 2026-10-05 — Record coffee (5a, I MADE IT mode, static): first screen rebuilt from its mock. `ScreenFrame` gains a header meta slot, page scroll and a footer panel (§9 Screen shell). `drift.md` D-13: 5a / 5d / 5e section spacing (16 / 18 / 20) → `gap.section`.
+- 2026-10-05 — §3.2 platform note: iOS gives Yoga no glyph baseline. A short-lived `textBaseline` helper in `fonts.js` computed the baseline from font metrics so the Record coffee close button could sit on the title baseline. It was removed when the header switched to centring the button on the title column; the header was its only consumer, and centring needs no font metrics.
+- 2026-10-05 — §9 Compact header: Record coffee's close button now shares the title row, the date / time drops beneath the title, and the header is pinned. The button is centred on the title column with a +4 optical correction, tuned by eye; it replaced baseline alignment. ja reads centred at 0, so its value moves to the OQ-14 mapping.

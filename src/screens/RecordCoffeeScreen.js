@@ -39,6 +39,7 @@ export default function RecordCoffeeScreen({ onClose }) {
   return (
     <ScreenFrame
       scroll
+      compact
       title="Log a cup"
       leading={<IconButton icon="close" accessibilityLabel="Close" onPress={onClose} />}
       meta={
@@ -97,8 +98,9 @@ export default function RecordCoffeeScreen({ onClose }) {
 
 const styles = StyleSheet.create({
   when: {
-    alignItems: 'flex-end',
-    gap: spacing.gap.tight,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: spacing.gap.row,
   },
   sections: {
     gap: spacing.gap.section,
