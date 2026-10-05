@@ -120,7 +120,7 @@ export default function RecordsScreen() {
 
 const styles = StyleSheet.create({
   list: {
-    // Room under the last row so the floating bar never covers it (§9 Floating bar).
+    // Room under the last row so the bottom bar never covers it (§9 Bottom bar).
     paddingBottom: layout.empty.block,
   },
   month: {

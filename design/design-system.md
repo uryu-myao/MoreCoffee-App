@@ -488,11 +488,11 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 - **Row**: `size.tabBar.height` (60), with the home-indicator inset below it (34 on notched iPhones).
 - **Slots**: five equal slots across the full width, so the icons are evenly spaced and the centre + sits exactly in the middle. Measured at 390pt: slots are 78 wide and icon centres fall every 78 (39 / 117 / 195 / 273 / 351). Edge-to-edge gaps between glyphs are 59 / 47 / 46 / 58, uneven only because the glyphs differ in width (20, 18, 44, 20, 20) and the 44pt add square is the widest.
 - **Pressed**: each slot keeps `component.tabBar.slot` / `addSlot` (60 × 40 / 68 × 40) as the visual box for its pressed fill (§1); the touch area is the whole slot.
-- **Fade band**: above the rule, the fade (`state.fade` over `layout.fade.top`) still eases content out. Rebuilt tab screens keep `layout.empty.block` of room under their content.
+- **No fade band** (removed on review, 2026-10-05): with the bar on the screen edge, the 30pt fade above the rule only covered the content just above the bar. The rule alone separates. Rebuilt tab screens keep `layout.empty.block` of room under their content.
 
 **Why it changed**: the source (6a / 8d, and in flow on 1b / 2a / 4a / 4b) draws a 90%-wide floating bar with `shadow.floating`. That spec was drawn against an empty screen. Over real content (a full Records list) the elevation read as noise and worked against the design, so the bar went full width and the shadow came off.
 
-**Superseded**: the 90% width, the 2px box outline, `shadow.floating`, and the `space.4` side padding. `shadow.floating` now has **no consumer**; it is left in `tokens.ts` pending a decision. `HardShadow` itself is still used by the primary `Button`, `StarRating`'s error state, and the FieldRow harness.
+**Superseded**: the 90% width, the 2px box outline, `shadow.floating`, the `space.4` side padding, and the fade band (`state.fade`, `layout.fade.top`). `shadow.floating`, `state.fade` and `layout.fade.top` now have **no consumer**; they are left in `tokens.ts` pending a decision. `HardShadow` itself is still used by the primary `Button`, `StarRating`'s error state, and the FieldRow harness.
 
 ### Empty slot (base `EmptySlot`, 2026-10-05)
 The `border.empty` slot as a component: always a button, full width. It is the row form from 3a, 3b, 3d, 5a, 5d and 5e.
@@ -628,3 +628,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-05 — Records (2a) reads from the database: `RecordRow`s newest first, grouped under month headers. The source line degrades by mode (`drift.md` D-16), the brew-category badge is withheld (`gaps.md` 10), and the empty state is a plain one-line placeholder (`gaps.md` 5).
 - 2026-10-05 — `SectionLabel` reserves `icon.xs` height, so a status appearing no longer shifts the layout (§9 Section rhythm).
 - 2026-10-05 — §9 Bottom bar replaces the Floating bar spec: full width on the bottom edge, no hard shadow, the 2px top rule as its boundary, five equal slots. The floating 90% bar with `shadow.floating` was drawn against an empty screen; on real content the elevation worked against the design. `shadow.floating` is now unused (kept, pending a decision).
+- 2026-10-05 — §9 Bottom bar: the fade band above the rule is removed. On the edge bar it only covered the content just above it. `state.fade` and `layout.fade.top` are now unused (kept, pending a decision).
