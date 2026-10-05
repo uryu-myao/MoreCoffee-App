@@ -1,7 +1,12 @@
 /**
- * DEV-ONLY seed data. Never imported by the app, so it is never bundled or
- * shipped. Run it against a development database when a screen first needs
- * rows to read; scripts/check-schema.ts runs it on every check.
+ * DEV-ONLY seed data. The app reaches it only through a require() inside an
+ * `if (__DEV__)` branch (src/data/DatabaseProvider.js); Metro folds __DEV__ to
+ * false and drops that branch before collecting dependencies in production
+ * builds, so this module is never bundled or shipped.
+ *
+ * Reference rows (beans / places / products) seed a development database on
+ * first run. Sample cups are used by scripts/check-schema.ts only, so cups
+ * saved on device are never mixed with fixtures.
  *
  * Every value comes from the mocks: 2a's three April records (one per mode),
  * enriched with 5a (Ethiopia Guji, V60 · Comandante C40, Fuglen Tomigaya) and
@@ -16,7 +21,7 @@ export type SeedStatement = { sql: string; params: (string | number | null)[] };
 
 const at = (iso: string) => new Date(iso).getTime();
 
-export function seedStatements(): SeedStatement[] {
+export function seedReferenceStatements(): SeedStatement[] {
   return [
     {
       sql: `INSERT INTO beans (id, name, roaster, origin, region, process, notes, opened_at)
@@ -36,6 +41,11 @@ export function seedStatements(): SeedStatement[] {
       sql: `INSERT INTO products (id, brand, name, container, volume_ml) VALUES (?, ?, ?, ?, ?)`,
       params: [1, 'Boss Craft', 'Black', 'can', 185],
     },
+  ];
+}
+
+export function seedCupStatements(): SeedStatement[] {
+  return [
     {
       // 2a "Ethiopia Guji · I made it · Floral, peach · 4" + 5a's brewer.
       sql: `INSERT INTO cups (id, created_at, rating, mode, note, bean_id, brew_method, grinder)
@@ -55,4 +65,8 @@ export function seedStatements(): SeedStatement[] {
       params: [3, at('2026-04-06T14:05:00+09:00'), 3, 'packaged', 1, 2],
     },
   ];
+}
+
+export function seedStatements(): SeedStatement[] {
+  return [...seedReferenceStatements(), ...seedCupStatements()];
 }

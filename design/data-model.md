@@ -7,7 +7,11 @@ Local-first, on-device SQLite (`expo-sqlite`). This document holds the *why*; co
 - **Drift guard**: `npm run check:schema`, run on every commit by the pre-commit hook (`.githooks/pre-commit`), applies every migration to a scratch database (node:sqlite) and fails if the result differs from `schema.ts`. It checks tables, columns, types, NOT NULL, keys, references, CHECK value lists and the `logged_at` trigger. It then runs the dev seed and probes the constraints.
 - **Dev seed**: `src/data/dev/seed.ts`. It is never imported by the app, so it is never bundled or shipped.
 
-Status (2026-10-05): schema, migrations, types and docs only. No screen reads or writes yet, and `openDatabase()` is not wired into the app. `expo-sqlite` is a native module, so the development build must be rebuilt before the first screen uses it.
+Status (2026-10-05, Step 6b): writes are wired; nothing reads cups yet.
+- `DatabaseProvider` (above `AppShell`, in `App.js`) opens the database and runs pending migrations before the app renders. A failure shows a plain error screen instead of being swallowed. It sits at the root because storage is app-wide infrastructure, not shell layout: every screen needs it and nothing works without it.
+- Dev builds seed the reference rows (beans / places / products) on first run. The seed is required inside an `if (__DEV__)` branch, which Metro drops from production builds.
+- Record coffee reads the most recent bean / café / product / store as its field-set defaults and writes a `cups` row on Save, then dismisses. Only the active mode's columns are written.
+- **Save cannot fail for a remote reason**: the write is a local insert (0.6–1.8 ms measured on device), so there is no spinner, no disabled state and no optimistic UI. A genuine failure (disk full, corrupt database) is shown in an alert, and the overlay stays open with the cup still filled in.
 
 ---
 
@@ -56,7 +60,7 @@ A versioned `schema_migrations (version, name, applied_at)` table, not a single 
 
 - **`logged_at` vs `created_at`**: they are separate so a cup can be back-dated (logged in the evening, drunk in the morning). `logged_at` defaults to `created_at`. SQLite cannot default one column from another, and a BEFORE trigger cannot rewrite `NEW`. So the column is nullable in DDL, and an AFTER INSERT trigger fills it whenever it is inserted as NULL. The app never reads a NULL, and the TS type is `number`.
 - **Required fields**: `rating` is the only required *user-supplied content* field. **`mode` is structural**, so it is required too: it decides which mode-specific columns mean anything. A cup without a mode is invalid data, and allowing NULL would force null-handling into every query that branches on it. Everything else the user enters is optional.
-- **Naming**: the database value is `made_it`. The Record coffee screen still uses `mine` internally; it is unified on `made_it` when the screen is wired to the data (a TODO sits in `RecordCoffeeScreen.js`).
+- **Naming**: the UI uses the database values directly (`made_it`, `barista`, `packaged`); the earlier `mine` is gone.
 - **Mode-specific columns live on `cups`**, all nullable, rather than in per-mode tables. Three short column groups are cheaper than three joins on every list read, and a cup belongs to exactly one mode. The columns of the other two modes are simply NULL.
 - **V1.5 columns, not dead**: `grind_setting`, `water_temp_c` and `ratio` have no UI in V1. They exist so V1.5's parameter-tuning suggestions have history to learn from the day they ship. Removing them as unused would throw that history away. `grind_setting` is REAL because tuning needs a number; its scale is the grinder's own (clicks or dial).
 - **Indexes**: `logged_at` (the list sorts on it), plus each reference column.

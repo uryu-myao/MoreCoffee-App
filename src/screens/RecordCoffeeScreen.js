@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import Button from '../components/base/Button';
 import EmptySlot from '../components/base/EmptySlot';
 import FieldRow from '../components/base/FieldRow';
@@ -9,23 +9,27 @@ import SectionLabel from '../components/base/SectionLabel';
 import SegmentedControl from '../components/base/SegmentedControl';
 import StarRating from '../components/base/StarRating';
 import Text from '../components/base/Text';
+import { useDatabase } from '../data/DatabaseProvider';
+import { insertCup, loadRecordDefaults } from '../data/repository';
 import { color, icon, motion, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
 /**
- * Record coffee — 5a "Log a cup", static pass. All three maker modes; every
- * field set is the mock's sample (5a for I made it / Barista, 5e for
- * Packaged). Nothing is read or saved; rows render a chevron and do nothing.
+ * Record coffee — 5a "Log a cup". All three maker modes. Field sets show the
+ * most recent bean / café / product / store from the database (dev builds
+ * seed them on first run); rows render a chevron and do nothing yet.
+ * SAVE THIS CUP inserts a cup row and dismisses — a local insert, so there is
+ * no spinner, no disabled state and nothing to wait for. A genuine failure is
+ * shown plainly and the overlay stays open, so the cup is never silently lost.
  *
  * Switching modes keeps the rating (it is about the cup, not who made it),
  * resets the conditional field set (keyed by mode), and keeps the photo slot.
  *
  * Section spacing is gap.section (12); the source's 16 / 18 / 20 is drift.md D-13.
  */
-// TODO(data wiring): rename 'mine' to the database value 'made_it' (cups.mode,
-// design/data-model.md) when this screen reads and writes cups.
+/** Values are cups.mode (design/data-model.md). */
 const MAKERS = [
-  { value: 'mine', label: 'I made it' },
+  { value: 'made_it', label: 'I made it' },
   { value: 'barista', label: 'Barista' },
   { value: 'packaged', label: 'Packaged' },
 ];
@@ -39,7 +43,7 @@ const expandEasing = Easing.bezier(...motion.expand.controlPoints);
  * the error summary), so it is written to 5e's pattern.
  */
 const INTRO = {
-  mine: 'Marked fields are required — all of them start pre-filled.',
+  made_it: 'Marked fields are required — all of them start pre-filled.',
   barista: 'Cups made for you skip beans and brewing — two fields left.',
   packaged: 'Packaged cups skip brewing and café — two fields left.',
 };
@@ -95,36 +99,70 @@ function Section({ label, status, children }) {
   );
 }
 
-/* TODO(Step 5): rows open their pickers; tapping does nothing yet. */
-function MineFields() {
+/**
+ * Defaults with no table behind them yet (no gear or drink tables in V1): the
+ * mock's values, written into the cup as-is.
+ */
+const DEFAULT_BREW_METHOD = 'V60';
+const DEFAULT_GRINDER = 'Comandante C40';
+const DEFAULT_DRINK = 'Flat white';
+
+/** Shown for a field with no row behind it (an empty database). TODO(Step 5): pickers. */
+const NONE = '—';
+
+const DAY_MS = 86400000;
+
+/*
+ * Meta lines: only what the stored rows can back. The mock's history- and
+ * location-derived lines ("drink now", "250 m away · your 4th visit", "What you
+ * ordered here last time", "Bought twice in the last month") and 5e's
+ * "Chilled, unsweetened" (not in the schema) wait for the features behind them.
+ * TODO(Step 5): rows open their pickers; tapping does nothing yet.
+ */
+function beanMeta(bean) {
+  if (!bean) return undefined;
+  if (bean.opened_at == null) return bean.roaster ?? undefined;
+  const day = Math.floor((Date.now() - bean.opened_at) / DAY_MS);
+  return [bean.roaster, `day ${day}`].filter(Boolean).join(' · ');
+}
+
+const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
+
+function MadeItFields({ defaults }) {
+  const { bean } = defaults;
   return (
     <Section label="From my shelf" status="prefilled">
       <View style={styles.card}>
-        <FieldRow swatch label="Beans" value="Ethiopia Guji" meta="Blue Bottle · day 7, drink now" />
-        <FieldRow divided label="Method" value="V60 · Comandante C40" meta="Your default brewer" />
+        <FieldRow swatch label="Beans" value={bean?.name ?? NONE} meta={beanMeta(bean)} />
+        <FieldRow divided label="Method" value={`${DEFAULT_BREW_METHOD} · ${DEFAULT_GRINDER}`} meta="Your default brewer" />
       </View>
     </Section>
   );
 }
 
-function BaristaFields() {
+function BaristaFields({ defaults }) {
   return (
     <Section label="Café details" status="prefilled">
       <View style={styles.card}>
-        <FieldRow icon="pin" label="Café" value="Fuglen Tomigaya" meta="250 m away · your 4th visit" />
-        <FieldRow divided label="Drink" value="Flat white" meta="What you ordered here last time" />
+        <FieldRow icon="pin" label="Café" value={defaults.cafe?.name ?? NONE} />
+        <FieldRow divided label="Drink" value={DEFAULT_DRINK} />
       </View>
     </Section>
   );
 }
 
-function PackagedFields() {
+function PackagedFields({ defaults }) {
+  const { product, store } = defaults;
+  const brand = product ? [product.brand, product.name].filter(Boolean).join(' · ') : NONE;
+  const pack = product
+    ? [product.container && capitalise(product.container), product.volume_ml && `${product.volume_ml} ml`].filter(Boolean).join(' · ') || NONE
+    : NONE;
   return (
     <View style={styles.fieldSets}>
       <Section label="Product" status="prefilled">
         <View style={styles.card}>
-          <FieldRow icon="can" label="Brand" value="Boss Craft · Black" meta="Bought twice in the last month" />
-          <FieldRow divided label="Package" value="Can · 185 ml" meta="Chilled, unsweetened" />
+          <FieldRow icon="can" label="Brand" value={brand} />
+          <FieldRow divided label="Package" value={pack} />
         </View>
       </Section>
       <Section label="Bought at" status="optional">
@@ -135,11 +173,11 @@ function PackagedFields() {
         <View style={styles.weakFrame}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Bought at 7-Eleven · Tomigaya"
+            accessibilityLabel={`Bought at ${store?.name ?? NONE}`}
             style={({ pressed }) => [styles.inlineRow, pressed && styles.inlineRowPressed]}>
             <Glyph name="bag" token={icon.md} color={color.icon.muted} />
             <Text variant="label" truncate="name" style={styles.inlineName}>
-              7-Eleven · Tomigaya
+              {store?.name ?? NONE}
             </Text>
           </Pressable>
         </View>
@@ -148,7 +186,7 @@ function PackagedFields() {
   );
 }
 
-const FIELD_SETS = { mine: MineFields, barista: BaristaFields, packaged: PackagedFields };
+const FIELD_SETS = { made_it: MadeItFields, barista: BaristaFields, packaged: PackagedFields };
 
 /**
  * The block's height follows its content with the product's one motion
@@ -188,10 +226,56 @@ function ExpandingBlock({ children }) {
   );
 }
 
+const EMPTY_DEFAULTS = { bean: null, cafe: null, product: null, store: null };
+
 export default function RecordCoffeeScreen({ onClose }) {
+  const db = useDatabase();
   const [rating, setRating] = useState(4);
-  const [maker, setMaker] = useState('mine');
+  const [maker, setMaker] = useState('made_it');
+  const [defaults, setDefaults] = useState(null);
   const Fields = FIELD_SETS[maker];
+
+  useEffect(() => {
+    let alive = true;
+    loadRecordDefaults(db).then(
+      (d) => alive && setDefaults(d),
+      (error) => {
+        console.error('[record] could not read defaults', error);
+        if (!alive) return;
+        setDefaults(EMPTY_DEFAULTS);
+        Alert.alert("Couldn't read your beans and places", String(error?.message ?? error));
+      }
+    );
+    return () => {
+      alive = false;
+    };
+  }, [db]);
+
+  const save = async () => {
+    try {
+      await insertCup(db, {
+        rating,
+        mode: maker,
+        beanId: defaults?.bean?.id ?? null,
+        brewMethod: DEFAULT_BREW_METHOD,
+        grinder: DEFAULT_GRINDER,
+        placeId: defaults?.cafe?.id ?? null,
+        drinkType: DEFAULT_DRINK,
+        productId: defaults?.product?.id ?? null,
+        boughtAtPlaceId: defaults?.store?.id ?? null,
+      });
+      onClose();
+    } catch (error) {
+      // Never drop a cup silently: say so, and keep the overlay open with
+      // everything still filled in so the user can try again.
+      console.error('[record] save failed', error);
+      Alert.alert("This cup wasn't saved", String(error?.message ?? error));
+    }
+  };
+
+  // The defaults are a local read (milliseconds); render once they are in, so
+  // the field sets never flash empty values while the sheet slides up.
+  if (!defaults) return null;
 
   return (
     <ScreenFrame
@@ -211,8 +295,7 @@ export default function RecordCoffeeScreen({ onClose }) {
       }
       footer={
         <>
-          {/* TODO(Step 5): saving lands with the data layer; inert for now. */}
-          <Button label="Save this cup" />
+          <Button label="Save this cup" onPress={save} />
           {/* TODO(Step 5): opens the tasting note (5b). */}
           <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" />
         </>
@@ -235,7 +318,7 @@ export default function RecordCoffeeScreen({ onClose }) {
 
         <ExpandingBlock>
           {/* Keyed by mode: a switch remounts the field set, so nothing carries over. */}
-          <Fields key={maker} />
+          <Fields key={maker} defaults={defaults} />
         </ExpandingBlock>
 
         {/* TODO(Step 5): opens the camera / library; inert for now. */}

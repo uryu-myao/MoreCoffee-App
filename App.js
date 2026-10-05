@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppShell from './src/AppShell';
+import DatabaseProvider from './src/data/DatabaseProvider';
 import DevHarness from './src/dev/DevHarness';
 import { fontAssets } from './src/theme/fonts';
 
@@ -16,7 +17,13 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      {SHOW_DEV_HARNESS ? <DevHarness /> : <AppShell />}
+      {SHOW_DEV_HARNESS ? (
+        <DevHarness />
+      ) : (
+        <DatabaseProvider>
+          <AppShell />
+        </DatabaseProvider>
+      )}
       <StatusBar style="dark" />
     </SafeAreaProvider>
   );
