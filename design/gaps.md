@@ -121,6 +121,19 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 **Needs designing**: whether the underline renders, and in which colour.
 
+
+---
+
+## 10. Brew category has no column — the 2a badge is not shown
+
+**Parts affected**: the Records list (2a). Each row's first badge ("FILTER" / "ESPRESSO" / "COLD BREW", accent tone) is a brew category.
+
+**Measured**: the data model has no brew category. `brew_method` holds the brewer ("V60") and exists only for `made_it`; barista and packaged cups have no brewing data at all.
+
+**Decided (2026-10-05)**: the badge is **not shown**, and it is **not derived from `brew_method`**. A derivation needs a lookup table full of real judgement calls (is an AeroPress filter or espresso? a moka pot?), and it would only ever cover `made_it`. A derivation that is incomplete from day one is worse than an absent field.
+
+**Needs designing**: a `brew_category` column with a deliberately settled taxonomy. **Fold this into the Try Next work**, which needs that dimension anyway; do not rush it into a screen.
+
 ---
 
 ## Step 4 device verification — RESOLVED (2026-10-04)

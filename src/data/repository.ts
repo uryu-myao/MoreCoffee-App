@@ -66,5 +66,55 @@ export async function insertCup(db: SQLiteDatabase, cup: NewCup): Promise<number
       packaged ? cup.boughtAtPlaceId : null,
     ]
   );
+  notifyCupsChanged();
   return result.lastInsertRowId;
+}
+
+/* ── Change signal ─────────────────────────────────────────────────────────
+ * Screens that read cups subscribe; every write notifies. A screen left
+ * mounted under the Record overlay (the Records tab) refreshes after a save.
+ */
+type Listener = () => void;
+const cupListeners = new Set<Listener>();
+
+export function onCupsChanged(listener: Listener): () => void {
+  cupListeners.add(listener);
+  return () => {
+    cupListeners.delete(listener);
+  };
+}
+
+function notifyCupsChanged() {
+  cupListeners.forEach((listener) => listener());
+}
+
+/** A cup with the names it points at, for the Records list (2a). */
+export type CupListItem = {
+  id: number;
+  logged_at: number;
+  rating: number;
+  mode: CupMode;
+  note: string | null;
+  drink_type: string | null;
+  bean_name: string | null;
+  bean_roaster: string | null;
+  bean_process: Bean['process'];
+  place_name: string | null;
+  product_brand: string | null;
+  product_name: string | null;
+};
+
+/** Every cup, newest first (by when it was drunk, then by insertion). */
+export async function listCups(db: SQLiteDatabase): Promise<CupListItem[]> {
+  return db.getAllAsync<CupListItem>(
+    `SELECT c.id, c.logged_at, c.rating, c.mode, c.note, c.drink_type,
+            b.name AS bean_name, b.roaster AS bean_roaster, b.process AS bean_process,
+            p.name AS place_name,
+            pr.brand AS product_brand, pr.name AS product_name
+       FROM cups c
+       LEFT JOIN beans b ON b.id = c.bean_id
+       LEFT JOIN places p ON p.id = c.place_id
+       LEFT JOIN products pr ON pr.id = c.product_id
+      ORDER BY c.logged_at DESC, c.id DESC`
+  );
 }

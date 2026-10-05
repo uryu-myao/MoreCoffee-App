@@ -1,7 +1,8 @@
 import PlaceholderScreen from './PlaceholderScreen';
+import RecordsScreen from './RecordsScreen';
 
-// Every tab shows a placeholder until its screen is rebuilt from the mock
-// (Step 5). The retired screens — HomeScreen, CoffeeListScreen, SearchScreen,
+// Tabs show a placeholder until their screen is rebuilt from the mock.
+// Records (2a) is rebuilt. The retired screens — HomeScreen, CoffeeListScreen, SearchScreen,
 // ProfileScreen, NoticeListScreen, NoticeDetailScreen, AddCoffeeScreen — stay
 // on disk, unreferenced and out of the bundle, as the record of what the old
 // screens did.
@@ -12,7 +13,7 @@ const placeholder = (title) =>
 
 export const SCREEN_COMPONENTS = {
   home: placeholder('Home'),
-  records: placeholder('Records'),
+  records: RecordsScreen,
   tryNext: placeholder('Try next'),
   profile: placeholder('Profile'),
 };
