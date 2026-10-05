@@ -502,7 +502,7 @@ The optional "Bought at" row in Record coffee's Packaged mode is composed inline
 - a **weak frame**: `shape.borderWidth.divider` (1.5) in `color.border.muted` on `color.surface.raised`, not the 2px ink card;
 - an **inline glyph**: `bag`, `icon.md`, `color.icon.muted`, with no swatch;
 - the **name** in `label`, truncated with the `name` preset, filling the row;
-- a **right-aligned value** ("¥180") in `label`, `color.text.secondary`;
+- ~~a right-aligned value ("¥180")~~ — dropped 2026-10-05: the data model has no price (`drift.md` D-15, `data-model.md`);
 - **no chevron** and no eyebrow label. It is inert; pressed darkens it to `state.pressed.surface` (§1).
 
 Padding is `inset.control` (the source's 13 / 16 folds to it) and the gap is `space.12` (the source's 11 folds to it). It sits under a `SectionLabel` with the `optional` status.
@@ -605,3 +605,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-05 — Record coffee: Barista (5a) and Packaged (5e) field sets built. The 5e "Bought at" row is an inline composition recorded in §9, with a promotion rule so a second occurrence becomes a base component. Mode switches keep the rating and the photo slot, reset the field set, and animate the height with `motion.expand`.
 - 2026-10-05 — Record coffee intro line is now per mode: 5a and 5e verbatim; the Barista line is written to 5e's pattern, pending review. It crossfades with `motion.expand`.
 - 2026-10-05 — Intro copy: Packaged "Bottled cups…" → "Packaged cups…" (D-14: the rename wins over the 5e mock); Barista "Café cups…" → "Cups made for you…", so every line names who made the cup.
+- 2026-10-05 — Data layer (Step 6): schema, migrations and types in `src/data/`, reasoning in `data-model.md`. No price column, so the Bought at row drops ¥180 (`drift.md` D-15).

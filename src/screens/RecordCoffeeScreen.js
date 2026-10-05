@@ -127,19 +127,17 @@ function PackagedFields() {
       </Section>
       <Section label="Bought at" status="optional">
         {/* Inline composition, 5e only (design-system.md §9 Bought at row): weak
-            1.5px frame, inline bag glyph, name, right-aligned value, no chevron.
+            1.5px frame, inline bag glyph, store name, no chevron. 5e's ¥180 is
+            dropped — there is no price in the data model (drift.md D-15).
             A second occurrence promotes it to a base component. */}
         <View style={styles.weakFrame}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Bought at 7-Eleven · Tomigaya, ¥180"
+            accessibilityLabel="Bought at 7-Eleven · Tomigaya"
             style={({ pressed }) => [styles.inlineRow, pressed && styles.inlineRowPressed]}>
             <Glyph name="bag" token={icon.md} color={color.icon.muted} />
             <Text variant="label" truncate="name" style={styles.inlineName}>
               7-Eleven · Tomigaya
-            </Text>
-            <Text variant="label" color="secondary">
-              ¥180
             </Text>
           </Pressable>
         </View>
