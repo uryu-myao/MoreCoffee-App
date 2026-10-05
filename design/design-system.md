@@ -472,6 +472,8 @@ Every screen is `layout.screen.top` (60) → content → `layout.screen.bottom` 
 ### Section rhythm
 Section heading = a `size.dot.bullet` square (`marker.required` / `marker.optional`) + `label.eyebrow`, optionally a right-aligned status (`icon.xs` + `color.text.success`). Then `gap.section` to the content.
 
+**Stable height (base `SectionLabel`, 2026-10-05)**: the row reserves `icon.xs` height (14) whether or not a status is shown. The check glyph is taller than the eyebrow line box (about 11), so rows with SET / PRE-FILLED used to be 3pt taller, and a REQUIRED → SET or unrated → SET change pushed everything below it down. Measured on device: no status and all five statuses give 14; tapping the first star moves nothing. The status text is not shrunk; only a wrapping label can make the row taller.
+
 ### List row
 `[thumbnail] [content column] [right meta column]`. The right column stacks rating over date, right-aligned — dates and ratings align down the whole list because they live in a fixed-width column, not at the end of a text run. Content column: title (`title`) → chips (`badge.inline`) → provenance (`body.sm`) → tasting note (`body.sm`, `color.text.muted`).
 
@@ -622,3 +624,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-05 — Record coffee writes real cups (Step 6b). Field sets read their values from the database, and meta lines show only what the stored rows can back. The mock's history- and location-derived lines ("drink now", "250 m away · your 4th visit", "What you ordered here last time", "Bought twice in the last month") and "Chilled, unsweetened" wait for the features behind them.
 - 2026-10-05 — Base components added: `Badge` and `RecordRow`, for the Records list (2a). No new tokens. Record coffee now defaults its rating to 0, with Save disabled until a star is tapped (minimum viable validation), and shows the live date / time it will store, formatted by Intl.
 - 2026-10-05 — Records (2a) reads from the database: `RecordRow`s newest first, grouped under month headers. The source line degrades by mode (`drift.md` D-16), the brew-category badge is withheld (`gaps.md` 10), and the empty state is a plain one-line placeholder (`gaps.md` 5).
+- 2026-10-05 — `SectionLabel` reserves `icon.xs` height, so a status appearing no longer shifts the layout (§9 Section rhythm).

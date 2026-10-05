@@ -65,6 +65,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.gap.row,
+    // Reserve the status glyph's height on every row. The check (icon.xs, 14)
+    // is taller than the eyebrow line box (~11), so without this a row grew 3pt
+    // when SET / PRE-FILLED appeared and everything below it moved — e.g. on the
+    // first star tap. Same height for every status and for none.
+    minHeight: icon.xs.size,
   },
   bullet: {
     width: size.dot.bullet,
