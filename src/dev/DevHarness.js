@@ -7,6 +7,7 @@ import ButtonPage from './pages/ButtonPage';
 import EmptySlotPage from './pages/EmptySlotPage';
 import FieldRowPage from './pages/FieldRowPage';
 import IconButtonPage from './pages/IconButtonPage';
+import RecordRowPage from './pages/RecordRowPage';
 import SectionLabelPage from './pages/SectionLabelPage';
 import SegmentedControlPage from './pages/SegmentedControlPage';
 import StarRatingPage from './pages/StarRatingPage';
@@ -27,6 +28,7 @@ const PAGES = [
   { key: 'button', title: 'Button', Page: ButtonPage },
   { key: 'iconButton', title: 'IconButton', Page: IconButtonPage },
   { key: 'emptySlot', title: 'EmptySlot', Page: EmptySlotPage },
+  { key: 'recordRow', title: 'Badge · RecordRow', Page: RecordRowPage },
 ];
 
 export default function DevHarness() {

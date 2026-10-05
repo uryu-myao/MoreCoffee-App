@@ -497,6 +497,19 @@ The `border.empty` slot as a component: always a button, full width. It is the r
 - **States**: default; **pressed**, where the fill darkens to `state.pressed.surface` (§1 Hard Rule); **disabled** (5d), where the frame drops to `dashed.emptyDisabled`, the glyph to `color.icon.muted` and the label to `color.text.secondary`. A disabled slot does not respond to press.
 - **Not part of this component**: the 76px square photo slot (3c), the 2a empty-list frame (not a button), and the "Try next — opens at 5 cups" teaser card (1b, 4a, 4b, 5c).
 
+### Badge (base `Badge`, 2026-10-05)
+A chip that labels, never acts: square, filled, no border, `label.eyebrow` (2a's 11/700/.06em folds to it).
+- **Tones**: `neutral` · `accent` · `success` · `info` · `raised` · `selected`, each `color.badge.bg.*` with its paired `color.badge.fg.*`.
+- **Placements**: `inline` (`badge.inline`, inside a list row) and `standalone` (`badge.standalone`, alone on a surface), as §4 splits them.
+- **Mode badges**: `made_it` → success ("I made it"), `barista` → info ("Barista"), `packaged` → neutral ("Packaged"); colours from 2a.
+- **Single line**: it keeps its own width rather than wrapping (the source's `nowrap`). Long translations are `gaps.md` 7. Not tappable; OQ-13 still decides which chips act.
+
+### Record row (base `RecordRow`, 2026-10-05)
+The List row pattern above as a component (source 2a): a `size.thumbnail.list` placeholder thumbnail, then the content column (`title` with `name` truncation → inline Badges, `gap.row` apart → source in `body`, `color.text.secondary`, `meta` truncation → note in `body.sm`, muted, `note` truncation), then the fixed right column (`icon.fill.sm` star + `numeral.inline` rating over the `label.eyebrow` date).
+- **Spacing**: `space.14` between columns, `space.16` vertical padding, and a top hairline in `color.divider.hairlineStrong` (2a's #D8C9BF). The content column stacks `gap.tight` apart; the source's 5 folds to it.
+- **§3.2 adjustment**: `numeral.inline` renders on its natural 28.6 box on iOS, 6.8 below the baseline, against the spec's 22px box with 3.5 below. The right column therefore stacks rating and date with **0** gap, not the source's 4. That puts the date 6.8 under the digits, against 7.5 in the source; with 4 it would be 10.8. `lineHeight` is untouched.
+- Informational: no press, no chevron. The detail screen does not exist yet. Photos show once they can be added (TODO).
+
 ### Bought at row (inline composition in Record coffee, 5e — not a base component)
 The optional "Bought at" row in Record coffee's Packaged mode is composed inline in the screen from `Glyph` + `Text`. It is not built from `FieldRow`, because its anatomy differs:
 - a **weak frame**: `shape.borderWidth.divider` (1.5) in `color.border.muted` on `color.surface.raised`, not the 2px ink card;
@@ -607,3 +620,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-05 — Intro copy: Packaged "Bottled cups…" → "Packaged cups…" (D-14: the rename wins over the 5e mock); Barista "Café cups…" → "Cups made for you…", so every line names who made the cup.
 - 2026-10-05 — Data layer (Step 6): schema, migrations and types in `src/data/`, reasoning in `data-model.md`. No price column, so the Bought at row drops ¥180 (`drift.md` D-15).
 - 2026-10-05 — Record coffee writes real cups (Step 6b). Field sets read their values from the database, and meta lines show only what the stored rows can back. The mock's history- and location-derived lines ("drink now", "250 m away · your 4th visit", "What you ordered here last time", "Bought twice in the last month") and "Chilled, unsweetened" wait for the features behind them.
+- 2026-10-05 — Base components added: `Badge` and `RecordRow`, for the Records list (2a). No new tokens. Record coffee now defaults its rating to 0, with Save disabled until a star is tapped (minimum viable validation), and shows the live date / time it will store, formatted by Intl.

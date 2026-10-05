@@ -228,9 +228,51 @@ function ExpandingBlock({ children }) {
 
 const EMPTY_DEFAULTS = { bean: null, cafe: null, product: null, store: null };
 
+/*
+ * Header date / time: the live clock, since it is what Save stores (created_at,
+ * and logged_at with it). Formatted by Intl in the device locale — ja / zh
+ * order these differently — in 5a's shape: "Wed, Apr 8" / "08:20 · Morning".
+ */
+const dateFormat = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+
+/**
+ * Part of day, as 5a / 5e word it ("Morning", "Afternoon"). Intl has no
+ * equivalent of these words (its dayPeriod gives "in the morning"), so this is
+ * copy. TODO(i18n): translate with the other strings; the hour boundaries are
+ * an assumption, not from a mock.
+ */
+function partOfDay(date) {
+  const h = date.getHours();
+  if (h >= 5 && h < 12) return 'Morning';
+  if (h >= 12 && h < 17) return 'Afternoon';
+  if (h >= 17 && h < 22) return 'Evening';
+  return 'Night';
+}
+
+/** Re-renders on each minute boundary, so the header never shows a stale minute. */
+function useMinuteClock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    let timer;
+    const tick = () => {
+      const current = new Date();
+      setNow(current);
+      timer = setTimeout(tick, 60000 - (current.getSeconds() * 1000 + current.getMilliseconds()));
+    };
+    timer = setTimeout(tick, 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()));
+    return () => clearTimeout(timer);
+    // Started once; tick reschedules itself.
+  }, []);
+  return now;
+}
+
 export default function RecordCoffeeScreen({ onClose }) {
   const db = useDatabase();
-  const [rating, setRating] = useState(4);
+  // 0 = not rated yet. Rating is the one required field (the database rejects
+  // anything outside 1–5), so Save stays disabled until a star is tapped.
+  const [rating, setRating] = useState(0);
+  const now = useMinuteClock();
   const [maker, setMaker] = useState('made_it');
   const [defaults, setDefaults] = useState(null);
   const Fields = FIELD_SETS[maker];
@@ -286,16 +328,17 @@ export default function RecordCoffeeScreen({ onClose }) {
       meta={
         <View style={styles.when}>
           <Text variant="labelCaps" color="muted">
-            Wed, Apr 8
+            {dateFormat.format(now)}
           </Text>
           <Text variant="labelCaps" color="accent">
-            08:20 · Morning
+            {`${timeFormat.format(now)} · ${partOfDay(now)}`}
           </Text>
         </View>
       }
       footer={
         <>
-          <Button label="Save this cup" onPress={save} />
+          {/* Minimum viable validation: the full 5d error state comes later. */}
+          <Button label="Save this cup" onPress={save} disabled={rating === 0} />
           {/* TODO(Step 5): opens the tasting note (5b). */}
           <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" />
         </>
@@ -308,8 +351,10 @@ export default function RecordCoffeeScreen({ onClose }) {
           </View>
         </ExpandingBlock>
 
-        <Section label="How was it?" status="set">
-          <StarRating value={rating} onChange={setRating} caption="Would order again" />
+        {/* SET only once a star is tapped. No caption: 5a's "Would order again" is
+            sample sentiment, and per-rating copy is not designed (TODO(design)). */}
+        <Section label="How was it?" status={rating > 0 ? 'set' : undefined}>
+          <StarRating value={rating} onChange={setRating} />
         </Section>
 
         <Section label="Who made it?" status="set">
