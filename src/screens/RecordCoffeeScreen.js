@@ -31,15 +31,15 @@ const MAKERS = [
 const expandEasing = Easing.bezier(...motion.expand.controlPoints);
 
 /**
- * The intro line per mode. I made it (5a) and Packaged (5e) are verbatim from
- * the mocks. No mock has a Barista line (5d replaces it with the error summary),
- * so that one is written to 5e's pattern: what the mode skips, then how many
- * fields are left.
+ * The intro line per mode, each naming who made the cup. I made it is 5a
+ * verbatim. Packaged is 5e with "Bottled" → "Packaged" (drift.md D-14: the
+ * rename wins over the mock). No mock has a Barista line (5d replaces it with
+ * the error summary), so it is written to 5e's pattern.
  */
 const INTRO = {
   mine: 'Marked fields are required — all of them start pre-filled.',
-  barista: 'Café cups skip beans and brewing — two fields left.',
-  packaged: 'Bottled cups skip brewing and café — two fields left.',
+  barista: 'Cups made for you skip beans and brewing — two fields left.',
+  packaged: 'Packaged cups skip brewing and café — two fields left.',
 };
 
 /**
