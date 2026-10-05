@@ -30,6 +30,60 @@ const MAKERS = [
 
 const expandEasing = Easing.bezier(...motion.expand.controlPoints);
 
+/**
+ * The intro line per mode. I made it (5a) and Packaged (5e) are verbatim from
+ * the mocks. No mock has a Barista line (5d replaces it with the error summary),
+ * so that one is written to 5e's pattern: what the mode skips, then how many
+ * fields are left.
+ */
+const INTRO = {
+  mine: 'Marked fields are required — all of them start pre-filled.',
+  barista: 'Café cups skip beans and brewing — two fields left.',
+  packaged: 'Bottled cups skip brewing and café — two fields left.',
+};
+
+/**
+ * Crossfades from the previous line to the new one with the product's one
+ * motion, so the copy eases with the field block instead of popping. The old
+ * line sits over the new one while it fades out.
+ */
+function IntroText({ text }) {
+  const [shown, setShown] = useState({ current: text, previous: null });
+  const fade = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (text === shown.current) return;
+    setShown({ current: text, previous: shown.current });
+    fade.setValue(0);
+    Animated.timing(fade, {
+      toValue: 1,
+      duration: motion.expand.duration,
+      easing: expandEasing,
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      if (finished) setShown((s) => ({ ...s, previous: null }));
+    });
+    // shown.current is read, not tracked: only a new text starts a fade.
+  }, [text, fade]);
+
+  return (
+    <View style={styles.introText}>
+      <Animated.View style={{ opacity: fade }}>
+        <Text variant="meta" color="muted">
+          {shown.current}
+        </Text>
+      </Animated.View>
+      {shown.previous ? (
+        <Animated.View style={[styles.introPrevious, { opacity: fade.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}>
+          <Text variant="meta" color="muted">
+            {shown.previous}
+          </Text>
+        </Animated.View>
+      ) : null}
+    </View>
+  );
+}
+
 function Section({ label, status, children }) {
   return (
     <View style={styles.section}>
@@ -164,12 +218,12 @@ export default function RecordCoffeeScreen({ onClose }) {
         </>
       }>
       <View style={styles.sections}>
-        <View style={styles.hint}>
-          <View style={styles.bullet} />
-          <Text variant="meta" color="muted" style={styles.hintText}>
-            Marked fields are required — all of them start pre-filled.
-          </Text>
-        </View>
+        <ExpandingBlock>
+          <View style={styles.hint}>
+            <View style={styles.bullet} />
+            <IntroText text={INTRO[maker]} />
+          </View>
+        </ExpandingBlock>
 
         <Section label="How was it?" status="set">
           <StarRating value={rating} onChange={setRating} caption="Would order again" />
@@ -213,8 +267,15 @@ const styles = StyleSheet.create({
     height: size.dot.bullet,
     backgroundColor: color.marker.required,
   },
-  hintText: {
-    flexShrink: 1,
+  introText: {
+    // Full row width, so the outgoing line never re-wraps to the new one's width.
+    flex: 1,
+  },
+  introPrevious: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
   },
   section: {
     gap: spacing.gap.row,
