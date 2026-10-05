@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import DotTexture from '../components/base/DotTexture';
 import Text from '../components/base/Text';
 import { color, layout, shape, space, spacing } from '../theme/tokens';
 
@@ -80,11 +81,14 @@ export default function ScreenFrame({ title, leading, meta, scroll = false, comp
     </>
   );
 
+  // Every variant: a fixed root holding the dot texture, with any ScrollView
+  // above it — so the texture never scrolls and never re-renders on scroll.
   if (scroll && compact) {
     // Pinned header: the ScrollView starts below the rule and clips there, so
     // content passes beneath the header's bottom edge, never beside it.
     return (
       <View style={styles.screen}>
+        <DotTexture />
         {header}
         <ScrollView style={styles.scroller} contentContainerStyle={styles.scrollContent}>
           {page}
@@ -94,12 +98,16 @@ export default function ScreenFrame({ title, leading, meta, scroll = false, comp
   }
 
   return scroll ? (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.scrollContent}>
-      {header}
-      {page}
-    </ScrollView>
+    <View style={styles.screen}>
+      <DotTexture />
+      <ScrollView style={styles.scroller} contentContainerStyle={styles.scrollContent}>
+        {header}
+        {page}
+      </ScrollView>
+    </View>
   ) : (
     <View style={styles.screen}>
+      <DotTexture />
       {header}
       {page}
     </View>
