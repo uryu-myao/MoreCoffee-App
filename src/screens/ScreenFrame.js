@@ -154,7 +154,8 @@ const styles = StyleSheet.create({
   compactRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.gap.row,
+    // Close → title: widened from gap.row (8) on review, 2026-10-05.
+    gap: space[12],
   },
   compactLeading: {
     transform: [{ translateY: COMPACT_LEADING_OPTICAL_Y }],
