@@ -69,19 +69,21 @@ for (const c of cups) if (c.logged_at !== c.created_at) fail(`seed cup ${c.id}: 
 const rejects = (label: string, sql: string) => {
   try { db.exec(sql); fail(`constraint not enforced: ${label}`); } catch { /* expected */ }
 };
-rejects('rating 0', `INSERT INTO cups (rating) VALUES (0)`);
+rejects('rating 0', `INSERT INTO cups (rating, mode) VALUES (0, 'made_it')`);
 rejects('rating missing', `INSERT INTO cups (mode) VALUES ('made_it')`);
+rejects('mode missing', `INSERT INTO cups (rating) VALUES (3)`);
+rejects('free-text roast level', `INSERT INTO beans (name, roast_level) VALUES ('x', 'City+')`);
 rejects('unknown mode', `INSERT INTO cups (rating, mode) VALUES (3, 'gifted')`);
 rejects('unknown process', `INSERT INTO beans (name, process) VALUES ('x', 'anaerobic')`);
 rejects('bean notes not an array', `INSERT INTO beans (name, notes) VALUES ('x', '"floral"')`);
 rejects('unknown place kind', `INSERT INTO places (name, kind) VALUES ('x', 'kiosk')`);
 rejects('unknown container', `INSERT INTO products (brand, container) VALUES ('x', 'jar')`);
-rejects('dangling bean_id', `INSERT INTO cups (rating, bean_id) VALUES (3, 999)`);
+rejects('dangling bean_id', `INSERT INTO cups (rating, mode, bean_id) VALUES (3, 'made_it', 999)`);
 rejects('duplicate external_id', `INSERT INTO places (name, kind, external_id) VALUES ('a', 'cafe', 'mk1'); INSERT INTO places (name, kind, external_id) VALUES ('b', 'cafe', 'mk1')`);
 
-const minimal = db.prepare('INSERT INTO cups (rating) VALUES (5)').run();
+const minimal = db.prepare("INSERT INTO cups (rating, mode) VALUES (5, 'barista')").run();
 const row = db.prepare('SELECT created_at, logged_at FROM cups WHERE id = ?').get(minimal.lastInsertRowid) as { created_at: number; logged_at: number };
-if (!row.created_at || row.logged_at !== row.created_at) fail('a cup with only a rating did not get created_at / logged_at defaults');
+if (!row.created_at || row.logged_at !== row.created_at) fail('a minimal cup (rating + mode) did not get created_at / logged_at defaults');
 
 if (problems.length) {
   console.error(`check:schema FAILED (${problems.length})\n  - ${problems.join('\n  - ')}`);

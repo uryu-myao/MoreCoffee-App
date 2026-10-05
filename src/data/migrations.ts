@@ -34,7 +34,7 @@ export const migrations: readonly Migration[] = [
         origin TEXT,
         region TEXT,
         process TEXT CHECK (process IN ('washed', 'natural', 'honey', 'other')),
-        roast_level TEXT,
+        roast_level TEXT CHECK (roast_level IN ('light', 'medium-light', 'medium', 'medium-dark', 'dark', 'other')),
         notes TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(notes) AND json_type(notes) = 'array'),
         opened_at INTEGER
       )`,
@@ -58,7 +58,7 @@ export const migrations: readonly Migration[] = [
         created_at INTEGER NOT NULL DEFAULT (${NOW_MS}),
         logged_at INTEGER,
         rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
-        mode TEXT CHECK (mode IN ('made_it', 'barista', 'packaged')),
+        mode TEXT NOT NULL CHECK (mode IN ('made_it', 'barista', 'packaged')),
         photo_uri TEXT,
         note TEXT,
         bean_id INTEGER REFERENCES beans(id) ON DELETE SET NULL,

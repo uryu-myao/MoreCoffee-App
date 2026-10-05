@@ -33,9 +33,13 @@ export const schema = {
     created_at: { type: 'INTEGER', nullable: false },
     /** When the cup was drunk. Separate from created_at so a cup can be back-dated. */
     logged_at: { type: 'INTEGER', nullable: false, defaultFrom: 'created_at' },
-    /** 1–5. The only required field besides ids and timestamps. */
+    /** 1–5. The only required user-supplied content field. */
     rating: { type: 'INTEGER', nullable: false },
-    mode: { type: 'TEXT', nullable: true, values: ['made_it', 'barista', 'packaged'] },
+    /**
+     * Structural, so required: it decides which mode-specific columns mean
+     * anything. The UI's internal "mine" becomes "made_it" when it is wired up.
+     */
+    mode: { type: 'TEXT', nullable: false, values: ['made_it', 'barista', 'packaged'] },
     photo_uri: { type: 'TEXT', nullable: true },
     note: { type: 'TEXT', nullable: true },
 
@@ -77,7 +81,8 @@ export const schema = {
     origin: { type: 'TEXT', nullable: true },
     region: { type: 'TEXT', nullable: true },
     process: { type: 'TEXT', nullable: true, values: ['washed', 'natural', 'honey', 'other'] },
-    roast_level: { type: 'TEXT', nullable: true },
+    /** Try Next matching dimension, so an ordered enum, never free text. data-model.md. */
+    roast_level: { type: 'TEXT', nullable: true, values: ['light', 'medium-light', 'medium', 'medium-dark', 'dark', 'other'] },
     /**
      * Flavour tags, a JSON array of strings — deliberately not a join table:
      * per-user volume is in the hundreds, and Try Next can scan. data-model.md.

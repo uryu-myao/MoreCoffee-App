@@ -4,7 +4,7 @@ Local-first, on-device SQLite (`expo-sqlite`). This document holds the *why*; co
 
 - **Shape (single source)**: `src/data/schema.ts` declares every column once. The TypeScript row types (`Cup`, `Bean`, `Place`, `Product`) are derived from it, so they cannot drift from it.
 - **DDL**: `src/data/migrations.ts`, as versioned, immutable migrations.
-- **Drift guard**: `npm run check:schema` applies every migration to a scratch database (node:sqlite) and fails if the result differs from `schema.ts`. It checks tables, columns, types, NOT NULL, keys, references, CHECK value lists and the `logged_at` trigger. It then runs the dev seed and probes the constraints.
+- **Drift guard**: `npm run check:schema`, run on every commit by the pre-commit hook (`.githooks/pre-commit`), applies every migration to a scratch database (node:sqlite) and fails if the result differs from `schema.ts`. It checks tables, columns, types, NOT NULL, keys, references, CHECK value lists and the `logged_at` trigger. It then runs the dev seed and probes the constraints.
 - **Dev seed**: `src/data/dev/seed.ts`. It is never imported by the app, so it is never bundled or shipped.
 
 Status (2026-10-05): schema, migrations, types and docs only. No screen reads or writes yet, and `openDatabase()` is not wired into the app. `expo-sqlite` is a native module, so the development build must be rebuilt before the first screen uses it.
@@ -17,6 +17,7 @@ A versioned `schema_migrations (version, name, applied_at)` table, not a single 
 
 - On open: enable foreign keys, create `schema_migrations` if absent, then apply every migration with a version above the highest recorded one, in order.
 - Each migration runs in its own exclusive transaction **together with** its `schema_migrations` row, so a failed migration leaves neither a partial schema nor a false record.
+- Migration 1 was amended on 2026-10-05 (`mode` NOT NULL, `roast_level` CHECK) **before it had ever run anywhere**: `openDatabase()` was not yet wired into any build. That was the last moment such a change is a one-line edit rather than a table rebuild.
 - **Never edit or reorder a shipped migration.** Append a new version, update `schema.ts` to the new shape, and run `check:schema`.
 - The DDL is not generated from `schema.ts` because migrations are history: migration 1 must stay what it was even after the shape moves on. `check:schema` is what keeps the two honest.
 
@@ -39,7 +40,7 @@ A versioned `schema_migrations (version, name, applied_at)` table, not a single 
 | created_at | INTEGER | not null | default now |
 | logged_at | INTEGER | filled | when the cup was drunk; defaults to `created_at` |
 | rating | INTEGER | **not null** | 1–5 |
-| mode | TEXT | null | `made_it` \| `barista` \| `packaged` |
+| mode | TEXT | **not null** | `made_it` \| `barista` \| `packaged` · structural |
 | photo_uri | TEXT | null | |
 | note | TEXT | null | the tasting note |
 | bean_id | INTEGER | null | → beans · made_it |
@@ -54,7 +55,8 @@ A versioned `schema_migrations (version, name, applied_at)` table, not a single 
 | bought_at_place_id | INTEGER | null | → places · packaged |
 
 - **`logged_at` vs `created_at`**: they are separate so a cup can be back-dated (logged in the evening, drunk in the morning). `logged_at` defaults to `created_at`. SQLite cannot default one column from another, and a BEFORE trigger cannot rewrite `NEW`. So the column is nullable in DDL, and an AFTER INSERT trigger fills it whenever it is inserted as NULL. The app never reads a NULL, and the TS type is `number`.
-- **Only `rating` is required**, besides ids and timestamps. That includes `mode`: a cup whose maker was never recorded is still a cup. The UI always sets one, but the model does not insist.
+- **Required fields**: `rating` is the only required *user-supplied content* field. **`mode` is structural**, so it is required too: it decides which mode-specific columns mean anything. A cup without a mode is invalid data, and allowing NULL would force null-handling into every query that branches on it. Everything else the user enters is optional.
+- **Naming**: the database value is `made_it`. The Record coffee screen still uses `mine` internally; it is unified on `made_it` when the screen is wired to the data (a TODO sits in `RecordCoffeeScreen.js`).
 - **Mode-specific columns live on `cups`**, all nullable, rather than in per-mode tables. Three short column groups are cheaper than three joins on every list read, and a cup belongs to exactly one mode. The columns of the other two modes are simply NULL.
 - **V1.5 columns, not dead**: `grind_setting`, `water_temp_c` and `ratio` have no UI in V1. They exist so V1.5's parameter-tuning suggestions have history to learn from the day they ship. Removing them as unused would throw that history away. `grind_setting` is REAL because tuning needs a number; its scale is the grinder's own (clicks or dial).
 - **Indexes**: `logged_at` (the list sorts on it), plus each reference column.
@@ -69,11 +71,12 @@ A versioned `schema_migrations (version, name, applied_at)` table, not a single 
 | origin | TEXT | null | Try Next input |
 | region | TEXT | null | Try Next input |
 | process | TEXT | null | `washed` \| `natural` \| `honey` \| `other` · Try Next input |
-| roast_level | TEXT | null | free text; no scale is designed yet |
+| roast_level | TEXT | null | `light` \| `medium-light` \| `medium` \| `medium-dark` \| `dark` \| `other` · Try Next input |
 | notes | TEXT | not null | flavour tags, JSON array of strings, default `[]` |
 | opened_at | INTEGER | null | drives the freshness meter |
 
 - **Try Next inputs**: `origin`, `region` and `process` are what Try Next reasons from. They are nullable because a bag's label does not always say, but **the UI should encourage filling them**, since a bean without them contributes little to Try Next.
+- **`roast_level` as an ordered enum, not free text**: it is a Try Next matching dimension alongside origin and process. Free text guarantees that "Medium", "medium", "中深", "City+" and "中煎り" all coexist, and none of them compare or yield a distance. Six values give an ordered scale (light → dark), so "one step darker" is computable, plus `other` for labels that do not map. The mocks define no scale, which means the *UI* is undecided, not that storage should be unconstrained; the picker maps whatever it shows onto these values.
 - **`notes` as a JSON array, not a join table**: deliberate. Per-user volume is in the hundreds of beans, so Try Next can scan them all and parse the arrays in memory. A tags table and a join table would add two tables and a join to every bean read, for a query pattern that never needs an index. The column is checked to be a valid JSON array. If tags ever need cross-user aggregation or indexing, that is the point to migrate to a join table.
 
 ### places

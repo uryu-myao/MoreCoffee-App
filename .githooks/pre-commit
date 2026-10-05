@@ -1,0 +1,8 @@
+#!/bin/sh
+# Blocks a commit when the migrations and src/data/schema.ts disagree.
+# Installed by `npm install` (package.json "prepare" sets core.hooksPath).
+# Runs in well under a second; bypass only deliberately with --no-verify.
+npm run -s check:schema || {
+  echo "pre-commit: check:schema failed — migrations and src/data/schema.ts have drifted." >&2
+  exit 1
+}

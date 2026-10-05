@@ -22,6 +22,8 @@ import ScreenFrame from './ScreenFrame';
  *
  * Section spacing is gap.section (12); the source's 16 / 18 / 20 is drift.md D-13.
  */
+// TODO(data wiring): rename 'mine' to the database value 'made_it' (cups.mode,
+// design/data-model.md) when this screen reads and writes cups.
 const MAKERS = [
   { value: 'mine', label: 'I made it' },
   { value: 'barista', label: 'Barista' },
