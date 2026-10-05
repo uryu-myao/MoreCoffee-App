@@ -20,7 +20,8 @@ Status (2026-10-05, Step 6b): writes are wired; nothing reads cups yet.
 A versioned `schema_migrations (version, name, applied_at)` table, not a single setup script. The schema will change, and users will have data by then.
 
 - On open: enable foreign keys, create `schema_migrations` if absent, then apply every migration with a version above the highest recorded one, in order.
-- Each migration runs in its own exclusive transaction **together with** its `schema_migrations` row, so a failed migration leaves neither a partial schema nor a false record.
+- Each migration runs in its own transaction **together with** its `schema_migrations` row, so a failed migration leaves neither a partial schema nor a false record. On native that transaction is exclusive (its own connection). On web, where expo-sqlite does not support exclusive transactions, it is a regular one, still atomic (`inTransaction` in `migrate.ts`).
+- **Web** (dev harness / browser checks only): expo-sqlite runs as WebAssembly (wa-sqlite). `metro.config.js` registers `.wasm` as an asset and sends COOP / COEP headers. Without the first, the web bundle fails to resolve `wa-sqlite.wasm`.
 - Migration 1 was amended on 2026-10-05 (`mode` NOT NULL, `roast_level` CHECK) **before it had ever run anywhere**: `openDatabase()` was not yet wired into any build. That was the last moment such a change is a one-line edit rather than a table rebuild.
 - **Never edit or reorder a shipped migration.** Append a new version, update `schema.ts` to the new shape, and run `check:schema`.
 - The DDL is not generated from `schema.ts` because migrations are history: migration 1 must stay what it was even after the shape moves on. `check:schema` is what keeps the two honest.

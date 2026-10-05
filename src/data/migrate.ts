@@ -1,15 +1,30 @@
+import { Platform } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import { MIGRATIONS_TABLE, migrations } from './migrations';
 
 export const DATABASE_NAME = 'morecoffee.db';
 
+type Executor = Pick<SQLite.SQLiteDatabase, 'execAsync' | 'runAsync'>;
+
 /**
- * Open the database and bring it up to the latest schema version.
- * Each pending migration runs in its own exclusive transaction together with
- * its schema_migrations row, so a failed migration leaves no partial schema.
- *
- * Not wired into the app yet (Step 6 is schema only); the first screen that
- * reads or writes calls this once at startup.
+ * Run `task` in a transaction. Native uses an exclusive transaction (its own
+ * connection, so nothing else interleaves); expo-sqlite on web does not support
+ * that and gets a regular transaction — still atomic. The task receives the
+ * executor to run statements on.
+ */
+export async function inTransaction(db: SQLite.SQLiteDatabase, task: (tx: Executor) => Promise<void>): Promise<void> {
+  if (Platform.OS === 'web') {
+    await db.withTransactionAsync(() => task(db));
+  } else {
+    await db.withExclusiveTransactionAsync((tx) => task(tx));
+  }
+}
+
+/**
+ * Open the database and bring it up to the latest schema version. Called once
+ * at startup by DatabaseProvider. Each pending migration runs in its own
+ * transaction (exclusive on native) together with its schema_migrations row,
+ * so a failed migration leaves no partial schema.
  */
 export async function openDatabase(): Promise<SQLite.SQLiteDatabase> {
   const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
@@ -23,7 +38,7 @@ export async function openDatabase(): Promise<SQLite.SQLiteDatabase> {
 
   for (const migration of migrations) {
     if (migration.version <= current) continue;
-    await db.withExclusiveTransactionAsync(async (tx) => {
+    await inTransaction(db, async (tx) => {
       for (const sql of migration.statements) await tx.execAsync(sql);
       await tx.runAsync('INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)', [
         migration.version,

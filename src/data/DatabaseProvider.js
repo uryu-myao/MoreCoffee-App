@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Text from '../components/base/Text';
 import ScreenFrame from '../screens/ScreenFrame';
 import { spacing } from '../theme/tokens';
-import { openDatabase } from './migrate';
+import { inTransaction, openDatabase } from './migrate';
 
 const DatabaseContext = createContext(null);
 
@@ -39,7 +39,7 @@ export default function DatabaseProvider({ children }) {
           const { seedReferenceStatements } = require('./dev/seed');
           const row = await db.getFirstAsync('SELECT COUNT(*) AS n FROM beans');
           if (row.n === 0) {
-            await db.withExclusiveTransactionAsync(async (tx) => {
+            await inTransaction(db, async (tx) => {
               for (const s of seedReferenceStatements()) await tx.runAsync(s.sql, s.params);
             });
           }
