@@ -21,6 +21,7 @@ const SHAPES = {
     <Circle key="c" cx="12" cy="12.5" r="3.2" />,
   ],
   arrowRight: [<Path key="a" d="M5 12h14" />, <Path key="b" d="M13 6l6 6-6 6" />],
+  bag: [<Path key="a" d="M4 9h16l-1 11H5z" />, <Path key="b" d="M9 9V6a3 3 0 0 1 6 0v3" />],
   star: [<Path key="p" d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />],
 };
 

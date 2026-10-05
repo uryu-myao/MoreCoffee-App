@@ -1,27 +1,34 @@
-import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import Button from '../components/base/Button';
 import EmptySlot from '../components/base/EmptySlot';
 import FieldRow from '../components/base/FieldRow';
+import Glyph from '../components/base/Glyph';
 import IconButton from '../components/base/IconButton';
 import SectionLabel from '../components/base/SectionLabel';
 import SegmentedControl from '../components/base/SegmentedControl';
 import StarRating from '../components/base/StarRating';
 import Text from '../components/base/Text';
-import { color, shape, size, spacing } from '../theme/tokens';
+import { color, icon, motion, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
 /**
- * Record coffee — 5a "Log a cup", static pass, I MADE IT mode only.
- * All content is the 5a sample; nothing is read or saved.
+ * Record coffee — 5a "Log a cup", static pass. All three maker modes; every
+ * field set is the mock's sample (5a for I made it / Barista, 5e for
+ * Packaged). Nothing is read or saved; rows render a chevron and do nothing.
  *
- * Section spacing is gap.section (12); the source's 16 / 20 is drift.md D-13.
+ * Switching modes keeps the rating (it is about the cup, not who made it),
+ * resets the conditional field set (keyed by mode), and keeps the photo slot.
+ *
+ * Section spacing is gap.section (12); the source's 16 / 18 / 20 is drift.md D-13.
  */
 const MAKERS = [
   { value: 'mine', label: 'I made it' },
   { value: 'barista', label: 'Barista' },
   { value: 'packaged', label: 'Packaged' },
 ];
+
+const expandEasing = Easing.bezier(...motion.expand.controlPoints);
 
 function Section({ label, status, children }) {
   return (
@@ -32,9 +39,105 @@ function Section({ label, status, children }) {
   );
 }
 
+/* TODO(Step 5): rows open their pickers; tapping does nothing yet. */
+function MineFields() {
+  return (
+    <Section label="From my shelf" status="prefilled">
+      <View style={styles.card}>
+        <FieldRow swatch label="Beans" value="Ethiopia Guji" meta="Blue Bottle · day 7, drink now" />
+        <FieldRow divided label="Method" value="V60 · Comandante C40" meta="Your default brewer" />
+      </View>
+    </Section>
+  );
+}
+
+function BaristaFields() {
+  return (
+    <Section label="Café details" status="prefilled">
+      <View style={styles.card}>
+        <FieldRow icon="pin" label="Café" value="Fuglen Tomigaya" meta="250 m away · your 4th visit" />
+        <FieldRow divided label="Drink" value="Flat white" meta="What you ordered here last time" />
+      </View>
+    </Section>
+  );
+}
+
+function PackagedFields() {
+  return (
+    <View style={styles.fieldSets}>
+      <Section label="Product" status="prefilled">
+        <View style={styles.card}>
+          <FieldRow icon="can" label="Brand" value="Boss Craft · Black" meta="Bought twice in the last month" />
+          <FieldRow divided label="Package" value="Can · 185 ml" meta="Chilled, unsweetened" />
+        </View>
+      </Section>
+      <Section label="Bought at" status="optional">
+        {/* Inline composition, 5e only (design-system.md §9 Bought at row): weak
+            1.5px frame, inline bag glyph, name, right-aligned value, no chevron.
+            A second occurrence promotes it to a base component. */}
+        <View style={styles.weakFrame}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Bought at 7-Eleven · Tomigaya, ¥180"
+            style={({ pressed }) => [styles.inlineRow, pressed && styles.inlineRowPressed]}>
+            <Glyph name="bag" token={icon.md} color={color.icon.muted} />
+            <Text variant="label" truncate="name" style={styles.inlineName}>
+              7-Eleven · Tomigaya
+            </Text>
+            <Text variant="label" color="secondary">
+              ¥180
+            </Text>
+          </Pressable>
+        </View>
+      </Section>
+    </View>
+  );
+}
+
+const FIELD_SETS = { mine: MineFields, barista: BaristaFields, packaged: PackagedFields };
+
+/**
+ * The block's height follows its content with the product's one motion
+ * (motion.expand) — 5a's own mechanism: the new field set lays out at full
+ * height inside a clipped wrapper, and the wrapper animates to it, so
+ * everything below slides rather than jumps.
+ */
+function ExpandingBlock({ children }) {
+  const height = useRef(new Animated.Value(0)).current;
+  const [measured, setMeasured] = useState(false);
+  const target = useRef(null);
+
+  const onContentLayout = (e) => {
+    const next = e.nativeEvent.layout.height;
+    if (target.current === next) return;
+    const first = target.current == null;
+    target.current = next;
+    if (first) {
+      height.setValue(next);
+      setMeasured(true);
+      return;
+    }
+    Animated.timing(height, {
+      toValue: next,
+      duration: motion.expand.duration,
+      easing: expandEasing,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  useEffect(() => () => height.stopAnimation(), [height]);
+
+  return (
+    <Animated.View style={[styles.clip, measured && { height }]}>
+      <View onLayout={onContentLayout}>{children}</View>
+    </Animated.View>
+  );
+}
+
 export default function RecordCoffeeScreen({ onClose }) {
   const [rating, setRating] = useState(4);
   const [maker, setMaker] = useState('mine');
+  const Fields = FIELD_SETS[maker];
 
   return (
     <ScreenFrame
@@ -76,18 +179,10 @@ export default function RecordCoffeeScreen({ onClose }) {
           <SegmentedControl options={MAKERS} value={maker} onChange={setMaker} />
         </Section>
 
-        {/* TODO(Step 5): Barista (café details) and Packaged (product) field
-            sets, with the height expand (motion.expand) on switch. Until then,
-            those modes show nothing here. */}
-        {maker === 'mine' ? (
-          <Section label="From my shelf" status="prefilled">
-            <View style={styles.card}>
-              {/* TODO(Step 5): rows open their pickers; tapping does nothing yet. */}
-              <FieldRow swatch label="Beans" value="Ethiopia Guji" meta="Blue Bottle · day 7, drink now" />
-              <FieldRow divided label="Method" value="V60 · Comandante C40" meta="Your default brewer" />
-            </View>
-          </Section>
-        ) : null}
+        <ExpandingBlock>
+          {/* Keyed by mode: a switch remounts the field set, so nothing carries over. */}
+          <Fields key={maker} />
+        </ExpandingBlock>
 
         {/* TODO(Step 5): opens the camera / library; inert for now. */}
         <EmptySlot icon="camera" label="Add a photo" tag="Optional" />
@@ -103,6 +198,9 @@ const styles = StyleSheet.create({
     columnGap: spacing.gap.row,
   },
   sections: {
+    gap: spacing.gap.section,
+  },
+  fieldSets: {
     gap: spacing.gap.section,
   },
   hint: {
@@ -125,5 +223,26 @@ const styles = StyleSheet.create({
     borderWidth: shape.borderWidth.box,
     borderColor: color.border.strong,
     backgroundColor: color.surface.raised,
+  },
+  clip: {
+    overflow: 'hidden',
+  },
+  weakFrame: {
+    borderWidth: shape.borderWidth.divider,
+    borderColor: color.border.muted,
+    backgroundColor: color.surface.raised,
+  },
+  inlineRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[12],
+    paddingVertical: spacing.inset.control.v,
+    paddingHorizontal: spacing.inset.control.h,
+  },
+  inlineRowPressed: {
+    backgroundColor: state.pressed.surface,
+  },
+  inlineName: {
+    flex: 1,
   },
 });

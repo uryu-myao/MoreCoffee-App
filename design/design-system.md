@@ -497,6 +497,20 @@ The `border.empty` slot as a component: always a button, full width. It is the r
 - **States**: default; **pressed**, where the fill darkens to `state.pressed.surface` (§1 Hard Rule); **disabled** (5d), where the frame drops to `dashed.emptyDisabled`, the glyph to `color.icon.muted` and the label to `color.text.secondary`. A disabled slot does not respond to press.
 - **Not part of this component**: the 76px square photo slot (3c), the 2a empty-list frame (not a button), and the "Try next — opens at 5 cups" teaser card (1b, 4a, 4b, 5c).
 
+### Bought at row (inline composition in Record coffee, 5e — not a base component)
+The optional "Bought at" row in Record coffee's Packaged mode is composed inline in the screen from `Glyph` + `Text`. It is not built from `FieldRow`, because its anatomy differs:
+- a **weak frame**: `shape.borderWidth.divider` (1.5) in `color.border.muted` on `color.surface.raised`, not the 2px ink card;
+- an **inline glyph**: `bag`, `icon.md`, `color.icon.muted`, with no swatch;
+- the **name** in `label`, truncated with the `name` preset, filling the row;
+- a **right-aligned value** ("¥180") in `label`, `color.text.secondary`;
+- **no chevron** and no eyebrow label. It is inert; pressed darkens it to `state.pressed.surface` (§1).
+
+Padding is `inset.control` (the source's 13 / 16 folds to it) and the gap is `space.12` (the source's 11 folds to it). It sits under a `SectionLabel` with the `optional` status.
+
+**Promotion rule — read this before building a similar row**: this is the **only** occurrence across the designs, so the rule of two keeps it inline. A **second occurrence promotes it to a base component**, with harness states and a §9 entry, and this inline copy is replaced by it. Do not compose it inline a second time.
+
+**Mode switching (Record coffee, 2026-10-05)**: the rating persists across a switch (it is about the cup, not who made it). The conditional field set resets: it is keyed by mode and remounts. The photo slot persists. The conditional block's height animates with `motion.expand` (Animated, `Easing.bezier` on the token's control points), which is 5a's own mechanism, so the photo slot and footer slide rather than jump. LayoutAnimation was not used because it cannot take the token's bezier.
+
 ### Star rating (base `StarRating`)
 Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control.row` (52) tap targets spread with space-between. Filled star `icon.fill.xl`, empty star `icon.xl` stroke in `color.border.muted`; optional caption under `divider.soft`; 5d error state per `state.error.*`.
 
@@ -586,3 +600,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-05 — §3.2 platform note: iOS gives Yoga no glyph baseline. A short-lived `textBaseline` helper in `fonts.js` computed the baseline from font metrics so the Record coffee close button could sit on the title baseline. It was removed when the header switched to centring the button on the title column; the header was its only consumer, and centring needs no font metrics.
 - 2026-10-05 — §9 Compact header: Record coffee's close button now shares the title row, the date / time drops beneath the title, and the header is pinned. The button is centred on the title column with a +4 optical correction, tuned by eye; it replaced baseline alignment. ja reads centred at 0, so its value moves to the OQ-14 mapping.
 - 2026-10-05 — §9 Compact header: close → title gap widened from `gap.row` (8) to `space.12` on review. The ja titles still fit, 12 clear of the 290 budget.
+- 2026-10-05 — Record coffee: Barista (5a) and Packaged (5e) field sets built. The 5e "Bought at" row is an inline composition recorded in §9, with a promotion rule so a second occurrence becomes a base component. Mode switches keep the rating and the photo slot, reset the field set, and animate the height with `motion.expand`.
