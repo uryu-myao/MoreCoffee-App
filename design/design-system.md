@@ -483,14 +483,16 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 ### Bottom sheet (2 uses: 2b, 3b)
 `position: absolute`, pinned bottom, `color.surface.raised`, `2px solid` top border, `padding: 22 22 34`, a `size.sheet.handle` bar centred at the top with `-6` optical margin. Behind it: the page at `opacity: 0.45` plus `color.scrim`.
 
-### Floating bar (2 uses: 8d, 6a — 6a is one screen shown in three scroll states; do not count it as three)
-Differs from the sheet: **no scrim, no handle, and a gradient fade above it** (`color.fade.stop` → `color.surface.ground`, `layout.fade.top` = 30). Contains a `size.tabBar.height` (60) bar at 90% width with `shadow.floating`.
+### Bottom bar — formerly "Floating bar" (revised 2026-10-05)
+**Current spec (base `FooterNav`)**: the tab bar spans the **full screen width on the bottom edge**, on `color.surface.raised`, with **no hard shadow**. Its `2px` ink top rule is the boundary: with the bar on the screen edge, that line does the separating work the shadow used to do.
+- **Row**: `size.tabBar.height` (60), with the home-indicator inset below it (34 on notched iPhones).
+- **Slots**: five equal slots across the full width, so the icons are evenly spaced and the centre + sits exactly in the middle. Measured at 390pt: slots are 78 wide and icon centres fall every 78 (39 / 117 / 195 / 273 / 351). Edge-to-edge gaps between glyphs are 59 / 47 / 46 / 58, uneven only because the glyphs differ in width (20, 18, 44, 20, 20) and the 44pt add square is the widest.
+- **Pressed**: each slot keeps `component.tabBar.slot` / `addSlot` (60 × 40 / 68 × 40) as the visual box for its pressed fill (§1); the touch area is the whole slot.
+- **Fade band**: above the rule, the fade (`state.fade` over `layout.fade.top`) still eases content out. Rebuilt tab screens keep `layout.empty.block` of room under their content.
 
-**As shipped in the shell (base `FooterNav`, 2026-10-04)**: the bar carries the tab bar (§2 C, `component.tabBar`) — Home · Records · [add] · Try next · Profile — on `color.surface.raised` with a `2px` ink border and `space.4` side padding.
-- The floating form is used on every tab. 1b, 2a, 4a and 4b draw the same bar in flow at the end of the page; rebuilt tab screens must leave `layout.empty.block` of room under their content.
-- Bottom padding follows the Screen shell note: `max(safe-area bottom, 34)`.
-- The fade is a 30px band ending at the bar's top edge (`drift.md` D-11).
-- Pressed darkens a slot's 60 × 40 (or 68 × 40) box to `state.pressed.surface`; the ink add square stays as it is. Touches in the fade band pass through to the content.
+**Why it changed**: the source (6a / 8d, and in flow on 1b / 2a / 4a / 4b) draws a 90%-wide floating bar with `shadow.floating`. That spec was drawn against an empty screen. Over real content (a full Records list) the elevation read as noise and worked against the design, so the bar went full width and the shadow came off.
+
+**Superseded**: the 90% width, the 2px box outline, `shadow.floating`, and the `space.4` side padding. `shadow.floating` now has **no consumer**; it is left in `tokens.ts` pending a decision. `HardShadow` itself is still used by the primary `Button`, `StarRating`'s error state, and the FieldRow harness.
 
 ### Empty slot (base `EmptySlot`, 2026-10-05)
 The `border.empty` slot as a component: always a button, full width. It is the row form from 3a, 3b, 3d, 5a, 5d and 5e.
@@ -625,3 +627,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-05 — Base components added: `Badge` and `RecordRow`, for the Records list (2a). No new tokens. Record coffee now defaults its rating to 0, with Save disabled until a star is tapped (minimum viable validation), and shows the live date / time it will store, formatted by Intl.
 - 2026-10-05 — Records (2a) reads from the database: `RecordRow`s newest first, grouped under month headers. The source line degrades by mode (`drift.md` D-16), the brew-category badge is withheld (`gaps.md` 10), and the empty state is a plain one-line placeholder (`gaps.md` 5).
 - 2026-10-05 — `SectionLabel` reserves `icon.xs` height, so a status appearing no longer shifts the layout (§9 Section rhythm).
+- 2026-10-05 — §9 Bottom bar replaces the Floating bar spec: full width on the bottom edge, no hard shadow, the 2px top rule as its boundary, five equal slots. The floating 90% bar with `shadow.floating` was drawn against an empty screen; on real content the elevation worked against the design. `shadow.floating` is now unused (kept, pending a decision).
