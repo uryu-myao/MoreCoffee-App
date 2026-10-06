@@ -463,7 +463,7 @@ Every screen is `layout.screen.top` (60) → content → `layout.screen.bottom` 
 
 **Header meta, page scroll, footer (base `ScreenFrame`, 2026-10-05, first used by Record coffee)**:
 - **Meta**: the optional right-aligned header meta (5a's date / time) sits at the foot of the header, `space.14` from the title column. Its bottom padding is `space.12`. The source sets the meta 6 above a header foot that was itself 14 above the rule, 20 in all. With the header padding now 8, the meta takes 12 to stay 20 above the rule, which lands its baseline 2.1 above the title's, as in the source. Title-to-rule geometry is unchanged.
-- **Scroll**: `scroll` makes the whole page scroll, header included, as in 5a's `overflow: auto` root.
+- **Scroll** (revised 2026-10-06): with `scroll` the header is **pinned** and **collapses** as the page scrolls (Header collapse, below). The content scrolls beneath the rule. Superseded: the whole page scrolling with the header, as in 5a's `overflow: auto` root.
 - **Footer**: the footer panel follows the body. It sits on `color.surface.raised` with a 2px ink top rule, padding `space.20` on top, `layout.gutter` at the sides and `max(safe-area bottom, layout.screen.bottom)` below, and stacks its children `gap.section` apart. Like the source's `margin-top: auto`, it sits at the bottom when the content is short and follows the content when it is long. The body keeps `gap.section` of bottom padding so the last block never touches the footer rule (the source's `auto` can collapse to 0).
 
 **Compact header (base `ScreenFrame` `compact`, 2026-10-05, Record coffee)**: an evaluation layout that reclaims vertical space and keeps the close control reachable.
@@ -505,6 +505,45 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 ### Bottom sheet (2 uses: 2b, 3b)
 `position: absolute`, pinned bottom, `color.surface.raised`, `2px solid` top border, `padding: 22 22 34`, a `size.sheet.handle` bar centred at the top with `-6` optical margin. Behind it: the page at `opacity: 0.45` plus `color.scrim`.
 
+### Header collapse (2026-10-06)
+Every `ScreenFrame` with `scroll`: Records (standard header) and Record coffee (compact header).
+
+**Mechanism.** Transforms only, driven by the ScrollView offset through native-driver `Animated` interpolations. No `fontSize`, no `height`, nothing in JS per frame.
+- The header box keeps its height. The **rule** is its own view and moves up by the collapse amount.
+- The **ScrollView** starts under the rule and clips there, so content always disappears beneath the rule, never beside it. It moves up with the rule, and reaches past the screen bottom by the collapse distance to stay flush. The content inside moves back down by the same amount, so it still tracks the finger 1:1.
+- A spacer the size of the collapse distance keeps the end of the content reachable.
+- Collapse amount = scroll offset, clamped to [0, distance]. It is linear by construction: the rule stays glued to the content under the finger. Nothing settles after the finger lifts.
+
+**Title.**
+- Standard header: the title column scales around the **title's left baseline**. The baseline is measured from the text layout (`onTextLayout` ascender), not assumed. The column also moves up, so the collapsed title's box top lands on the safe-area top.
+- Compact header: the whole title column (title + date / time) scales around its left-centre. The close button does not scale (its 44pt target stays). It stays centred on the column: its optical offset belongs to the column's ink, so it scales with it, +4 → +4 × scale.
+
+**Values — the tunables.** One tunable lives in code (`COLLAPSE` in `ScreenFrame.js`). The rest are derived:
+
+| value | rule | iPhone 14 (390 × 844, safe-area top 47) |
+|---|---|---|
+| title scale | 1 → **`displaySm` / `displayLg` = 0.75** (40 → 30, the next display size; not a new value) | 1 → 0.75 |
+| collapse distance = scroll distance | (header top padding − safe-area top) + (1 − 0.75) × title-column height; capped at how far the page can scroll | Records **26** (13 + 0.25 × 52). Record coffee **30.3** (13 + 0.25 × 69.3), capped at its 29.3 scroll |
+| expanded height (to the rule's bottom) | as before | Records **122**. Record coffee **145.3** |
+| collapsed height | expanded − distance | Records **96**. Record coffee **116** |
+
+- On Dynamic Island phones (safe-area top 59, top padding 60) the same rule gives Records 1 + 13 = **14**: the title still shrinks, the header gives back less.
+- **A page that cannot scroll never collapses** (`distance` = 0), even when bounced. A page that scrolls less than the full distance collapses only that far.
+
+**Measured (iPhone 14 simulator).**
+- Records, offset 0 / 13 / 26 / 40:
+  - rule 120 / 107 / 94 / 94;
+  - title ink 70.3–100 → 62.7–88.3 → 54.7–77, then unchanged;
+  - first content label 136 → 123 → 110 → 96: 14 under the rule while collapsing, then scrolling 1:1.
+  - Collapsed baseline-to-rule is 17, the expanded 20.4 × 0.75 plus the unscaled padding. The left ink edge stays at 23 → 22.7.
+  - Offsets −30 and 0 are identical, as are 26, 27 and 200: nothing shifts at either end.
+- Record coffee, offset 0 / 15 / 29 / 60:
+  - rule 143.3 / 128.3 / 114.3 / 114;
+  - close centre minus title-column ink centre 9.2 / 7.8 / 7.0 / 6.9, which is 9.2 × the column's scale at each point: the settled alignment holds proportionally through the range.
+- Frame timing while scrolling with the collapse active: 60 fps on the JS thread, worst frame 17.7 ms, none over 20 ms.
+
+**With the pager.** Each screen owns its collapse, tied to its own scroll position. Swiping away from a half-collapsed Records shows the next screen's own header (expanded for the placeholders). Coming back shows Records exactly as left. During the swipe the two rules sit at different heights across the seam (measured 107 vs 120 at a half swipe). This was judged right: a shared collapse would detach each header from its own content.
+
 ### Tab pager (2026-10-06)
 Swiping horizontally moves between the four tab screens: Home → Records → Try next → Profile. Swipe left for the next tab, right for the previous. The + is a modal trigger, not a stop.
 - **Native paging ScrollView in `AppShell`, no gesture or animation library.** The drag, the eased settle on release (UIKit's paging deceleration), the edge rubber-band (iOS bounce; Android's system overscroll stretch) and the arbitration with each screen's own vertical ScrollView all run in the native scroll view on the UI thread. Nothing crosses to JS per frame.
@@ -517,6 +556,13 @@ Swiping horizontally moves between the four tab screens: Home → Records → Tr
 - Measured (390pt simulator, programmatic animated page changes): 60 fps on the JS thread, p95 17.5 ms, one ~25 ms frame per page change at settle (the bar re-rendering; screens are memoised and do not re-render). Footer taps land on the right page in all four directions. Gesture arbitration with real fingers needs a physical device: the simulator cannot inject swipes here.
 
 ### Bottom bar — formerly "Floating bar" (revised 2026-10-05)
+**Hide and reveal (2026-10-06)**: the bar **hides on downward scroll**, sliding its full height off the bottom edge. **Any upward scroll brings it fully back at once**: no threshold, no waiting for the top, because + is the primary action and scrolling back up the list is when a missed cup comes to mind.
+- It is binary: always either on its way out or fully back, never part-way.
+- The move is eased (`motion.expand`), since it runs on after the finger.
+- Only a change of direction triggers it, from the ScrollView's scroll events. The animation runs on the native driver.
+- The top and bottom bounces do not count. A page that cannot scroll never hides it. Any pager drag or tab tap brings it back, so a short screen is never left without the bar.
+- Measured: the reveal starts 9 ms after an upward scroll begins and completes 340 ms later. A real flick decelerates for longer, so the bar is back first. A programmatic scroll (UIKit's fixed 326 ms) finishes about 20 ms ahead of it.
+
 **Current spec (base `FooterNav`)**: the tab bar spans the **full screen width on the bottom edge**, on `color.surface.raised`, with **no hard shadow**. Its `2px` ink top rule is the boundary: with the bar on the screen edge, that line does the separating work the shadow used to do.
 - **Row**: `size.tabBar.height` (60), with the home-indicator inset below it (34 on notched iPhones).
 - **Slots**: the icons sit inside the screen gutter: the two outer slots take `layout.gutter` (22) of padding on their outer side, then all five share the remaining width equally, so the icons are evenly spaced and the centre + sits exactly in the middle. The outer slots still reach the screen edge, so the gutter is part of their touch area (the icons move in; the touch areas do not shrink). Measured at 390pt: icon centres every 69 (56.7 / 126 / 195 / 264.3 / 333.3); touch areas Home 0–91.3 and Profile 298.7–390 (both start at the screen edge, 0pt), inner slots 69 wide, all 60 tall. Superseded: five equal 78pt slots with centres 39 … 351 (2026-10-05).
@@ -682,3 +728,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-06 — **Tokens added: `state.pressed.scale` (0.88) and `motion.press` (100ms, `motion.expand`'s bezier).** §1 Pressed rewritten: feedback is decided by whether the element has a surface (surface → darken, none → scale; never opacity). The five existing components are unchanged. Haptics rule: a discrete press is a light impact; sweeping across options is selection. Bottom-bar tab icons now scale with no square fill.
 - 2026-10-06 — §9 List row: the row-order rule is written down for all three modes (line 1 what was drunk, line 2 where it came from), and the long-name rule for café / brand (1 line) vs drink / product (2 lines). Packaged is the only name for the third mode; READY-TO-DRINK survives only in the mocks and in records of the rename.
 - 2026-10-06 — §9 Tab pager: horizontal swipe between the four tabs, as a native paging ScrollView (no gesture or animation library added). The bar's active glyph follows the drag. One backdrop sits behind the pager.
+- 2026-10-06 — §9 Header collapse: scrolling screens pin the header and collapse it with transforms only (title 1 → 0.75 = displaySm / displayLg; distance derived from the safe area, Records 26 on iPhone 14). §9 Bottom bar hides on downward scroll and comes fully back on any upward scroll.

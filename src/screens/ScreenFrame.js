@@ -1,9 +1,9 @@
-import { createContext, useContext } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { createContext, useContext, useMemo, useRef, useState } from 'react';
+import { Animated, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DotTexture from '../components/base/DotTexture';
 import Text from '../components/base/Text';
-import { color, layout, shape, space, spacing } from '../theme/tokens';
+import { color, layout, shape, space, spacing, textStyle } from '../theme/tokens';
 
 /**
  * Compact header: optical correction for the leading control (design-system.md
@@ -27,6 +27,27 @@ const COMPACT_LEADING_OPTICAL_Y = 4;
 export const ScreenBackdropContext = createContext(true);
 
 /**
+ * Tab chrome that reacts to vertical scroll (the bottom bar's hide / reveal),
+ * provided by AppShell around the pager: { scrolledDown(), scrolledUp() }.
+ * Null outside it (the Record overlay), where scrolling drives nothing but the
+ * header.
+ */
+export const ScrollChromeContext = createContext(null);
+
+/**
+ * Header collapse (design-system.md §9 Header collapse). The one tunable value:
+ * the title column's collapsed scale. displayLg shrinks to displaySm's size
+ * (40 → 30), so the collapsed title is the scale's next display step, not a new
+ * size. The distance is derived, not tuned: the column's top lands on the
+ * safe-area top, so collapse = (header top padding − safe-area top) +
+ * (1 − titleScale) × column height, and the scroll distance equals it (the
+ * rule moves 1:1 with the content).
+ */
+const COLLAPSE = {
+  titleScale: textStyle.displaySm.fontSize / textStyle.displayLg.fontSize,
+};
+
+/**
  * Screen shell (design-system.md §9): header block — optional leading control
  * (e.g. a close IconButton, as in 5a) above the display.lg title, optional
  * right-aligned meta — closed by a 2px ink rule, then the screen body, then an
@@ -40,46 +61,153 @@ export const ScreenBackdropContext = createContext(true);
  *   title     screen title (display.lg)
  *   leading   optional node above the title
  *   meta      optional node, right-aligned at the foot of the header (5a date / time)
- *   scroll    the whole page scrolls, header included (5a)
+ *   scroll    the page scrolls under a pinned header that collapses as it
+ *             scrolls (title shrinks, rule rises; §9 Header collapse)
  *   footer    optional node in the footer panel at the end of the page; it sits at
  *             the bottom when the content is short and follows it when it is long
  *   compact   evaluation header (Record coffee, 2026-10-05): leading control and
  *             title column on one row, the control centred on the whole column
  *             (title + gap.tight + meta, measured on line boxes); meta on one line
- *             directly under the title; with `scroll`, the header (rule included)
- *             stays pinned and only the content below the rule scrolls
+ *             directly under the title
  *   children  screen body
  */
 export default function ScreenFrame({ title, leading, meta, scroll = false, compact = false, footer, children }) {
   const insets = useSafeAreaInsets();
   const ownBackdrop = useContext(ScreenBackdropContext);
+  const chrome = useContext(ScrollChromeContext);
   const rootStyle = ownBackdrop ? styles.screen : styles.screenBare;
   const texture = ownBackdrop ? <DotTexture /> : null;
-  const headerTop = { paddingTop: Math.max(insets.top, layout.screen.top) };
+  const top = Math.max(insets.top, layout.screen.top);
+  const headerTop = { paddingTop: top };
+
+  // ── Collapse geometry (scroll variants only; design-system.md §9 Header
+  // collapse). Measured once from layout, then handed to native-driver
+  // interpolations: nothing runs in JS per frame.
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const measured = useRef({});
+  const [geo, setGeo] = useState(null); // { h: title column height, b: title baseline from column top }
+  const [range, setRange] = useState(0); // how far the content can scroll
+  const sizes = useRef({ content: 0, layout: 0 });
+
+  const commitGeo = () => {
+    const m = measured.current;
+    if (m.h == null || (!compact && (m.textH == null || m.baselineInText == null))) return;
+    const next = compact ? { h: m.h, b: m.h / 2 } : { h: m.h, b: m.h - m.textH + m.baselineInText };
+    setGeo((prev) => (prev && prev.h === next.h && prev.b === next.b ? prev : next));
+  };
+  const onColumnLayout = (e) => {
+    measured.current.h = e.nativeEvent.layout.height;
+    commitGeo();
+  };
+  const onTitleLayout = (e) => {
+    measured.current.textH = e.nativeEvent.layout.height;
+    commitGeo();
+  };
+  const onTitleTextLayout = (e) => {
+    const line = e.nativeEvent.lines[0];
+    if (!line) return;
+    measured.current.baselineInText = line.y + line.ascender;
+    commitGeo();
+  };
+  const updateRange = () => setRange(Math.max(0, sizes.current.content - sizes.current.layout));
+
+  // Full collapse distance: the title column shrinks to COLLAPSE.titleScale and
+  // its top lands on the safe-area top, and the rule follows 1:1.
+  const full = scroll && geo ? top - insets.top + (1 - COLLAPSE.titleScale) * geo.h : 0;
+  // A page that cannot scroll at all never collapses (a bounce must not move
+  // the header); one that scrolls less than `full` collapses only that far.
+  const distance = Math.min(full, range);
+
+  const anim = useMemo(() => {
+    if (!(distance > 0)) return null;
+    const s = COLLAPSE.titleScale;
+    // Collapsed amount in points, clamped to [0, distance]: linear in scroll
+    // offset, so the rule stays glued to the content under the finger.
+    const shift = scrollY.interpolate({ inputRange: [0, distance], outputRange: [0, distance], extrapolate: 'clamp' });
+    const lerp = (to) => shift.interpolate({ inputRange: [0, full], outputRange: [0, to] });
+    const titleShift = compact
+      ? insets.top - top - ((1 - s) * geo.h) / 2 // column centre (origin left-centre)
+      : insets.top - top - (1 - s) * geo.b; // title baseline (origin left-baseline)
+    return {
+      shift,
+      up: lerp(-full),
+      scale: shift.interpolate({ inputRange: [0, full], outputRange: [1, s] }),
+      title: lerp(titleShift),
+      // The control stays centred on the column; its optical offset is a
+      // property of the column's ink, so it scales with it (+4 → +4·s).
+      leading: shift.interpolate({
+        inputRange: [0, full],
+        outputRange: [COMPACT_LEADING_OPTICAL_Y, titleShift + COMPACT_LEADING_OPTICAL_Y * s],
+      }),
+    };
+  }, [compact, distance, full, geo, insets.top, scrollY, top]);
+
+  // Footer hide / reveal (tab screens): report the scroll direction. Any
+  // upward movement reveals at once. The top and bottom bounce are ignored.
+  const lastY = useRef(0);
+  const onScroll = useMemo(
+    () =>
+      Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+        useNativeDriver: true,
+        listener: chrome
+          ? (e) => {
+              const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+              const y = contentOffset.y;
+              const dy = y - lastY.current;
+              lastY.current = y;
+              const max = contentSize.height - layoutMeasurement.height;
+              // y > max is the bottom bounce; its way back (and the top
+              // bounce) is not the reader scrolling up.
+              if (y <= 0) return;
+              if (dy > 0 && y <= max) chrome.scrolledDown();
+              else if (dy < 0 && y < max) chrome.scrolledUp();
+            }
+          : undefined,
+      }),
+    [chrome, scrollY]
+  );
 
   const titleText = (
-    <Text variant="displayLg" accessibilityRole="header">
+    <Text
+      variant="displayLg"
+      accessibilityRole="header"
+      onLayout={scroll && !compact ? onTitleLayout : undefined}
+      onTextLayout={scroll && !compact ? onTitleTextLayout : undefined}>
       {title}
     </Text>
   );
 
   const header = compact ? (
-    <View style={[styles.header, styles.headerCompact, headerTop]}>
+    <View style={[styles.header, styles.headerCompact, headerTop, scroll && styles.headerNoRule]}>
       <View style={styles.compactRow}>
-        {leading ? <View style={styles.compactLeading}>{leading}</View> : null}
-        <View style={styles.compactTitleColumn}>
+        {leading ? (
+          <Animated.View style={[styles.compactLeading, anim && { transform: [{ translateY: anim.leading }] }]}>
+            {leading}
+          </Animated.View>
+        ) : null}
+        <Animated.View
+          onLayout={scroll ? onColumnLayout : undefined}
+          style={[
+            styles.compactTitleColumn,
+            anim && { transformOrigin: 'left center', transform: [{ translateY: anim.title }, { scale: anim.scale }] },
+          ]}>
           {titleText}
           {meta ? <View style={styles.compactMeta}>{meta}</View> : null}
-        </View>
+        </Animated.View>
       </View>
     </View>
   ) : (
-    <View style={[styles.header, headerTop]}>
-      <View style={styles.titleColumn}>
+    <View style={[styles.header, headerTop, scroll && styles.headerNoRule]}>
+      <Animated.View
+        onLayout={scroll ? onColumnLayout : undefined}
+        style={[
+          styles.titleColumn,
+          anim && { transformOrigin: [0, geo.b, 0], transform: [{ translateY: anim.title }, { scale: anim.scale }] },
+        ]}>
         {leading}
         {titleText}
-      </View>
-      {meta ? <View style={styles.meta}>{meta}</View> : null}
+      </Animated.View>
+      {meta ? <Animated.View style={[styles.meta, anim && { transform: [{ translateY: anim.up }] }]}>{meta}</Animated.View> : null}
     </View>
   );
 
@@ -97,33 +225,44 @@ export default function ScreenFrame({ title, leading, meta, scroll = false, comp
   // Every variant: a fixed root holding the dot texture (or, inside the tab
   // pager, transparent over AppShell's), with any ScrollView above it — so the
   // texture never scrolls and never re-renders on scroll.
-  if (scroll && compact) {
-    // Pinned header: the ScrollView starts below the rule and clips there, so
-    // content passes beneath the header's bottom edge, never beside it.
+  if (!scroll) {
     return (
       <View style={rootStyle}>
         {texture}
         {header}
-        <ScrollView style={styles.scroller} contentContainerStyle={styles.scrollContent}>
-          {page}
-        </ScrollView>
+        {page}
       </View>
     );
   }
 
-  return scroll ? (
-    <View style={rootStyle}>
-      {texture}
-      <ScrollView style={styles.scroller} contentContainerStyle={styles.scrollContent}>
-        {header}
-        {page}
-      </ScrollView>
-    </View>
-  ) : (
+  // Scroll variants: the header (rule included) is pinned and collapses; the
+  // ScrollView starts below the rule and clips there, so content passes
+  // beneath the rule, never beside it. As the header collapses by `shift`, the
+  // rule and the ScrollView move up by it (the ScrollView reaches `distance`
+  // past the screen bottom to stay flush) and the content inside moves back
+  // down by it, so the content still tracks the finger 1:1. A spacer of
+  // `distance` keeps the end of the content reachable.
+  return (
     <View style={rootStyle}>
       {texture}
       {header}
-      {page}
+      <Animated.View style={[styles.rule, anim && { transform: [{ translateY: anim.up }] }]} />
+      <Animated.ScrollView
+        style={[styles.scroller, anim && { marginBottom: -distance, transform: [{ translateY: anim.up }] }]}
+        contentContainerStyle={styles.scrollContent}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        onLayout={(e) => {
+          sizes.current.layout = e.nativeEvent.layout.height;
+          updateRange();
+        }}
+        onContentSizeChange={(w, h) => {
+          sizes.current.content = h;
+          updateRange();
+        }}>
+        <Animated.View style={[styles.scrollPage, anim && { transform: [{ translateY: anim.shift }] }]}>{page}</Animated.View>
+        {anim ? <View style={{ height: distance }} /> : null}
+      </Animated.ScrollView>
     </View>
   );
 }
@@ -141,6 +280,18 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+  },
+  scrollPage: {
+    flexGrow: 1,
+  },
+  // Scroll variants draw the rule as its own view so it can rise with the
+  // collapse while the header box keeps its height.
+  headerNoRule: {
+    borderBottomWidth: 0,
+  },
+  rule: {
+    height: shape.borderWidth.box,
+    backgroundColor: color.border.strong,
   },
   header: {
     flexDirection: 'row',

@@ -28,8 +28,11 @@ const { slot, addSlot } = component.tabBar;
  * surface whose fill has no darker tier, so it shows no visual change (§1). Both
  * give a light impact haptic (a discrete press).
  */
-export default function FooterNav({ activeTab, position, onTabPress, onAddPress }) {
+export default function FooterNav({ activeTab, position, hidden, onTabPress, onAddPress }) {
   const insets = useSafeAreaInsets();
+  // hidden: 0 → in place, 1 → its whole height below the screen edge.
+  const barHeight = shape.borderWidth.box + size.tabBar.height + insets.bottom;
+  const slide = hidden ? { transform: [{ translateY: hidden.interpolate({ inputRange: [0, 1], outputRange: [0, barHeight] }) }] } : null;
 
   const tab = ({ key, label }, index, edges) => {
     const Icon = ICONS[key];
@@ -50,7 +53,7 @@ export default function FooterNav({ activeTab, position, onTabPress, onAddPress 
   };
 
   return (
-    <View style={styles.wrapper}>
+    <Animated.View style={[styles.wrapper, slide]}>
       <View style={[styles.bar, { paddingBottom: insets.bottom }]}>
         <View style={styles.row}>
           {TABS.slice(0, 2).map((t, i) => tab(t, i, ['start', null]))}
@@ -60,7 +63,7 @@ export default function FooterNav({ activeTab, position, onTabPress, onAddPress 
           {TABS.slice(2).map((t, i) => tab(t, i, [null, 'end']))}
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
