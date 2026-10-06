@@ -104,6 +104,12 @@ export type CupListItem = {
   product_name: string | null;
 };
 
+/** How many cups are logged (Records' header count, Try next's eyebrow). */
+export async function countCups(db: SQLiteDatabase): Promise<number> {
+  const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM cups');
+  return row?.n ?? 0;
+}
+
 /** Every cup, newest first (by when it was drunk, then by insertion). */
 export async function listCups(db: SQLiteDatabase): Promise<CupListItem[]> {
   return db.getAllAsync<CupListItem>(

@@ -505,6 +505,26 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 ### Bottom sheet (2 uses: 2b, 3b)
 `position: absolute`, pinned bottom, `color.surface.raised`, `2px solid` top border, `padding: 22 22 34`, a `size.sheet.handle` bar centred at the top with `-6` optical margin. Behind it: the page at `opacity: 0.45` plus `color.scrim`.
 
+### Header eyebrow and stat (2026-10-06)
+**Eyebrow**: every tab has a small label above its title, from its mock verbatim, in `label.eyebrow` `color.text.accent`, directly above the title (no gap, as in the mocks).
+
+| tab | eyebrow | source |
+|---|---|---|
+| Home | MoreCoffee | 1b |
+| Records | The archive | 2a |
+| Try next | Based on {n} cups (the real count; "cup" at 1) | 8d ("Based on 147 cups") |
+| Profile | Morecoffee (renders MORECOFFEE) | 6a |
+
+1b and 2a set it at 11 / .22em, which `label.eyebrow` already folds in (11 / .04–.22em, §3), so this is not drift. Record coffee (5a) has none.
+
+**Stat** (`ScreenFrame` `stat`; Records only, 2a's count): the numeral in `display.sm` `color.text.accent` (2a: Instrument Serif 30 / .9, folded into `display.sm`), with "Cups" in `label.eyebrow` `color.text.muted` `gap.tight` (4) below it, right-aligned.
+- Its foot sits 20 above the rule, like `meta`.
+- It is **out of flow** (absolute, bottom-right), so the header height stays the title column's. Every tab's rule then sits at the same height (131 on iPhone 14), and a swipe at rest shows no step. In flow, the numeral's iOS natural box (39) pushed Records' rule 3 lower.
+- The value goes through `Intl.NumberFormat` (1,247). Right-aligned, its right edge stays at 367.3 whatever the digit count. Measured at 147, 1,247 and 12,470:
+  - numeral left edge 338.3 / 319.7 / 306;
+  - the title ends at 127.3, so 12,470 still clears it by 179 expanded and 205 collapsed.
+  - Records is the only screen with a stat.
+
 ### Header collapse (2026-10-06)
 Every `ScreenFrame` with `scroll`: Records (standard header) and Record coffee (compact header).
 
@@ -518,29 +538,40 @@ Every `ScreenFrame` with `scroll`: Records (standard header) and Record coffee (
 - Standard header: the title column scales around the **title's left baseline**. The baseline is measured from the text layout (`onTextLayout` ascender), not assumed. The column also moves up, so the collapsed title's box top lands on the safe-area top.
 - Compact header: the whole title column (title + date / time) scales around its left-centre. The close button does not scale (its 44pt target stays). It stays centred on the column: its optical offset belongs to the column's ink, so it scales with it, +4 → +4 × scale.
 
+**What each part does (revised 2026-10-06, on review).**
+- Serif display text **scales** with the collapse. The title goes 1 → 0.75.
+- The stat's numeral **keeps its size** and slides to the collapsed title's baseline, so the collapsed header reads "Records … 147" at one size (30) on one baseline.
+- Small labels **never scale**: ×0.75 would take them to 7.5–9px. They **fade out** over the first half of the collapse (`COLLAPSE.fadeBy` = 0.5) while riding the part they belong to. This covers the eyebrow (on the title's top), the stat's "Cups" (with the numeral) and Record coffee's date / time line (on the title's bottom).
+- With its date gone, Record coffee's close button re-centres on the title alone, with the optical offset scaled (+4 → +4 × scale).
+
 **Values — the tunables.** One tunable lives in code (`COLLAPSE` in `ScreenFrame.js`). The rest are derived:
 
 | value | rule | iPhone 14 (390 × 844, safe-area top 47) |
 |---|---|---|
 | title scale | 1 → **`displaySm` / `displayLg` = 0.75** (40 → 30, the next display size; not a new value) | 1 → 0.75 |
-| collapse distance = scroll distance | (header top padding − safe-area top) + (1 − 0.75) × title-column height; capped at how far the page can scroll | Records **26** (13 + 0.25 × 52). Record coffee **30.3** (13 + 0.25 × 69.3), capped at its 29.3 scroll |
-| expanded height (to the rule's bottom) | as before | Records **122**. Record coffee **145.3** |
-| collapsed height | expanded − distance | Records **96**. Record coffee **116** |
+| label fade | over the first `fadeBy` = **0.5** of the collapse distance | Records 0–18.5. Record coffee 0–19.2 |
+| collapse distance = scroll distance | standard: (title-column bottom) − (safe-area top + 0.75 × title height). Compact: (row bottom) − (safe-area top + max(0.75 × title height, control height)). Capped at how far the page can scroll | Records **37**. Record coffee **38.3**, capped at its 29.3 scroll, so it stops at 76%: title ≈ 0.81, date already gone |
+| expanded height (to the rule's bottom) | eyebrow + title column; stat out of flow | Records **133** (every tab the same). Record coffee **145.3** |
+| collapsed height | expanded − distance | Records **96**. Record coffee **116** at its cap (107 if it could scroll the full distance) |
 
 - On Dynamic Island phones (safe-area top 59, top padding 60) the same rule gives Records 1 + 13 = **14**: the title still shrinks, the header gives back less.
 - **A page that cannot scroll never collapses** (`distance` = 0), even when bounced. A page that scrolls less than the full distance collapses only that far.
 
-**Measured (iPhone 14 simulator).**
-- Records, offset 0 / 13 / 26 / 40:
-  - rule 120 / 107 / 94 / 94;
-  - title ink 70.3–100 → 62.7–88.3 → 54.7–77, then unchanged;
-  - first content label 136 → 123 → 110 → 96: 14 under the rule while collapsing, then scrolling 1:1.
-  - Collapsed baseline-to-rule is 17, the expanded 20.4 × 0.75 plus the unscaled padding. The left ink edge stays at 23 → 22.7.
-  - Offsets −30 and 0 are identical, as are 26, 27 and 200: nothing shifts at either end.
-- Record coffee, offset 0 / 15 / 29 / 60:
-  - rule 143.3 / 128.3 / 114.3 / 114;
-  - close centre minus title-column ink centre 9.2 / 7.8 / 7.0 / 6.9, which is 9.2 × the column's scale at each point: the settled alignment holds proportionally through the range.
-- Frame timing while scrolling with the collapse active: 60 fps on the JS thread, worst frame 17.7 ms, none over 20 ms.
+**Measured (iPhone 14 simulator, 2026-10-06 revision).**
+- Records, offset −30 / 0 / 10 / 20 / 30 / 38 / 200:
+  - rule 131 / 131 / 121 / 111 / 101 / 94 / 94;
+  - title ink 81.3–111 → 74.3–101.7 → 67–92.7 → 59.7–83.3 → 54.7–77 (left edge 23 → 22.7);
+  - numeral ink 65.3–87.3 → 62.7–84.3 → 60–81.7 → 57–79 → 55.3–77.3, right edge 367 throughout;
+  - eyebrow 62–69 and "Cups" 102.3–109 at rest, gone by offset 10 (opacity under ~0.5 no longer reads).
+  - Collapsed, the numeral baseline (77.3) sits on the title's (77).
+  - −30 and 0 are identical, as are 38, 39, 40 and 200: nothing shifts at either end.
+- Record coffee, offset −30 / 0 / 5 / 15 / 22 / 29 / 60:
+  - rule 143.3 / 143.3 / 138.3 / 128.3 / 121.3 / 114.3 / 114;
+  - close 76.7–120.7 → 73.3 → 66.3 → 61.3 → 56.3–100.3;
+  - title ink 71–108 → 69.3–105 → 66–99.3 → 63.3–95 → 61–91.
+  - Close centre minus title ink centre: 9.2 at rest (centred on title + date), 8.1 → 5.6 → 4.1 → 2.3 at the cap. It ends centred on the title alone (≈ 0.4 at full collapse, where 0 would be ink-centred).
+  - −30 = 0 and 29 ≈ 60: no jump at either end.
+- Frame timing while scrolling with the collapse active: 60 fps on the JS thread, worst frame 19.9 ms, none over 20 ms.
 
 **With the pager.** Each screen owns its collapse, tied to its own scroll position. Swiping away from a half-collapsed Records shows the next screen's own header (expanded for the placeholders). Coming back shows Records exactly as left. During the swipe the two rules sit at different heights across the seam (measured 107 vs 120 at a half swipe). This was judged right: a shared collapse would detach each header from its own content.
 
@@ -729,3 +760,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-06 — §9 List row: the row-order rule is written down for all three modes (line 1 what was drunk, line 2 where it came from), and the long-name rule for café / brand (1 line) vs drink / product (2 lines). Packaged is the only name for the third mode; READY-TO-DRINK survives only in the mocks and in records of the rename.
 - 2026-10-06 — §9 Tab pager: horizontal swipe between the four tabs, as a native paging ScrollView (no gesture or animation library added). The bar's active glyph follows the drag. One backdrop sits behind the pager.
 - 2026-10-06 — §9 Header collapse: scrolling screens pin the header and collapse it with transforms only (title 1 → 0.75 = displaySm / displayLg; distance derived from the safe area, Records 26 on iPhone 14). §9 Bottom bar hides on downward scroll and comes fully back on any upward scroll.
+- 2026-10-06 — §9 Header eyebrow and stat: every tab carries its mock eyebrow, and Records shows the cup count (2a). Collapse revised: the stat numeral keeps its size and lands on the title baseline; small labels (eyebrow, "Cups", Record coffee's date) fade over the first half instead of scaling.

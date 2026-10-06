@@ -28,6 +28,7 @@ const MODE_BADGE = {
 
 const NONE = '—';
 
+const countFormat = new Intl.NumberFormat();
 const dayFormat = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
 const monthFormat = new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' });
 
@@ -75,7 +76,13 @@ export default function RecordsScreen() {
   }, [load]);
 
   return (
-    <ScreenFrame scroll title="Records">
+    <ScreenFrame
+      scroll
+      eyebrow="The archive"
+      title="Records"
+      // 2a's count: numeral over "Cups". Shown once the cups are read.
+      // TODO(i18n): plural rules beyond English's one / other.
+      stat={cups ? { value: countFormat.format(cups.length), label: cups.length === 1 ? 'Cup' : 'Cups' } : undefined}>
       <View style={styles.list}>
         {cups && cups.length === 0 ? (
           // TODO(design): no empty state is designed (gaps.md 5); the plainest

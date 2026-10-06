@@ -35,16 +35,18 @@ export const ScreenBackdropContext = createContext(true);
 export const ScrollChromeContext = createContext(null);
 
 /**
- * Header collapse (design-system.md §9 Header collapse). The one tunable value:
- * the title column's collapsed scale. displayLg shrinks to displaySm's size
- * (40 → 30), so the collapsed title is the scale's next display step, not a new
- * size. The distance is derived, not tuned: the column's top lands on the
- * safe-area top, so collapse = (header top padding − safe-area top) +
- * (1 − titleScale) × column height, and the scroll distance equals it (the
- * rule moves 1:1 with the content).
+ * Header collapse (design-system.md §9 Header collapse). Two tunables:
+ *   titleScale  the title's collapsed scale. displayLg shrinks to displaySm's
+ *               size (40 → 30), the scale's next display step, not a new size.
+ *   fadeBy      the share of the collapse over which the small labels (eyebrow,
+ *               the stat's label, the compact date) fade out. They never scale:
+ *               ×0.75 would take them to 7.5–9px.
+ * The distance is derived, not tuned: the collapsed title (or the compact row)
+ * starts at the safe-area top and the rule follows 1:1 with the content.
  */
 const COLLAPSE = {
   titleScale: textStyle.displaySm.fontSize / textStyle.displayLg.fontSize,
+  fadeBy: 0.5,
 };
 
 /**
@@ -59,8 +61,15 @@ const COLLAPSE = {
  *
  * Props
  *   title     screen title (display.lg)
+ *   eyebrow   optional small label above the title (label.eyebrow, accent):
+ *             "The archive" (2a), "MoreCoffee" (1b). Fades out on collapse.
  *   leading   optional node above the title
  *   meta      optional node, right-aligned at the foot of the header (5a date / time)
+ *   stat      optional { value, label }, right-aligned at the foot of the header
+ *             in place of meta (2a's cup count): the numeral in display.sm
+ *             accent over the label in label.eyebrow muted. On collapse the
+ *             numeral keeps its size and settles on the title's baseline; the
+ *             label fades out.
  *   scroll    the page scrolls under a pinned header that collapses as it
  *             scrolls (title shrinks, rule rises; §9 Header collapse)
  *   footer    optional node in the footer panel at the end of the page; it sits at
@@ -68,10 +77,21 @@ const COLLAPSE = {
  *   compact   evaluation header (Record coffee, 2026-10-05): leading control and
  *             title column on one row, the control centred on the whole column
  *             (title + gap.tight + meta, measured on line boxes); meta on one line
- *             directly under the title
+ *             directly under the title. On collapse the title scales, the meta
+ *             (date / time) fades out, and the control re-centres on the title
  *   children  screen body
  */
-export default function ScreenFrame({ title, leading, meta, scroll = false, compact = false, footer, children }) {
+export default function ScreenFrame({
+  title,
+  eyebrow,
+  leading,
+  meta,
+  stat,
+  scroll = false,
+  compact = false,
+  footer,
+  children,
+}) {
   const insets = useSafeAreaInsets();
   const ownBackdrop = useContext(ScreenBackdropContext);
   const chrome = useContext(ScrollChromeContext);
@@ -81,66 +101,95 @@ export default function ScreenFrame({ title, leading, meta, scroll = false, comp
   const headerTop = { paddingTop: top };
 
   // ── Collapse geometry (scroll variants only; design-system.md §9 Header
-  // collapse). Measured once from layout, then handed to native-driver
-  // interpolations: nothing runs in JS per frame.
+  // collapse). Every part is measured once from layout (header-local y, which
+  // is screen y: the frame starts at the screen top), then handed to
+  // native-driver interpolations. Nothing runs in JS per frame.
   const scrollY = useRef(new Animated.Value(0)).current;
-  const measured = useRef({});
-  const [geo, setGeo] = useState(null); // { h: title column height, b: title baseline from column top }
+  const parts = useRef({});
+  const [geo, setGeo] = useState(null);
   const [range, setRange] = useState(0); // how far the content can scroll
   const sizes = useRef({ content: 0, layout: 0 });
 
-  const commitGeo = () => {
-    const m = measured.current;
-    if (m.h == null || (!compact && (m.textH == null || m.baselineInText == null))) return;
-    const next = compact ? { h: m.h, b: m.h / 2 } : { h: m.h, b: m.h - m.textH + m.baselineInText };
-    setGeo((prev) => (prev && prev.h === next.h && prev.b === next.b ? prev : next));
+  const commit = () => {
+    const p = parts.current;
+    const s = COLLAPSE.titleScale;
+    const I = insets.top;
+    let next = null;
+    if (compact) {
+      if (!p.row || !p.column || !p.title || (leading && !p.leading)) return;
+      const tH = p.title.height;
+      const titleTop = p.row.y + p.column.y + p.title.y;
+      // Collapsed row: the scaled title, or the control if taller, from the safe-area top.
+      const rowC = Math.max(s * tH, p.leading ? p.leading.height : 0);
+      const centreC = I + rowC / 2;
+      const leadingCentre = p.leading ? p.row.y + p.leading.y + p.leading.height / 2 : 0;
+      next = {
+        full: p.row.y + p.row.height - (I + rowC),
+        title: centreC - (titleTop + tH / 2), // origin: the title's left-centre
+        below: centreC + (s * tH) / 2 - (titleTop + tH), // the date rides the title's bottom
+        // Centred on the title; the optical offset scales with its ink.
+        leadingEnd: centreC - leadingCentre + COMPACT_LEADING_OPTICAL_Y * s,
+      };
+    } else {
+      if (!p.column || !p.title || p.baseline == null || (stat && (!p.stat || !p.number || p.numberBaseline == null))) return;
+      const tH = p.title.height;
+      const titleTop = p.column.y + p.title.y;
+      const baselineC = I + s * p.baseline; // the collapsed title's baseline
+      next = {
+        full: p.column.y + p.column.height - (I + s * tH),
+        title: baselineC - (titleTop + p.baseline), // origin: the title's left baseline
+        baseline: p.baseline,
+        above: I - titleTop, // eyebrow / leading ride the title's top
+        // The stat's numeral keeps its size and lands on the title's baseline.
+        stat: stat ? baselineC - (p.stat.y + p.number.y + p.numberBaseline) : 0,
+      };
+    }
+    setGeo((prev) => (prev && Object.keys(next).every((k) => prev[k] === next[k]) ? prev : next));
   };
-  const onColumnLayout = (e) => {
-    measured.current.h = e.nativeEvent.layout.height;
-    commitGeo();
-  };
-  const onTitleLayout = (e) => {
-    measured.current.textH = e.nativeEvent.layout.height;
-    commitGeo();
-  };
-  const onTitleTextLayout = (e) => {
-    const line = e.nativeEvent.lines[0];
-    if (!line) return;
-    measured.current.baselineInText = line.y + line.ascender;
-    commitGeo();
-  };
+  const onPart = (name) =>
+    scroll
+      ? (e) => {
+          parts.current[name] = e.nativeEvent.layout;
+          commit();
+        }
+      : undefined;
+  const onBaseline = (name) =>
+    scroll
+      ? (e) => {
+          const line = e.nativeEvent.lines[0];
+          if (!line) return;
+          parts.current[name] = line.y + line.ascender;
+          commit();
+        }
+      : undefined;
   const updateRange = () => setRange(Math.max(0, sizes.current.content - sizes.current.layout));
 
-  // Full collapse distance: the title column shrinks to COLLAPSE.titleScale and
-  // its top lands on the safe-area top, and the rule follows 1:1.
-  const full = scroll && geo ? top - insets.top + (1 - COLLAPSE.titleScale) * geo.h : 0;
+  const full = scroll && geo ? geo.full : 0;
   // A page that cannot scroll at all never collapses (a bounce must not move
   // the header); one that scrolls less than `full` collapses only that far.
   const distance = Math.min(full, range);
 
   const anim = useMemo(() => {
     if (!(distance > 0)) return null;
-    const s = COLLAPSE.titleScale;
     // Collapsed amount in points, clamped to [0, distance]: linear in scroll
     // offset, so the rule stays glued to the content under the finger.
     const shift = scrollY.interpolate({ inputRange: [0, distance], outputRange: [0, distance], extrapolate: 'clamp' });
     const lerp = (to) => shift.interpolate({ inputRange: [0, full], outputRange: [0, to] });
-    const titleShift = compact
-      ? insets.top - top - ((1 - s) * geo.h) / 2 // column centre (origin left-centre)
-      : insets.top - top - (1 - s) * geo.b; // title baseline (origin left-baseline)
     return {
       shift,
       up: lerp(-full),
-      scale: shift.interpolate({ inputRange: [0, full], outputRange: [1, s] }),
-      title: lerp(titleShift),
-      // The control stays centred on the column; its optical offset is a
-      // property of the column's ink, so it scales with it (+4 → +4·s).
-      leading: shift.interpolate({
-        inputRange: [0, full],
-        outputRange: [COMPACT_LEADING_OPTICAL_Y, titleShift + COMPACT_LEADING_OPTICAL_Y * s],
-      }),
+      scale: shift.interpolate({ inputRange: [0, full], outputRange: [1, COLLAPSE.titleScale] }),
+      // Small labels never scale: they fade out over the first part of the collapse.
+      fade: shift.interpolate({ inputRange: [0, full * COLLAPSE.fadeBy], outputRange: [1, 0], extrapolate: 'clamp' }),
+      title: lerp(geo.title),
+      above: compact ? null : lerp(geo.above),
+      below: compact ? lerp(geo.below) : null,
+      stat: compact ? null : lerp(geo.stat),
+      leading: compact
+        ? shift.interpolate({ inputRange: [0, full], outputRange: [COMPACT_LEADING_OPTICAL_Y, geo.leadingEnd] })
+        : null,
     };
-  }, [compact, distance, full, geo, insets.top, scrollY, top]);
+  }, [compact, distance, full, geo, scrollY]);
 
   // Footer hide / reveal (tab screens): report the scroll direction. Any
   // upward movement reveals at once. The top and bottom bounce are ignored.
@@ -168,46 +217,75 @@ export default function ScreenFrame({ title, leading, meta, scroll = false, comp
   );
 
   const titleText = (
-    <Text
-      variant="displayLg"
-      accessibilityRole="header"
-      onLayout={scroll && !compact ? onTitleLayout : undefined}
-      onTextLayout={scroll && !compact ? onTitleTextLayout : undefined}>
+    <Text variant="displayLg" accessibilityRole="header" onTextLayout={compact ? undefined : onBaseline('baseline')}>
       {title}
     </Text>
   );
 
   const header = compact ? (
     <View style={[styles.header, styles.headerCompact, headerTop, scroll && styles.headerNoRule]}>
-      <View style={styles.compactRow}>
+      <View style={styles.compactRow} onLayout={onPart('row')}>
         {leading ? (
-          <Animated.View style={[styles.compactLeading, anim && { transform: [{ translateY: anim.leading }] }]}>
+          <Animated.View
+            onLayout={onPart('leading')}
+            style={[styles.compactLeading, anim && { transform: [{ translateY: anim.leading }] }]}>
             {leading}
           </Animated.View>
         ) : null}
-        <Animated.View
-          onLayout={scroll ? onColumnLayout : undefined}
-          style={[
-            styles.compactTitleColumn,
-            anim && { transformOrigin: 'left center', transform: [{ translateY: anim.title }, { scale: anim.scale }] },
-          ]}>
-          {titleText}
-          {meta ? <View style={styles.compactMeta}>{meta}</View> : null}
-        </Animated.View>
+        <View style={styles.compactTitleColumn} onLayout={onPart('column')}>
+          <Animated.View
+            onLayout={onPart('title')}
+            style={anim && { transformOrigin: 'left center', transform: [{ translateY: anim.title }, { scale: anim.scale }] }}>
+            {titleText}
+          </Animated.View>
+          {meta ? (
+            <Animated.View style={[styles.compactMeta, anim && { opacity: anim.fade, transform: [{ translateY: anim.below }] }]}>
+              {meta}
+            </Animated.View>
+          ) : null}
+        </View>
       </View>
     </View>
   ) : (
     <View style={[styles.header, headerTop, scroll && styles.headerNoRule]}>
-      <Animated.View
-        onLayout={scroll ? onColumnLayout : undefined}
-        style={[
-          styles.titleColumn,
-          anim && { transformOrigin: [0, geo.b, 0], transform: [{ translateY: anim.title }, { scale: anim.scale }] },
-        ]}>
-        {leading}
-        {titleText}
-      </Animated.View>
-      {meta ? <Animated.View style={[styles.meta, anim && { transform: [{ translateY: anim.up }] }]}>{meta}</Animated.View> : null}
+      <View style={styles.titleColumn} onLayout={onPart('column')}>
+        {leading || eyebrow ? (
+          <Animated.View style={anim && { opacity: anim.fade, transform: [{ translateY: anim.above }] }}>
+            {leading ? <View style={styles.leading}>{leading}</View> : null}
+            {eyebrow ? (
+              <Text variant="labelEyebrow" color="accent">
+                {eyebrow}
+              </Text>
+            ) : null}
+          </Animated.View>
+        ) : null}
+        <Animated.View
+          onLayout={onPart('title')}
+          style={
+            anim && {
+              transformOrigin: [0, geo.baseline, 0],
+              transform: [{ translateY: anim.title }, { scale: anim.scale }],
+            }
+          }>
+          {titleText}
+        </Animated.View>
+      </View>
+      {stat ? (
+        <View style={styles.stat} onLayout={onPart('stat')}>
+          <Animated.View onLayout={onPart('number')} style={anim && { transform: [{ translateY: anim.stat }] }}>
+            <Text variant="displaySm" color="accent" onTextLayout={onBaseline('numberBaseline')}>
+              {stat.value}
+            </Text>
+          </Animated.View>
+          <Animated.View style={[styles.statLabel, anim && { opacity: anim.fade, transform: [{ translateY: anim.stat }] }]}>
+            <Text variant="labelEyebrow" color="muted">
+              {stat.label}
+            </Text>
+          </Animated.View>
+        </View>
+      ) : meta ? (
+        <Animated.View style={[styles.meta, anim && { transform: [{ translateY: anim.up }] }]}>{meta}</Animated.View>
+      ) : null}
     </View>
   );
 
@@ -310,7 +388,23 @@ const styles = StyleSheet.create({
   titleColumn: {
     flexShrink: 1,
     alignItems: 'flex-start',
-    gap: spacing.gap.row,
+  },
+  leading: {
+    marginBottom: spacing.gap.row,
+  },
+  // Out of flow, so the header height stays the title column's and the rule
+  // sits at the same height on every tab (a swipe shows no step). On iOS the
+  // display.sm numeral's natural box (39) would otherwise push it 3 lower.
+  // Its foot sits where meta's does: header padding + meta padding (8 + 12 =
+  // 20) above the rule.
+  stat: {
+    position: 'absolute',
+    right: layout.gutter,
+    bottom: space[8] + space[12],
+    alignItems: 'flex-end',
+  },
+  statLabel: {
+    marginTop: spacing.gap.tight,
   },
   meta: {
     alignItems: 'flex-end',

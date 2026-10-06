@@ -6,9 +6,9 @@ import ScreenFrame from './ScreenFrame';
  * one line of copy. Deliberately not an empty-state design — each screen's
  * empty state is designed when the screen itself is rebuilt.
  */
-export default function PlaceholderScreen({ title, leading }) {
+export default function PlaceholderScreen({ title, eyebrow, leading }) {
   return (
-    <ScreenFrame title={title} leading={leading}>
+    <ScreenFrame title={title} eyebrow={eyebrow} leading={leading}>
       <Text variant="body" color="muted">
         This screen is being rebuilt.
       </Text>
