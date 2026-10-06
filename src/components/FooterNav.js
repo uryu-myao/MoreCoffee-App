@@ -28,12 +28,13 @@ const { slot, addSlot } = component.tabBar;
  * surface whose fill has no darker tier, so it shows no visual change (§1). Both
  * give a light impact haptic (a discrete press).
  */
-export default function FooterNav({ activeTab, onTabPress, onAddPress }) {
+export default function FooterNav({ activeTab, position, onTabPress, onAddPress }) {
   const insets = useSafeAreaInsets();
 
   const tab = ({ key, label }, index, edges) => {
     const Icon = ICONS[key];
     const isActive = key === activeTab;
+    const page = TABS.findIndex((t) => t.key === key);
     return (
       <Slot
         key={key}
@@ -43,7 +44,7 @@ export default function FooterNav({ activeTab, onTabPress, onAddPress }) {
         label={label}
         selected={isActive}
         onPress={() => onTabPress(key)}>
-        <Icon isActive={isActive} />
+        {position ? <PagerIcon Icon={Icon} page={page} position={position} /> : <Icon isActive={isActive} />}
       </Slot>
     );
   };
@@ -64,6 +65,29 @@ export default function FooterNav({ activeTab, onTabPress, onAddPress }) {
 }
 
 const pressEasing = Easing.bezier(...motion.press.controlPoints);
+
+/**
+ * The active state follows the pager continuously, not only on settle: the
+ * active glyph is laid over the inactive one and its opacity tracks the pager
+ * position (1 on its page, 0 one page away). Native driver, so it moves on the
+ * UI thread with the drag. Opacity here is a crossfade between two states, not
+ * press feedback, so the §1 no-opacity rule for pressed does not apply.
+ */
+function PagerIcon({ Icon, page, position }) {
+  const opacity = position.interpolate({
+    inputRange: [page - 1, page, page + 1],
+    outputRange: [0, 1, 0],
+    extrapolate: 'clamp',
+  });
+  return (
+    <View>
+      <Icon />
+      <Animated.View style={[StyleSheet.absoluteFill, { opacity }]}>
+        <Icon isActive />
+      </Animated.View>
+    </View>
+  );
+}
 
 /** feedback: 'scale' (bare glyph) or 'none' (ink fill, no darker tier). */
 function Slot({ box, edge, role, label, selected, onPress, feedback = 'scale', children }) {

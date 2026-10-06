@@ -1,3 +1,4 @@
+import { createContext, useContext } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DotTexture from '../components/base/DotTexture';
@@ -15,6 +16,15 @@ import { color, layout, shape, space, spacing } from '../theme/tokens';
  * Single use, so a local value, not a token. translateY: no effect on layout.
  */
 const COMPACT_LEADING_OPTICAL_Y = 4;
+
+/**
+ * Whether ScreenFrame draws its own backdrop (ground + dot texture). AppShell's
+ * tab pager sets it to false and draws one backdrop behind all four pages:
+ * per-page textures would slide with their pages and break at the seam
+ * (390 / 7 is not a whole number of tiles). Screens outside the pager (the
+ * Record overlay, the database error screen) keep drawing their own.
+ */
+export const ScreenBackdropContext = createContext(true);
 
 /**
  * Screen shell (design-system.md §9): header block — optional leading control
@@ -42,6 +52,9 @@ const COMPACT_LEADING_OPTICAL_Y = 4;
  */
 export default function ScreenFrame({ title, leading, meta, scroll = false, compact = false, footer, children }) {
   const insets = useSafeAreaInsets();
+  const ownBackdrop = useContext(ScreenBackdropContext);
+  const rootStyle = ownBackdrop ? styles.screen : styles.screenBare;
+  const texture = ownBackdrop ? <DotTexture /> : null;
   const headerTop = { paddingTop: Math.max(insets.top, layout.screen.top) };
 
   const titleText = (
@@ -81,14 +94,15 @@ export default function ScreenFrame({ title, leading, meta, scroll = false, comp
     </>
   );
 
-  // Every variant: a fixed root holding the dot texture, with any ScrollView
-  // above it — so the texture never scrolls and never re-renders on scroll.
+  // Every variant: a fixed root holding the dot texture (or, inside the tab
+  // pager, transparent over AppShell's), with any ScrollView above it — so the
+  // texture never scrolls and never re-renders on scroll.
   if (scroll && compact) {
     // Pinned header: the ScrollView starts below the rule and clips there, so
     // content passes beneath the header's bottom edge, never beside it.
     return (
-      <View style={styles.screen}>
-        <DotTexture />
+      <View style={rootStyle}>
+        {texture}
         {header}
         <ScrollView style={styles.scroller} contentContainerStyle={styles.scrollContent}>
           {page}
@@ -98,16 +112,16 @@ export default function ScreenFrame({ title, leading, meta, scroll = false, comp
   }
 
   return scroll ? (
-    <View style={styles.screen}>
-      <DotTexture />
+    <View style={rootStyle}>
+      {texture}
       <ScrollView style={styles.scroller} contentContainerStyle={styles.scrollContent}>
         {header}
         {page}
       </ScrollView>
     </View>
   ) : (
-    <View style={styles.screen}>
-      <DotTexture />
+    <View style={rootStyle}>
+      {texture}
       {header}
       {page}
     </View>
@@ -118,6 +132,9 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: color.surface.ground,
+  },
+  screenBare: {
+    flex: 1,
   },
   scroller: {
     flex: 1,

@@ -505,6 +505,17 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 ### Bottom sheet (2 uses: 2b, 3b)
 `position: absolute`, pinned bottom, `color.surface.raised`, `2px solid` top border, `padding: 22 22 34`, a `size.sheet.handle` bar centred at the top with `-6` optical margin. Behind it: the page at `opacity: 0.45` plus `color.scrim`.
 
+### Tab pager (2026-10-06)
+Swiping horizontally moves between the four tab screens: Home → Records → Try next → Profile. Swipe left for the next tab, right for the previous. The + is a modal trigger, not a stop.
+- **Native paging ScrollView in `AppShell`, no gesture or animation library.** The drag, the eased settle on release (UIKit's paging deceleration), the edge rubber-band (iOS bounce; Android's system overscroll stretch) and the arbitration with each screen's own vertical ScrollView all run in the native scroll view on the UI thread. Nothing crosses to JS per frame.
+- **Ends stop, never wrap.** Home → Profile does not wrap; the edge is felt as the bounce.
+- **Horizontal vs vertical** is decided by the platform, not by thresholds of ours: on iOS, nested perpendicular UIScrollViews claim the gesture by the direction of the initial movement; on Android, by which axis passes the touch slop first. A mostly vertical drag goes to the screen's list. There are no custom numbers to tune. If explicit thresholds are ever needed, that takes react-native-gesture-handler (not installed; deliberately not added for this).
+- **The bar's active state follows the drag continuously.** A native-driver `Animated.event` on the pager offset crossfades each tab's active glyph over its inactive one (opacity 1 on its page, 0 one page away). The settled page then becomes the tab's accessibility state.
+- **A footer tap still switches instantly**: `scrollTo` without animation, no slide through the pages in between.
+- **One backdrop behind all pages.** `AppShell` draws the ground and the dot texture once; `ScreenFrame` skips its own inside the pager (`ScreenBackdropContext`). Otherwise each page's texture would slide with it and break at the seam, since 390 / 7 is not a whole number of tiles. The Record overlay and the error screen sit outside the pager and keep their own.
+- **Scope**: tab screens only. The Record overlay is above the pager, not inside it, so swiping in it never pages. No back gesture yet, because no detail screen exists.
+- Measured (390pt simulator, programmatic animated page changes): 60 fps on the JS thread, p95 17.5 ms, one ~25 ms frame per page change at settle (the bar re-rendering; screens are memoised and do not re-render). Footer taps land on the right page in all four directions. Gesture arbitration with real fingers needs a physical device: the simulator cannot inject swipes here.
+
 ### Bottom bar — formerly "Floating bar" (revised 2026-10-05)
 **Current spec (base `FooterNav`)**: the tab bar spans the **full screen width on the bottom edge**, on `color.surface.raised`, with **no hard shadow**. Its `2px` ink top rule is the boundary: with the bar on the screen edge, that line does the separating work the shadow used to do.
 - **Row**: `size.tabBar.height` (60), with the home-indicator inset below it (34 on notched iPhones).
@@ -670,3 +681,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-06 — StarRating caption: five per-rating lines (§9 Star rating), mode-neutral, fixed one-line height reserved while unrated.
 - 2026-10-06 — **Tokens added: `state.pressed.scale` (0.88) and `motion.press` (100ms, `motion.expand`'s bezier).** §1 Pressed rewritten: feedback is decided by whether the element has a surface (surface → darken, none → scale; never opacity). The five existing components are unchanged. Haptics rule: a discrete press is a light impact; sweeping across options is selection. Bottom-bar tab icons now scale with no square fill.
 - 2026-10-06 — §9 List row: the row-order rule is written down for all three modes (line 1 what was drunk, line 2 where it came from), and the long-name rule for café / brand (1 line) vs drink / product (2 lines). Packaged is the only name for the third mode; READY-TO-DRINK survives only in the mocks and in records of the rename.
+- 2026-10-06 — §9 Tab pager: horizontal swipe between the four tabs, as a native paging ScrollView (no gesture or animation library added). The bar's active glyph follows the drag. One backdrop sits behind the pager.
