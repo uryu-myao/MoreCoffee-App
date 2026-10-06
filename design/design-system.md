@@ -580,6 +580,15 @@ Every `ScreenFrame` with `scroll`: Records (standard header) and Record coffee (
   - −30 = 0 and 29 ≈ 60: no jump at either end.
 - Frame timing while scrolling with the collapse active: 60 fps on the JS thread, worst frame 19.9 ms, none over 20 ms.
 
+- Tasting note (5b, standard header with a fixed back button), offset −30 / 0 / 5 / 10 / 13 / 14 / 20 / 400:
+  - back button 60–104 at every offset: never moves, never fades;
+  - rule 172 / 172 / 167 / 162 / 159 / 159 / 159 / 159;
+  - title ink 122.3–160 → 121.3–155.3 → 120.3–151 → 120–148, then unchanged;
+  - "Step 2 of 2 / Skippable" gone by offset 5;
+  - the first content line ("Ethiopia Guji") 16 under the rule through the collapse (190 → 177), then 1:1.
+  - **Full collapse is only 13**: the title box top stops under the back button (104 + `gap.row`), not at the safe-area top, so only the title's shrink is given back. Scroll range 380.7, so it always completes.
+  - "Skippable" fading loses no information: "Save without the note" stays at the foot of the page, and the intro line says untouched axes are left out.
+
 **With the pager.** Each screen owns its collapse, tied to its own scroll position. Swiping away from a half-collapsed Records shows the next screen's own header (expanded for the placeholders). Coming back shows Records exactly as left. During the swipe the two rules sit at different heights across the seam (measured 107 vs 120 at a half swipe). This was judged right: a shared collapse would detach each header from its own content.
 
 ### Tab pager (2026-10-06)
@@ -646,6 +655,20 @@ Padding is `inset.control` (the source's 13 / 16 folds to it) and the gap is `sp
 **Mode switching (Record coffee, 2026-10-05)**: the rating persists across a switch (it is about the cup, not who made it). The conditional field set resets: it is keyed by mode and remounts. The photo slot persists. The conditional block's height animates with `motion.expand` (Animated, `Easing.bezier` on the token's control points), which is 5a's own mechanism, so the photo slot and footer slide rather than jump. LayoutAnimation was not used because it cannot take the token's bezier.
 
 **Intro line per mode (2026-10-05)**: the line under the header changes with the mode. I made it is 5a verbatim ("Marked fields are required — all of them start pre-filled.") and Packaged is 5e with one word changed ("Packaged cups skip brewing and café — two fields left."; the mock says "Bottled", see `drift.md` D-14). No mock has a Barista line, because 5d replaces it with the error summary. Barista's line was **written to 5e's pattern** (what the mode skips, then how many fields are left): "Cups made for you skip beans and brewing — two fields left." Every line names the cup by who made it, matching the "Who made it?" field, not by its vessel or where it came from ("Café cups" was rejected on review). The line **crossfades** with `motion.expand` (same duration and bezier as the field block), the outgoing line laid over the incoming one, inside the same height-animating wrapper. All three fit on one line at 390pt, so the block does not change height. A longer translation would ease rather than jump.
+
+### Component catalog — pending (Step 4, logged 2026-10-06)
+Three parts of 5b are drawn inline in `TastingNoteScreen` for now (display only). They become base components in a later round. Each entry lists what to settle then.
+- **Axis slider** (`component.axis.*`): rail + needle (+ ghost + delta on 5c), with drag.
+  - The set needle (accent fill, 2px ink, 12 × 32) is a local constant today; decide whether to promote it to a token.
+  - Also settle the rail naming; see the `axis.rail` note in §2.
+- **Flavour chip, multi-select**: three looks, all bordered surfaces that darken on press:
+  - selected: `badge.bg.accent` + `border.accent`, `accentStrong` label;
+  - unselected: `border.muted`, `secondary` label;
+  - Search opener: `border.track` dashed, `muted` label.
+  - To report then: whether the dashed Search fits the dashed meaning (§8), and whether other screens have a multi-select set to share it with.
+  - Note: at `inset.control` (44 tall) the 5b chips wrap to 3 rows at 390pt where the mock's 39-tall chips take 2 (`gaps.md` 3).
+- **Cup summary row** (5b): `size.thumbnail.summary` thumbnail, name (`label`), one line of meta (`body.sm` muted), and the rating star + `numeral.inline` on the right.
+  - To report then: how it differs from `RecordRow` (2a) in information, not just layout, and whether the mocks explain showing the same cup two ways. That decides merging versus a separate component.
 
 ### Section heading (base `SectionLabel`, variants 2026-10-06)
 Two variants, both `label.eyebrow` `color.text.muted` with an optional right-side status:
@@ -785,3 +808,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-06 — §9 Header eyebrow and stat: every tab carries its mock eyebrow, and Records shows the cup count (2a). Collapse revised: the stat numeral keeps its size and lands on the title baseline; small labels (eyebrow, "Cups", Record coffee's date) fade over the first half instead of scaling.
 - 2026-10-06 — §1 Hard Rule, Header collapse: controls never fade or disable; only information fades. ScreenFrame's standard-header `leading` is now fixed (the title shrinks below it) and its `meta` fades.
 - 2026-10-06 — **Token added: `size.thumbnail.summary` (40). Style added: `text.note`** (Instrument Serif 20 italic / 28), promoted from E-3; 15 styles. `SectionLabel` gains `marked` / `plain` variants and a `count` status.
+- 2026-10-06 — Tasting note (5b) built as a static shell, stood in for Try next for verification (design/todo.md). Axis slider, flavour chip and cup summary row logged as pending components (§9).

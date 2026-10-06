@@ -3,6 +3,7 @@ import { useDatabase } from '../data/DatabaseProvider';
 import { countCups, onCupsChanged } from '../data/repository';
 import PlaceholderScreen from './PlaceholderScreen';
 import RecordsScreen from './RecordsScreen';
+import TastingNoteScreen from './TastingNoteScreen';
 
 // Tabs show a placeholder until their screen is rebuilt from the mock.
 // Records (2a) is rebuilt. The retired screens — HomeScreen, CoffeeListScreen, SearchScreen,
@@ -38,6 +39,12 @@ function TryNextPlaceholder() {
 export const SCREEN_COMPONENTS = {
   home: placeholder('Home', 'MoreCoffee'),
   records: RecordsScreen,
-  tryNext: TryNextPlaceholder,
+  // VERIFICATION ONLY (2026-10-06): Tasting note (5b) stands in for Try next so
+  // its header collapse and the bottom bar's hide / reveal can be checked inside
+  // the tab pager. 5b belongs in the Record overlay (Record coffee → 5b), where
+  // the bar is covered; see design/todo.md.
+  // To revert: set this back to TryNextPlaceholder and drop the
+  // TastingNoteScreen import above (TryNextPlaceholder is kept, unused, for it).
+  tryNext: TastingNoteScreen,
   profile: placeholder('Profile', 'Morecoffee'),
 };
