@@ -483,6 +483,22 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 ### List row
 `[thumbnail] [content column] [right meta column]`. The right column stacks rating over date, right-aligned — dates and ratings align down the whole list because they live in a fixed-width column, not at the end of a text run. Content column: title (`title`) → chips (`badge.inline`) → provenance (`body.sm`) → tasting note (`body.sm`, `color.text.muted`).
 
+**Row order — one rule for all three modes (2026-10-06)**: **line 1 = what was drunk** (bean name / drink / product name), **line 2 = where it came from** (roaster / café / brand). Do not add a per-mode rule.
+
+| mode | line 1 (`title`, `name` truncation, ≤ 2 lines) | line 2 (`source`, `meta` truncation, 1 line) |
+|---|---|---|
+| I made it | bean name | roaster · process |
+| Barista | drink | café |
+| Packaged | product name | brand |
+
+- Why this direction: line 1 is the two-line heading slot. Putting a MapKit café name there (the longest and least predictable string) would put the most fragile text in the most prominent place. As line 2 it falls under the one-line rule below. A proposal to swap Barista / Packaged (source first) was withdrawn on review.
+- I made it's line 2 stays "roaster · process". Changing it to the brew method waits for a brew-method input (`gaps.md` 10): without one the line would be empty.
+
+**Long names (2026-10-06)**: café and brand names come from the user or from MapKit, whose official names run long. **The DB stores the full name; only display truncates.**
+- Café and brand names: **1 line, tail ellipsis** (`meta`).
+- Drink and product names: **at most 2 lines** (`name`).
+- This holds wherever they appear (list rows, field values, pickers); the full name is reached on the detail screen.
+
 ### Card
 `2px solid color.border.strong` on `color.surface.raised`, `inset.container`, internal groups separated by `gap.section`, meta separated by `divider.soft`. No radius, no shadow unless it is a control.
 
@@ -653,3 +669,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-06 — §9 Bottom bar: icons inset by `layout.gutter`, which the outer slots take as padding, so their touch areas still reach the screen edge. Icon centres now every 69pt instead of 78.
 - 2026-10-06 — StarRating caption: five per-rating lines (§9 Star rating), mode-neutral, fixed one-line height reserved while unrated.
 - 2026-10-06 — **Tokens added: `state.pressed.scale` (0.88) and `motion.press` (100ms, `motion.expand`'s bezier).** §1 Pressed rewritten: feedback is decided by whether the element has a surface (surface → darken, none → scale; never opacity). The five existing components are unchanged. Haptics rule: a discrete press is a light impact; sweeping across options is selection. Bottom-bar tab icons now scale with no square fill.
+- 2026-10-06 — §9 List row: the row-order rule is written down for all three modes (line 1 what was drunk, line 2 where it came from), and the long-name rule for café / brand (1 line) vs drink / product (2 lines). Packaged is the only name for the third mode; READY-TO-DRINK survives only in the mocks and in records of the rename.

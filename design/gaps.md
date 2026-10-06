@@ -18,6 +18,8 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 **Status: RESOLVED (2026-10-04)** — confirmed by design, and verified on device (ja long strings hold at 2 lines). See `design-system.md` §3.1: tail ellipsis; `name` 2 lines, `meta` 1, `note` 3; full text on the detail screen.
 
+**Update (2026-10-06) — café and brand names**, the riskiest case: they come from the user or from MapKit (official names, often long). The DB stores the full name. Café and brand names display on **1 line with a tail ellipsis** (`meta`); drink and product names take **at most 2 lines** (`name`). See `design-system.md` §9 List row.
+
 ---
 
 ## 2. No focus state exists — **high risk for accessibility and TV/keyboard input**
@@ -89,11 +91,13 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 ## 7. Nowrap chips will overflow once the UI is translated
 
-**Parts affected**: the 40 `nowrap` uses — **all fixed copy, none user-supplied**: brew-method chips `Filter / Espresso / Cold brew` (12), maker chips `I made it / Barista / Ready-to-drink` (12), dates `Apr 8 / Apr 7 / Apr 6` (12), status label `Early signs` (4).
+**Parts affected**: the 40 `nowrap` uses — **all fixed copy, none user-supplied**: brew-method chips `Filter / Espresso / Cold brew` (12), maker chips `I made it / Barista / Packaged` (12; the mocks still say "Ready-to-drink"), dates `Apr 8 / Apr 7 / Apr 6` (12), status label `Early signs` (4).
 
-**What happens if left alone**: safe in English. Once Japanese and Simplified Chinese ship (8m already lists three languages), `READY-TO-DRINK` and `Best rated` grow while `nowrap` keeps them on one line — they will push out of the row or out of the card.
+**What happens if left alone**: safe in English. Once Japanese and Simplified Chinese ship (8m already lists three languages), `Best rated` and the brew-method chips grow while `nowrap` keeps them on one line — they will push out of the row or out of the card.
 
 **Needs designing**: per-locale behaviour for chips — shorter strings, wrapping allowed, or horizontal scroll.
+
+**Note (2026-10-06)**: user-supplied names (café, brand, drink, product) are never `nowrap`. They follow the truncation rule in item 1.
 
 **Update (2026-10-04)**: the maker chip "Ready-to-drink" is renamed **"Packaged"** (ja 市販品, zh 市售) — see `i18n-notes.md`. The three maker chips now fit on one line at 390 / 393pt. Brew-method chips and `Best rated` are unchanged.
 
@@ -131,6 +135,8 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 **Measured**: the data model has no brew category. `brew_method` holds the brewer ("V60") and exists only for `made_it`; barista and packaged cups have no brewing data at all.
 
 **Decided (2026-10-05)**: the badge is **not shown**, and it is **not derived from `brew_method`**. A derivation needs a lookup table full of real judgement calls (is an AeroPress filter or espresso? a moka pot?), and it would only ever cover `made_it`. A derivation that is incomplete from day one is worse than an absent field.
+
+**Records row (2026-10-06)**: I made it's line 2 stays "roaster · process". It moves to the brew method only once a brew-method input exists; revisit then.
 
 **Needs designing**: a `brew_category` column with a deliberately settled taxonomy. **Fold this into the Try Next work**, which needs that dimension anyway; do not rush it into a screen.
 
