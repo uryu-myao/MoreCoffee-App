@@ -4,7 +4,7 @@ import RecordRow from '../components/base/RecordRow';
 import Text from '../components/base/Text';
 import { useDatabase } from '../data/DatabaseProvider';
 import { listCups, onCupsChanged } from '../data/repository';
-import { color, layout, shape, spacing } from '../theme/tokens';
+import { layout, spacing } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
 /**
@@ -91,7 +91,6 @@ export default function RecordsScreen() {
                   <Text variant="labelEyebrow" color="accent">
                     {group.label}
                   </Text>
-                  <View style={styles.monthRule} />
                   <Text variant="labelEyebrow" color="muted">
                     Newest first
                   </Text>
@@ -126,12 +125,8 @@ const styles = StyleSheet.create({
   month: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: spacing.gap.row,
     paddingBottom: spacing.gap.row,
-  },
-  monthRule: {
-    flex: 1,
-    height: shape.borderWidth.divider,
-    backgroundColor: color.divider.hairlineStrong,
   },
 });
