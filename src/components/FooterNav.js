@@ -2,7 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TABS } from '../constants/navigation';
-import { color, component, shape, size, state } from '../theme/tokens';
+import { color, component, layout, shape, size, state } from '../theme/tokens';
 import { AddCoffeeIcon, CalendarIcon, HomeIcon, ProfileIcon, RecordsIcon } from './icons/TabBarIcons';
 
 const ICONS = { home: HomeIcon, records: RecordsIcon, tryNext: CalendarIcon, profile: ProfileIcon };
@@ -18,21 +18,23 @@ const { slot, addSlot } = component.tabBar;
  * on review, 2026-10-05). Below the size.tabBar.height row, padding clears the
  * home indicator (the safe-area inset).
  *
- * Five equal slots across the full width, so the icons are evenly spaced and
- * the centre + sits exactly in the middle. Each keeps the source's 60×40 /
+ * Five slots, the icons evenly spaced within the screen gutter (layout.gutter)
+ * and the centre + exactly in the middle; the outer slots' touch areas extend
+ * through the gutter to the screen edge. Each keeps the source's 60×40 /
  * 68×40 visual box for its pressed fill (Hard Rule §1); the touch area is the
  * whole slot.
  */
 export default function FooterNav({ activeTab, onTabPress, onAddPress }) {
   const insets = useSafeAreaInsets();
 
-  const tab = ({ key, label }) => {
+  const tab = ({ key, label }, index, edges) => {
     const Icon = ICONS[key];
     const isActive = key === activeTab;
     return (
       <Slot
         key={key}
         box={slot}
+        edge={edges[index]}
         role="tab"
         label={label}
         selected={isActive}
@@ -46,18 +48,18 @@ export default function FooterNav({ activeTab, onTabPress, onAddPress }) {
     <View style={styles.wrapper}>
       <View style={[styles.bar, { paddingBottom: insets.bottom }]}>
         <View style={styles.row}>
-          {TABS.slice(0, 2).map(tab)}
+          {TABS.slice(0, 2).map((t, i) => tab(t, i, ['start', null]))}
           <Slot box={addSlot} role="button" label="Log a cup" onPress={onAddPress}>
             <AddCoffeeIcon />
           </Slot>
-          {TABS.slice(2).map(tab)}
+          {TABS.slice(2).map((t, i) => tab(t, i, [null, 'end']))}
         </View>
       </View>
     </View>
   );
 }
 
-function Slot({ box, role, label, selected, onPress, children }) {
+function Slot({ box, edge, role, label, selected, onPress, children }) {
   return (
     <Pressable
       onPress={() => {
@@ -67,7 +69,7 @@ function Slot({ box, role, label, selected, onPress, children }) {
       accessibilityRole={role}
       accessibilityLabel={label}
       accessibilityState={role === 'tab' ? { selected } : undefined}
-      style={styles.slotTouch}>
+      style={[styles.slotTouch, edge === 'start' && styles.slotStart, edge === 'end' && styles.slotEnd]}>
       {({ pressed }) => (
         <View style={[styles.slotBox, { width: box.w, height: box.h }, pressed && styles.slotPressed]}>
           {children}
@@ -93,10 +95,20 @@ const styles = StyleSheet.create({
     height: size.tabBar.height,
     flexDirection: 'row',
   },
+  // Five slots share the row equally *after* the outer slots take
+  // layout.gutter of padding: the icons sit as if the row were inset by the
+  // screen gutter, while the outer touch areas still reach the screen edge.
   slotTouch: {
-    flex: 1,
+    flexBasis: 0,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  slotStart: {
+    paddingLeft: layout.gutter,
+  },
+  slotEnd: {
+    paddingRight: layout.gutter,
   },
   slotBox: {
     alignItems: 'center',
