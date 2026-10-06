@@ -541,6 +541,20 @@ Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control
 - Tuned by eye at 3× across −2…+2px: at +1 the top tip clears the disc edge by 7.17px and the bottom tips by 7.52px; at 0 the star reads low and at +2 it reads high.
 - Implementation note: the glyph sits in its own View so it paints above the absolute disc on web as well as native.
 
+**Caption copy (2026-10-06)**: one line per rating, shown the moment a star is set. There is no empty level.
+
+| ★ | Caption |
+|---|---|
+| 1 | Not for me |
+| 2 | Not again |
+| 3 | Does the job |
+| 4 | Would have again |
+| 5 | One to remember |
+
+- Grammar follows 5a's "Would order again": subject dropped, sentence case, never "Your". The verb is mode-neutral: "have" works for a cup I made as well as one bought, where "order" does not. So 4 is 5a's line with the verb swapped, and the five rise monotonically.
+- **Fixed height, one line.** The caption is held to one line (`meta` truncation). While unrated the line is still reserved (an empty line), so neither the first tap nor any later change moves the card. Measured at 390pt: the caption box is 310 × 16.3 at every rating, and the next section label stays at y 349.7 from 0 through 5 stars.
+- A two-line reserve was rejected: ja / zh likely fit one line and would carry a permanent empty line. If a translation overflows (it would ellipsize), revisit then. The code says so at the caption.
+
 ### Buttons
 Primary: `size.button.primary` tall, `color.action.bg`, `2px solid` outline, `shadow.primary`, `button.caps`. Secondary: same geometry on `color.surface.ground` with `color.text.primary`. Tertiary: no background, no border, `label.caps`.
 
@@ -633,3 +647,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-05 — §9 Bottom bar: the fade band above the rule is removed. On the edge bar it only covered the content just above it. `state.fade` and `layout.fade.top` are now unused (kept, pending a decision).
 - 2026-10-05 — `texture.dot` implemented: `DotTexture` (one SVG `<Pattern>` from the token values), fixed behind every `ScreenFrame`, under opaque surfaces. OQ-2 resolved for the dot texture; OQ-1 rendered, final check on a physical device.
 - 2026-10-06 — §9 Bottom bar: icons inset by `layout.gutter`, which the outer slots take as padding, so their touch areas still reach the screen edge. Icon centres now every 69pt instead of 78.
+- 2026-10-06 — StarRating caption: five per-rating lines (§9 Star rating), mode-neutral, fixed one-line height reserved while unrated.

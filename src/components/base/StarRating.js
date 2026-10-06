@@ -26,7 +26,9 @@ const PRESSED_DISC = { diameter: 48, opticalOffsetY: 1 };
  * Props
  *   value     0–5 (0 = unrated)
  *   onChange  (n) => void — fires with a selection haptic
- *   caption   optional line under a dashed rule ("Would order again")
+ *   caption   optional line under a dashed rule. Pass a string (even '') to
+ *             reserve the line: it is always exactly one line tall, so the
+ *             card never changes height as the caption changes or empties.
  *   error     optional message; switches the card to the 5d error state and
  *             replaces the caption
  *   testOnly_pressedStar   force the pressed look on star n (dev harness)
@@ -47,8 +49,16 @@ export default function StarRating({ value = 0, onChange, caption, error, testOn
         {error}
       </Text>
     </View>
-  ) : caption ? (
-    <Text variant="label">{caption}</Text>
+  ) : caption !== undefined ? (
+    // One line, fixed: truncate="meta" holds it to a single line, and the
+    // no-break space keeps that line's height when the caption is empty.
+    // Sized for the English copy, which fits one line at 390pt. If a
+    // translation overflows (it would ellipsize), revisit — a two-line
+    // reserve was rejected because ja / zh likely fit one line and would
+    // carry a permanent empty line.
+    <Text variant="label" truncate="meta">
+      {caption || '\u00A0'}
+    </Text>
   ) : null;
 
   return (

@@ -49,6 +49,20 @@ const INTRO = {
 };
 
 /**
+ * One line per rating, shown the moment a star is set (design-system.md §9
+ * Star rating). Mode-neutral ("have", not "order": the cup may be one I made),
+ * subject dropped, sentence case, never "Your"; rises monotonically. 4 is 5a's
+ * "Would order again" with the verb made mode-neutral.
+ */
+const RATING_COPY = {
+  1: 'Not for me',
+  2: 'Not again',
+  3: 'Does the job',
+  4: 'Would have again',
+  5: 'One to remember',
+};
+
+/**
  * Crossfades from the previous line to the new one with the product's one
  * motion, so the copy eases with the field block instead of popping. The old
  * line sits over the new one while it fades out.
@@ -351,10 +365,10 @@ export default function RecordCoffeeScreen({ onClose }) {
           </View>
         </ExpandingBlock>
 
-        {/* SET only once a star is tapped. No caption: 5a's "Would order again" is
-            sample sentiment, and per-rating copy is not designed (TODO(design)). */}
+        {/* SET only once a star is tapped. The caption line is reserved while
+            unrated, so the first tap does not grow the card. */}
         <Section label="How was it?" status={rating > 0 ? 'set' : undefined}>
-          <StarRating value={rating} onChange={setRating} />
+          <StarRating value={rating} onChange={setRating} caption={RATING_COPY[rating] ?? ''} />
         </Section>
 
         <Section label="Who made it?" status="set">
