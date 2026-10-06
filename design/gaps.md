@@ -44,6 +44,8 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 **Needs designing**: the tappable chip's height (padding or an invisible hit-slop), plus its pressed / selected / disabled states. Deciding which chips are interactive at all is OQ-13.
 
+**First visible cost (2026-10-06)**: 5b's flavour chips at `inset.control` (44 tall) wrap to **3 rows** at 390pt where the mock's 39-tall chips take 2. This cannot be solved in implementation; it stays at 3 rows for now. To bring with the chip component: whether 44 can hold 2 rows (tighter horizontal padding, fewer chips per row, shorter labels); how much taller the whole screen gets; and whether the mock's 39 was deliberate or simply did not consider tap height.
+
 **Status (2026-10-04)** for the maker chips (`SegmentedControl`): height is resolved by `inset.control` (44px, no hit-slop). Selected is the 5a ink fill. Pressed follows the §1 Hard Rule. Disabled is still undesigned. The 3f / 2b chips remain open under OQ-13.
 
 ---
@@ -52,7 +54,7 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 **Parts affected**: all buttons (primary / secondary / tertiary / icon), all chips, list rows, form fields, the tab bar.
 
-**Measured**: `:active`, `:hover`, `:focus`, `cursor: not-allowed`, `pointer-events` — **0 uses each**. `opacity` appears **twice, both on the 2b sheet's dimmed backdrop** (0.45), not as a disabled treatment. The nearest thing to a disabled state in the whole product is `border.empty.disabled` (`2px dashed` `color.border.muted`) on 5d's blocked add-button, and the greyed marker `marker.optional`.
+**Measured**: `:active`, `:hover`, `:focus`, `cursor: not-allowed`, `pointer-events` — **0 uses each**. `opacity` appears **twice, both on the 2b sheet's dimmed backdrop** (0.45), not as a disabled treatment. The nearest thing to a disabled state in the whole product is `border.empty.inert` (formerly `border.empty.disabled`; `2px dashed` `color.border.muted`) on 5d's blocked add-button, and the greyed marker `marker.optional`.
 
 **What happens if left alone**: hard shadows make press feedback especially conspicuous by its absence — the natural affordance is the shadow collapsing, and if nobody specifies it, each screen invents a different amount. Async actions ("Save this cup") have no in-flight state, so double submissions are invisible.
 
@@ -61,6 +63,7 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 **Status (2026-10-04)**:
 - **Pressed — decided.** System-wide Hard Rule, decided by whether the element has a surface: a surface darkens its fill (`state.pressed.surface` / `state.pressed.action`); a bare glyph scales to `state.pressed.scale` over `motion.press` (revised 2026-10-06). Never opacity. Border, label and shadow stay. See `design-system.md` §1. Darken: Button, SegmentedControl, FieldRow, StarRating, IconButton. Scale: the bottom-bar tab icons.
 - **Disabled — decided for Button only** (§9). Still undesigned for chips, rows and fields.
+- **Button secondary height (2026-10-06)**: the mocks draw every full-width secondary at 52 (primary 56). `Button` renders both at 56. Pending: which token the secondary takes (`size.control.row` is 52 but named for list rows), then the fix. `drift.md` D-17 was withdrawn for this.
 - **Loading — deliberately not needed.** This is not deferred pending design. Saves write to local SQLite and are instant, so there is no in-flight state to show. Revisit only when Step 5 introduces real async (MapKit lookup, barcode lookup).
 
 ---

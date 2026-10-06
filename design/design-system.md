@@ -55,6 +55,12 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - Why: a control that is invisible but pressable, or one that should be pressable but has gone, both break operability. The collapse is a side effect of scrolling, not a sign that the user has given up on an action: being unable to go back after scrolling is plainly wrong.
 - Precedent: Record coffee's close button does not scale. The same principle covers 5b's back button above the title, which stays where it is while the title shrinks beneath it (§9 Header collapse).
 
+### Naming state tokens (added 2026-10-06)
+- **Name a state token for what the state means, not for how it was used on the screen where it was first found.**
+- **Before naming, check every screen that uses the same value.**
+- **If the name and the reality disagree, fix the name, not the comment.**
+- Why: the same mistake was made three times. `axis.rail.readonly / editable` and the interim `unset / set` were both read off one screen. `border.empty.disabled` was named for 5d and is also used on 2a, where nothing can be pressed. A comment that contradicts its name loses to the name.
+
 ### Declarations that appear zero times in 30 screens
 These absences are design facts, not oversights — but several of them are also why `gaps.md` exists.
 
@@ -203,13 +209,17 @@ The marker is intentionally one step darker than the fill it sits on — it is a
 
 | part | value | notes |
 |---|---|---|
-| `axis.rail.readonly` | `1.5px dashed` `#C8BCB4` on `#F4EDEA` + `texture.rule` | 1b, 4a, 4b, 5c |
-| `axis.rail.editable` | `2px solid` `#273D22` on `#FFFCFA` + `texture.rule` | 5b only — the screen where the user sets values |
+| `axis.rail.derived` | `1.5px dashed` `#C8BCB4` on `#F4EDEA` + `texture.rule` | a value the user did not enter for this cup: the computed profile (1b, 4a, 4b), history (5c), an axis not noted yet (5b) |
+| `axis.rail.entered` | `2px solid` `#273D22` on `#FFFCFA` + `texture.rule` | a value the user decided, themselves, for this cup (5b's set axes) |
 | `axis.needle` | fill `#E4D6CC`, border `#B3A69E`, `12 × 30` | |
 | `axis.ghost` | border `#B3A69E`, `10 × 10`, transparent fill | previous value (5c) |
 | `axis.delta` | `#B3A69E`, `2px` tall | movement since last value (5c) |
 
-The readonly/editable split lines up exactly with the `dashed` semantics below.
+**Renamed 2026-10-06** (formerly `readonly` / `editable`; an interim `unset` / `set` was never shipped). The rail shows **where the value came from**:
+- Solid means a value the user decided, themselves, for this cup. Dashed is everything else: computed profile values, history, and an axis not noted yet.
+- It is **not about editability**: 5b holds both kinds side by side, all editable. It is **not about whether there is a value** either: 1b / 4a / 4b show values on dashed rails.
+
+**Why this matters**: it carries one of MoreCoffee's core promises. Taste DNA is arithmetic on your own records, not a guess. The UI therefore has to let you tell, at a glance, what you put in from what came out of it. Solid / dashed is a statement of data provenance, not decoration: **do not unify them.**
 
 **C. `tabBar`** — the bottom tab bar carried by the floating bar (§9). Four tab slots and one wider add slot, centred in the bar. Appears on 1b, 2a, 4a, 4b, 6a and 8d. *Added 2026-10-04.* The original extraction missed its two raw icon colours, which are written as lowercase hex in the source; they are the only lowercase hex values on the in-scope screens.
 
@@ -443,14 +453,18 @@ All hard: blur 0, isotropic offset, single ink. Offset **scales with the element
 
 ## 8. Border & Dashed Semantics
 
-`dashed` is a **semantic system, not decoration** (58 uses / 21 screens). It consistently means **"a surface that is not real content"** — never "draft".
+`dashed` is a **semantic system, not decoration** (58 uses / 21 screens). It never means "draft". It has **two uses, written separately** (revised 2026-10-06; formerly one rule, "a surface that is not real content", which fits empty slots but not the axis rail):
+- **Nothing is in it yet**: `border.empty`, `border.empty.inert`.
+- **The value shown is not one the user entered**: `axis.rail.derived` (§2 B).
+
+What they share is "not something the user has settled". They are still two uses, not one rule; do not merge them.
 
 | token | value | meaning | reach |
 |---|---|---|---|
-| `border.empty` | `2px dashed` `color.border.strong` | an empty slot waiting to be filled — "Add a photo", "Add gear", "Add beans". Always a `<button>` | 10 uses / 10 screens |
-| `border.empty.disabled` | `2px dashed` `color.border.muted` | the same slot when it cannot be actioned (5d), and the empty list frame (2a) | 2 uses |
+| `border.empty` | `2px dashed` `color.border.strong` | an empty slot waiting to be filled, and pressable — "Add a photo", "Add gear", "Add beans". Always a `<button>` | 10 uses / 10 screens |
+| `border.empty.inert` | `2px dashed` `color.border.muted` | an empty slot that cannot be pressed now (5d's blocked add button), or is not a thing to press at all (2a's empty list frame). Renamed 2026-10-06 from `border.empty.disabled`, which misnamed the 2a frame | 2 uses |
 | `divider.soft` | `1.5px dashed` `color.border.soft` | a secondary line inside a card, separating meta or a closing remark from the body | 24 uses |
-| `border.track` | `1.5px dashed` `color.border.muted` | a measuring rail or placeholder frame — `axis.rail.readonly`, the search placeholder | 14 uses |
+| `border.track` | `1.5px dashed` `color.border.muted` | a measuring rail or placeholder frame — `axis.rail.derived`, the search placeholder | 14 uses |
 | `state.error.dashed` | `1.5px dashed` `#9E5202` | error emphasis (5d) **A** | 1 use |
 
 **RN implementation note**: iOS cannot dash a single border side. Single-edge dashed lines (`divider.soft` and the like) render through the base `DashedRule` component, which clips a fully dashed box to its top edge. Full dashed frames (`border.empty`, the 5d error swatch) use `borderStyle: 'dashed'` directly.
@@ -624,7 +638,7 @@ Swiping horizontally moves between the four tab screens: Home → Records → Tr
 The `border.empty` slot as a component: always a button, full width. It is the row form from 3a, 3b, 3d, 5a, 5d and 5e.
 - **Anatomy**: `dashed.empty` frame (2px dashed ink) on a transparent ground, `inset.control` padding, then glyph → label → optional trailing tag, `space.12` apart. The glyph is `icon.md` by default (5a's camera); 3b's plus is `icon.sm`. The label is `label.caps` in ink. The tag is `label.caps` in `color.text.muted`, pushed to the right edge.
 - **Source fit**: 3x pads 14 / 16 (`inset.control` exactly); 5x pads 16, folded to it. The 10–11px glyph-label gap folds to `space.12`. The tag is `label.caps` on 3b and 3d; 5a, 5d and 5e set it at 11/600 (`drift.md` D-12).
-- **States**: default; **pressed**, where the fill darkens to `state.pressed.surface` (§1 Hard Rule); **disabled** (5d), where the frame drops to `dashed.emptyDisabled`, the glyph to `color.icon.muted` and the label to `color.text.secondary`. A disabled slot does not respond to press.
+- **States**: default; **pressed**, where the fill darkens to `state.pressed.surface` (§1 Hard Rule); **disabled** (5d), where the frame drops to `dashed.emptyInert` (`border.empty.inert`), the glyph to `color.icon.muted` and the label to `color.text.secondary`. A disabled slot does not respond to press.
 - **Not part of this component**: the 76px square photo slot (3c), the 2a empty-list frame (not a button), and the "Try next — opens at 5 cups" teaser card (1b, 4a, 4b, 5c).
 
 ### Badge (base `Badge`, 2026-10-05)
@@ -672,7 +686,7 @@ Three parts of 5b are drawn inline in `TastingNoteScreen` for now (display only)
 
 ### Section heading (base `SectionLabel`, variants 2026-10-06)
 Two variants, both `label.eyebrow` `color.text.muted` with an optional right-side status:
-- **`marked`** has the `size.dot.bullet` square. It is used only on the Record coffee form (5a, 5d, 5e): How was it?, Who made it?, From my shelf, Café details, Product, Bought at.
+- **`marked`** has the `size.dot.bullet` square. Read from its distribution, the square marks **a section of an input form** (it appears only where the user is filling something in). It is used only on the Record coffee form (5a, 5d, 5e): How was it?, Who made it?, From my shelf, Café details, Product, Bought at.
 - **`plain`** has no bullet. It covers every other section heading:
   - 5b Flavors, My words;
   - 2c What I logged, Flavors;
@@ -715,7 +729,7 @@ Trailing icon (base `Button`, 2026-10-05): an optional glyph after the label (5a
 
 Icon button (base `IconButton`): `size.tapTarget` square, `2px solid` `color.border.strong` on `color.surface.raised`, one `icon.md` glyph in `color.icon.default`, no shadow. It is the header close / back control on 3a–3f, 5a, 5b, 5d and 5e. 6d, 7a, 7b and 8e–8m use the same button with the `-2` optical nudge applied at the point of use. The `1.5px` `color.border.muted` frame (3b, 8e) and the `color.badge.bg.accent` fill (2a, 3b) are variants that have not been built.
 
-Disabled (decided 2026-10-04, `gaps.md` 4 — not in the shipped screens): either variant drops to `color.surface.ground` fill, `color.border.muted` outline, `color.text.muted` label, and no shadow. This reuses the `border.empty.disabled` vocabulary from 5d (muted border = cannot be actioned) rather than introducing opacity, which the design uses only for the scrim backdrop.
+Disabled (decided 2026-10-04, `gaps.md` 4 — not in the shipped screens): either variant drops to `color.surface.ground` fill, `color.border.muted` outline, `color.text.muted` label, and no shadow. This reuses the `border.empty.inert` vocabulary from 5d (muted border = cannot be actioned) rather than introducing opacity, which the design uses only for the scrim backdrop.
 
 ---
 
@@ -809,3 +823,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-06 — §1 Hard Rule, Header collapse: controls never fade or disable; only information fades. ScreenFrame's standard-header `leading` is now fixed (the title shrinks below it) and its `meta` fades.
 - 2026-10-06 — **Token added: `size.thumbnail.summary` (40). Style added: `text.note`** (Instrument Serif 20 italic / 28), promoted from E-3; 15 styles. `SectionLabel` gains `marked` / `plain` variants and a `count` status.
 - 2026-10-06 — Tasting note (5b) built as a static shell, stood in for Try next for verification (design/todo.md). Axis slider, flavour chip and cup summary row logged as pending components (§9).
+- 2026-10-06 — **Renamed** `axis.rail.readonly / editable` → `derived / entered` (provenance, §2 B) and `border.empty.disabled` → `border.empty.inert`. §8 now lists dashed's two uses separately. §1 Hard Rule added: name state tokens for their meaning, across every screen.

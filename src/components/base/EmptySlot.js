@@ -10,7 +10,7 @@ import Text from './Text';
  *
  *   default    2px dashed ink frame, transparent, ink glyph and label
  *   pressed    fill darkens to state.pressed.surface (Hard Rule §1)
- *   disabled   the frame drops to dashed.emptyDisabled, glyph muted, label
+ *   disabled   the frame drops to dashed.emptyInert, glyph muted, label
  *              secondary — 5d, a slot that cannot be actioned yet
  *
  * Props
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     borderColor: dashed.empty.color,
   },
   slotDisabled: {
-    borderColor: dashed.emptyDisabled.color,
+    borderColor: dashed.emptyInert.color,
   },
   slotPressed: {
     backgroundColor: state.pressed.surface,

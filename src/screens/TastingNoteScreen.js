@@ -68,7 +68,8 @@ const RULE_STOPS = [0.25, 0.5, 0.75];
 
 function Axis({ from, to, at }) {
   const set = at != null;
-  const rail = set ? component.axis.rail.editable : component.axis.rail.readonly;
+  // entered: the user's own value for this cup; derived: anything else (here, not noted).
+  const rail = set ? component.axis.rail.entered : component.axis.rail.derived;
   const needle = set
     ? SET_NEEDLE
     : { ...component.axis.needle, fill: component.axis.needle.background, borderWidth: shape.borderWidth.divider };
@@ -208,8 +209,8 @@ export default function TastingNoteScreen() {
         </Pressable>
       </View>
 
-      {/* 5b's buttons sit on the ground (no footer panel). The secondary is 56,
-          not the mock's 52 (drift.md D-17). */}
+      {/* 5b's buttons sit on the ground (no footer panel). The mock's 52pt
+          secondary is right; Button still renders it at 56 (gaps.md 4). */}
       <View style={styles.actions}>
         <Button label="Save this cup" onPress={NOOP} />
         <Button label="Save without the note" variant="secondary" onPress={NOOP} />

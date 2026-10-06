@@ -310,12 +310,19 @@ export const shape = {
 } as const;
 
 /**
- * dashed = "a surface that is not real content" (never "draft").
+ * dashed never means "draft". It has two uses, kept apart (design-system.md §8):
+ *   empty / emptyInert   nothing is in it yet (an empty slot)
+ *   axis.rail.derived    the value shown is not one the user entered
+ * What they share — "not something the user has settled" — is not one rule.
  */
 export const dashed = {
-  /** an empty slot waiting to be filled — always a button */
+  /** an empty slot waiting to be filled — always pressable */
   empty:         { width: 2, style: 'dashed', color: color.border.strong },
-  emptyDisabled: { width: 2, style: 'dashed', color: color.border.muted },
+  /**
+   * an empty slot that cannot be pressed now (5d's blocked add button), or
+   * that is not a thing to press at all (2a's empty list frame)
+   */
+  emptyInert:    { width: 2, style: 'dashed', color: color.border.muted },
   /** secondary line inside a card */
   dividerSoft:   { width: 1.5, style: 'dashed', color: color.border.soft },
   /** measuring rail / placeholder frame */
@@ -357,13 +364,22 @@ export const component = {
   },
   /**
    * Taste axis slider: rail + needle (+ ghost + delta), 20px tall, bipolar,
-   * NO fill. Readonly rails are dashed, the editable rail is solid —
-   * consistent with the dashed semantics.
+   * NO fill.
+   *
+   * The rail shows where the value came from — not whether it can be edited,
+   * and not whether there is one:
+   *   entered  solid: a value the user decided, themselves, for this cup (5b)
+   *   derived  dashed: everything else — the computed profile (1b, 4a, 4b),
+   *            history (5c), and an axis not noted yet (5b)
+   * This carries a core promise: Taste DNA is arithmetic on your own records,
+   * not a guess, and the UI must always let you tell what you put in from what
+   * came out of it. So solid / dashed is provenance, not decoration: never
+   * unify them. (design-system.md §2 B.)
    */
   axis: {
     rail: {
-      readonly: { ...dashed.track, background: color.surface.ground, texture: texture.rule },
-      editable: { width: shape.borderWidth.box, style: 'solid', color: color.border.strong, background: color.surface.raised, texture: texture.rule },
+      derived: { ...dashed.track, background: color.surface.ground, texture: texture.rule },
+      entered: { width: shape.borderWidth.box, style: 'solid', color: color.border.strong, background: color.surface.raised, texture: texture.rule },
       height: size.axis.rail,
     },
     needle: { ...size.axis.needle, background: color.surface.muted, borderColor: color.border.medium },
