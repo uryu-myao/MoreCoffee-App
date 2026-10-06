@@ -100,9 +100,11 @@ export const state = {
   /** Scroll fade above a floating bar: transparent stop -> ground. */
   fade: { from: 'rgba(244, 237, 234, 0)', to: '#F4EDEA', height: 30 },
   /**
-   * Pressed (Hard Rule, design-system.md §1): the fill steps one tier darker.
-   * Never opacity — it would wash out HardShadow and the borders on the warm
-   * ground. Border, ink, label and shadow do not change.
+   * Pressed (Hard Rule, design-system.md §1) depends on whether the element has
+   * a surface. With one (a fill, frame or box), the fill steps one tier darker:
+   * surface / action below. Without one (a bare glyph), it scales: scale below,
+   * over motion.press. Never opacity in either case — it would wash out
+   * HardShadow and the borders on the warm ground.
    */
   pressed: {
     /** raised / ground / transparent-over-raised fills. Alias of surface.muted. */
@@ -112,6 +114,12 @@ export const state = {
      * link text) — cf. border.subtle and texture sharing #E4D6CC. Never merge.
      */
     action: '#05639C',
+    /**
+     * Surface-less elements (bare glyphs, e.g. the bottom-bar tab icons). 0.88
+     * because ~0.95 is not perceptible on a 20–24px glyph. Visual only: the
+     * touch area does not scale.
+     */
+    scale: 0.88,
   },
 } as const;
 
@@ -309,12 +317,17 @@ export const dashed = {
 } as const;
 
 /**
- * The product defines exactly one motion. Use this easing first;
- * discuss before introducing a second. CSS transitions do not exist in RN —
- * reproduce with Easing.bezier(...controlPoints). See OQ-7.
+ * Two motions, one easing. CSS transitions do not exist in RN — reproduce with
+ * Easing.bezier(...controlPoints). See OQ-7.
+ *   expand  height expand / collapse, crossfades between states (the source's
+ *           one motion, 5a)
+ *   press   press feedback only (state.pressed.scale in and out). 340ms reads
+ *           as lag under a finger. Same easing as expand.
+ * Do not use press for expansion or expand for press feedback.
  */
 export const motion = {
   expand: { duration: 340, controlPoints: [0.22, 0.61, 0.36, 1] as const },
+  press: { duration: 100, controlPoints: [0.22, 0.61, 0.36, 1] as const },
 } as const;
 
 /** Tilted sticker badge. Format as `${rotation.sticker}deg` at use. */

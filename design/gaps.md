@@ -57,7 +57,7 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 **Needs designing**: press (shadow offset → 0? translate?), disabled (which of ink/border/surface changes), loading (spinner vs skeleton vs label swap) for each component in the base set.
 
 **Status (2026-10-04)**:
-- **Pressed — decided.** System-wide Hard Rule: the fill darkens (`state.pressed.surface` / `state.pressed.action`), never opacity. Border, label and shadow stay. See `design-system.md` §1. Applied to Button, SegmentedControl, FieldRow, StarRating and IconButton.
+- **Pressed — decided.** System-wide Hard Rule, decided by whether the element has a surface: a surface darkens its fill (`state.pressed.surface` / `state.pressed.action`); a bare glyph scales to `state.pressed.scale` over `motion.press` (revised 2026-10-06). Never opacity. Border, label and shadow stay. See `design-system.md` §1. Darken: Button, SegmentedControl, FieldRow, StarRating, IconButton. Scale: the bottom-bar tab icons.
 - **Disabled — decided for Button only** (§9). Still undesigned for chips, rows and fields.
 - **Loading — deliberately not needed.** This is not deferred pending design. Saves write to local SQLite and are instant, so there is no in-flight state to show. Revisit only when Step 5 introduces real async (MapKit lookup, barcode lookup).
 

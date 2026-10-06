@@ -39,13 +39,16 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 
 ### Motion
 - **The design defines exactly one motion**: `340ms cubic-bezier(0.22, 0.61, 0.36, 1)` (5a, height expand). `animation` is 0 occurrences. **Use this easing first for any new animation; discuss before introducing a second.**
+- **Two motion tokens, one easing (2026-10-06).** `motion.expand` (340ms) is for expanding and collapsing, and crossfades between states. `motion.press` (100ms, same bezier) is **only** for press feedback (`state.pressed.scale` in and out): 340ms reads as lag under a finger. Never swap them.
 
-### Pressed (added 2026-10-04 — not in the shipped screens, which have 0 `:active`)
-- **Pressed darkens the fill. It never changes opacity.** One rule for every tappable component. Opacity would wash out the hard shadow and the 2px ink borders, and reads muddy against the warm ground.
+### Pressed (added 2026-10-04, revised 2026-10-06 — not in the shipped screens, which have 0 `:active`)
+- **Press feedback depends on whether the element has a surface. With a surface (a fill, frame or box), the fill darkens. Without one (a bare glyph), the element scales. In neither case does opacity change.** Opacity would wash out the hard shadow and the 2px ink borders, and reads muddy against the warm ground.
+- **Surface-less → scale** to `state.pressed.scale` (0.88) over `motion.press` (100ms), back to 1 on release. 0.88 because ~0.95 is not perceptible on a 20–24px glyph. **Only the visual scales: the touch area does not**, so it stays at least `size.tapTarget` (44) while the glyph shrinks. First use: the bottom-bar tab icons (§9).
 - Light fills — `color.surface.raised`, `color.surface.ground`, or transparent over a raised card — go to **`state.pressed.surface`** (alias of `color.surface.muted`). The action fill `color.action.bg` goes to **`state.pressed.action`**.
-- **Nothing else changes**: border, label/ink, glyph and `HardShadow` stay as they are. The change is instant (no motion).
+- **Surface → darken.** **Nothing else changes**: border, label/ink, glyph and `HardShadow` stay as they are. The change is instant (no motion).
 - A fill that is already ink (the selected chip) has no darker tier and does not respond. Pressing it is a no-op anyway. Disabled controls do not respond.
-- Applies to: Button, SegmentedControl options, FieldRow, StarRating stars, IconButton — and to any tappable component added later.
+- Darken applies to: Button, SegmentedControl options, FieldRow, StarRating stars, IconButton, and the bottom bar's + (an ink square, so no darker tier: no visual change). Scale applies to: the bottom-bar tab icons. Every tappable component added later takes one of the two by this test; its Step 4 component spec says which.
+- **Haptics follow the gesture, not the component.** A discrete press gives a **light impact**: today only the bottom bar does; Button, FieldRow and the other pressables have no haptic yet and take light impact when their Step 4 spec applies this rule. Sweeping across a continuous set of options gives **selection** (StarRating). Selection is the API built for stepping through values, and a light impact would make changing stars feel duller. Do not unify them.
 
 ### Declarations that appear zero times in 30 screens
 These absences are design facts, not oversights — but several of them are also why `gaps.md` exists.
@@ -147,6 +150,7 @@ Not in the shipped screens. Promoted because the pressed state appears in every 
 |---|---|---|---|
 | `state.pressed.surface` | alias of `color.surface.muted` (`#E4D6CC`) | raised, ground and transparent-over-raised fills | `surface.sunken` was the semantic first choice but sits only ΔE00 3.16 below ground, too faint for the secondary button. `surface.muted` reads clearly from both raised (ΔE00 9.40) and ground (6.18). Ink stays at 8.32:1 and `badge.fg.neutral` at 5.48:1. `text.muted` (FieldRow meta) drops to 4.45:1, just under AA for 12px, but only while a finger is down. No new hex |
 | `state.pressed.action` | `#05639C` | the `color.action.bg` fill | No existing fill token is a darker action blue. Reuses the value of `color.text.link` as a separate role (fill vs link text), the same precedent as `border.subtle` / `texture` sharing `#E4D6CC`. ΔE00 9.19 below `#067BC2`; white label contrast rises from 4.55 to 6.42:1 |
+| `state.pressed.scale` | `0.88` | surface-less elements (bare glyphs) | Added 2026-10-06. ~0.95 is imperceptible on a 20–24px line or fill glyph; 0.88 reads clearly (a 20px glyph becomes 17.6). Visual only: the touch area never scales |
 
 ### Texture — same value, two geometries
 Colour was unified to `#E4D6CC`; the two textures differ in **geometry, not colour**. Two tokens sharing one value is intentional, so that texture density can be tuned without touching the border role.
@@ -489,7 +493,7 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 **Current spec (base `FooterNav`)**: the tab bar spans the **full screen width on the bottom edge**, on `color.surface.raised`, with **no hard shadow**. Its `2px` ink top rule is the boundary: with the bar on the screen edge, that line does the separating work the shadow used to do.
 - **Row**: `size.tabBar.height` (60), with the home-indicator inset below it (34 on notched iPhones).
 - **Slots**: the icons sit inside the screen gutter: the two outer slots take `layout.gutter` (22) of padding on their outer side, then all five share the remaining width equally, so the icons are evenly spaced and the centre + sits exactly in the middle. The outer slots still reach the screen edge, so the gutter is part of their touch area (the icons move in; the touch areas do not shrink). Measured at 390pt: icon centres every 69 (56.7 / 126 / 195 / 264.3 / 333.3); touch areas Home 0–91.3 and Profile 298.7–390 (both start at the screen edge, 0pt), inner slots 69 wide, all 60 tall. Superseded: five equal 78pt slots with centres 39 … 351 (2026-10-05).
-- **Pressed**: each slot keeps `component.tabBar.slot` / `addSlot` (60 × 40 / 68 × 40) as the visual box for its pressed fill (§1); the touch area is the whole slot.
+- **Pressed** (§1, by surface): the tab icons are bare glyphs, so they scale to `state.pressed.scale` over `motion.press`. There is no square fill behind them any more. The + is an ink square, a surface whose fill has no darker tier, so it shows no visual change. Both give a light impact haptic. Measured: Home glyph 20 → 17.6 while held, its touch area fixed at 0–91.3 × 60; the + touch area fixed at 69.3 × 60. (Superseded 2026-10-06: a `state.pressed.surface` fill in the 60 × 40 / 68 × 40 slot box.)
 - **No fade band** (removed on review, 2026-10-05): with the bar on the screen edge, the 30pt fade above the rule only covered the content just above the bar. The rule alone separates. Rebuilt tab screens keep `layout.empty.block` of room under their content.
 
 **Why it changed**: the source (6a / 8d, and in flow on 1b / 2a / 4a / 4b) draws a 90%-wide floating bar with `shadow.floating`. That spec was drawn against an empty screen. Over real content (a full Records list) the elevation read as noise and worked against the design, so the bar went full width and the shadow came off.
@@ -648,3 +652,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-05 — `texture.dot` implemented: `DotTexture` (one SVG `<Pattern>` from the token values), fixed behind every `ScreenFrame`, under opaque surfaces. OQ-2 resolved for the dot texture; OQ-1 rendered, final check on a physical device.
 - 2026-10-06 — §9 Bottom bar: icons inset by `layout.gutter`, which the outer slots take as padding, so their touch areas still reach the screen edge. Icon centres now every 69pt instead of 78.
 - 2026-10-06 — StarRating caption: five per-rating lines (§9 Star rating), mode-neutral, fixed one-line height reserved while unrated.
+- 2026-10-06 — **Tokens added: `state.pressed.scale` (0.88) and `motion.press` (100ms, `motion.expand`'s bezier).** §1 Pressed rewritten: feedback is decided by whether the element has a surface (surface → darken, none → scale; never opacity). The five existing components are unchanged. Haptics rule: a discrete press is a light impact; sweeping across options is selection. Bottom-bar tab icons now scale with no square fill.

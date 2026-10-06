@@ -1,8 +1,9 @@
 import * as Haptics from 'expo-haptics';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useRef } from 'react';
+import { Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TABS } from '../constants/navigation';
-import { color, component, layout, shape, size, state } from '../theme/tokens';
+import { color, component, layout, motion, shape, size, state } from '../theme/tokens';
 import { AddCoffeeIcon, CalendarIcon, HomeIcon, ProfileIcon, RecordsIcon } from './icons/TabBarIcons';
 
 const ICONS = { home: HomeIcon, records: RecordsIcon, tryNext: CalendarIcon, profile: ProfileIcon };
@@ -20,9 +21,12 @@ const { slot, addSlot } = component.tabBar;
  *
  * Five slots, the icons evenly spaced within the screen gutter (layout.gutter)
  * and the centre + exactly in the middle; the outer slots' touch areas extend
- * through the gutter to the screen edge. Each keeps the source's 60×40 /
- * 68×40 visual box for its pressed fill (Hard Rule §1); the touch area is the
- * whole slot.
+ * through the gutter to the screen edge. The touch area is the whole slot.
+ *
+ * Pressed (Hard Rule §1, by surface): the tab icons are bare glyphs, so they
+ * scale to state.pressed.scale over motion.press. The + is an ink square, a
+ * surface whose fill has no darker tier, so it shows no visual change (§1). Both
+ * give a light impact haptic (a discrete press).
  */
 export default function FooterNav({ activeTab, onTabPress, onAddPress }) {
   const insets = useSafeAreaInsets();
@@ -49,7 +53,7 @@ export default function FooterNav({ activeTab, onTabPress, onAddPress }) {
       <View style={[styles.bar, { paddingBottom: insets.bottom }]}>
         <View style={styles.row}>
           {TABS.slice(0, 2).map((t, i) => tab(t, i, ['start', null]))}
-          <Slot box={addSlot} role="button" label="Log a cup" onPress={onAddPress}>
+          <Slot box={addSlot} role="button" label="Log a cup" onPress={onAddPress} feedback="none">
             <AddCoffeeIcon />
           </Slot>
           {TABS.slice(2).map((t, i) => tab(t, i, [null, 'end']))}
@@ -59,22 +63,31 @@ export default function FooterNav({ activeTab, onTabPress, onAddPress }) {
   );
 }
 
-function Slot({ box, edge, role, label, selected, onPress, children }) {
+const pressEasing = Easing.bezier(...motion.press.controlPoints);
+
+/** feedback: 'scale' (bare glyph) or 'none' (ink fill, no darker tier). */
+function Slot({ box, edge, role, label, selected, onPress, feedback = 'scale', children }) {
+  const scale = useRef(new Animated.Value(1)).current;
+  const scaleTo = (toValue) =>
+    Animated.timing(scale, { toValue, duration: motion.press.duration, easing: pressEasing, useNativeDriver: true }).start();
+  const scales = feedback === 'scale';
+
   return (
     <Pressable
       onPress={() => {
         if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         onPress();
       }}
+      onPressIn={scales ? () => scaleTo(state.pressed.scale) : undefined}
+      onPressOut={scales ? () => scaleTo(1) : undefined}
       accessibilityRole={role}
       accessibilityLabel={label}
       accessibilityState={role === 'tab' ? { selected } : undefined}
       style={[styles.slotTouch, edge === 'start' && styles.slotStart, edge === 'end' && styles.slotEnd]}>
-      {({ pressed }) => (
-        <View style={[styles.slotBox, { width: box.w, height: box.h }, pressed && styles.slotPressed]}>
-          {children}
-        </View>
-      )}
+      {/* Only the glyph scales; the Pressable (the touch area) never does. */}
+      <Animated.View style={[styles.slotBox, { width: box.w, height: box.h }, scales && { transform: [{ scale }] }]}>
+        {children}
+      </Animated.View>
     </Pressable>
   );
 }
@@ -113,8 +126,5 @@ const styles = StyleSheet.create({
   slotBox: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  slotPressed: {
-    backgroundColor: state.pressed.surface,
   },
 });
