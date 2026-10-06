@@ -1,6 +1,6 @@
 # MoreCoffee — True exceptions
 
-Six values that are genuinely one-off: unique in their role, not part of any mechanism, and with no sibling value to pair with. They are recorded rather than folded, because collapsing them would silently delete a possible decision and a placeholder would eventually be filled in by guesswork.
+Five values that are genuinely one-off (six until 2026-10-06, when E-3 was promoted to a style): unique in their role, not part of any mechanism, and with no sibling value to pair with. They are recorded rather than folded, because collapsing them would silently delete a possible decision and a placeholder would eventually be filled in by guesswork.
 
 Started from ~60 low-frequency values; after role-scoped thresholds, the two merge gates, mechanism-bound (class A) promotion and the orphan-alias rule, six remain.
 
@@ -47,7 +47,9 @@ Parent: the dimmed sheet backdrop. Siblings: two meta bars at `#E4D6CC`, 11px ta
 
 ---
 
-## E-3 · `font-style: italic` + Instrument Serif 20 / lh 1.4 — tasting-note field, 5b
+## ~~E-3~~ · `font-style: italic` + Instrument Serif 20 / lh 1.4 — tasting-note field, 5b — **promoted to the style `text.note`, removed from the exceptions (2026-10-06)**
+
+It gained a clear role, the tasting-note input, so it is now a style (`design-system.md` §3, `text.note`, 20 / 28 italic). `min-height: 84` stays a local value of that field. The record below is kept for its history.
 
 **Where**: 5b (Tasting note), 1 use. **The only italic in the entire product** (file-wide search: 1 hit).
 

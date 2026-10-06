@@ -146,7 +146,7 @@ export const texture = {
 } as const;
 
 /**
- * 14 composite text styles. Do not patch a single property —
+ * 15 composite text styles. Do not patch a single property —
  * that is the signal to define a new style.
  */
 export const textStyle = {
@@ -154,6 +154,11 @@ export const textStyle = {
   displaySm:     { fontFamily: 'Instrument Serif', fontSize: 30, fontWeight: '400', lineHeight: 31 },
   numeralHero:   { fontFamily: 'Instrument Serif', fontSize: 96, fontWeight: '400', lineHeight: 79 },
   numeralInline: { fontFamily: 'Instrument Serif', fontSize: 22, fontWeight: '400', lineHeight: 22 },
+  /**
+   * The tasting-note input (5b "My words"): the product's only italic. Pair
+   * with color.text.muted. Promoted from exceptions.md E-3 (2026-10-06).
+   */
+  note:          { fontFamily: 'Instrument Serif', fontSize: 20, fontWeight: '400', fontStyle: 'italic', lineHeight: 28 },
 
   /** lineHeight UNDECLARED in source */
   title:         { fontFamily: 'Archivo', fontSize: 16, fontWeight: '700' },
@@ -244,7 +249,8 @@ export const size = {
   button: { primary: 56, compact: 40, small: 36 },
   control: { row: 52 },
   field: { height: 46 },
-  thumbnail: { list: 66 },
+  /** list: the list row (2a). summary: the one-cup summary row (5b). */
+  thumbnail: { list: 66, summary: 40 },
   avatar: 88,
   tabBar: { height: 60 },
   badge: { numeral: 22 },

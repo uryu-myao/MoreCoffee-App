@@ -7,6 +7,11 @@ import Text from './Text';
  * Section heading: square bullet + eyebrow label + optional right-side status.
  * Source: 5a (Set / Pre-filled), 5d (Required / 1 of 2 missing), 5e (Optional).
  *
+ * Two variants (design-system.md §9 Section heading):
+ *   marked  with the square bullet — the Record coffee form (5a, 5d, 5e)
+ *   plain   no bullet — every other section heading (5b, 2c, 6a, 6b, 6c, 7a,
+ *           8d, 8e, …)
+ *
  *   set, prefilled     success check + success text
  *   required, missing  error state — label and status both take state.error.text
  *   optional           grey bullet (marker.optional), muted status text
@@ -18,6 +23,8 @@ const STATUS = {
   // Copy carries the counts ("1 of 2 missing"), so the caller supplies it.
   missing:   { label: null,         tone: 'error' },
   optional:  { label: 'Optional',   tone: 'muted' },
+  // A neutral count ("3 of 5", 5b Flavors); the caller supplies the copy.
+  count:     { label: null,         tone: 'muted' },
 };
 
 const TONE_COLOR = {
@@ -29,10 +36,11 @@ const TONE_COLOR = {
 /**
  * Props
  *   label        section name (fixed copy)
- *   status       'set' | 'prefilled' | 'required' | 'missing' | 'optional' | undefined
- *   statusLabel  overrides the status copy; required for 'missing'
+ *   variant      'marked' (default) | 'plain'
+ *   status       'set' | 'prefilled' | 'required' | 'missing' | 'optional' | 'count' | undefined
+ *   statusLabel  overrides the status copy; required for 'missing' and 'count'
  */
-export default function SectionLabel({ label, status, statusLabel }) {
+export default function SectionLabel({ label, variant = 'marked', status, statusLabel }) {
   const s = status ? STATUS[status] : null;
   const isError = s?.tone === 'error';
   const statusText = statusLabel ?? s?.label;
@@ -44,7 +52,9 @@ export default function SectionLabel({ label, status, statusLabel }) {
       accessible
       accessibilityRole="header"
       accessibilityLabel={statusText ? `${label}, ${statusText}` : label}>
-      <View style={[styles.bullet, status === 'optional' ? styles.bulletOptional : styles.bulletRequired]} />
+      {variant === 'marked' ? (
+        <View style={[styles.bullet, status === 'optional' ? styles.bulletOptional : styles.bulletRequired]} />
+      ) : null}
       <Text variant="labelEyebrow" color={isError ? state.error.text : 'muted'} style={styles.label}>
         {label}
       </Text>

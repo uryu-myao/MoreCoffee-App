@@ -63,8 +63,10 @@ const COLLAPSE = {
  *   title     screen title (display.lg)
  *   eyebrow   optional small label above the title (label.eyebrow, accent):
  *             "The archive" (2a), "MoreCoffee" (1b). Fades out on collapse.
- *   leading   optional node above the title
- *   meta      optional node, right-aligned at the foot of the header (5a date / time)
+ *   leading   optional control above the title (5b's back button). A control
+ *             never fades or moves on collapse; the title shrinks below it
+ *   meta      optional information, right-aligned at the foot of the header
+ *             (5b "Step 2 of 2 / Skippable"); fades out on collapse
  *   stat      optional { value, label }, right-aligned at the foot of the header
  *             in place of meta (2a's cup count): the numeral in display.sm
  *             accent over the label in label.eyebrow muted. On collapse the
@@ -131,15 +133,19 @@ export default function ScreenFrame({
         leadingEnd: centreC - leadingCentre + COMPACT_LEADING_OPTICAL_Y * s,
       };
     } else {
-      if (!p.column || !p.title || p.baseline == null || (stat && (!p.stat || !p.number || p.numberBaseline == null))) return;
+      if (!p.column || !p.title || p.baseline == null || (leading && !p.leading)) return;
+      if (stat && (!p.stat || !p.number || p.numberBaseline == null)) return;
       const tH = p.title.height;
       const titleTop = p.column.y + p.title.y;
-      const baselineC = I + s * p.baseline; // the collapsed title's baseline
+      // The collapsed title starts at the safe-area top, or under a leading
+      // control, which never moves or fades (Hard Rule, §1 Header collapse).
+      const topC = p.leading ? p.column.y + p.leading.y + p.leading.height + spacing.gap.row : I;
+      const baselineC = topC + s * p.baseline; // the collapsed title's baseline
       next = {
-        full: p.column.y + p.column.height - (I + s * tH),
+        full: p.column.y + p.column.height - (topC + s * tH),
         title: baselineC - (titleTop + p.baseline), // origin: the title's left baseline
         baseline: p.baseline,
-        above: I - titleTop, // eyebrow / leading ride the title's top
+        above: topC - titleTop, // the eyebrow rides the title's top
         // The stat's numeral keeps its size and lands on the title's baseline.
         stat: stat ? baselineC - (p.stat.y + p.number.y + p.numberBaseline) : 0,
       };
@@ -249,14 +255,18 @@ export default function ScreenFrame({
   ) : (
     <View style={[styles.header, headerTop, scroll && styles.headerNoRule]}>
       <View style={styles.titleColumn} onLayout={onPart('column')}>
-        {leading || eyebrow ? (
+        {/* A control: stays put, fully visible and pressable while collapsing. */}
+        {leading ? (
+          <View style={styles.leading} onLayout={onPart('leading')}>
+            {leading}
+          </View>
+        ) : null}
+        {/* Information: fades out, riding the title's top. */}
+        {eyebrow ? (
           <Animated.View style={anim && { opacity: anim.fade, transform: [{ translateY: anim.above }] }}>
-            {leading ? <View style={styles.leading}>{leading}</View> : null}
-            {eyebrow ? (
-              <Text variant="labelEyebrow" color="accent">
-                {eyebrow}
-              </Text>
-            ) : null}
+            <Text variant="labelEyebrow" color="accent">
+              {eyebrow}
+            </Text>
           </Animated.View>
         ) : null}
         <Animated.View
@@ -284,7 +294,9 @@ export default function ScreenFrame({
           </Animated.View>
         </View>
       ) : meta ? (
-        <Animated.View style={[styles.meta, anim && { transform: [{ translateY: anim.up }] }]}>{meta}</Animated.View>
+        <Animated.View style={[styles.meta, anim && { opacity: anim.fade, transform: [{ translateY: anim.up }] }]}>
+          {meta}
+        </Animated.View>
       ) : null}
     </View>
   );

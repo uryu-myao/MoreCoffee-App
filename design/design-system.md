@@ -50,6 +50,11 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - Darken applies to: Button, SegmentedControl options, FieldRow, StarRating stars, IconButton, and the bottom bar's + (an ink square, so no darker tier: no visual change). Scale applies to: the bottom-bar tab icons. Every tappable component added later takes one of the two by this test; its Step 4 component spec says which.
 - **Haptics follow the gesture, not the component.** A discrete press gives a **light impact**: today only the bottom bar does; Button, FieldRow and the other pressables have no haptic yet and take light impact when their Step 4 spec applies this rule. Sweeping across a continuous set of options gives **selection** (StarRating). Selection is the API built for stepping through values, and a light impact would make changing stars feel duller. Do not unify them.
 
+### Header collapse (added 2026-10-06)
+- **Controls never fade and are never disabled by the collapse.** Back, close, save and other functional controls stay fully visible and pressable throughout. **Only information fades**: the eyebrow, the date / time, and meta labels.
+- Why: a control that is invisible but pressable, or one that should be pressable but has gone, both break operability. The collapse is a side effect of scrolling, not a sign that the user has given up on an action: being unable to go back after scrolling is plainly wrong.
+- Precedent: Record coffee's close button does not scale. The same principle covers 5b's back button above the title, which stays where it is while the title shrinks beneath it (§9 Header collapse).
+
 ### Declarations that appear zero times in 30 screens
 These absences are design facts, not oversights — but several of them are also why `gaps.md` exists.
 
@@ -230,7 +235,7 @@ React Native has no `em` and no unitless line height, so both are converted: `le
 
 `lineHeight: 未找到` means no `line-height` was declared on any use of that style. No value is invented; RN falls back to the platform default.
 
-**14 styles.** All 14 have ≥3 uses; 13 have ≥3 screens; `text.inlineAction` is promoted as mechanism-bound (class A).
+**15 styles.** The original 14 all have ≥3 uses, and 13 of them have ≥3 screens. `text.inlineAction` is promoted as mechanism-bound (class A). `text.note` (2026-10-06) is promoted from `exceptions.md` E-3 because it now has a clear role: the tasting-note input.
 
 ### Serif (Instrument Serif)
 | style | size | weight | lineHeight | replaces | reach |
@@ -239,6 +244,7 @@ React Native has no `em` and no unitless line height, so both are converted: `le
 | `display.sm` | 30 | 400 | 31 | 30/1, 30/0.9, 30/1.1, 32/1, 31/1, 28/1, 27/1.1 | 14 screens / 25 uses |
 | `numeral.hero` | 96 | 400 | 79 | 96/0.82 | 3 screens / 3 uses |
 | `numeral.inline` | 22 | 400 | 22 | 22/1, 26/1, 24/1, 21/1, 19 | 10 screens / 33 uses |
+| `text.note` | 20 **italic** | 400 | 28 | 20/1.4 italic (formerly E-3) | 1 screen / 1 use: the 5b "My words" input. Colour `color.text.muted`. The only italic; do not use italics elsewhere. Its `min-height: 84` stays local to the field |
 
 The seven stray display sizes (27/31/33/34/36/38/42) collapse into two steps. Single-line numerals authored at 0.8–1.0 line height are folded to 1.02 — at one line there is no visual difference.
 
@@ -377,6 +383,7 @@ Fixed element dimensions. **Never subject to the spacing scale** — snapping th
 | `size.control.row` | 52 | 12 screens / 58 uses — rating stars, row-level controls |
 | `size.field.height` | 46 | 5 screens — form field height / product thumbnail |
 | `size.thumbnail.list` | 66 | 2 screens (2a, 2b) — below threshold |
+| `size.thumbnail.summary` | 40 | 5b — the one-cup summary row (added 2026-10-06). A different job from the list row's 66, so a separate size rather than a variant |
 | `size.avatar` | 88 | 1 screen (6d) — below threshold |
 | `size.tabBar.height` | 60 | 6 screens / 40 uses |
 | `size.badge.numeral` | 22 | 7 screens / 20 uses — numbered step badges, checkboxes |
@@ -640,6 +647,21 @@ Padding is `inset.control` (the source's 13 / 16 folds to it) and the gap is `sp
 
 **Intro line per mode (2026-10-05)**: the line under the header changes with the mode. I made it is 5a verbatim ("Marked fields are required — all of them start pre-filled.") and Packaged is 5e with one word changed ("Packaged cups skip brewing and café — two fields left."; the mock says "Bottled", see `drift.md` D-14). No mock has a Barista line, because 5d replaces it with the error summary. Barista's line was **written to 5e's pattern** (what the mode skips, then how many fields are left): "Cups made for you skip beans and brewing — two fields left." Every line names the cup by who made it, matching the "Who made it?" field, not by its vessel or where it came from ("Café cups" was rejected on review). The line **crossfades** with `motion.expand` (same duration and bezier as the field block), the outgoing line laid over the incoming one, inside the same height-animating wrapper. All three fit on one line at 390pt, so the block does not change height. A longer translation would ease rather than jump.
 
+### Section heading (base `SectionLabel`, variants 2026-10-06)
+Two variants, both `label.eyebrow` `color.text.muted` with an optional right-side status:
+- **`marked`** has the `size.dot.bullet` square. It is used only on the Record coffee form (5a, 5d, 5e): How was it?, Who made it?, From my shelf, Café details, Product, Bought at.
+- **`plain`** has no bullet. It covers every other section heading:
+  - 5b Flavors, My words;
+  - 2c What I logged, Flavors;
+  - 3f From archived bags;
+  - 6a My taste DNA, My shelf;
+  - 6b Taste DNA, My data, Account;
+  - 6c App, Help & feedback, Support us, Legal;
+  - 7a This week, Earlier;
+  - 8d Also worth a cup; 8e Why this, for you / The plan; 8f What you keep saying; 8h Most used / Used once or twice; 8i Nudge me to log / From the app; 8j What is this about / Tell us; 8k Signed-in devices / Deleting; 8l Recent searches; 8m App language / What changes.
+- Not headings, so not `SectionLabel`: FieldRow labels (Beans, Method, Café, Drink, Brand, Package), form field labels (3c, 3e, 6d) and header eyebrows / meta.
+- Status `count` is a neutral right-side count (5b "3 of 5").
+
 ### Star rating (base `StarRating`)
 Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control.row` (52) tap targets spread with space-between. Filled star `icon.fill.xl`, empty star `icon.xl` stroke in `color.border.muted`; optional caption under `divider.soft`; 5d error state per `state.error.*`.
 
@@ -761,3 +783,5 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-06 — §9 Tab pager: horizontal swipe between the four tabs, as a native paging ScrollView (no gesture or animation library added). The bar's active glyph follows the drag. One backdrop sits behind the pager.
 - 2026-10-06 — §9 Header collapse: scrolling screens pin the header and collapse it with transforms only (title 1 → 0.75 = displaySm / displayLg; distance derived from the safe area, Records 26 on iPhone 14). §9 Bottom bar hides on downward scroll and comes fully back on any upward scroll.
 - 2026-10-06 — §9 Header eyebrow and stat: every tab carries its mock eyebrow, and Records shows the cup count (2a). Collapse revised: the stat numeral keeps its size and lands on the title baseline; small labels (eyebrow, "Cups", Record coffee's date) fade over the first half instead of scaling.
+- 2026-10-06 — §1 Hard Rule, Header collapse: controls never fade or disable; only information fades. ScreenFrame's standard-header `leading` is now fixed (the title shrinks below it) and its `meta` fades.
+- 2026-10-06 — **Token added: `size.thumbnail.summary` (40). Style added: `text.note`** (Instrument Serif 20 italic / 28), promoted from E-3; 15 styles. `SectionLabel` gains `marked` / `plain` variants and a `count` status.

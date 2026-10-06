@@ -3,7 +3,7 @@ import {
   Archivo_600SemiBold,
   Archivo_700Bold,
 } from '@expo-google-fonts/archivo';
-import { InstrumentSerif_400Regular } from '@expo-google-fonts/instrument-serif';
+import { InstrumentSerif_400Regular, InstrumentSerif_400Regular_Italic } from '@expo-google-fonts/instrument-serif';
 import { Platform } from 'react-native';
 
 /**
@@ -19,6 +19,7 @@ export const fontAssets = {
   Archivo_600SemiBold,
   Archivo_700Bold,
   InstrumentSerif_400Regular,
+  InstrumentSerif_400Regular_Italic,
 };
 
 const FACES = {
@@ -29,6 +30,8 @@ const FACES = {
   },
   'Instrument Serif': {
     400: 'InstrumentSerif_400Regular',
+    // text.note only — the product's one italic.
+    '400italic': 'InstrumentSerif_400Regular_Italic',
   },
 };
 
@@ -42,12 +45,14 @@ const NATURAL_LINE_EM = {
   Archivo_600SemiBold: 1.088,
   Archivo_700Bold: 1.088,
   InstrumentSerif_400Regular: 1.3,
+  // Same hhea metrics as the roman (990 / −310 / 0 at 1000 upm).
+  InstrumentSerif_400Regular_Italic: 1.3,
 };
 
 /**
  * Turn a textStyle token into an RN style: fontFamily becomes the face for that
- * weight, and fontWeight is dropped so the platform does not synthesize bold on
- * top of an already-bold face.
+ * weight (and style), and fontWeight / fontStyle are dropped so the platform
+ * does not synthesize bold or oblique on top of a face that already is.
  *
  * iOS adjustment (§3.2): a lineHeight shorter than the face's natural line box
  * is laid out differently from CSS. iOS takes the whole deficit from above the
@@ -57,10 +62,10 @@ const NATURAL_LINE_EM = {
  * Archivo style is affected.
  */
 export function resolveTextStyle(token) {
-  const { fontFamily, fontWeight, ...rest } = token;
-  const face = FACES[fontFamily]?.[fontWeight];
+  const { fontFamily, fontWeight, fontStyle, ...rest } = token;
+  const face = FACES[fontFamily]?.[fontStyle === 'italic' ? `${fontWeight}italic` : fontWeight];
   if (__DEV__ && !face) {
-    console.warn(`[fonts] No face loaded for ${fontFamily} ${fontWeight}`);
+    console.warn(`[fonts] No face loaded for ${fontFamily} ${fontWeight} ${fontStyle ?? ''}`);
   }
   if (Platform.OS === 'ios' && rest.lineHeight != null && rest.lineHeight < NATURAL_LINE_EM[face] * rest.fontSize) {
     delete rest.lineHeight;

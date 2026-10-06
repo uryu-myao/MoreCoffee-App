@@ -23,7 +23,7 @@ export const TRUNCATION = {
   none: undefined,
 };
 
-const TYPOGRAPHY_KEYS = ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'textTransform'];
+const TYPOGRAPHY_KEYS = ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'lineHeight', 'letterSpacing', 'textTransform'];
 
 const resolved = Object.fromEntries(
   Object.entries(textStyle).map(([name, token]) => [name, resolveTextStyle(token)])
