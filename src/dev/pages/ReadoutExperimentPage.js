@@ -4,6 +4,8 @@ import Text from '../../components/base/Text';
 import AxisSlider from '../../components/base/AxisSlider';
 import { color, size, spacing } from '../../theme/tokens';
 import { HarnessCase, HarnessGroup, HarnessPage } from '../harness';
+import Glyph from '../../components/base/Glyph';
+import { icon } from '../../theme/tokens';
 
 const TRACK_H = size.meter.track; // 4 — beanFreshness
 const MARK = { w: 2, h: 14 }; // beanFreshness todayMarker
@@ -44,9 +46,62 @@ function Row({ label, ...p }) {
   );
 }
 
+const STOPS = [0, 25, 50, 75, 100];
+function SliderRail({ border, width, fill, needles }) {
+  return (
+    <View style={{ gap: spacing.gap.tight, backgroundColor: color.surface.raised, padding: 12, borderWidth: 2, borderColor: color.border.strong }}>
+      <View style={styles.poles}>
+        <Text variant="labelEyebrow" color="muted">Acid</Text>
+        <Text variant="labelEyebrow" color="muted">Bitter</Text>
+      </View>
+      <View style={{ height: 20, borderWidth: width, borderColor: border, backgroundColor: fill }}>
+        {[25, 50, 75].map((t) => <View key={t} style={[styles.abs, { left: `${t}%`, width: 1.5, marginLeft: -0.75, backgroundColor: color.surface.muted }]} />)}
+        {needles.map((n, i) => (
+          <View key={i} style={{ position: "absolute", left: `${n.at}%`, marginLeft: -6, top: (20 - n.h) / 2 - width, width: 12, height: n.h, backgroundColor: n.bg, borderWidth: n.bw, borderColor: n.bc }} />
+        ))}
+      </View>
+    </View>
+  );
+}
+const N_EMPTY = { h: 30, bg: color.surface.muted, bw: 1.5, bc: color.border.medium };
+const N_ENTERED = { h: 32, bg: color.icon.accent, bw: 2, bc: color.border.strong };
+const N_LIT_RATING = { h: 32, bg: color.icon.rating, bw: 2, bc: color.border.strong };
+const N_LIT_STRONG = { h: 32, bg: color.text.accentStrong, bw: 2, bc: color.border.strong };
+
 export default function ReadoutExperimentPage() {
   return (
     <HarnessPage>
+      <HarnessGroup title="D add-slot dashes: ink (now) vs text.muted #6B5D55">
+        {[color.border.strong, color.text.muted].map((c) => (
+          <HarnessCase key={c} label={c === color.border.strong ? "ink #273D22 (now)" : "#6B5D55 (2 steps lighter)"}>
+            <View style={{ backgroundColor: color.surface.raised, padding: 12, gap: 10, borderWidth: 2, borderColor: color.border.strong }}>
+              <View style={{ flexDirection: "row", gap: 8 }}>
+                <View style={{ paddingVertical: 14, paddingHorizontal: 16, borderWidth: 1.5, borderColor: color.border.accent, backgroundColor: color.badge.bg.accent }}><Text variant="labelCaps" color="accentStrong">Jasmine</Text></View>
+                <View style={{ paddingVertical: 14, paddingHorizontal: 16, borderWidth: 1.5, borderColor: color.border.muted }}><Text variant="labelCaps" color="secondary">Cocoa</Text></View>
+                <View style={{ paddingVertical: 14, paddingHorizontal: 16, borderWidth: 2, borderStyle: "dashed", borderColor: c }}><Text variant="labelCaps" color="muted">Search</Text></View>
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 14, paddingHorizontal: 16, borderWidth: 2, borderStyle: "dashed", borderColor: c }}>
+                <Glyph name="camera" token={icon.md} color={color.icon.default} /><Text variant="labelCaps" color="primary">Add a photo</Text>
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 14, paddingHorizontal: 16, borderWidth: 2, borderStyle: "dashed", borderColor: color.border.muted }}>
+                <Glyph name="camera" token={icon.md} color={color.icon.muted} /><Text variant="labelCaps" color="secondary">Add a photo (inert)</Text>
+              </View>
+            </View>
+          </HarnessCase>
+        ))}
+      </HarnessGroup>
+      <HarnessGroup title="B rail candidates (needles: empty @50, entered @75)">
+        <HarnessCase label="R1 2px ink solid, raised (= entered today)"><SliderRail border={color.border.strong} width={2} fill={color.surface.raised} needles={[{ ...N_EMPTY, at: 50 }, { ...N_ENTERED, at: 75 }]} /></HarnessCase>
+        <HarnessCase label="R2 1.5 border.muted solid, ground fill"><SliderRail border={color.border.muted} width={1.5} fill={color.surface.ground} needles={[{ ...N_EMPTY, at: 50 }, { ...N_ENTERED, at: 75 }]} /></HarnessCase>
+        <HarnessCase label="R3 1.5 border.medium solid, ground fill"><SliderRail border={color.border.medium} width={1.5} fill={color.surface.ground} needles={[{ ...N_EMPTY, at: 50 }, { ...N_ENTERED, at: 75 }]} /></HarnessCase>
+        <HarnessCase label="R4 1.5 border.muted solid, no fill (raised)"><SliderRail border={color.border.muted} width={1.5} fill={color.surface.raised} needles={[{ ...N_EMPTY, at: 50 }, { ...N_ENTERED, at: 75 }]} /></HarnessCase>
+        <HarnessCase label="readout (B) for contrast"><Row value={75} mode="B" /></HarnessCase>
+      </HarnessGroup>
+      <HarnessGroup title="needle while dragging (R3 rail): entered vs lit">
+        <HarnessCase label="entered: icon.accent #9E5202"><SliderRail border={color.border.medium} width={1.5} fill={color.surface.ground} needles={[{ ...N_ENTERED, at: 50 }]} /></HarnessCase>
+        <HarnessCase label="lit A: icon.rating #C9821A"><SliderRail border={color.border.medium} width={1.5} fill={color.surface.ground} needles={[{ ...N_LIT_RATING, at: 50 }]} /></HarnessCase>
+        <HarnessCase label="lit B: text.accentStrong #8A4602"><SliderRail border={color.border.medium} width={1.5} fill={color.surface.ground} needles={[{ ...N_LIT_STRONG, at: 50 }]} /></HarnessCase>
+      </HarnessGroup>
       <HarnessGroup title="1 fill origin — value 72 / 28 / 50">
         <HarnessCase label="A: from 0 (72)"><Row value={72} mode="A" /></HarnessCase>
         <HarnessCase label="B: from 50 (72)"><Row value={72} mode="B" /></HarnessCase>
