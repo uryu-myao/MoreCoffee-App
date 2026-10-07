@@ -15,7 +15,7 @@ Source: `MoreCoffee design.dc.html`, the 30 in-scope screens. Compiled 2026-10-0
 - **inline**: drawn directly in a screen, not yet a component.
 - **not started**: in the mocks, not built.
 
-Pressed is not listed as missing anywhere: the §1 Hard Rule decides it for every pressable (surface → darken, bare glyph → scale). Focus is missing everywhere and is counted once, globally (`gaps.md` 2).
+Pressed, focus, tap affordance and the selection limit are not listed per row: §1 Hard Rules decide them for every component (Pressed 2026-10-04 / -06; Focus, Tap affordance and Selection limit 2026-10-07).
 
 ## Catalog
 
@@ -25,12 +25,12 @@ Pressed is not listed as missing anywhere: the §1 Hard Rule decides it for ever
 | 2 | Bottom bar (`FooterNav`) | 6 (1b 2a 4a 4b 6a 8d; 6a's three-way split counted once) | component | tab · add | active, inactive, pressed (scale), hidden | — |
 | 3 | Button | 14 primary (1b 2b 3a 3c 3e 4a 4b 5a–5e 7b 8e) · 7 secondary (1b 3b 5a 5b 5c 5e) · ~13 text-only (2b 5d 6d 7b 8c 8e 8f 8h 8l) · 9 compact 36–48 (3c 3d 3e 6a 6d 7a 8f 8h 8j) · 8c Next (56, not full width) · 8d in-card CTA (borderless blue) | component: primary and secondary only | primary · secondary · **tertiary (text) not built** · **compact (40) / small (36) not built** · 44-tall inline (3c "Use", 3d "Edit / Finish bag") · shadowed 48 (8f) | default, pressed, disabled (decided, Button only) | **destructive** (3b / 3e "Remove from my gear", 8g "Reset my taste DNA" have no distinct look); disabled for text / compact; secondary height is 52 in the mocks, 56 in code (`gaps.md` 4) |
 | 4 | IconButton | ~20 (back / close on 3a–3f 5a 5b 5d 5e 6d 7a 7b 8e–8j 8m) + 2a filter opener + 8e muted icon | component (default look) | default (2px ink, raised) · accent fill (2a) · muted 1.5 border (8e) | default, pressed | disabled; **what 2a's accent fill means** (filters applied?) |
-| 5 | Single-select chip group (`SegmentedControl`) | 12 screens: 2a 2b 3a 3c 3e 3f 5a 5d 5e 6d 8j 8l | component for 5a / 5d / 5e only | padding 6/11 (2a) · 7/12 (3a) · 9/13–14 (2b 3c 3e 3f) · 9/11 (8l) · 11/15 (5a) · 2px-border 11/13 (6d 8j) | selected (ink), unselected | disabled; **tap affordance missing** on 9 screens (bare spans); a chip height that holds 44 (`gaps.md` 3) |
-| 6 | Flavour chip, multi-select | 5b (6) | inline | selected · unselected · Search opener (dashed) | selected, unselected | **at the cap** ("3 of 5" implies a limit of 5), disabled |
-| 7 | Checkbox list, multi-select | 3a (5 rows, cap 8: "3 / 8 Selected · 5 slots left") · 8c (5 rows, cap 3: "2 of 3 picked") | not started | row + 24px checkbox; 8c tints the selected row `#FFF8F1` | selected, unselected, count | **at the cap** (8 of 8, 3 of 3), disabled |
+| 5 | Single-select chip group (`SegmentedControl`) | 12 screens: 2a 2b 3a 3c 3e 3f 5a 5d 5e 6d 8j 8l | component for 5a / 5d / 5e only | padding 6/11 (2a) · 7/12 (3a) · 9/13–14 (2b 3c 3e 3f) · 9/11 (8l) · 11/15 (5a) · 2px-border 11/13 (6d 8j) | selected (ink), unselected; tap affordance by §1 (option form, 44, role radio) | disabled |
+| 6 | Flavour chip, multi-select | 5b (6) | inline | selected · unselected · Search opener (`border.addSlot`) | selected, unselected; at the limit (§1 Selection limit) | disabled outside the limit |
+| 7 | Checkbox list, multi-select | 3a (5 rows, cap 8: "3 / 8 Selected · 5 slots left") · 8c (5 rows, cap 3: "2 of 3 picked") | not started | row + 24px checkbox; 8c tints the selected row `#FFF8F1` | selected, unselected, count; at the limit (§1 Selection limit) | disabled outside the limit |
 | 8 | Checkbox | 3a (5) · 8c (5); all 24 (`size.checkbox`) | not started | checked fill: **ink on 3a, action blue on 8c** (drift, `drift.md` D-19) | checked, unchecked | disabled |
-| 9 | Toggle switch | 8 uses / 4 screens: 3e (1, 62×34, on = ink) · 8i (4) 8j (2) 8m (1), all 52×30, on = action blue | not started | one; 3e is drift in size and on-colour (`drift.md` D-20) | on, off | disabled; **tap affordance missing** on the 8i / 8j / 8m spans |
-| 10 | Weekday selector | 8i (7) | not started | — | selected (ink), unselected | disabled (when its reminder is off) |
+| 9 | Toggle switch | 8 uses / 4 screens: 3e (1, 62×34, on = ink) · 8i (4) 8j (2) 8m (1), all 52×30, on = action blue | not started | one; 3e is drift in size and on-colour (`drift.md` D-20) | on, off; role switch (§1 Tap affordance) | disabled |
+| 10 | Weekday selector | 8i (7) | not started | option form at 44 (§1; the mock is 39) | selected (ink), unselected; uncapped (no count) | disabled (when its reminder is off) |
 | 11 | FieldRow | 5a 5d 5e (10 rows) | component | swatch · icon · plain · divided | default, pressed, error (5d) | disabled; **empty value** (no default to pre-fill); loading (MapKit lookup) |
 | 12 | Star rating (`StarRating`) | 5a 5d 5e | component | — | unrated, rated, pressed (disc), error (5d), caption | disabled / read-only |
 | 13 | List row (`RecordRow`) | 1b 2a 4a 4b (+ 2b skeleton backdrop) | component | with / without note | default | **loading / skeleton** (2b's is a dimmed backdrop, not a designed state) |
@@ -86,7 +86,7 @@ Primitives, not counted: `Text`, `Glyph`, `HardShadow`, `DashedRule`, `DotTextur
 - 8i is the weekday selector: ink fill when selected, like the single-select chips.
 - With 5b's flavour chips (cap 5) that makes four multi-selects, in three looks. Three of them have caps (3a 8, 5b 5, 8c 3) and none designs the at-cap state. The selection logic can be shared; the visuals are three different components (checkbox list on 3a / 8c, flavour chips, weekday selector).
 
-**5b's dashed "Search" vs `axis.rail.derived`**
+**5b's dashed "Search" vs `axis.rail.derived`** — *resolved 2026-10-07: Search moves to `border.addSlot`, `border.track` is rails only (drift D-21)*
 - They do **not** share a meaning. "Search" opens a way to add more, an action on something not there yet. That is the "nothing in it yet" use of dashed (§8), alongside the empty slot, not the "not a value the user entered" use.
 - It does share a **token** with the derived rail: `border.track` (1.5px dashed `border.muted`) is documented as "a measuring rail or placeholder frame". By the 2026-10-06 naming rule, one token currently carries both dashed meanings.
 - Flagged, not changed.
@@ -106,7 +106,7 @@ Primitives, not counted: `Text`, `Glyph`, `HardShadow`, `DashedRule`, `DotTextur
 
 | scope | items |
 |---|---|
-| missing states, by component (the table above) | **40** across 24 components |
+| missing states, by component (the table above) | **40** across 24 components → **37** after the 2026-10-07 rules (see `gaps.md`) |
 | focus treatment: one rule, then applied to every pressable | 1 rule (+ 25 applications) |
 | error flows (save failure, offline), reusing the 5d vocabulary | 2 |
 | first-run empty states (My gear, My beans, Notifications, Try next, My words, Finished bags; Records has a minimal one) | 6 |

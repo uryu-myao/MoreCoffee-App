@@ -61,6 +61,42 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **If the name and the reality disagree, fix the name, not the comment.**
 - Why: the same mistake was made three times. `axis.rail.readonly / editable` and the interim `unset / set` were both read off one screen. `border.empty.disabled` was named for 5d and is also used on 2a, where nothing can be pressed. A comment that contradicts its name loses to the name.
 
+### Focus (added 2026-10-07)
+- **One treatment for every focusable element, no branching**: a **2px** (`shape.borderWidth.box`) square frame in **`color.caret`** (`#067BC2`), drawn **outside** the element with a **`space.2`** gap.
+  - It never changes the element's own border or fill: those already carry meaning (selected = ink, dashed = provenance / add entry, error = brown).
+  - It is drawn above `HardShadow`.
+  - A bare glyph (a tab icon) is framed by its visual box (`component.tabBar.slot`), or by its 44pt target if smaller.
+- Why no branch, unlike Pressed: pressed branches because surface vs no surface physically changes what can be drawn. A frame drawn outside works the same either way.
+- `color.caret` is already "the only focus expression in the product", so this extends that role with no new value.
+- Contrast (non-text, needs 3:1): 3.93 on ground, 4.45 on raised, **3.20 on `state.pressed.surface`**. The last case is focus + press at once (keyboard focus, then Enter). Check it on device.
+- **Shown only for non-touch focus**: keyboard, D-pad, switch control. Never after a finger press. Never for VoiceOver / TalkBack, which draw their own cursor.
+- **Implementability (RN 0.86, checked in source)**:
+  - Android: `Pressable` `focusable` + `onFocus` / `onBlur` fire for keyboard / D-pad focus and not in touch mode, so the rule can be implemented as written.
+  - iOS (not tvOS): a focusable view can take hardware-keyboard focus (Full Keyboard Access, iPadOS), but RN fires `onFocus` only on tvOS, so the app cannot draw this frame. The system draws its own focus effect instead.
+  - The rule stands; on iOS it is limited by the platform. Recorded in `gaps.md` 2.
+
+### Tap affordance (added 2026-10-07)
+- **A pressable option looks like an option**:
+  - an outline (1.5 `border.muted`) when unselected; an ink fill when selected (or 5b's accent tint + accent border for multi-select);
+  - **44pt tall** (`inset.control`);
+  - **always in a set**: two or more options, with a selected member or a count.
+- **A label that cannot be pressed looks like a Badge**: tinted fill, no `border.muted` outline, badge sizes. *Pending*: 6a / 8d / 8h / 8f, the taste-attribute and word tags, which are one decision, held on review. Until then they stay as drawn.
+- **Every pressable carries its screen-reader role and state.** Role: button, radio, checkbox, switch or tab. State: selected, checked or disabled. This is the affordance that does not depend on sight (`gaps.md` item 11).
+- A switch's shape (track + knob) explains itself; it only needs its role.
+- The weekday selector (8i) takes the option form, so 39 → 44.
+- `cursor:pointer` is a web hover cue; native apps have no cursor. On web, `Pressable` sets it itself.
+
+### Selection limit (added 2026-10-07)
+- **Applies to every capped multi-select**: 3a (8), 5b (5), 8c (3). The selection logic is shared. An uncapped set (8i's weekdays) runs through the same logic with no limit: it never locks and **shows no count** (never "∞ of ∞").
+- **At the limit, the unselected options lock.**
+  - They take the disabled look: label `color.text.muted`, checkbox border `color.border.muted`. 5b's Search opener locks too.
+  - Locked options do not respond: no press feedback, no haptic (§1 Pressed: disabled does not respond).
+  - To a screen reader they are disabled, with the hint "Limit reached — deselect one to choose another".
+- **Selected options stay live.** Deselecting one unlocks the rest at once.
+- **The count explains it**: at the limit it turns `color.text.accent` ("5 of 5", "3 of 3 picked", "8 / 8 Selected").
+- **A light impact at the moment the limit is reached, once.** "Now locked" reaches the user wherever they are looking. A press on a locked option stays silent.
+- Why lock rather than allow the tap and then refuse: an option that looks pressable but will not select is a small failure each time.
+
 ### Declarations that appear zero times in 30 screens
 These absences are design facts, not oversights — but several of them are also why `gaps.md` exists.
 
@@ -454,17 +490,17 @@ All hard: blur 0, isotropic offset, single ink. Offset **scales with the element
 ## 8. Border & Dashed Semantics
 
 `dashed` is a **semantic system, not decoration** (58 uses / 21 screens). It never means "draft". It has **two uses, written separately** (revised 2026-10-06; formerly one rule, "a surface that is not real content", which fits empty slots but not the axis rail):
-- **Nothing is in it yet**: `border.empty`, `border.empty.inert`.
+- **An entry for adding something (nothing in it yet)**: `border.addSlot`, `border.addSlot.inert`.
 - **The value shown is not one the user entered**: `axis.rail.derived` (§2 B).
 
 What they share is "not something the user has settled". They are still two uses, not one rule; do not merge them.
 
 | token | value | meaning | reach |
 |---|---|---|---|
-| `border.empty` | `2px dashed` `color.border.strong` | an empty slot waiting to be filled, and pressable — "Add a photo", "Add gear", "Add beans". Always a `<button>` | 10 uses / 10 screens |
-| `border.empty.inert` | `2px dashed` `color.border.muted` | an empty slot that cannot be pressed now (5d's blocked add button), or is not a thing to press at all (2a's empty list frame). Renamed 2026-10-06 from `border.empty.disabled`, which misnamed the 2a frame | 2 uses |
+| `border.addSlot` | `2px dashed` `color.border.strong` | an entry for adding something, and pressable — the empty slots ("Add a photo", "Add gear", "Add beans") and 5b's "Search" opener. Renamed 2026-10-07 from `border.empty`: "an entry you can add through" is closer to what it is than "empty" | 10 uses / 10 screens + 5b |
+| `border.addSlot.inert` | `2px dashed` `color.border.muted` | an empty slot that cannot be pressed now (5d's blocked add button), or is not a thing to press at all (2a's empty list frame). Renamed 2026-10-06 from `border.empty.disabled` (misnamed the 2a frame), then 2026-10-07 to `addSlot.inert` with its parent | 2 uses |
 | `divider.soft` | `1.5px dashed` `color.border.soft` | a secondary line inside a card, separating meta or a closing remark from the body | 24 uses |
-| `border.track` | `1.5px dashed` `color.border.muted` | a measuring rail or placeholder frame — `axis.rail.derived`, the search placeholder | 14 uses |
+| `border.track` | `1.5px dashed` `color.border.muted` | the axis rail of a value the user did not enter: `axis.rail.derived` only. Since 2026-10-07 it no longer covers the search placeholder, which moved to `border.addSlot` (drift D-21) | 14 uses |
 | `state.error.dashed` | `1.5px dashed` `#9E5202` | error emphasis (5d) **A** | 1 use |
 
 **RN implementation note**: iOS cannot dash a single border side. Single-edge dashed lines (`divider.soft` and the like) render through the base `DashedRule` component, which clips a fully dashed box to its top edge. Full dashed frames (`border.empty`, the 5d error swatch) use `borderStyle: 'dashed'` directly.
@@ -662,8 +698,8 @@ Swiping horizontally moves between the four tab screens: Home → Records → Tr
 **Superseded**: the 90% width, the 2px box outline, `shadow.floating`, the `space.4` side padding, and the fade band (`state.fade`, `layout.fade.top`). `shadow.floating`, `state.fade` and `layout.fade.top` now have **no consumer**; they are left in `tokens.ts` pending a decision. `HardShadow` itself is still used by the primary `Button`, `StarRating`'s error state, and the FieldRow harness.
 
 ### Empty slot (base `EmptySlot`, 2026-10-05)
-The `border.empty` slot as a component: always a button, full width. It is the row form from 3a, 3b, 3d, 5a, 5d and 5e.
-- **Anatomy**: `dashed.empty` frame (2px dashed ink) on a transparent ground, `inset.control` padding, then glyph → label → optional trailing tag, `space.12` apart. The glyph is `icon.md` by default (5a's camera); 3b's plus is `icon.sm`. The label is `label.caps` in ink. The tag is `label.caps` in `color.text.muted`, pushed to the right edge.
+The `border.addSlot` slot as a component: always a button, full width. It is the row form from 3a, 3b, 3d, 5a, 5d and 5e.
+- **Anatomy**: `dashed.addSlot` frame (2px dashed ink) on a transparent ground, `inset.control` padding, then glyph → label → optional trailing tag, `space.12` apart. The glyph is `icon.md` by default (5a's camera); 3b's plus is `icon.sm`. The label is `label.caps` in ink. The tag is `label.caps` in `color.text.muted`, pushed to the right edge.
 - **Source fit**: 3x pads 14 / 16 (`inset.control` exactly); 5x pads 16, folded to it. The 10–11px glyph-label gap folds to `space.12`. The tag is `label.caps` on 3b and 3d; 5a, 5d and 5e set it at 11/600 (`drift.md` D-12).
 - **States**: default; **pressed**, where the fill darkens to `state.pressed.surface` (§1 Hard Rule); **disabled** (5d), where the frame drops to `dashed.emptyInert` (`border.empty.inert`), the glyph to `color.icon.muted` and the label to `color.text.secondary`. A disabled slot does not respond to press.
 - **Not part of this component**: the 76px square photo slot (3c), the 2a empty-list frame (not a button), and the "Try next — opens at 5 cups" teaser card (1b, 4a, 4b, 5c).
@@ -705,7 +741,7 @@ Three parts of 5b are drawn inline in `TastingNoteScreen` for now (display only)
 - **Flavour chip, multi-select**: three looks, all bordered surfaces that darken on press:
   - selected: `badge.bg.accent` + `border.accent`, `accentStrong` label;
   - unselected: `border.muted`, `secondary` label;
-  - Search opener: `border.track` dashed, `muted` label.
+  - Search opener: `border.addSlot` (2px ink dashed; was `border.track`, drift D-21), `muted` label.
   - To report then: whether the dashed Search fits the dashed meaning (§8), and whether other screens have a multi-select set to share it with.
   - Note: at `inset.control` (44 tall) the 5b chips wrap to 3 rows at 390pt where the mock's 39-tall chips take 2 (`gaps.md` 3).
 - **Cup summary row** (5b): `size.thumbnail.summary` thumbnail, name (`label`), one line of meta (`body.sm` muted), and the rating star + `numeral.inline` on the right.
@@ -853,3 +889,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-06 — **Renamed** `axis.rail.readonly / editable` → `derived / entered` (provenance, §2 B) and `border.empty.disabled` → `border.empty.inert`. §8 now lists dashed's two uses separately. §1 Hard Rule added: name state tokens for their meaning, across every screen.
 - 2026-10-07 — Tasting note moved into the Record sheet as step 2 (push from the right, `motion.expand`); Try next is its placeholder again (`todo.md` T-1 done). §9 Compact header revised for both steps: control + title on one row, meta as the right-aligned standard column, the control centred on the measured cap band (no fixed +4). Labels finish fading within the reachable collapse.
 - 2026-10-07 — Record sheet: swipe right on Tasting note returns to Log a cup. The steps are now a native paging ScrollView, locked on step 1; button and back use the platform scroll animation instead of `motion.expand`.
+- 2026-10-07 — §1 Hard Rules added: **Focus** (one 2px `color.caret` frame outside, `space.2` gap, non-touch focus only), **Tap affordance** (option form = outline / ink + 44 + in a set; roles and states on every pressable; 6a / 8d / 8h / 8f held), **Selection limit** (lock the unselected, accent count, one light impact at the limit). `border.empty` → `border.addSlot` (+ `.inert`); `border.track` is rails only.

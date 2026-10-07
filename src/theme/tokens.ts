@@ -311,21 +311,25 @@ export const shape = {
 
 /**
  * dashed never means "draft". It has two uses, kept apart (design-system.md §8):
- *   empty / emptyInert   nothing is in it yet (an empty slot)
- *   axis.rail.derived    the value shown is not one the user entered
+ *   addSlot / addSlotInert   an entry for adding something (nothing in it yet)
+ *   track                    the axis rail of a value the user did not enter
  * What they share — "not something the user has settled" — is not one rule.
  */
 export const dashed = {
-  /** an empty slot waiting to be filled — always pressable */
-  empty:         { width: 2, style: 'dashed', color: color.border.strong },
   /**
-   * an empty slot that cannot be pressed now (5d's blocked add button), or
-   * that is not a thing to press at all (2a's empty list frame)
+   * an entry for adding something, and pressable: the empty slots ("Add a
+   * photo", "Add gear") and 5b's "Search" opener. Renamed from empty
+   * (2026-10-07): "an entry you can add through" is what it is.
    */
-  emptyInert:    { width: 2, style: 'dashed', color: color.border.muted },
+  addSlot:       { width: 2, style: 'dashed', color: color.border.strong },
+  /**
+   * an add entry that cannot be pressed now (5d's blocked add button), or a
+   * frame that is not a thing to press at all (2a's empty list frame)
+   */
+  addSlotInert:  { width: 2, style: 'dashed', color: color.border.muted },
   /** secondary line inside a card */
   dividerSoft:   { width: 1.5, style: 'dashed', color: color.border.soft },
-  /** measuring rail / placeholder frame */
+  /** the axis rail of a value the user did not enter (axis.rail.derived) — rails only, since 2026-10-07 */
   track:         { width: 1.5, style: 'dashed', color: color.border.muted },
 } as const;
 

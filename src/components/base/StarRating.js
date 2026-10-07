@@ -64,16 +64,16 @@ export default function StarRating({ value = 0, onChange, caption, error, testOn
   return (
     <HardShadow shadow={error ? state.error.shadow : null}>
       <View style={[styles.card, error && styles.cardError]}>
-        <View style={styles.stars}>
+        <View style={styles.stars} accessibilityRole="radiogroup">
           {STARS.map((n) => {
             const filled = n <= value;
             return (
               <Pressable
                 key={n}
                 onPress={() => press(n)}
-                accessibilityRole="button"
+                accessibilityRole="radio"
                 accessibilityLabel={n === 1 ? '1 star' : `${n} stars`}
-                accessibilityState={{ selected: n === value }}
+                accessibilityState={{ checked: n === value }}
                 testOnly_pressed={n === testOnly_pressedStar}
                 style={styles.star}>
                 {({ pressed }) => (

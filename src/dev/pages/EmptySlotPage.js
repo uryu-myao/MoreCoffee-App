@@ -24,7 +24,7 @@ export default function EmptySlotPage() {
       </HarnessGroup>
 
       <HarnessGroup title="disabled (5d)">
-        <HarnessCase label="dashed.emptyInert frame, muted glyph, secondary label">
+        <HarnessCase label="dashed.addSlotInert frame, muted glyph, secondary label">
           <EmptySlot icon="camera" label="Add a photo" tag="Optional" disabled onPress={() => {}} />
         </HarnessCase>
         <HarnessCase label="disabled does not respond to press">

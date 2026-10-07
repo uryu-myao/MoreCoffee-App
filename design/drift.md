@@ -24,8 +24,19 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 | D-16 | 2a | Records row source line | the same density for every mode: "Blue Bottle · Washed", "Fuglen · Blend", "7-Eleven · Can 185 ml" | degrades by mode: made_it → roaster · process; barista → place name only; packaged → brand only | Only fields the data model holds are shown. "Blend" for a café cup would have to be hand-entered or fetched from the café, and neither exists in V1. The other modes are not padded to match made_it: having less to say about a café cup is the honest state, and whitespace beats fabricated data. Recorded 2026-10-05 |
 | ~~D-17~~ **withdrawn** | 5b | "Save without the note" (secondary button) | `height: 52px` | — | **Withdrawn 2026-10-06: the mock is right.** Every full-width secondary button in the mocks is 52 (8a, 8b, 5b, 5c, 3b; 48 only on the 9a / 9b onboarding pair). Every primary is 56 (58 on onboarding). The discrepancy is on the implementation side: `Button` renders both variants at `size.button.primary` (56). The secondary should be 52 (the value of `size.control.row`). Not fixed yet; see `gaps.md` 4 |
 | D-18 | 1b 3c 3e 4a 4b 5b 5c 7b 8e 8f 8j 8m | Card padding | three values: `20px 18px` ×8, `16px` ×4 (8e 8f 8j 8m), `18px 16px` ×1 (7b) | `20px 18px`, the most frequent | The 13 cards are one container (`components.md` #19). The padding does not follow the content kind, so it is drift, not variants. Decided 2026-10-07 |
-| D-19 | 3a, 8c | Checkbox checked fill | 8c fills a checked box with action blue `#067BC2` | **proposed**: ink `#273D22` as on 3a. To confirm before implementation | Same 24px box, same job (multi-select a list). Ink matches how selection reads elsewhere (selected chips, the weekday selector). 5 checkboxes each, so frequency does not decide it. Recorded 2026-10-07 |
-| D-20 | 3e | Toggle switch | `62×34`, on = ink fill | **proposed**: `52×30`, on = action blue `#067BC2`, as on 8i / 8j / 8m. To confirm before implementation | 7 of 8 switches are 52×30 with a blue "on". 3e's sits in a form ("My default grinder") rather than settings, but nothing about that use calls for a bigger or ink switch. Recorded 2026-10-07 |
+| D-19 | 8c | Checkbox checked fill | action blue `#067BC2` | ink `#273D22`, as on 3a | Ink and blue are 5 uses each, so meaning decides. In this product blue is the call to action (go on, the primary action) and selection is consistently ink. A checked box says "chosen", not "go". Decided 2026-10-07 |
+| D-20 | 3e | Toggle switch | `62×34`, on = ink fill | `52×30`, on = action blue `#067BC2`, as on 8i / 8j / 8m. Decided 2026-10-07; whether "on = blue" itself fits the colour roles is an open question, see the note below the table | 7 of 8 switches are 52×30 with a blue "on". 3e's sits in a form ("My default grinder") rather than settings, but nothing about that use calls for a bigger or ink switch. Recorded 2026-10-07 |
+| D-21 | 5b | "Search" opener (flavour chips) | `1.5px dashed #C8BCB4` | `border.addSlot` (2px dashed ink) | It is a pressable entry for adding, the same job as the empty slots, so it takes their border. `border.track` is now rails only. Decided 2026-10-07 |
+
+## Open question — switch "on" is blue (2026-10-07)
+
+Every switch in the mocks turns blue when on (7 of 8; 3e's ink is D-20). Elsewhere the colour roles are: blue = the call to action and the active tab; ink = selection.
+
+**One reading that would explain it**: the mocks' own section note (above 2a) says "blue only for the primary action and the active tab". A switch that is on is *active*, a setting in force, in the same sense as the active tab. Choosing among options, by contrast, is selection, which is ink. On that reading: blue = active / in force (tab, switch), ink = chosen (chip, checkbox, weekday).
+
+**Why it is weak**: no mock states it, and the distinction between "active" and "chosen" is thin. A checkbox in a settings list would be hard to place. If the reading is not accepted, all 8 switches are drift together (on = ink).
+
+Not changed. To decide when the switch is specced.
 
 ## Not drift — recorded so they are not "fixed" by mistake
 

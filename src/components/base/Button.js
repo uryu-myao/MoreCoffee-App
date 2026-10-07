@@ -10,7 +10,7 @@ import Text from './Text';
  *   primary    action.bg fill, 2px ink outline, shadow.primary
  *   secondary  same geometry on surface.ground, ink label, no shadow
  *   disabled   either variant: ground fill, border.muted outline, text.muted
- *              label, no shadow — the border.empty.inert vocabulary from 5d
+ *              label, no shadow — the border.addSlot.inert vocabulary from 5d
  *   pressed    the fill darkens (state.pressed.action / .surface); outline,
  *              label and shadow stay — Hard Rule, design-system.md §1
  *

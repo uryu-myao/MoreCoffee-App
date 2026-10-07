@@ -120,7 +120,11 @@ function Axis({ from, to, at }) {
 
 function Chip({ label, on, search }) {
   return (
-    <Pressable onPress={NOOP} accessibilityRole="button" accessibilityState={search ? undefined : { selected: on }}>
+    <Pressable
+      onPress={NOOP}
+      // Multi-select: each flavour is a checkbox to a screen reader; Search opens.
+      accessibilityRole={search ? 'button' : 'checkbox'}
+      accessibilityState={search ? undefined : { checked: on }}>
       {({ pressed }) => (
         <View
           style={[
@@ -306,9 +310,12 @@ const styles = StyleSheet.create({
     borderColor: color.border.accent,
     backgroundColor: color.badge.bg.accent,
   },
+  // An entry for adding more: border.addSlot (2px ink dashed; the mock's
+  // 1.5px muted is drift D-21).
   chipSearch: {
-    borderStyle: dashed.track.style,
-    borderColor: dashed.track.color,
+    borderWidth: dashed.addSlot.width,
+    borderStyle: dashed.addSlot.style,
+    borderColor: dashed.addSlot.color,
   },
   chipPressed: {
     backgroundColor: state.pressed.surface,

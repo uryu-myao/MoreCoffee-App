@@ -8,17 +8,17 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 ## By component (2026-10-07) — read this first
 
-The cross-cutting items below (2 focus, 3 chips, 4 pressed / disabled / loading, 5 empty, 6 error) are broken down here by component, from the catalog in `components.md`. Pressed is settled for every pressable by the §1 Hard Rule, and focus is missing on every one (item 2), so neither is repeated per row.
+The cross-cutting items below (2 focus, 3 chips, 4 pressed / disabled / loading, 5 empty, 6 error) are broken down here by component, from the catalog in `components.md`. §1 Hard Rules now settle, for every component, pressed (2026-10-04 / -06), and focus, tap affordance and the selection limit (2026-10-07), so none of them is repeated per row.
 
 | component (catalog #) | missing states |
 |---|---|
 | Button (3) | destructive look; disabled for text and compact buttons |
 | IconButton (4) | disabled; what the accent fill means (2a) |
-| Single-select chip group (5) | disabled; tap affordance on 9 screens of bare spans; a 44-high chip (item 3) |
-| Flavour chip, multi-select (6) | at the cap (5); disabled |
-| Checkbox list, multi-select (7) | at the cap (3); disabled |
+| Single-select chip group (5) | disabled (tap affordance: settled by §1) |
+| Flavour chip, multi-select (6) | disabled outside the limit (at the limit: settled by §1) |
+| Checkbox list, multi-select (7) | disabled outside the limit (at the limit: settled by §1) |
 | Checkbox (8) | disabled |
-| Toggle switch (9) | disabled; tap affordance on 8i / 8j / 8m |
+| Toggle switch (9) | disabled |
 | Weekday selector (10) | disabled (reminder off) |
 | FieldRow (11) | disabled; empty value; loading (lookup) |
 | Star rating (12) | disabled / read-only |
@@ -38,11 +38,23 @@ The cross-cutting items below (2 focus, 3 chips, 4 pressed / disabled / loading,
 | Suggested value row (35) | applied |
 
 Plus, globally:
-- one focus rule, applied to every pressable (item 2);
+- ~~one focus rule~~ settled (§1 Focus, 2026-10-07);
 - two error flows, save failure and offline (item 6);
 - six first-run empty states (item 5).
 
-**Estimate**: about 49 states, or about 27 boards (one per component plus focus, errors, empties). See `components.md`.
+**Estimate (recalculated 2026-10-07)**: **49 → 45 states**.
+
+| | before | after the three rules | change |
+|---|---|---|---|
+| per-component states | 40 | 37 | −3: at the limit ×2 (rows 6, 7) and tap affordance (row 5) |
+| focus | 1 | 0 | −1: §1 Focus |
+| error flows | 2 | 2 | — |
+| first-run empty states | 6 | 6 | — |
+| **total** | **49** | **45** | **−4** |
+
+- **Boards**: 27 → about 24. Rows 6 and 7 still need one disabled state each, and the focus board is gone.
+- **Could fall to about 40**: the selection-limit rule defines what a locked option looks like (`text.muted` label, `border.muted` box), and that is the disabled look of an option. Applied as each set's general disabled state, it would also settle "disabled" for rows 5, 6, 7, 8 and 10 (−5). Not counted until confirmed.
+- **Not states, but work**: screen-reader roles (item 11) and the 6a / 8d / 8h / 8f decision (held).
 
 ---
 
@@ -71,6 +83,8 @@ Plus, globally:
 **What happens if left alone**: keyboard and screen-reader users have no visible focus; RN's default focus ring (where it exists) will fight the square, hard-edged visual language.
 
 **Needs designing**: a focus treatment consistent with the binary border system (a 2px outline is the obvious candidate, since a third border width is forbidden).
+
+**Status: DECIDED (2026-10-07)**: §1 Focus. One 2px `color.caret` frame outside the element, a `space.2` gap, non-touch focus only. **Platform limit**: Android can implement it as written (`focusable` + `onFocus` fire for keyboard / D-pad, not in touch mode). On iOS, RN 0.86 fires `onFocus` only on tvOS, so the frame cannot be drawn and the system draws its own focus effect for hardware-keyboard focus. Still to check on device: focus + pressed at once, 3.20:1 on `state.pressed.surface`.
 
 ---
 
@@ -182,6 +196,26 @@ Plus, globally:
 **Records row (2026-10-06)**: I made it's line 2 stays "roaster · process". It moves to the brew method only once a brew-method input exists; revisit then.
 
 **Needs designing**: a `brew_category` column with a deliberately settled taxonomy. **Fold this into the Try Next work**, which needs that dimension anyway; do not rush it into a screen.
+
+---
+
+## 11. Screen-reader roles and states — every component (added 2026-10-07)
+
+**Parts affected**: every pressable, a separate axis from the visual states.
+
+**Measured**: the mocks carry no roles (`role` / `aria-*` 0 uses). In code today:
+- `Button`, `IconButton`, `FieldRow`, `EmptySlot`: button.
+- `SegmentedControl`: radiogroup / radio + checked.
+- `FooterNav`: tab + selected, and the + as a button.
+- `SectionLabel`: header.
+- **Fixed 2026-10-07**: `StarRating` was button + selected and is now radiogroup / radio + checked. 5b's flavour chips are now checkbox + checked, with the Search opener a button.
+
+**Rule** (§1 Tap affordance): every pressable sets its role and state:
+- roles: button, radio, checkbox, switch, tab;
+- states: selected, checked, disabled;
+- plus the selection limit's disabled hint.
+
+**Needs doing**: each component spec lists its role and states; the not-started components (switch, checkbox list, settings row, …) take them from the start.
 
 ---
 

@@ -4,13 +4,13 @@ import Glyph from './Glyph';
 import Text from './Text';
 
 /**
- * An empty slot waiting to be filled — the `border.empty` pattern
+ * An empty slot waiting to be filled — the `border.addSlot` pattern
  * (design-system.md §8, §9 Empty slot). Always a button: "Add a photo" (5a, 5e),
  * "Add gear" (3b), "Add a bag" (3d), "Not listed — add your own" (3a).
  *
  *   default    2px dashed ink frame, transparent, ink glyph and label
  *   pressed    fill darkens to state.pressed.surface (Hard Rule §1)
- *   disabled   the frame drops to dashed.emptyInert, glyph muted, label
+ *   disabled   the frame drops to dashed.addSlotInert, glyph muted, label
  *              secondary — 5d, a slot that cannot be actioned yet
  *
  * Props
@@ -66,12 +66,12 @@ const styles = StyleSheet.create({
     gap: space[12],
     paddingVertical: spacing.inset.control.v,
     paddingHorizontal: spacing.inset.control.h,
-    borderWidth: dashed.empty.width,
-    borderStyle: dashed.empty.style,
-    borderColor: dashed.empty.color,
+    borderWidth: dashed.addSlot.width,
+    borderStyle: dashed.addSlot.style,
+    borderColor: dashed.addSlot.color,
   },
   slotDisabled: {
-    borderColor: dashed.emptyInert.color,
+    borderColor: dashed.addSlotInert.color,
   },
   slotPressed: {
     backgroundColor: state.pressed.surface,
