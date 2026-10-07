@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { AxisPagerGestureContext } from './base/axisGestureContext';
+import { scheduleOnRN } from 'react-native-worklets';
+import { GESTURE_LOG, logGesture } from './base/gestureLog';
 import RecordCoffeeScreen from '../screens/RecordCoffeeScreen';
 import TastingNoteScreen from '../screens/TastingNoteScreen';
 import { color, motion } from '../theme/tokens';
@@ -33,7 +35,23 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
   // so a sideways axis drag never pages the sheet. Replaces a JS-state lock that
   // set scrollEnabled on touch-down — a round trip that can land after UIKit's
   // pan has already begun.
-  const pagerGesture = useMemo(() => Gesture.Native(), []);
+  const pagerGesture = useMemo(
+    () =>
+      Gesture.Native()
+        .onBegin(() => {
+          if (GESTURE_LOG) scheduleOnRN(logGesture, 'sheet.pager(native)', 'BEGAN');
+        })
+        .onStart(() => {
+          if (GESTURE_LOG) scheduleOnRN(logGesture, 'sheet.pager(native)', 'ACTIVE');
+        })
+        .onEnd((e, success) => {
+          if (GESTURE_LOG) scheduleOnRN(logGesture, 'sheet.pager(native)', success ? 'END' : 'CANCELLED');
+        })
+        .onFinalize((e, success) => {
+          if (GESTURE_LOG && !success) scheduleOnRN(logGesture, 'sheet.pager(native)', 'FAILED (finalize)');
+        }),
+    []
+  );
   const pendingPush = useRef(false);
   const pager = useRef(null);
   const translateY = useRef(new Animated.Value(height)).current;
@@ -100,7 +118,12 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
             scrollEnabled={onNote}
             showsHorizontalScrollIndicator={false}
             onContentSizeChange={onContentSizeChange}
-            onMomentumScrollEnd={settle}
+            onMomentumScrollEnd={(e) => {
+              if (GESTURE_LOG) logGesture('sheet.pager(UIKit)', 'MOMENTUM_END', `x=${e.nativeEvent.contentOffset.x.toFixed(1)}`);
+              settle(e);
+            }}
+            onScrollBeginDrag={GESTURE_LOG ? (e) => logGesture('sheet.pager(UIKit)', 'DRAG_BEGIN', `x=${e.nativeEvent.contentOffset.x.toFixed(1)}`) : undefined}
+            onScrollEndDrag={GESTURE_LOG ? (e) => logGesture('sheet.pager(UIKit)', 'DRAG_END', `x=${e.nativeEvent.contentOffset.x.toFixed(1)}`) : undefined}
             keyboardShouldPersistTaps="handled">
             <View style={{ width }}>
               <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} />

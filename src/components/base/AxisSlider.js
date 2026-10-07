@@ -4,86 +4,92 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { component, motion, size, spacing, textStyle, texture } from '../../theme/tokens';
+import { component, motion, size, spacing, state, textStyle, texture } from '../../theme/tokens';
 import { AxisPagerGestureContext } from './axisGestureContext';
 import Button from './Button';
+import { GESTURE_LOG, logGesture } from './gestureLog';
 import Text from './Text';
 
 /**
  * Taste axis slider (design-system.md §9 Taste axis slider).
  *
- * One axis state decides rail and needle together (component.axis.state):
- *   derived      computed / historical value — display only, never operable
- *   empty        no value yet (value null) — operable
- *   provisional  an empty axis while the finger is on it: needle entered,
- *                rail still empty, nothing committed (internal, never a prop)
- *   entered      the user's own value — operable; adjusting it stays entered
+ * FIVE STEPS (2026-10-07): Strongly {low} · Leaning {low} · Balanced ·
+ * Leaning {high} · Strongly {high}. Stored as 0–100 integer points, step i =
+ * round(i × 100 / 4) = 0 / 25 / 50 / 75 / 100, so the step count can change
+ * later without migrating data (old values snap to the nearest step).
  *
- * The state is not a prop: `derived` plus `value` decide it (null → empty,
- * a number → entered), so a state and a value can never disagree.
+ * One rail in every state (axis.state.*.rail = the track); the needle carries
+ * the state:
+ *   empty    value null — muted needle resting at Balanced, a PLACEHOLDER,
+ *            never a value
+ *   lit      while the finger is on it — gold (icon.rating), scaled to
+ *            state.pressed.scale (the needle is under 44pt, so it presses by
+ *            scale, §1); motion.press in and out
+ *   entered  the user's own step — accent
+ * Nothing commits while the finger is down: release commits (onChange); a
+ * gesture taken away restores the committed step. Clear (entered only) is the
+ * one way back to empty.
  *
- * Values are integer points 0–100. Nothing commits while the finger is down:
- * release commits (onChange), and a gesture taken over by scroll reverts.
- * Clear (entered only) is the one way back to empty.
+ * The 5 stops and the 3 reference lines sit on a track inset by half a needle
+ * (6pt) from each rail end, so the needle never overhangs the rail at 0 / 100.
  *
- * The drag runs on the UI thread (Reanimated + gesture-handler, §1 Animation
- * systems). JS sees only the commit and the revert.
+ * Runs on the UI thread (Reanimated + gesture-handler, §1 Animation systems).
  *
  * Props
  *   from, to    pole labels (low pole on the left)
- *   value       0–100, or null (empty; operable axes only)
- *   derived     display axis (1b 4a 4b 5c): not operable, no touch band
- *   previous    derived only: the earlier value — draws the ghost + delta (5c)
- *   caption     derived only: the line under the rail (5c's movement copy)
+ *   value       0–100 or null (empty; operable axes only)
+ *   derived     display axis (1b 4a 4b 5c) — temporary, until AxisReadout
+ *   previous, caption   derived only (5c)
  *   onChange    (value | null) => void — on release, on tap, on Clear
- *   onGestureActive  (active: boolean) => void — touch down / finalize, so a
- *               parent horizontal pager can stand aside (the Record sheet)
  */
 
 // ── Device-tuning constants (design-system.md §9: check on device) ──────────
-/**
- * Empty → entered crossfade. motion.expand (340ms) is the spec. For the device
- * comparison set CROSSFADE_DEBUG_MS = 150 and reload; null uses the spec.
- */
-const CROSSFADE_DEBUG_MS = null;
-/** Horizontal travel (pt) before the touch becomes an axis drag. gesture-handler's common value. */
+/** Horizontal travel (pt) before the touch becomes an axis drag. */
 const ACTIVE_OFFSET_X = 10;
-/** Vertical travel (pt) that hands the touch to the scroll view instead. Vertical wins ties (§9). */
+/** Vertical travel (pt) that hands the touch to the scroll view instead. Vertical wins ties. */
 const FAIL_OFFSET_Y = 10;
-/** A tap may wander this far (pt) and still count as a tap-to-set. */
+/** A tap may wander this far (pt) and still count as tap-to-set. */
 const TAP_MAX_DISTANCE = 8;
 // ────────────────────────────────────────────────────────────────────────────
 
 const STATE = component.axis.state;
 const RAIL_H = component.axis.rail.height;
-/** The touch band reaches size.tapTarget (44) around the 20pt rail. */
 const BAND_PAD = (size.tapTarget - RAIL_H) / 2;
-const RULE_STOPS = [0.25, 0.5, 0.75];
-/** Pole emphasis: inside 45–55 neither pole lights (the middle). */
-const DEAD_LOW = 45;
-const DEAD_HIGH = 55;
-/** The empty needle's resting place. A placeholder, never a value. */
-const PLACEHOLDER = 50;
-const CROSSFADE_MS = CROSSFADE_DEBUG_MS ?? motion.expand.duration;
-const crossfadeEasing = Easing.bezier(...motion.expand.controlPoints);
+const STEPS = 5;
+const LAST = STEPS - 1;
+const MIDDLE = LAST / 2;
+/** Stops sit inside the rail by half the widest needle, so 0 and 100 never overhang. */
+const INSET = STATE.entered.needle.w / 2;
+const PRESS_MS = motion.press.duration;
+const pressEasing = Easing.bezier(...motion.press.controlPoints);
+
+const stepToValue = (i) => Math.round((i * 100) / LAST);
+const valueToStep = (v) => Math.min(LAST, Math.max(0, Math.round((v / 100) * LAST)));
+
+/** "Strongly acid" … "Balanced" … "Strongly bitter" — the screen-reader value. */
+export function stepName(step, from, to) {
+  const low = from.toLowerCase();
+  const high = to.toLowerCase();
+  return ['Strongly ' + low, 'Leaning ' + low, 'Balanced', 'Leaning ' + high, 'Strongly ' + high][step];
+}
 
 const selectionHaptic = () => {
   if (Platform.OS !== 'web') Haptics.selectionAsync();
 };
 
-function Rail({ part }) {
+function Rail({ part, inset }) {
   return (
     <View
       style={[
         StyleSheet.absoluteFill,
         { borderWidth: part.width, borderStyle: part.style, borderColor: part.color, backgroundColor: part.background },
       ]}>
-      {RULE_STOPS.map((p) => (
-        <View
-          key={p}
-          style={[styles.ruleLine, { left: `${p * 100}%` }]}
-        />
-      ))}
+      {/* Reference lines at the inner stops, on the same inset track as the needle. */}
+      <View style={[styles.track, { left: Math.max(0, inset - part.width), right: Math.max(0, inset - part.width) }]} pointerEvents="none">
+        {[1, 2, 3].map((i) => (
+          <View key={i} style={[styles.ruleLine, { left: `${(i / LAST) * 100}%` }]} />
+        ))}
+      </View>
     </View>
   );
 }
@@ -109,7 +115,7 @@ function Needle({ part, style }) {
   );
 }
 
-/** A pole label: muted, with an ink copy laid over it that lights while leaning. */
+/** A pole label: muted, with an ink copy over it that lights while leaning. */
 function Pole({ label, litStyle, align }) {
   return (
     <View style={align === 'right' ? styles.poleRight : null}>
@@ -125,81 +131,99 @@ function Pole({ label, litStyle, align }) {
   );
 }
 
-function AxisSlider({ from, to, value = null, derived = false, previous, caption, onChange, onGestureActive }) {
+function AxisSlider({ from, to, value = null, derived = false, previous, caption, onChange }) {
   const operable = !derived;
   const isEntered = operable && value != null;
+  const committedStep = value == null ? MIDDLE : valueToStep(value);
   const pagerGesture = useContext(AxisPagerGestureContext);
+  const who = `axis:${from}`;
 
-  const width = useSharedValue(0);
-  const pos = useSharedValue(value ?? PLACEHOLDER); // points, on the UI thread
+  const trackW = useSharedValue(0); // the inset track the stops sit on
+  const step = useSharedValue(committedStep);
   const dragging = useSharedValue(0);
-  const committed = useSharedValue(isEntered ? 1 : 0); // needle shows entered
-  const railEntered = useSharedValue(isEntered ? 1 : 0); // rail crossfade
+  const enteredOn = useSharedValue(isEntered ? 1 : 0);
+  const litOn = useSharedValue(0);
+  const press = useSharedValue(1);
 
-  // Props are the committed truth; follow them when they change.
   useEffect(() => {
-    pos.value = value ?? PLACEHOLDER;
-    committed.value = isEntered ? 1 : 0;
-    railEntered.value = withTiming(isEntered ? 1 : 0, { duration: CROSSFADE_MS, easing: crossfadeEasing });
-  }, [committed, isEntered, pos, railEntered, value]);
+    step.value = committedStep;
+    enteredOn.value = isEntered ? 1 : 0;
+  }, [committedStep, enteredOn, isEntered, step]);
 
-  const commit = (v) => onChange?.(v);
-  const gestureActive = (active) => onGestureActive?.(active);
+  const commit = (s) => onChange?.(stepToValue(s));
+  const log = (st, extra) => logGesture(who, st, extra);
 
-  const setFromX = (x) => {
+  const pressIn = () => {
     'worklet';
-    if (width.value <= 0) return;
-    const next = Math.min(100, Math.max(0, Math.round((x / width.value) * 100)));
-    const prev = pos.value;
-    // A selection haptic per reference line crossed (25 / 50 / 75); no snapping.
-    for (let i = 0; i < RULE_STOPS.length; i++) {
-      const tick = RULE_STOPS[i] * 100;
-      if ((prev < tick && next >= tick) || (prev > tick && next <= tick)) {
-        scheduleOnRN(selectionHaptic);
-        break;
-      }
-    }
-    pos.value = next;
+    litOn.value = withTiming(1, { duration: PRESS_MS, easing: pressEasing });
+    press.value = withTiming(state.pressed.scale, { duration: PRESS_MS, easing: pressEasing });
+  };
+  const pressOut = () => {
+    'worklet';
+    litOn.value = withTiming(0, { duration: PRESS_MS, easing: pressEasing });
+    press.value = withTiming(1, { duration: PRESS_MS, easing: pressEasing });
   };
 
-  const committedValue = value;
+  /** Move to the step under x (pt within the rail). Haptic per step change. */
+  const setFromX = (x, logEnds) => {
+    'worklet';
+    if (trackW.value <= 0) return;
+    const next = Math.min(LAST, Math.max(0, Math.round(((x - INSET) / trackW.value) * LAST)));
+    if (next !== step.value) {
+      step.value = next;
+      scheduleOnRN(selectionHaptic);
+      if (logEnds && (next === 0 || next === LAST)) scheduleOnRN(log, 'pan AT_END', `step=${next}`);
+    }
+  };
+
   const pan = Gesture.Pan()
     .enabled(operable)
     .activeOffsetX([-ACTIVE_OFFSET_X, ACTIVE_OFFSET_X])
     .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
     .hitSlop({ top: BAND_PAD, bottom: BAND_PAD })
-    .onTouchesDown(() => {
-      scheduleOnRN(gestureActive, true);
+    .onBegin((e) => {
+      pressIn();
+      if (GESTURE_LOG) scheduleOnRN(log, 'pan BEGAN', `x=${e.x.toFixed(1)}`);
     })
     .onStart((e) => {
-      dragging.value = 1; // empty → provisional (needle entered, rail untouched)
-      setFromX(e.x);
+      dragging.value = 1;
+      setFromX(e.x, false);
+      if (GESTURE_LOG) scheduleOnRN(log, 'pan ACTIVE', `x=${e.x.toFixed(1)} step=${step.value}`);
     })
     .onUpdate((e) => {
-      setFromX(e.x);
+      setFromX(e.x, GESTURE_LOG);
     })
     .onEnd((e, success) => {
       if (success) {
-        committed.value = 1; // keep the entered needle across the JS round trip
-        scheduleOnRN(commit, pos.value);
+        enteredOn.value = 1; // stay entered across the JS round trip
+        scheduleOnRN(commit, step.value);
       } else {
-        pos.value = committedValue ?? PLACEHOLDER; // taken over: back to exactly before
+        step.value = committedStep; // taken away: back to exactly before
       }
+      if (GESTURE_LOG) scheduleOnRN(log, success ? 'pan END' : 'pan CANCELLED', `x=${e.x.toFixed(1)} step=${step.value}`);
     })
-    .onFinalize(() => {
+    .onFinalize((e, success) => {
       dragging.value = 0;
-      scheduleOnRN(gestureActive, false);
+      pressOut();
+      if (GESTURE_LOG && !success) scheduleOnRN(log, 'pan FAILED (finalize, never ended successfully)', `x=${e.x.toFixed(1)}`);
     });
 
   const tap = Gesture.Tap()
     .enabled(operable)
     .maxDistance(TAP_MAX_DISTANCE)
     .hitSlop({ top: BAND_PAD, bottom: BAND_PAD })
+    .onBegin(() => {
+      if (GESTURE_LOG) scheduleOnRN(log, 'tap BEGAN');
+    })
     .onEnd((e, success) => {
       if (!success) return;
-      setFromX(e.x);
-      committed.value = 1;
-      scheduleOnRN(commit, pos.value);
+      setFromX(e.x, false);
+      enteredOn.value = 1;
+      scheduleOnRN(commit, step.value);
+      if (GESTURE_LOG) scheduleOnRN(log, 'tap END', `step=${step.value}`);
+    })
+    .onFinalize((e, success) => {
+      if (GESTURE_LOG && !success) scheduleOnRN(log, 'tap FAILED');
     });
 
   // An enclosing pager (the Record sheet) waits for this axis to fail first.
@@ -209,53 +233,59 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
   }
   const gesture = Gesture.Exclusive(pan, tap);
 
-  const needleMove = useAnimatedStyle(() => ({ transform: [{ translateX: (pos.value / 100) * width.value }] }));
-  const enteredNeedle = useAnimatedStyle(() => ({
-    opacity: Math.max(committed.value, dragging.value),
-    transform: [{ translateX: (pos.value / 100) * width.value }],
+  const move = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: withTiming((step.value / LAST) * trackW.value, { duration: PRESS_MS, easing: pressEasing }) },
+      { scale: press.value },
+    ],
   }));
-  const enteredRail = useAnimatedStyle(() => ({ opacity: railEntered.value }));
-  const lowLit = useAnimatedStyle(() => ({ opacity: dragging.value && pos.value < DEAD_LOW ? 1 : 0 }));
-  const highLit = useAnimatedStyle(() => ({ opacity: dragging.value && pos.value > DEAD_HIGH ? 1 : 0 }));
+  const enteredStyle = useAnimatedStyle(() => ({ opacity: enteredOn.value }));
+  const litStyle = useAnimatedStyle(() => ({ opacity: litOn.value }));
+  const lowLit = useAnimatedStyle(() => ({ opacity: dragging.value && step.value < MIDDLE ? 1 : 0 }));
+  const highLit = useAnimatedStyle(() => ({ opacity: dragging.value && step.value > MIDDLE ? 1 : 0 }));
 
-  // ── Screen reader ───────────────────────────────────────────────────────
-  const lean = value == null ? '' : value < DEAD_LOW ? `, leaning ${from.toLowerCase()}` : value > DEAD_HIGH ? `, leaning ${to.toLowerCase()}` : ', middle';
-  const a11yText = value == null ? 'Not entered yet' : `${value} points${lean}`;
+  // ── Screen reader: one step per swipe, the value read as the step's name ──
   const a11y = operable
     ? {
         accessible: true,
         accessibilityRole: 'adjustable',
         accessibilityLabel: `${from} to ${to}`,
-        accessibilityValue: { min: 0, max: 100, now: value ?? undefined, text: a11yText },
+        accessibilityValue: { text: value == null ? 'Not entered yet' : stepName(committedStep, from, to) },
         accessibilityActions: [{ name: 'increment' }, { name: 'decrement' }, ...(isEntered ? [{ name: 'clear', label: 'Clear' }] : [])],
         onAccessibilityAction: (e) => {
-          const base = value ?? PLACEHOLDER; // the first adjustment of an empty axis starts from 50
-          if (e.nativeEvent.actionName === 'increment') onChange?.(Math.min(100, base + 5));
-          if (e.nativeEvent.actionName === 'decrement') onChange?.(Math.max(0, base - 5));
+          // The first adjustment of an empty axis starts from Balanced.
+          const base = value == null ? MIDDLE : committedStep;
+          if (e.nativeEvent.actionName === 'increment') onChange?.(stepToValue(Math.min(LAST, base + 1)));
+          if (e.nativeEvent.actionName === 'decrement') onChange?.(stepToValue(Math.max(0, base - 1)));
           if (e.nativeEvent.actionName === 'clear') onChange?.(null);
         },
       }
     : { accessible: true, accessibilityLabel: `${from} to ${to}`, accessibilityValue: { text: `${value} points` } };
 
   const rail = (
-    <View
-      style={styles.rail}
-      onLayout={(e) => {
-        width.value = e.nativeEvent.layout.width;
-      }}>
-      {derived ? (
-        <Rail part={STATE.derived.rail} />
-      ) : (
-        <>
-          <Rail part={STATE.empty.rail} />
-          <Animated.View style={[StyleSheet.absoluteFill, enteredRail]} pointerEvents="none">
-            <Rail part={STATE.entered.rail} />
-          </Animated.View>
-        </>
-      )}
+    <View style={styles.rail}>
+      <Rail part={derived ? STATE.derived.rail : STATE.empty.rail} inset={derived ? 0 : INSET} />
       {derived && previous != null ? <GhostAndDelta from={previous} to={value} /> : null}
-      <Needle part={derived ? STATE.derived.needle : STATE.empty.needle} style={needleMove} />
-      {operable ? <Needle part={STATE.entered.needle} style={enteredNeedle} /> : null}
+      <View
+        style={[styles.track, { left: derived ? 0 : INSET, right: derived ? 0 : INSET }]}
+        pointerEvents="none"
+        onLayout={(e) => {
+          trackW.value = e.nativeEvent.layout.width;
+        }}>
+        {derived ? (
+          <Needle part={STATE.derived.needle} style={{ left: `${value}%` }} />
+        ) : (
+          <>
+            <Needle part={STATE.empty.needle} style={move} />
+            <Animated.View style={[StyleSheet.absoluteFill, enteredStyle]} pointerEvents="none">
+              <Needle part={STATE.entered.needle} style={move} />
+            </Animated.View>
+            <Animated.View style={[StyleSheet.absoluteFill, litStyle]} pointerEvents="none">
+              <Needle part={STATE.lit.needle} style={move} />
+            </Animated.View>
+          </>
+        )}
+      </View>
     </View>
   );
 
@@ -293,7 +323,7 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
 
 export default memo(AxisSlider);
 
-/** 5c: a ghost at the earlier value and a delta bar to the current one. */
+/** 5c: a ghost at the earlier value and a delta bar to the current one. (Until AxisReadout.) */
 function GhostAndDelta({ from, to }) {
   const lo = Math.min(from, to);
   const hi = Math.max(from, to);
@@ -302,14 +332,7 @@ function GhostAndDelta({ from, to }) {
     <>
       <View
         pointerEvents="none"
-        style={{
-          position: 'absolute',
-          left: `${lo}%`,
-          width: `${hi - lo}%`,
-          top: (RAIL_H - delta.height) / 2,
-          height: delta.height,
-          backgroundColor: delta.background,
-        }}
+        style={{ position: 'absolute', left: `${lo}%`, width: `${hi - lo}%`, top: (RAIL_H - delta.height) / 2, height: delta.height, backgroundColor: delta.background }}
       />
       <View
         pointerEvents="none"
@@ -344,6 +367,11 @@ const styles = StyleSheet.create({
   },
   rail: {
     height: RAIL_H,
+  },
+  track: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
   },
   ruleLine: {
     position: 'absolute',

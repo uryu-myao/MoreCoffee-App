@@ -4,10 +4,9 @@ import EmptySlot from '../../components/base/EmptySlot';
 import { HarnessCase, HarnessGroup, HarnessPage } from '../harness';
 
 /**
- * AxisSlider states, plus the device check of dashed lines (design-system.md
- * §9: 6:3 dashes on iOS). The ink 2px dashes (empty rail, add slot) sit next
- * to the muted 1.5px dashes (derived rail) on one screen, so all of the
- * product's dashed borders can be compared on a phone.
+ * AxisSlider states (five steps, one rail; the needle carries the state),
+ * plus the dashed borders left in the product — border.addSlot (#6B5D55) and
+ * .inert — and the old derived display axis, until AxisReadout replaces it.
  */
 export default function AxisSliderPage() {
   const [empty, setEmpty] = useState(null);
@@ -16,10 +15,10 @@ export default function AxisSliderPage() {
   return (
     <HarnessPage>
       <HarnessGroup title="operable (drag, tap, Clear)">
-        <HarnessCase label="empty — ink 2px dashed, needle placeholder at 50">
+        <HarnessCase label="empty — muted needle resting at Balanced (a placeholder)">
           <AxisSlider from="Low sweetness" to="High sweetness" value={empty} onChange={setEmpty} />
         </HarnessCase>
-        <HarnessCase label="entered — ink solid, accent needle, Clear">
+        <HarnessCase label="entered — accent needle, Clear; touch lights it gold">
           <AxisSlider from="Light body" to="Full body" value={entered} onChange={setEntered} />
         </HarnessCase>
       </HarnessGroup>
@@ -34,7 +33,7 @@ export default function AxisSliderPage() {
       </HarnessGroup>
 
       <HarnessGroup title="dashed borders side by side (device check)">
-        <HarnessCase label="border.addSlot — ink 2px dashed (Add a photo)">
+        <HarnessCase label="border.addSlot — #6B5D55 2px dashed (Add a photo)">
           <EmptySlot icon="camera" label="Add a photo" tag="Optional" onPress={() => {}} />
         </HarnessCase>
         <HarnessCase label="border.addSlot.inert — muted 2px dashed (5d)">

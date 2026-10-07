@@ -31,11 +31,14 @@ const NOOP = () => {};
 /** 5b's cup, verbatim. */
 const CUP = { name: 'Ethiopia Guji', meta: 'I made it · V60 · 08:20', rating: 4 };
 
-/** 5b's four axes, verbatim: points 0–100; null = not entered yet (empty). */
+/**
+ * 5b's four axes: points 0–100 on five steps; null = not entered yet (empty).
+ * The mock's 26 / 38 / 18 snap to the nearest step (25 / 50 / 25).
+ */
 const AXES = [
-  { from: 'Acid', to: 'Bitter', value: 26 },
-  { from: 'Light body', to: 'Full body', value: 38 },
-  { from: 'Light roast', to: 'Dark roast', value: 18 },
+  { from: 'Acid', to: 'Bitter', value: 25 },
+  { from: 'Light body', to: 'Full body', value: 50 },
+  { from: 'Light roast', to: 'Dark roast', value: 25 },
   { from: 'Low sweetness', to: 'High sweetness', value: null },
 ];
 

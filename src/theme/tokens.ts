@@ -319,9 +319,13 @@ export const dashed = {
   /**
    * an entry for adding something, and pressable: the empty slots ("Add a
    * photo", "Add gear") and 5b's "Search" opener. Renamed from empty
-   * (2026-10-07): "an entry you can add through" is what it is.
+   * (2026-10-07): "an entry you can add through" is what it is. Colour:
+   * #6B5D55 (icon.muted's value, same value, border role), two steps lighter
+   * than ink on review — the ink dashes read as noise. The label and glyph
+   * keep their own colour, so the slot still reads as pressable. ΔE00 32.6
+   * from addSlotInert's border.muted, so the two never blur.
    */
-  addSlot:       { width: 2, style: 'dashed', color: color.border.strong },
+  addSlot:       { width: 2, style: 'dashed', color: color.icon.muted },
   /**
    * an add entry that cannot be pressed now (5d's blocked add button), or a
    * frame that is not a thing to press at all (2a's empty list frame)
@@ -358,12 +362,14 @@ export const rotation = {
  * one by one.
  */
 const axisRail = {
-  /** computed or historical (1b 4a 4b 5c): muted dashed, not operable */
+  /**
+   * The slider's one rail, in every state (2026-10-07): a weak frame (1.5,
+   * border.muted) on a ground track. The rail states nothing; the needle does.
+   * Superseded: the empty (ink dashed) and entered (ink solid) rails.
+   */
+  track: { width: shape.borderWidth.divider, style: 'solid', color: color.border.muted, background: color.surface.ground, texture: texture.rule },
+  /** computed or historical (1b 4a 4b 5c) — to be replaced by AxisReadout, then removed */
   derived: { ...dashed.track, background: color.surface.ground, texture: texture.rule },
-  /** nothing entered yet (5b): the add-slot form — ink dashed, transparent, operable */
-  empty: { ...dashed.addSlot, background: 'transparent', texture: texture.rule },
-  /** the user's own value for this cup (5b): ink solid on raised */
-  entered: { width: shape.borderWidth.box, style: 'solid', color: color.border.strong, background: color.surface.raised, texture: texture.rule },
 } as const;
 
 const axisNeedle = {
@@ -381,6 +387,12 @@ const axisNeedle = {
    * entered rail's thicker border.
    */
   entered: { w: size.axis.needle.w, h: 32, background: color.icon.accent, borderColor: color.border.strong, borderWidth: shape.borderWidth.box },
+  /**
+   * While the finger is on it: the entered needle lit in icon.rating (#C9821A,
+   * the same value under a needle role), so it reads as "entered, brighter",
+   * not as a third state. Settles to entered on release (motion.press).
+   */
+  lit: { w: size.axis.needle.w, h: 32, background: color.icon.rating, borderColor: color.border.strong, borderWidth: shape.borderWidth.box },
 } as const;
 
 /** Component anatomies whose parts are mechanism-bound. */
@@ -410,20 +422,20 @@ export const component = {
    * This carries a core promise: Taste DNA is arithmetic on your own records,
    * not a guess, and the UI must always let you tell what you put in from what
    * came out of it. So the rail is provenance, not decoration: never unify the
-   * states. Colour, not line style, tells operable from not (§1).
+   * states. (The dashed-vs-solid rule now lives in §8; the slider uses one solid rail.)
    *
    * state: ONE axis state decides rail and needle together, so a wrong pairing
-   * cannot be built. provisional = an empty axis while the finger is on it
-   * (needle already entered, rail still empty, nothing committed). An entered
-   * axis being adjusted stays entered; a derived axis is never operable and
-   * never provisional.
+   * cannot be built. The slider's rail is the same in every state (2026-10-07);
+   * the needle carries the state: empty (muted), lit (while touched — gold),
+   * entered (accent). derived belongs to the display axis, to be replaced by
+   * AxisReadout.
    */
   axis: {
     state: {
-      derived:     { rail: axisRail.derived, needle: axisNeedle.derived },
-      empty:       { rail: axisRail.empty, needle: axisNeedle.empty },
-      provisional: { rail: axisRail.empty, needle: axisNeedle.entered },
-      entered:     { rail: axisRail.entered, needle: axisNeedle.entered },
+      derived: { rail: axisRail.derived, needle: axisNeedle.derived },
+      empty:   { rail: axisRail.track, needle: axisNeedle.empty },
+      lit:     { rail: axisRail.track, needle: axisNeedle.lit },
+      entered: { rail: axisRail.track, needle: axisNeedle.entered },
     },
     rail: { height: size.axis.rail },
     /** previous value */
