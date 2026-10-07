@@ -625,7 +625,10 @@ Every `ScreenFrame` with `scroll`: Records (standard header), and Log a cup and 
 
 ### Record sheet steps (2026-10-07)
 The Record sheet (`AddCoffeeOverlay`) has two steps: Log a cup (5a), then Tasting note (5b) via "Add tasting note".
-- Step 2 **pushes in from the right**, and its back arrow pushes it out, over `motion.expand`, the same motion as the sheet's slide-up. No mock draws the step change; agreed on review.
+- Step 2 **pushes in from the right**; its back arrow, or a **swipe to the right** (added 2026-10-07), takes it back. No mock draws the step change; agreed on review.
+- **Mechanism (revised 2026-10-07)**: the two steps are pages of a native horizontal paging ScrollView, like the tab pager. The swipe, its settle and the arbitration with each step's vertical scroll all run on the UI thread.
+- Swiping is enabled only while step 2 shows. On step 1 the pager is locked, so step 2 is reached only through "Add tasting note".
+- Because the button and the back arrow now move that same native scroll position, they use the platform's scroll animation (`scrollTo`), not `motion.expand`: a separate Animated push could not hand over to the drag. Superseded: the `motion.expand` push (confirmed on device the same day). The sheet's own slide-up still uses `motion.expand`.
 - Step 1 stays mounted underneath, so its rating and fields survive a visit to step 2.
 - Closing the sheet resets it to step 1.
 
@@ -849,3 +852,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-06 — Tasting note (5b) built as a static shell, stood in for Try next for verification (design/todo.md). Axis slider, flavour chip and cup summary row logged as pending components (§9).
 - 2026-10-06 — **Renamed** `axis.rail.readonly / editable` → `derived / entered` (provenance, §2 B) and `border.empty.disabled` → `border.empty.inert`. §8 now lists dashed's two uses separately. §1 Hard Rule added: name state tokens for their meaning, across every screen.
 - 2026-10-07 — Tasting note moved into the Record sheet as step 2 (push from the right, `motion.expand`); Try next is its placeholder again (`todo.md` T-1 done). §9 Compact header revised for both steps: control + title on one row, meta as the right-aligned standard column, the control centred on the measured cap band (no fixed +4). Labels finish fading within the reachable collapse.
+- 2026-10-07 — Record sheet: swipe right on Tasting note returns to Log a cup. The steps are now a native paging ScrollView, locked on step 1; button and back use the platform scroll animation instead of `motion.expand`.

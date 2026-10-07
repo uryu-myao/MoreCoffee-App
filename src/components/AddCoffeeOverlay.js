@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, useWindowDimensions } from 'react-native';
+import { Animated, Easing, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import RecordCoffeeScreen from '../screens/RecordCoffeeScreen';
 import TastingNoteScreen from '../screens/TastingNoteScreen';
 import { color, motion } from '../theme/tokens';
@@ -8,45 +8,73 @@ const easing = Easing.bezier(...motion.expand.controlPoints);
 
 /**
  * The Record sheet, presented over the tabs as a full-screen sheet that slides
- * up. Two steps: Record coffee (5a), then Tasting note (5b) via "Add tasting
- * note". Step 2 pushes in from the right and Back pushes it out again; step 1
- * stays mounted underneath, so nothing typed or rated there is lost. Every
- * move uses the product's one expand motion (motion.expand): the sheet's
- * present / dismiss and the step change alike. No mock draws the step change;
- * the push was agreed on review (2026-10-07).
+ * up (motion.expand). Two steps: Log a cup (5a), then Tasting note (5b) via
+ * "Add tasting note".
+ *
+ * The steps are two pages of a horizontal paging ScrollView, so the way back
+ * is both the back arrow and a swipe to the right (2026-10-07). The scroll
+ * view is native: the drag, the settle and the arbitration with each step's
+ * own vertical scroll run on the UI thread, as in the tab pager. Swiping only
+ * works on step 2: on step 1 the pager is locked, so step 2 is reached only
+ * through its button. Step 1 stays mounted, so its rating and fields survive.
+ *
+ * The button and the back arrow move the same native scroll position, so
+ * they animate with the platform's scroll animation (scrollTo), not
+ * motion.expand: a separate Animated push could not hand over to the drag.
  */
 export default function AddCoffeeOverlay({ visible, onClose }) {
   const { width, height } = useWindowDimensions();
   const [mounted, setMounted] = useState(false);
   const [noteMounted, setNoteMounted] = useState(false);
+  const [onNote, setOnNote] = useState(false); // step 2 is showing: swipe back enabled
+  const pendingPush = useRef(false);
+  const pager = useRef(null);
   const translateY = useRef(new Animated.Value(height)).current;
-  const step = useRef(new Animated.Value(0)).current; // 0 → Record coffee, 1 → Tasting note
 
-  const run = (value, toValue, done) =>
-    Animated.timing(value, { toValue, duration: motion.expand.duration, easing, useNativeDriver: true }).start(done);
+  const slide = (toValue, done) =>
+    Animated.timing(translateY, { toValue, duration: motion.expand.duration, easing, useNativeDriver: true }).start(done);
 
   useEffect(() => {
     if (!visible) return;
     setMounted(true);
     setNoteMounted(false);
-    step.setValue(0);
+    setOnNote(false);
     translateY.setValue(height);
-    run(translateY, 0);
-  }, [height, step, translateY, visible]);
+    slide(0);
+  }, [height, translateY, visible]);
 
   const dismiss = () => {
-    run(translateY, height, () => {
+    slide(height, () => {
       setMounted(false);
       setNoteMounted(false);
+      setOnNote(false);
       onClose();
     });
   };
 
+  // Step 2 is mounted on first use; the push waits until its page is laid out.
   const openNote = () => {
-    setNoteMounted(true);
-    run(step, 1);
+    setOnNote(true);
+    if (noteMounted) pager.current?.scrollTo({ x: width, animated: true });
+    else {
+      pendingPush.current = true;
+      setNoteMounted(true);
+    }
   };
-  const closeNote = () => run(step, 0, () => setNoteMounted(false));
+  const onContentSizeChange = (w) => {
+    if (pendingPush.current && w >= width * 2) {
+      pendingPush.current = false;
+      pager.current?.scrollTo({ x: width, animated: true });
+    }
+  };
+  const backToRecord = () => {
+    setOnNote(false);
+    pager.current?.scrollTo({ x: 0, animated: true });
+  };
+  // A swipe settles on a page: that page decides whether swiping stays on.
+  // Momentum end only: switching scrollEnabled off mid-settle could cut the
+  // paging animation short.
+  const settle = (e) => setOnNote(Math.round(e.nativeEvent.contentOffset.x / width) === 1);
 
   if (!mounted) return null;
 
@@ -55,16 +83,25 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
     // latter, and spreading it silently drops the positioning (the sheet then
     // lays out at 0 height). react-native-web still ships it, so web hides this.
     <Animated.View style={[StyleSheet.absoluteFill, styles.overlay, { transform: [{ translateY }] }]}>
-      <Animated.View
-        style={[StyleSheet.absoluteFill, { transform: [{ translateX: step.interpolate({ inputRange: [0, 1], outputRange: [0, -width] }) }] }]}>
-        <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} />
-      </Animated.View>
-      {noteMounted ? (
-        <Animated.View
-          style={[StyleSheet.absoluteFill, { transform: [{ translateX: step.interpolate({ inputRange: [0, 1], outputRange: [width, 0] }) }] }]}>
-          <TastingNoteScreen onBack={closeNote} />
-        </Animated.View>
-      ) : null}
+      <ScrollView
+        ref={pager}
+        horizontal
+        pagingEnabled
+        directionalLockEnabled
+        scrollEnabled={onNote}
+        showsHorizontalScrollIndicator={false}
+        onContentSizeChange={onContentSizeChange}
+        onMomentumScrollEnd={settle}
+        keyboardShouldPersistTaps="handled">
+        <View style={{ width }}>
+          <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} />
+        </View>
+        {noteMounted ? (
+          <View style={{ width }}>
+            <TastingNoteScreen onBack={backToRecord} />
+          </View>
+        ) : null}
+      </ScrollView>
     </Animated.View>
   );
 }
