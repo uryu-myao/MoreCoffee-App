@@ -5,7 +5,7 @@ Inventory only: what exists, where, how far it is built, and which states are kn
 Source: `MoreCoffee design.dc.html`, the 30 in-scope screens. Compiled 2026-10-07.
 
 **How it was gathered**
-- Every `cursor:pointer` element: **150 in the 30 screens**. 191 file-wide; the other 41 sit on out-of-scope screens such as 9a / 9b / 8a / 8b / 8k / 6b / 6c / 2c / 1a. The brief's 164 did not reproduce on any cut tried.
+- Every `cursor:pointer` element: **150 in the 30 screens** (the figure used from here on). 191 file-wide; the other 41 sit on out-of-scope screens such as 9a / 9b / 8a / 8b / 8k / 6b / 6c / 2c / 1a.
 - Chip-, toggle- and box-shaped elements **without** a cursor.
 - Every `2px solid #273D22` raised container.
 - **The cursor is not used to decide what is pressable.** Anything that should be pressable but is a bare `<span>` with no cursor is listed as pressable and flagged "tap affordance missing": 2a / 2b / 3a / 3c / 3e / 3f / 6d / 8j / 8l chips, 5b flavour chips, 8i weekday toggles, and the 8i / 8j / 8m switches.
@@ -27,9 +27,9 @@ Pressed is not listed as missing anywhere: the §1 Hard Rule decides it for ever
 | 4 | IconButton | ~20 (back / close on 3a–3f 5a 5b 5d 5e 6d 7a 7b 8e–8j 8m) + 2a filter opener + 8e muted icon | component (default look) | default (2px ink, raised) · accent fill (2a) · muted 1.5 border (8e) | default, pressed | disabled; **what 2a's accent fill means** (filters applied?) |
 | 5 | Single-select chip group (`SegmentedControl`) | 12 screens: 2a 2b 3a 3c 3e 3f 5a 5d 5e 6d 8j 8l | component for 5a / 5d / 5e only | padding 6/11 (2a) · 7/12 (3a) · 9/13–14 (2b 3c 3e 3f) · 9/11 (8l) · 11/15 (5a) · 2px-border 11/13 (6d 8j) | selected (ink), unselected | disabled; **tap affordance missing** on 9 screens (bare spans); a chip height that holds 44 (`gaps.md` 3) |
 | 6 | Flavour chip, multi-select | 5b (6) | inline | selected · unselected · Search opener (dashed) | selected, unselected | **at the cap** ("3 of 5" implies a limit of 5), disabled |
-| 7 | Checkbox list, multi-select | 8c (5 rows) | not started | row + 24px checkbox, selected row tinted `#FFF8F1` | selected, unselected, count ("2 of 3 picked") | **at the cap** (3 of 3), disabled |
-| 8 | Checkbox | 8c (24, checked = blue fill) · 6d (34, unchecked) | not started | 24 · 34 (two sizes for one control: likely drift) | checked (8c), unchecked (6d) | disabled |
-| 9 | Toggle switch | 5 uses / 4 screens: 3e (62×34), 8i ×2 / 8j / 8m (52×30) | not started | 62×34 · 52×30 (two sizes: likely drift) | on, off | disabled; **tap affordance missing** on the 8i / 8j / 8m spans |
+| 7 | Checkbox list, multi-select | 3a (5 rows, cap 8: "3 / 8 Selected · 5 slots left") · 8c (5 rows, cap 3: "2 of 3 picked") | not started | row + 24px checkbox; 8c tints the selected row `#FFF8F1` | selected, unselected, count | **at the cap** (8 of 8, 3 of 3), disabled |
+| 8 | Checkbox | 3a (5) · 8c (5); all 24 (`size.checkbox`) | not started | checked fill: **ink on 3a, action blue on 8c** (drift, `drift.md` D-19) | checked, unchecked | disabled |
+| 9 | Toggle switch | 8 uses / 4 screens: 3e (1, 62×34, on = ink) · 8i (4) 8j (2) 8m (1), all 52×30, on = action blue | not started | one; 3e is drift in size and on-colour (`drift.md` D-20) | on, off | disabled; **tap affordance missing** on the 8i / 8j / 8m spans |
 | 10 | Weekday selector | 8i (7) | not started | — | selected (ink), unselected | disabled (when its reminder is off) |
 | 11 | FieldRow | 5a 5d 5e (10 rows) | component | swatch · icon · plain · divided | default, pressed, error (5d) | disabled; **empty value** (no default to pre-fill); loading (MapKit lookup) |
 | 12 | Star rating (`StarRating`) | 5a 5d 5e | component | — | unrated, rated, pressed (disc), error (5d), caption | disabled / read-only |
@@ -57,6 +57,7 @@ Pressed is not listed as missing anywhere: the §1 Hard Rule decides it for ever
 | 34 | Photo slot | 3c (76 empty) · 3e (filled + Replace / Remove) | not started | empty · filled | empty, filled | **uploading**, **failed** |
 | 35 | Suggested value row ("Use") | 3c (2) | not started | — | offered | **applied** |
 | 36 | Stat tiles / profile header | 6a 8e | not started | — | static | — |
+| 37 | Avatar edit button | 6d (1, 34×34 at the avatar's corner) | not started | — | default | — (read as a checkbox in the first pass; it is a small icon button) |
 
 Primitives, not counted: `Text`, `Glyph`, `HardShadow`, `DashedRule`, `DotTexture`.
 
@@ -79,10 +80,11 @@ Primitives, not counted: `Text`, `Glyph`, `HardShadow`, `DashedRule`, `DotTextur
   - 2a's row is a **list entry**: provenance and date matter when scanning many cups.
 - Read: two components that share parts (thumbnail frame, the rating block), not one with a flag. To be confirmed when either is specced.
 
-**Multi-select elsewhere?** Yes, on two more screens, each with a different look:
+**Multi-select elsewhere?** Yes, on three more screens:
+- 3a is a checkbox list against a live cap ("3 / 8 Selected · 5 slots left"). Corrected 2026-10-07; the first pass missed it.
 - 8c is a checkbox list with a cap ("2 of 3 picked").
 - 8i is the weekday selector: ink fill when selected, like the single-select chips.
-- With 5b's flavour chips (cap 5) that makes three multi-selects. Two of them have caps, and none designs the at-cap state. The selection logic can be shared; the visuals are three different components.
+- With 5b's flavour chips (cap 5) that makes four multi-selects, in three looks. Three of them have caps (3a 8, 5b 5, 8c 3) and none designs the at-cap state. The selection logic can be shared; the visuals are three different components (checkbox list on 3a / 8c, flavour chips, weekday selector).
 
 **5b's dashed "Search" vs `axis.rail.derived`**
 - They do **not** share a meaning. "Search" opens a way to add more, an action on something not there yet. That is the "nothing in it yet" use of dashed (§8), alongside the empty slot, not the "not a value the user entered" use.
