@@ -6,6 +6,46 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 ---
 
+## By component (2026-10-07) — read this first
+
+The cross-cutting items below (2 focus, 3 chips, 4 pressed / disabled / loading, 5 empty, 6 error) are broken down here by component, from the catalog in `components.md`. Pressed is settled for every pressable by the §1 Hard Rule, and focus is missing on every one (item 2), so neither is repeated per row.
+
+| component (catalog #) | missing states |
+|---|---|
+| Button (3) | destructive look; disabled for text and compact buttons |
+| IconButton (4) | disabled; what the accent fill means (2a) |
+| Single-select chip group (5) | disabled; tap affordance on 9 screens of bare spans; a 44-high chip (item 3) |
+| Flavour chip, multi-select (6) | at the cap (5); disabled |
+| Checkbox list, multi-select (7) | at the cap (3); disabled |
+| Checkbox (8) | disabled |
+| Toggle switch (9) | disabled; tap affordance on 8i / 8j / 8m |
+| Weekday selector (10) | disabled (reminder off) |
+| FieldRow (11) | disabled; empty value; loading (lookup) |
+| Star rating (12) | disabled / read-only |
+| List row (13) | loading / skeleton |
+| Taste axis slider (18) | dragging; clearing a set axis; disabled |
+| Grouped list (20) | empty group |
+| Navigation / settings row (21) | disabled; destructive look |
+| Notification row (22) | empty list |
+| Text input (23) | placeholder / empty; inline error; disabled; at the length limit |
+| Search field (24) | no results; loading; clear |
+| Bottom sheet (25) | drag / dismiss motion |
+| Bean freshness meter (28) | resting / too fresh (item 8) |
+| Shelf preview list (29) | empty |
+| Weekday strip (30) | today's underline (item 9) |
+| Try next teaser (31) | progress toward the threshold (unconfirmed) |
+| Photo slot (34) | uploading; failed |
+| Suggested value row (35) | applied |
+
+Plus, globally:
+- one focus rule, applied to every pressable (item 2);
+- two error flows, save failure and offline (item 6);
+- six first-run empty states (item 5).
+
+**Estimate**: about 49 states, or about 27 boards (one per component plus focus, errors, empties). See `components.md`.
+
+---
+
 ## 1. Long text from user input has no truncation anywhere — **highest risk**
 
 **Parts affected**: every place a user-supplied string is rendered — bean name, roaster name, gear name, profile name, tasting note, "My words" entries, café name.
@@ -24,7 +64,7 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 ## 2. No focus state exists — **high risk for accessibility and TV/keyboard input**
 
-**Parts affected**: every field, button and chip.
+**Parts affected**: every field, button and chip. By component: every pressable in `components.md` (25 of them); designed once as a rule, then applied.
 
 **Measured**: `outline` **0 uses / 30 screens**. The only focus expression in the product is `color.caret` (a 2px text cursor, 4 screens).
 
@@ -50,7 +90,7 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 ---
 
-## 4. Pressed, disabled and loading states are undesigned for every component
+## 4. Pressed, disabled and loading states are undesigned for every component — broken down by component above (2026-10-07)
 
 **Parts affected**: all buttons (primary / secondary / tertiary / icon), all chips, list rows, form fields, the tab bar.
 
@@ -70,7 +110,7 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 ## 5. Empty states exist for only one surface
 
-**Parts affected**: Records list, My gear, My beans, Notifications, Try next, My words, Finished bags.
+**Parts affected**: Records list, My gear, My beans, Notifications, Try next, My words, Finished bags. By component: Grouped list (20), Notification row (22), Shelf preview list (29), Search field "no results" (24).
 
 **Measured**: exactly one empty treatment exists — 2a's `2px dashed` `color.border.muted` frame plus the `layout.empty.block` (100) spacer. 2b contains a skeleton row (`#DBCCC3` title bar + two `#E4D6CC` meta bars) but that is a dimmed backdrop, not a designed loading state.
 
@@ -82,7 +122,7 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 ## 6. Error states exist for one screen only
 
-**Parts affected**: every form and every network action.
+**Parts affected**: every form and every network action. By component: Text input inline error (23), Photo slot failed (34), FieldRow lookup (11); plus the save-failure and offline flows.
 
 **Measured**: the error system (`state.error.border` / `.surface` / `.shadow` / `.text` / `.dashed`) appears on **5d alone** — missing required fields in the log-a-cup form. There is no network error, no save failure, no offline state, no per-field inline error.
 
