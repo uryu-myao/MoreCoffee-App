@@ -2,7 +2,9 @@
 
 Moves and follow-ups that are neither drift (a design value to correct) nor a design gap. Each item says what is temporary and what has to be re-checked when it is resolved.
 
-## T-1 · Move Tasting note (5b) into the Record overlay — logged 2026-10-06
+## ~~T-1~~ · Move Tasting note (5b) into the Record overlay — logged 2026-10-06, **done 2026-10-07**
+
+**Done**: Try next is its placeholder again. 5b is step 2 of the Record sheet, opened by "Add tasting note" (push from the right, `motion.expand`) with Back returning to step 1. The bar padding is gone (its foot is `max(safe area, layout.screen.bottom)`). Re-checked inside the sheet: the collapse behaves the same (`design-system.md` §9 Header collapse). The history below is kept.
 
 **Now**: `TastingNoteScreen` stands in for the Try next tab (`src/screens/index.js`), **for verification only**. In the tab pager its header collapse and the bottom bar's hide / reveal can both be checked.
 

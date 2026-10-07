@@ -6,18 +6,6 @@ import Text from '../components/base/Text';
 import { color, layout, shape, space, spacing, textStyle } from '../theme/tokens';
 
 /**
- * Compact header: optical correction for the leading control (design-system.md
- * §9 Screen shell). The control is centred on the title column's line boxes, but
- * the column's visible ink starts 10.8 below its top (empty ascent above
- * Instrument Serif's cap height) and ends 2.5 above its bottom (the date line's
- * descent), so the box centre sits ~4 above the ink centre. Tuned by eye at 3x
- * across 0…5: +4 reads centred for Latin titles. ja (Hiragino fallback) reads
- * centred at 0 — its per-language value belongs to the OQ-14 mapping.
- * Single use, so a local value, not a token. translateY: no effect on layout.
- */
-const COMPACT_LEADING_OPTICAL_Y = 4;
-
-/**
  * Whether ScreenFrame draws its own backdrop (ground + dot texture). AppShell's
  * tab pager sets it to false and draws one backdrop behind all four pages:
  * per-page textures would slide with their pages and break at the seam
@@ -76,11 +64,11 @@ const COLLAPSE = {
  *             scrolls (title shrinks, rule rises; §9 Header collapse)
  *   footer    optional node in the footer panel at the end of the page; it sits at
  *             the bottom when the content is short and follows it when it is long
- *   compact   evaluation header (Record coffee, 2026-10-05): leading control and
- *             title column on one row, the control centred on the whole column
- *             (title + gap.tight + meta, measured on line boxes); meta on one line
- *             directly under the title. On collapse the title scales, the meta
- *             (date / time) fades out, and the control re-centres on the title
+ *   compact   Record flow header (Log a cup, Tasting note; revised 2026-10-07):
+ *             the leading control and the title on one row at the left, centred
+ *             on the title's cap band; meta as the standard right-aligned column.
+ *             On collapse the row rises to the safe-area top and the title
+ *             scales; the control moves with it (never fades); the meta fades
  *   children  screen body
  */
 export default function ScreenFrame({
@@ -112,15 +100,28 @@ export default function ScreenFrame({
   const [range, setRange] = useState(0); // how far the content can scroll
   const sizes = useRef({ content: 0, layout: 0 });
 
+  // Compact header: the control is centred on the title's cap band (cap top to
+  // baseline), not on its line box, whose empty ascent and descent area would
+  // put it visibly high. Measured from the title's own text layout, so it holds
+  // for any title and any font.
+  const [optical, setOptical] = useState(0);
+  const onCompactTitleText = (e) => {
+    const line = e.nativeEvent.lines[0];
+    if (!line) return;
+    const capCentre = line.y + line.ascender - line.capHeight / 2;
+    const next = Math.round((capCentre - line.height / 2 - line.y) * 10) / 10;
+    setOptical((prev) => (prev === next ? prev : next));
+  };
+
   const commit = () => {
     const p = parts.current;
     const s = COLLAPSE.titleScale;
     const I = insets.top;
     let next = null;
     if (compact) {
-      if (!p.row || !p.column || !p.title || (leading && !p.leading)) return;
+      if (!p.row || !p.title || (leading && !p.leading)) return;
       const tH = p.title.height;
-      const titleTop = p.row.y + p.column.y + p.title.y;
+      const titleTop = p.row.y + p.title.y;
       // Collapsed row: the scaled title, or the control if taller, from the safe-area top.
       const rowC = Math.max(s * tH, p.leading ? p.leading.height : 0);
       const centreC = I + rowC / 2;
@@ -128,9 +129,8 @@ export default function ScreenFrame({
       next = {
         full: p.row.y + p.row.height - (I + rowC),
         title: centreC - (titleTop + tH / 2), // origin: the title's left-centre
-        below: centreC + (s * tH) / 2 - (titleTop + tH), // the date rides the title's bottom
-        // Centred on the title; the optical offset scales with its ink.
-        leadingEnd: centreC - leadingCentre + COMPACT_LEADING_OPTICAL_Y * s,
+        // Centre-to-centre move; the optical offset is added at interpolation.
+        leadingMove: centreC - leadingCentre,
       };
     } else {
       if (!p.column || !p.title || p.baseline == null || (leading && !p.leading)) return;
@@ -186,16 +186,21 @@ export default function ScreenFrame({
       up: lerp(-full),
       scale: shift.interpolate({ inputRange: [0, full], outputRange: [1, COLLAPSE.titleScale] }),
       // Small labels never scale: they fade out over the first part of the collapse.
-      fade: shift.interpolate({ inputRange: [0, full * COLLAPSE.fadeBy], outputRange: [1, 0], extrapolate: 'clamp' }),
+      // Fully gone within the reachable collapse: a page that can scroll only
+      // a little must not rest with half-transparent labels.
+      fade: shift.interpolate({
+        inputRange: [0, Math.min(full * COLLAPSE.fadeBy, distance)],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+      }),
       title: lerp(geo.title),
       above: compact ? null : lerp(geo.above),
-      below: compact ? lerp(geo.below) : null,
       stat: compact ? null : lerp(geo.stat),
       leading: compact
-        ? shift.interpolate({ inputRange: [0, full], outputRange: [COMPACT_LEADING_OPTICAL_Y, geo.leadingEnd] })
+        ? shift.interpolate({ inputRange: [0, full], outputRange: [optical, geo.leadingMove + optical * COLLAPSE.titleScale] })
         : null,
     };
-  }, [compact, distance, full, geo, scrollY]);
+  }, [compact, distance, full, geo, optical, scrollY]);
 
   // Footer hide / reveal (tab screens): report the scroll direction. Any
   // upward movement reveals at once. The top and bottom bounce are ignored.
@@ -223,34 +228,39 @@ export default function ScreenFrame({
   );
 
   const titleText = (
-    <Text variant="displayLg" accessibilityRole="header" onTextLayout={compact ? undefined : onBaseline('baseline')}>
+    <Text
+      variant="displayLg"
+      accessibilityRole="header"
+      onTextLayout={compact ? onCompactTitleText : onBaseline('baseline')}>
       {title}
     </Text>
   );
 
+  // Compact (2026-10-07): the control and the title share one row on the left;
+  // the meta is the standard right-aligned column. Same geometry as the
+  // standard header otherwise (padding, rule, meta 20 above the rule).
   const header = compact ? (
-    <View style={[styles.header, styles.headerCompact, headerTop, scroll && styles.headerNoRule]}>
+    <View style={[styles.header, headerTop, scroll && styles.headerNoRule]}>
       <View style={styles.compactRow} onLayout={onPart('row')}>
         {leading ? (
-          <Animated.View
-            onLayout={onPart('leading')}
-            style={[styles.compactLeading, anim && { transform: [{ translateY: anim.leading }] }]}>
+          <Animated.View onLayout={onPart('leading')} style={{ transform: [{ translateY: anim ? anim.leading : optical }] }}>
             {leading}
           </Animated.View>
         ) : null}
-        <View style={styles.compactTitleColumn} onLayout={onPart('column')}>
-          <Animated.View
-            onLayout={onPart('title')}
-            style={anim && { transformOrigin: 'left center', transform: [{ translateY: anim.title }, { scale: anim.scale }] }}>
-            {titleText}
-          </Animated.View>
-          {meta ? (
-            <Animated.View style={[styles.compactMeta, anim && { opacity: anim.fade, transform: [{ translateY: anim.below }] }]}>
-              {meta}
-            </Animated.View>
-          ) : null}
-        </View>
+        <Animated.View
+          onLayout={onPart('title')}
+          style={[
+            styles.compactTitle,
+            anim && { transformOrigin: 'left center', transform: [{ translateY: anim.title }, { scale: anim.scale }] },
+          ]}>
+          {titleText}
+        </Animated.View>
       </View>
+      {meta ? (
+        <Animated.View style={[styles.meta, anim && { opacity: anim.fade, transform: [{ translateY: anim.up }] }]}>
+          {meta}
+        </Animated.View>
+      ) : null}
     </View>
   ) : (
     <View style={[styles.header, headerTop, scroll && styles.headerNoRule]}>
@@ -425,29 +435,15 @@ const styles = StyleSheet.create({
     // above the rule — its baseline lands 2.1 above the title's, as in the source.
     paddingBottom: space[12],
   },
-  headerCompact: {
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    // The header now ends on the date/time line (Archivo), whose natural box
-    // matches the CSS line box, so the source's 14 applies as-is; the 8 was only
-    // ever a correction for the serif title's 12.4 descent box.
-    paddingBottom: spacing.inset.container.v,
-  },
   compactRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    // Close → title: widened from gap.row (8) on review, 2026-10-05.
+    flexShrink: 1,
+    // Control → title: widened from gap.row (8) on review, 2026-10-05.
     gap: space[12],
   },
-  compactLeading: {
-    transform: [{ translateY: COMPACT_LEADING_OPTICAL_Y }],
-  },
-  compactTitleColumn: {
+  compactTitle: {
     flexShrink: 1,
-  },
-  compactMeta: {
-    // Title + its date/time are one meaning unit (heading + caption).
-    marginTop: spacing.gap.tight,
   },
   body: {
     flexGrow: 1,

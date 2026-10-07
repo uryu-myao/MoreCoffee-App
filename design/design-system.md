@@ -487,7 +487,19 @@ Every screen is `layout.screen.top` (60) → content → `layout.screen.bottom` 
 - **Scroll** (revised 2026-10-06): with `scroll` the header is **pinned** and **collapses** as the page scrolls (Header collapse, below). The content scrolls beneath the rule. Superseded: the whole page scrolling with the header, as in 5a's `overflow: auto` root.
 - **Footer**: the footer panel follows the body. It sits on `color.surface.raised` with a 2px ink top rule, padding `space.20` on top, `layout.gutter` at the sides and `max(safe-area bottom, layout.screen.bottom)` below, and stacks its children `gap.section` apart. Like the source's `margin-top: auto`, it sits at the bottom when the content is short and follows the content when it is long. The body keeps `gap.section` of bottom padding so the last block never touches the footer rule (the source's `auto` can collapse to 0).
 
-**Compact header (base `ScreenFrame` `compact`, 2026-10-05, Record coffee)**: an evaluation layout that reclaims vertical space and keeps the close control reachable.
+**Compact header — current (revised 2026-10-07, on review)**: the Record sheet's header, shared by Log a cup (5a) and Tasting note (5b).
+- **Layout**: the control and the title share **one row at the left**: Log a cup's close, Tasting note's back arrow, `space.12` before the title. The date / time (Log a cup) or "Step 2 of 2 / Skippable" (Tasting note) is the **standard right-aligned meta**: two lines, right-aligned, `gap.tight` apart, its foot 20 above the rule.
+- **Geometry**: otherwise identical to the standard header. Title padding `space.8`, then the rule, and the same 122 to the rule's bottom on iPhone 14. The header ends on the title again, so the standard padding applies.
+- **Vertical alignment**: the control is centred on the **title's cap band** (cap top to baseline), measured from the title's own text layout (`onTextLayout`: ascender, capHeight). It is not centred on the line box, and there is no fixed optical constant: the old +4 described a title + date column that no longer exists.
+  - Measured on iPhone 14: control centre minus cap-band centre is 0 for "Log a cup" and 0.3 for "Tasting note".
+  - It holds for any title and any font; for ja this replaces the per-language +4 / 0 split.
+- **Collapse**:
+  - the row rises to the safe-area top and the title scales (left-centre);
+  - the control moves with the row and stays centred on the scaled cap band (never fades, §1);
+  - the meta fades.
+- Superseded (the 2026-10-05 layout below): the date / time under the title, and the header ending on it with `inset.container.v`.
+
+**Compact header (base `ScreenFrame` `compact`, 2026-10-05, Record coffee) — superseded 2026-10-07**: an evaluation layout that reclaims vertical space and keeps the close control reachable.
 - **Layout**: the close `IconButton` and the title column share one row, `space.12` apart (widened from `gap.row` on review). The title column is the `display.lg` title, then `gap.tight` (heading + caption are one meaning unit), then the date / time on one line (`label.caps`, `gap.row` between the two strings). The title stays at `display.lg`; ja / zh titles need its width budget.
 - **Spacing to the rule**: `inset.container.v` (14). The header now ends on an Archivo line whose natural box matches the CSS line box, so the source's 14 applies as-is. The `space.8` of the stacked header only ever corrected for the serif title's 12.4 descent box.
 - **Vertical alignment**: the button is centred on the title column's line boxes (title + `gap.tight` + date line), then shifted **+4pt down** as an optical correction. The column's visible ink starts 10.8 below its top (Instrument Serif's empty ascent above cap height) and ends 2.5 above its bottom (the date line's descent), so the box centre sits about 4 above the ink centre. Tuned by eye at 3× across 0…5 on the 390pt device: 0 and 3 read high, **4** reads centred, 5 reads low.
@@ -547,7 +559,7 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
   - Records is the only screen with a stat.
 
 ### Header collapse (2026-10-06)
-Every `ScreenFrame` with `scroll`: Records (standard header) and Record coffee (compact header).
+Every `ScreenFrame` with `scroll`: Records (standard header), and Log a cup and Tasting note (compact header, in the Record sheet).
 
 **Mechanism.** Transforms only, driven by the ScrollView offset through native-driver `Animated` interpolations. No `fontSize`, no `height`, nothing in JS per frame.
 - The header box keeps its height. The **rule** is its own view and moves up by the collapse amount.
@@ -557,7 +569,7 @@ Every `ScreenFrame` with `scroll`: Records (standard header) and Record coffee (
 
 **Title.**
 - Standard header: the title column scales around the **title's left baseline**. The baseline is measured from the text layout (`onTextLayout` ascender), not assumed. The column also moves up, so the collapsed title's box top lands on the safe-area top.
-- Compact header: the whole title column (title + date / time) scales around its left-centre. The close button does not scale (its 44pt target stays). It stays centred on the column: its optical offset belongs to the column's ink, so it scales with it, +4 → +4 × scale.
+- Compact header (revised 2026-10-07): the title scales around its left-centre as the row rises to the safe-area top. The control does not scale (its 44pt target stays). It moves with the row and stays centred on the title's cap band, with the measured offset scaled with the title. The meta fades.
 
 **What each part does (revised 2026-10-06, on review).**
 - Serif display text **scales** with the collapse. The title goes 1 → 0.75.
@@ -570,10 +582,10 @@ Every `ScreenFrame` with `scroll`: Records (standard header) and Record coffee (
 | value | rule | iPhone 14 (390 × 844, safe-area top 47) |
 |---|---|---|
 | title scale | 1 → **`displaySm` / `displayLg` = 0.75** (40 → 30, the next display size; not a new value) | 1 → 0.75 |
-| label fade | over the first `fadeBy` = **0.5** of the collapse distance | Records 0–18.5. Record coffee 0–19.2 |
-| collapse distance = scroll distance | standard: (title-column bottom) − (safe-area top + 0.75 × title height). Compact: (row bottom) − (safe-area top + max(0.75 × title height, control height)). Capped at how far the page can scroll | Records **37**. Record coffee **38.3**, capped at its 29.3 scroll, so it stops at 76%: title ≈ 0.81, date already gone |
-| expanded height (to the rule's bottom) | eyebrow + title column; stat out of flow | Records **133** (every tab the same). Record coffee **145.3** |
-| collapsed height | expanded − distance | Records **96**. Record coffee **116** at its cap (107 if it could scroll the full distance) |
+| label fade | over the first `fadeBy` = **0.5** of the collapse distance, and always within the reachable distance (a page that scrolls only a little never rests with half-faded labels) | Records 0–18.5. Tasting note 0–10.5. Log a cup 0–6 |
+| collapse distance = scroll distance | standard: (title-column bottom) − (safe-area top + 0.75 × title height). Compact: (row bottom) − (safe-area top + max(0.75 × title height, control height)). Capped at how far the page can scroll | Records **37**. Tasting note **21**. Log a cup **21**, capped at its **6** scroll (its header is 23 shorter now, so the page barely scrolls) |
+| expanded height (to the rule's bottom) | eyebrow + title column; stat out of flow | Records **133** (every tab the same). Log a cup / Tasting note **122** |
+| collapsed height | expanded − distance | Records **96**. Tasting note **101**. Log a cup **116** at its cap |
 
 - On Dynamic Island phones (safe-area top 59, top padding 60) the same rule gives Records 1 + 13 = **14**: the title still shrinks, the header gives back less.
 - **A page that cannot scroll never collapses** (`distance` = 0), even when bounced. A page that scrolls less than the full distance collapses only that far.
@@ -603,7 +615,19 @@ Every `ScreenFrame` with `scroll`: Records (standard header) and Record coffee (
   - **Full collapse is only 13**: the title box top stops under the back button (104 + `gap.row`), not at the safe-area top, so only the title's shrink is given back. Scroll range 380.7, so it always completes.
   - "Skippable" fading loses no information: "Save without the note" stays at the foot of the page, and the intro line says untouched axes are left out.
 
+- In the Record sheet (2026-10-07, after the move; `todo.md` T-1):
+  - Tasting note, offset −30 / 0 / 7 / 14 / 21 / 22 / 200: rule 122 / 122 / 115 / 108 / 101 / 101 / 101. The first content line stays 16 under the rule (138 → 117), then 1:1. The control stays centred on the cap band (0.3 → 0.9). −30 = 0 and 21 = 200.
+  - Log a cup, offset −30 / 0 / 3 / 6 / 50: rule 122 / 122 / 119 / 116 / 116; meta gone by 6.
+  - Frame timing in the sheet (Tasting note): 60 fps, worst frame 18.6 ms, none over 20 ms.
+  - The collapse works the same inside the modal.
+
 **With the pager.** Each screen owns its collapse, tied to its own scroll position. Swiping away from a half-collapsed Records shows the next screen's own header (expanded for the placeholders). Coming back shows Records exactly as left. During the swipe the two rules sit at different heights across the seam (measured 107 vs 120 at a half swipe). This was judged right: a shared collapse would detach each header from its own content.
+
+### Record sheet steps (2026-10-07)
+The Record sheet (`AddCoffeeOverlay`) has two steps: Log a cup (5a), then Tasting note (5b) via "Add tasting note".
+- Step 2 **pushes in from the right**, and its back arrow pushes it out, over `motion.expand`, the same motion as the sheet's slide-up. No mock draws the step change; agreed on review.
+- Step 1 stays mounted underneath, so its rating and fields survive a visit to step 2.
+- Closing the sheet resets it to step 1.
 
 ### Tab pager (2026-10-06)
 Swiping horizontally moves between the four tab screens: Home → Records → Try next → Profile. Swipe left for the next tab, right for the previous. The + is a modal trigger, not a stop.
@@ -767,7 +791,7 @@ Also standing: `rotation.sticker = -3` (4 screens; RN wants the number, formatte
     **Decided direction — deferred to V1.1, do not re-decide**: extend the §3.2 mapping from (family, weight) to **(family, weight, lang)**. On **iOS**, ja / zh resolve to explicit per-weight system families — Hiragino Sans for ja, PingFang SC for zh — named per weight rather than relying on `fontWeight` (exact face names to be verified when implemented). On **Android**, ship a **Noto Sans CJK subset** per weight, loaded through the same `fontAssets` path. Not adopted: passing `fontWeight` alongside the Latin face (risks synthetic bold on Archivo).
     **Batched with it**: `label.eyebrow`'s letter spacing (1.6) is tuned for Latin capitals and is wrong for CJK. It is fixed in the same V1.1 i18n pass, most likely as a per-lang value through the same mapping. No change before then.
     **Also batched — CJK chip height (found 2026-10-04 in device review)**: zh chips render taller than ja because of font metrics, not layout. At 12px, PingFang SC's line box is 17px (ascent 13 / descent 4, about 1.4em) against Hiragino Sans's 12px (11 / 1, about 1.0em). The ink is about 11px in both, so zh carries roughly 3px of extra empty line box above and below the glyphs. A second effect makes it uneven within a row: Hiragino Sans has no simplified glyphs such as 师, so on a device that falls back to Hiragino, 咖啡师 mixes in PingFang and gets a taller line box than its row-mates. The layout half is fixed (chips centre their label, `SegmentedControl`). The metric gap is left to the (family, weight, lang) mapping, which resolves zh to PingFang for the whole label. Any per-lang vertical tuning belongs to that mapping, not to per-language padding overrides in components.
-    **Also batched — compact header optical offset (2026-10-05)**: the close button's optical correction is +4 for Latin titles and 0 for ja (§9 Compact header). When the mapping becomes (family, weight, lang), it carries this per-language value too.
+    ~~**Also batched — compact header optical offset (2026-10-05)**~~ **Resolved 2026-10-07**: the control is now centred on the title's measured cap band, so no per-language constant is needed (§9 Compact header — current).
 
 ---
 
@@ -824,3 +848,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-06 — **Token added: `size.thumbnail.summary` (40). Style added: `text.note`** (Instrument Serif 20 italic / 28), promoted from E-3; 15 styles. `SectionLabel` gains `marked` / `plain` variants and a `count` status.
 - 2026-10-06 — Tasting note (5b) built as a static shell, stood in for Try next for verification (design/todo.md). Axis slider, flavour chip and cup summary row logged as pending components (§9).
 - 2026-10-06 — **Renamed** `axis.rail.readonly / editable` → `derived / entered` (provenance, §2 B) and `border.empty.disabled` → `border.empty.inert`. §8 now lists dashed's two uses separately. §1 Hard Rule added: name state tokens for their meaning, across every screen.
+- 2026-10-07 — Tasting note moved into the Record sheet as step 2 (push from the right, `motion.expand`); Try next is its placeholder again (`todo.md` T-1 done). §9 Compact header revised for both steps: control + title on one row, meta as the right-aligned standard column, the control centred on the measured cap band (no fixed +4). Labels finish fading within the reachable collapse.

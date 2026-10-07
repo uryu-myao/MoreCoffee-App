@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Button from '../components/base/Button';
 import Glyph from '../components/base/Glyph';
 import IconButton from '../components/base/IconButton';
@@ -8,11 +9,11 @@ import { color, component, dashed, icon, layout, shape, size, space, spacing, st
 import ScreenFrame from './ScreenFrame';
 
 /**
- * Tasting note (5b) — STATIC SHELL for the scroll / collapse / bottom-bar
- * checks. Everything shows; nothing edits yet:
+ * Tasting note (5b) — step 2 of 2 in the Record sheet, opened by "Add tasting
+ * note" (AddCoffeeOverlay). Back returns to step 1. Still a STATIC SHELL:
  *   - the axes are drawn, not dragged
  *   - "My words" is a frame + placeholder, no keyboard
- *   - Back, the chips and both save buttons press (with feedback) but do nothing
+ *   - the chips and both save buttons press (with feedback) but do nothing
  * Content is 5b's mock copy verbatim; no database.
  *
  * Drawn here rather than as components, on review (2026-10-06): the axis
@@ -138,12 +139,14 @@ function Chip({ label, on, search }) {
   );
 }
 
-export default function TastingNoteScreen() {
+export default function TastingNoteScreen({ onBack }) {
+  const insets = useSafeAreaInsets();
   return (
     <ScreenFrame
       scroll
+      compact
       title="Tasting note"
-      leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={NOOP} />}
+      leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
       meta={
         <View style={styles.headerMeta}>
           <Text variant="labelEyebrow" color="muted">
@@ -211,7 +214,7 @@ export default function TastingNoteScreen() {
 
       {/* 5b's buttons sit on the ground (no footer panel). The mock's 52pt
           secondary is right; Button still renders it at 56 (gaps.md 4). */}
-      <View style={styles.actions}>
+      <View style={[styles.actions, { paddingBottom: Math.max(insets.bottom, layout.screen.bottom) }]}>
         <Button label="Save this cup" onPress={NOOP} />
         <Button label="Save without the note" variant="secondary" onPress={NOOP} />
       </View>
@@ -323,8 +326,5 @@ const styles = StyleSheet.create({
   actions: {
     marginTop: space[28],
     gap: space[12],
-    // In the tab pager (verification placement) the bottom bar sits over the
-    // last content when shown; same clearance as the Records list.
-    paddingBottom: layout.empty.block,
   },
 });

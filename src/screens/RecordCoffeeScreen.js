@@ -281,7 +281,7 @@ function useMinuteClock() {
   return now;
 }
 
-export default function RecordCoffeeScreen({ onClose }) {
+export default function RecordCoffeeScreen({ onClose, onAddNote }) {
   const db = useDatabase();
   // 0 = not rated yet. Rating is the one required field (the database rejects
   // anything outside 1–5), so Save stays disabled until a star is tapped.
@@ -344,7 +344,7 @@ export default function RecordCoffeeScreen({ onClose }) {
           <Text variant="labelCaps" color="muted">
             {dateFormat.format(now)}
           </Text>
-          <Text variant="labelCaps" color="accent">
+          <Text variant="labelCaps" color="accent" style={styles.whenTime}>
             {`${timeFormat.format(now)} · ${partOfDay(now)}`}
           </Text>
         </View>
@@ -353,8 +353,8 @@ export default function RecordCoffeeScreen({ onClose }) {
         <>
           {/* Minimum viable validation: the full 5d error state comes later. */}
           <Button label="Save this cup" onPress={save} disabled={rating === 0} />
-          {/* TODO(Step 5): opens the tasting note (5b). */}
-          <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" />
+          {/* Opens the tasting note (5b), step 2 of 2 in this sheet. */}
+          <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" onPress={onAddNote} />
         </>
       }>
       <View style={styles.sections}>
@@ -388,10 +388,12 @@ export default function RecordCoffeeScreen({ onClose }) {
 }
 
 const styles = StyleSheet.create({
+  // 5a: date over time, right-aligned at the header's right.
   when: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    columnGap: spacing.gap.row,
+    alignItems: 'flex-end',
+  },
+  whenTime: {
+    marginTop: spacing.gap.tight,
   },
   sections: {
     gap: spacing.gap.section,
