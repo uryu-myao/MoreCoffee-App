@@ -61,6 +61,16 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **If the name and the reality disagree, fix the name, not the comment.**
 - Why: the same mistake was made three times. `axis.rail.readonly / editable` and the interim `unset / set` were both read off one screen. `border.empty.disabled` was named for 5d and is also used on 2a, where nothing can be pressed. A comment that contradicts its name loses to the name.
 
+### Colour roles: blue vs ink (added 2026-10-07)
+- **Blue = this is in force now**: the primary action, the active tab, a switch that is on.
+- **Ink = the user chose this**: tags, checkboxes, weekdays, single-select options.
+- **Do not mix them.**
+- Grounding: the mocks' own note (above 2a) says "blue only for the primary action and the active tab". A switch that is on is in force in the same sense as the active tab; it is not "chosen".
+- **Boundary**: a checkbox in a settings list is *chosen*, so ink. A tick alone puts nothing in force; it takes effect only on save or apply.
+- Consequences:
+  - all 8 switches are on = blue by rule, not drift (3e's ink is D-20);
+  - 8c's blue checkbox is drift (D-19).
+
 ### Focus (added 2026-10-07)
 - **One treatment for every focusable element, no branching**: a **2px** (`shape.borderWidth.box`) square frame in **`color.caret`** (`#067BC2`), drawn **outside** the element with a **`space.2`** gap.
   - It never changes the element's own border or fill: those already carry meaning (selected = ink, dashed = provenance / add entry, error = brown).
@@ -72,15 +82,28 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **Shown only for non-touch focus**: keyboard, D-pad, switch control. Never after a finger press. Never for VoiceOver / TalkBack, which draw their own cursor.
 - **Implementability (RN 0.86, checked in source)**:
   - Android: `Pressable` `focusable` + `onFocus` / `onBlur` fire for keyboard / D-pad focus and not in touch mode, so the rule can be implemented as written.
-  - iOS (not tvOS): a focusable view can take hardware-keyboard focus (Full Keyboard Access, iPadOS), but RN fires `onFocus` only on tvOS, so the app cannot draw this frame. The system draws its own focus effect instead.
-  - The rule stands; on iOS it is limited by the platform. Recorded in `gaps.md` 2.
+  - iOS (not tvOS): a focusable view can take hardware-keyboard focus (Full Keyboard Access, iPadOS), but RN fires `onFocus` only on tvOS, so the app cannot draw this frame.
+- **Where it applies (2026-10-07)**:
+  - **On iOS the OS draws its own focus indicator; the app does not draw one.** That covers hardware-keyboard focus, VoiceOver and Switch Control.
+  - The rule takes effect on Android and on a future web build.
+  - If iOS ever needs this frame, it takes a native module. Not built in V1.
+- MoreCoffee ships on iOS only, so today the rule applies nowhere. It is kept because the conclusion is **"focus is delegated to the OS"**, not "focus is missing": the indicator exists, the OS owns it.
+- To check once on a device with an external keyboard: how iOS's own indicator looks against this design. If it clashes, report it; that is when a native module gets weighed.
 
 ### Tap affordance (added 2026-10-07)
 - **A pressable option looks like an option**:
   - an outline (1.5 `border.muted`) when unselected; an ink fill when selected (or 5b's accent tint + accent border for multi-select);
   - **44pt tall** (`inset.control`);
   - **always in a set**: two or more options, with a selected member or a count.
-- **A label that cannot be pressed looks like a Badge**: tinted fill, no `border.muted` outline, badge sizes. *Pending*: 6a / 8d / 8h / 8f, the taste-attribute and word tags, which are one decision, held on review. Until then they stay as drawn.
+- **A label that cannot be pressed looks like a Badge**: tinted fill, no `border.muted` outline, badge sizes.
+- **Except one display form, the attribute tag** (6a "Acidity high", 8d "Blackcurrant"): a 1.5 `border.muted` outline on no fill, padding 7/9, 11px label. It is consistent across both screens (5 uses, identical values) and never pressable on its own. On 6a it sits inside the pressable Taste DNA card, which is the target (→ 8f); on 8d it describes a suggestion and leads nowhere.
+- **So the outline alone does not mean pressable; height does.** A pressable option is 44pt. The attribute tag is about 29.
+  - In the mocks the two differ by fill (raised vs none) and size (13 vs 11px); in the build the 44pt height is the decisive cue.
+  - The pressable word tags (8f, 8h, about 34 in the mock) are built at 44.
+- **Word tags are pressable**:
+  - 8h says so on screen: "Tap a word to rename it everywhere, or merge it into another."
+  - 8f's "juicy 9" leads to 8l, whose heading is "9 cups say "juicy"" (the counts match).
+  - Settled 2026-10-07 together with 6a / 8d, as one decision.
 - **Every pressable carries its screen-reader role and state.** Role: button, radio, checkbox, switch or tab. State: selected, checked or disabled. This is the affordance that does not depend on sight (`gaps.md` item 11).
 - A switch's shape (track + knob) explains itself; it only needs its role.
 - The weekday selector (8i) takes the option form, so 39 → 44.
@@ -96,6 +119,16 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **The count explains it**: at the limit it turns `color.text.accent` ("5 of 5", "3 of 3 picked", "8 / 8 Selected").
 - **A light impact at the moment the limit is reached, once.** "Now locked" reaches the user wherever they are looking. A press on a locked option stays silent.
 - Why lock rather than allow the tap and then refuse: an option that looks pressable but will not select is a small failure each time.
+
+### Disabled options (added 2026-10-07)
+- **One disabled look for every option in a set**:
+  - label `color.text.muted`;
+  - frame / box `color.border.muted`;
+  - no press feedback, no haptic.
+- **Applies to**: single-select chips, flavour chips, checkbox lists, checkboxes, the weekday selector. The selection limit uses this same look; it was defined there first and is reused, not duplicated.
+- **The look is the same, but there are two reasons**:
+  1. **The limit is reached** (deselecting another brings it back). The count explains it.
+  2. **This option itself cannot be chosen now.** Nothing on screen explains it, so the screen reader must state the reason. A visible way to explain it is still missing (`gaps.md` 12).
 
 ### Declarations that appear zero times in 30 screens
 These absences are design facts, not oversights — but several of them are also why `gaps.md` exists.
@@ -890,3 +923,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-07 — Tasting note moved into the Record sheet as step 2 (push from the right, `motion.expand`); Try next is its placeholder again (`todo.md` T-1 done). §9 Compact header revised for both steps: control + title on one row, meta as the right-aligned standard column, the control centred on the measured cap band (no fixed +4). Labels finish fading within the reachable collapse.
 - 2026-10-07 — Record sheet: swipe right on Tasting note returns to Log a cup. The steps are now a native paging ScrollView, locked on step 1; button and back use the platform scroll animation instead of `motion.expand`.
 - 2026-10-07 — §1 Hard Rules added: **Focus** (one 2px `color.caret` frame outside, `space.2` gap, non-touch focus only), **Tap affordance** (option form = outline / ink + 44 + in a set; roles and states on every pressable; 6a / 8d / 8h / 8f held), **Selection limit** (lock the unselected, accent count, one light impact at the limit). `border.empty` → `border.addSlot` (+ `.inert`); `border.track` is rails only.
+- 2026-10-07 — §1 added: **Colour roles** (blue = in force, ink = chosen; settings checkboxes are chosen) and **Disabled options** (the lock look as every option set's disabled state, two reasons). Tap affordance: 6a / 8d attribute tags are a display form, 8f / 8h word tags are pressable, and height decides. Focus: on iOS delegated to the OS.

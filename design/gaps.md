@@ -8,18 +8,13 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20
 
 ## By component (2026-10-07) — read this first
 
-The cross-cutting items below (2 focus, 3 chips, 4 pressed / disabled / loading, 5 empty, 6 error) are broken down here by component, from the catalog in `components.md`. §1 Hard Rules now settle, for every component, pressed (2026-10-04 / -06), and focus, tap affordance and the selection limit (2026-10-07), so none of them is repeated per row.
+The cross-cutting items below (2 focus, 3 chips, 4 pressed / disabled / loading, 5 empty, 6 error) are broken down here by component, from the catalog in `components.md`. §1 Hard Rules now settle, for every component, pressed (2026-10-04 / -06), and focus (delegated to the OS on iOS), tap affordance, the selection limit and the disabled look of options (2026-10-07), so none of them is repeated per row. Rows 5–8 and 10 (the option sets) have nothing left and are gone from the table.
 
 | component (catalog #) | missing states |
 |---|---|
 | Button (3) | destructive look; disabled for text and compact buttons |
 | IconButton (4) | disabled; what the accent fill means (2a) |
-| Single-select chip group (5) | disabled (tap affordance: settled by §1) |
-| Flavour chip, multi-select (6) | disabled outside the limit (at the limit: settled by §1) |
-| Checkbox list, multi-select (7) | disabled outside the limit (at the limit: settled by §1) |
-| Checkbox (8) | disabled |
 | Toggle switch (9) | disabled |
-| Weekday selector (10) | disabled (reminder off) |
 | FieldRow (11) | disabled; empty value; loading (lookup) |
 | Star rating (12) | disabled / read-only |
 | List row (13) | loading / skeleton |
@@ -42,19 +37,20 @@ Plus, globally:
 - two error flows, save failure and offline (item 6);
 - six first-run empty states (item 5).
 
-**Estimate (recalculated 2026-10-07)**: **49 → 45 states**.
+**Estimate (recalculated 2026-10-07, second pass)**: **49 → 45 → 40 states**.
 
-| | before | after the three rules | change |
-|---|---|---|---|
-| per-component states | 40 | 37 | −3: at the limit ×2 (rows 6, 7) and tap affordance (row 5) |
-| focus | 1 | 0 | −1: §1 Focus |
-| error flows | 2 | 2 | — |
-| first-run empty states | 6 | 6 | — |
-| **total** | **49** | **45** | **−4** |
+| | start | first pass | second pass | change |
+|---|---|---|---|---|
+| per-component states | 40 | 37 | **32** | −3 (limit ×2, tap affordance), then −5 (one disabled look for rows 5, 6, 7, 8, 10) |
+| focus | 1 | 0 | 0 | settled in the first pass; now also delegated to the OS on iOS (no work) |
+| error flows | 2 | 2 | 2 | — |
+| first-run empty states | 6 | 6 | 6 | — |
+| **total** | **49** | **45** | **40** | **−9** |
 
-- **Boards**: 27 → about 24. Rows 6 and 7 still need one disabled state each, and the focus board is gone.
-- **Could fall to about 40**: the selection-limit rule defines what a locked option looks like (`text.muted` label, `border.muted` box), and that is the disabled look of an option. Applied as each set's general disabled state, it would also settle "disabled" for rows 5, 6, 7, 8 and 10 (−5). Not counted until confirmed.
-- **Not states, but work**: screen-reader roles (item 11) and the 6a / 8d / 8h / 8f decision (held).
+- 40 rather than about 39: focus was already taken out in the first pass, so delegating it to the OS removes nothing more from the count.
+- **Boards**: about 21 (19 components with something missing, plus errors and empties).
+- The two components added in the second pass (word tag, attribute tag) bring no missing states.
+- **Not states, but work**: screen-reader roles (item 11).
 
 ---
 
@@ -84,7 +80,9 @@ Plus, globally:
 
 **Needs designing**: a focus treatment consistent with the binary border system (a 2px outline is the obvious candidate, since a third border width is forbidden).
 
-**Status: DECIDED (2026-10-07)**: §1 Focus. One 2px `color.caret` frame outside the element, a `space.2` gap, non-touch focus only. **Platform limit**: Android can implement it as written (`focusable` + `onFocus` fire for keyboard / D-pad, not in touch mode). On iOS, RN 0.86 fires `onFocus` only on tvOS, so the frame cannot be drawn and the system draws its own focus effect for hardware-keyboard focus. Still to check on device: focus + pressed at once, 3.20:1 on `state.pressed.surface`.
+**Status: DELEGATED TO THE OS — no action (2026-10-07)**. On iOS (MoreCoffee's only platform) the OS draws focus for hardware keyboards, VoiceOver and Switch Control, so focus is not missing: the OS owns it. §1 Focus stays as the rule for Android and a future web build; a custom frame on iOS would need a native module (not in V1). Still to check once: iOS's own indicator on a device with an external keyboard, and whether it clashes with this design.
+
+**Earlier status (2026-10-07, first pass)**: §1 Focus. One 2px `color.caret` frame outside the element, a `space.2` gap, non-touch focus only. **Platform limit**: Android can implement it as written (`focusable` + `onFocus` fire for keyboard / D-pad, not in touch mode). On iOS, RN 0.86 fires `onFocus` only on tvOS, so the frame cannot be drawn and the system draws its own focus effect for hardware-keyboard focus. Still to check on device: focus + pressed at once, 3.20:1 on `state.pressed.surface`.
 
 ---
 
@@ -216,6 +214,16 @@ Plus, globally:
 - plus the selection limit's disabled hint.
 
 **Needs doing**: each component spec lists its role and states; the not-started components (switch, checkbox list, settings row, …) take them from the start.
+
+---
+
+## 12. A disabled option has no visible reason — unless the limit caused it (added 2026-10-07)
+
+**Parts affected**: every option set (§1 Disabled options).
+
+**Measured**: the disabled look is shared. A limit-locked option is explained by its count. An option disabled for its own reason (not available now) has nothing on screen that explains why; only the screen-reader text can.
+
+**Needs designing**: a visible way to give the reason. Not solved now.
 
 ---
 

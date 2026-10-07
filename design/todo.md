@@ -13,3 +13,9 @@ Moves and follow-ups that are neither drift (a design value to correct) nor a de
 **To revert the stand-in**: set `tryNext` back to `TryNextPlaceholder` in `src/screens/index.js` and drop the `TastingNoteScreen` import. Also drop `TastingNoteScreen`'s bottom padding for the bar (`layout.empty.block`): the overlay covers the bar, and 5b's own foot is `layout.screen.bottom`.
 
 **Re-check after the move**: the header collapse inside the overlay. Everything verified so far was outside a modal: the overlay has no ScrollChromeContext, and its own slide-up transform sits above the collapse.
+
+## V2 candidates
+
+Out of V1's scope (the capture → Taste DNA loop only). Kept so the idea is not lost; treated like Try next and Atlas.
+
+- **Filter Records by a taste attribute** (2026-10-07): tapping 6a's "Acidity high" or 8d's "Blackcurrant" would lead to the records with that attribute. No mock draws the destination, and 8l's search covers words / beans / gear / rating, not attributes. It would be a new screen, so it is not built in V1. The attribute tags stay display-only (`design-system.md` §1 Tap affordance).
