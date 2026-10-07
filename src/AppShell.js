@@ -17,13 +17,13 @@ const easing = Easing.bezier(...motion.expand.controlPoints);
  * The overlay is the last child, so it covers the bar; it sits outside the
  * pager, so swiping inside it never pages.
  *
- * The four tab screens sit in a horizontal paging ScrollView (Home → Records →
- * Try next → Profile; the + is a modal trigger, not a stop). It is the native
- * scroll view, so the drag, the edge rubber-band (iOS bounce; Android's system
- * overscroll), the eased settle and the horizontal-vs-vertical arbitration
- * with each screen's own vertical ScrollView all run natively on the UI thread
- * — no per-frame JS. Its offset drives FooterNav's active state through a
- * native-driver Animated.event. The pager stops at both ends; it never wraps.
+ * The four tab screens sit side by side in a horizontal ScrollView (Home →
+ * Records → Try next → Profile), **switched by the tab bar only**: swiping
+ * between tabs was removed (2026-10-07) so the horizontal gesture stays free
+ * for tabs inside a screen, and for horizontal controls such as the taste
+ * axis. The ScrollView is kept, with scrolling disabled, because it keeps
+ * every screen mounted (scroll position, collapse state) and its offset still
+ * drives FooterNav's active state through a native-driver Animated.event.
  *
  * One ground + dot texture sits behind the pager (ScreenBackdropContext), so
  * the texture stays put while pages slide over it.
@@ -31,9 +31,8 @@ const easing = Easing.bezier(...motion.expand.controlPoints);
  * The bottom bar hides when a tab screen scrolls down and comes fully back on
  * any upward scroll (ScrollChromeContext; design-system.md §9 Bottom bar). It
  * is always either on its way out or fully back, never part-way, and the move
- * is eased (motion.expand), since it runs on after the finger. Any pager drag
- * or tab tap brings it back, so a screen too short to scroll is never left
- * without it.
+ * is eased (motion.expand), since it runs on after the finger. A tab tap
+ * brings it back, so a screen too short to scroll is never left without it.
  */
 export default function AppShell() {
   const { width } = useWindowDimensions();
@@ -68,15 +67,7 @@ export default function AppShell() {
     [scrollX]
   );
 
-  // The settled page becomes the active tab (accessibility state, tab taps).
-  // Drag end without momentum lands here too; momentum end then confirms.
-  const settle = (e) => {
-    const index = Math.round(e.nativeEvent.contentOffset.x / width);
-    setActiveTab(PAGES[Math.min(Math.max(index, 0), PAGES.length - 1)]);
-  };
-
-  // A footer tap switches instantly, as before the pager: no slide through
-  // the pages in between.
+  // A footer tap switches instantly: no slide through the pages in between.
   const selectTab = (key) => {
     setFooterHidden(false);
     setActiveTab(key);
@@ -90,7 +81,7 @@ export default function AppShell() {
     pager.current?.scrollTo({ x: PAGES.indexOf(activeRef.current) * width, animated: false });
   }, [width]);
 
-  // Memoised so a settle (setActiveTab) re-renders the bar, not all four screens.
+  // Memoised so a tab switch (setActiveTab) re-renders the bar, not all four screens.
   const pages = useMemo(
     () =>
       PAGES.map((key) => {
@@ -112,15 +103,10 @@ export default function AppShell() {
           <Animated.ScrollView
             ref={pager}
             horizontal
-            pagingEnabled
-            bounces
-            directionalLockEnabled
+            scrollEnabled={false}
             showsHorizontalScrollIndicator={false}
             scrollEventThrottle={16}
             onScroll={onScroll}
-            onScrollBeginDrag={() => setFooterHidden(false)}
-            onScrollEndDrag={settle}
-            onMomentumScrollEnd={settle}
             keyboardShouldPersistTaps="handled">
             {pages}
           </Animated.ScrollView>
