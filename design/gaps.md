@@ -227,6 +227,25 @@ Plus, globally:
 
 ---
 
+## 13. 5c's movement copy covers 2 of 8 directions, and has no threshold (added 2026-10-07)
+
+**Parts affected**: 5c "What the cup changed": the line under each moved axis ("Moved 6 points brighter").
+
+**Measured**: 4 axes × 2 directions = 8 phrasings; the mock has 2.
+
+| axis | toward the low pole | toward the high pole |
+|---|---|---|
+| Acid ↔ Bitter | **brighter** (5c) | — |
+| Light body ↔ Full body | — | — |
+| Light roast ↔ Dark roast | **lighter** (5c) | — |
+| Low sweetness ↔ High sweetness | — | — |
+
+**Also undefined**: how many points an axis must move before 5c shows it. 6 and 4 are examples, not a threshold.
+
+**Needs designing**: the 6 missing phrasings and the threshold. Copy, decided separately from the axis slider spec.
+
+---
+
 ## Step 4 device verification — RESOLVED (2026-10-04)
 
 The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.

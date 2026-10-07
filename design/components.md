@@ -113,17 +113,25 @@ Every use, transcribed. The spec is not written yet; the behaviour the stills do
 | screen | axes | rail | needle at | extras |
 |---|---|---|---|---|
 | 1b · 4a · 4b (Home, Taste DNA card, "Early signs", not pressable) | 4: Acid ↔ Bitter, Light body ↔ Full body, Light roast ↔ Dark roast, Low sweetness ↔ High sweetness | derived on all 4 | 58 · 66 · 72 · 47 (identical on all three screens) | — |
-| 5b (Tasting note, the input) | the same 4 | entered ×3, derived ×1 | 26 · 38 · 18 (set) · 50 (not noted) | "Not noted" under the unset axis |
+| 5b (Tasting note, the input) | the same 4 | entered ×3, **empty ×1** (drawn as derived in the mock; reclassified 2026-10-07) | 26 · 38 · 18 (set) · 50 (not noted) | "Not noted" under the unset axis |
 | 5c (Saved, "What the cup changed") | 2 (Acid ↔ Bitter, Light roast ↔ Dark roast: only the axes that moved) | derived on both | 38 · 52 | ghost at the previous value (44 · 56; legend "Where it sat before"), delta bar between them, "Moved 6 points brighter" / "Moved 4 points lighter" |
 
-- **Rail**: `axis.rail.derived` (1.5 dashed `#C8BCB4` on ground) and `axis.rail.entered` (2 solid ink on raised). **Entered appears only on 5b's set axes.** Every display axis, and 5b's unset one, is derived.
+- **Rail**: `axis.rail.derived` (1.5 dashed `#C8BCB4` on ground) and `axis.rail.entered` (2 solid ink on raised). **Entered appears only on 5b's set axes.** Every display axis is derived.
+- **Reclassified on review (2026-10-07): 5b's unset axis is not derived; it is empty**: no value yet, one to be entered.
+  - The mock draws it with the derived rail only because it did not tell the two apart.
+  - They must differ: one look that is draggable on 5b and dead on 1b would read as broken on 1b.
+  - Three rail states, so "dashed muted = cannot be operated" holds without context:
+    - **derived**: computed or historical, not operable (1b 4a 4b 5c);
+    - **empty**: not entered yet, operable (5b's unset axis);
+    - **entered**: the user's own value, operable (5b's set axes).
+  - The empty rail takes the add-slot form (`border.addSlot`, 2px dashed ink). Rendered beside entered: see the axis spec.
 - **`texture.rule` sits on both rail kinds**, every use (25 / 50 / 75%).
 - **Needle**:
   - not entered: `#DCD0C8` (folds to `surface.muted`) with a 1.5 `#B3A69E` border, 12 × 30;
   - entered: `#9E5202` with a 2 ink border, 12 × 32.
   - Both overhang the rail by about the same amount; the 2px taller entered needle matches its thicker rail border.
 - **Ghost and delta: 5c only.** 5c is the one screen that shows a change: the profile just after a save, "This cup pushed you brighter and lighter". The ghost is the value before this cup and the delta the movement. No other screen compares two moments, so none needs them.
-- **The value scale reads as 0–100 points**:
+- **The value scale reads as 0–100 points** ("points" is the term, as in 5c's copy):
   - every value in the mocks is an integer per cent;
   - 5c's delta of 6% is "Moved 6 points", and 4% is "4 points";
   - direction words: toward Acid = "brighter", toward Light roast = "lighter".
