@@ -106,6 +106,34 @@ Primitives, not counted: `Text`, `Glyph`, `HardShadow`, `DashedRule`, `DotTextur
 - The three paddings (20/18, 16, 18/16) do not follow the content kind cleanly, so they look like drift rather than variants. To check when the Card is specced.
 - The shadowed 8d plan card and the grouped list (#20) are different containers, not Card variants.
 
+## Axis slider — facts from the mocks (stage 1, confirmed 2026-10-07)
+
+Every use, transcribed. The spec is not written yet; the behaviour the stills do not show is listed for decision first.
+
+| screen | axes | rail | needle at | extras |
+|---|---|---|---|---|
+| 1b · 4a · 4b (Home, Taste DNA card, "Early signs", not pressable) | 4: Acid ↔ Bitter, Light body ↔ Full body, Light roast ↔ Dark roast, Low sweetness ↔ High sweetness | derived on all 4 | 58 · 66 · 72 · 47 (identical on all three screens) | — |
+| 5b (Tasting note, the input) | the same 4 | entered ×3, derived ×1 | 26 · 38 · 18 (set) · 50 (not noted) | "Not noted" under the unset axis |
+| 5c (Saved, "What the cup changed") | 2 (Acid ↔ Bitter, Light roast ↔ Dark roast: only the axes that moved) | derived on both | 38 · 52 | ghost at the previous value (44 · 56; legend "Where it sat before"), delta bar between them, "Moved 6 points brighter" / "Moved 4 points lighter" |
+
+- **Rail**: `axis.rail.derived` (1.5 dashed `#C8BCB4` on ground) and `axis.rail.entered` (2 solid ink on raised). **Entered appears only on 5b's set axes.** Every display axis, and 5b's unset one, is derived.
+- **`texture.rule` sits on both rail kinds**, every use (25 / 50 / 75%).
+- **Needle**:
+  - not entered: `#DCD0C8` (folds to `surface.muted`) with a 1.5 `#B3A69E` border, 12 × 30;
+  - entered: `#9E5202` with a 2 ink border, 12 × 32.
+  - Both overhang the rail by about the same amount; the 2px taller entered needle matches its thicker rail border.
+- **Ghost and delta: 5c only.** 5c is the one screen that shows a change: the profile just after a save, "This cup pushed you brighter and lighter". The ghost is the value before this cup and the delta the movement. No other screen compares two moments, so none needs them.
+- **The value scale reads as 0–100 points**:
+  - every value in the mocks is an integer per cent;
+  - 5c's delta of 6% is "Moved 6 points", and 4% is "4 points";
+  - direction words: toward Acid = "brighter", toward Light roast = "lighter".
+- **Pole labels**: one form on every axis: "<low pole> ↔ <high pole>", both ends, `label.eyebrow` (11 / 700 / .1em folds in) `text.muted`, `gap.row` above the rail. The low pole is always on the left.
+- **Axis count**: 4 on 1b / 4a / 4b / 5b; 2 on 5c (moved axes only).
+- **Set needle as a token, for the decision**:
+  - It is used on one screen (5b, 3 uses), below the rule of two.
+  - But it is one of the axis component's two states, the same mechanism-bound case as `state.pressed`, which was promoted on that ground.
+  - If promoted, the naming rule says the existing `component.axis.needle` (the not-entered needle) is misnamed too. The pair would read `needle.derived` / `needle.entered`, matching the rail.
+
 ## Estimate
 
 | scope | items |
