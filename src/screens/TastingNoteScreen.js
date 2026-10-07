@@ -55,22 +55,22 @@ const NOTE_MIN_HEIGHT = 84;
  * The four axes own their state, so a commit re-renders the axes only — not
  * the whole screen (ScreenFrame, the header collapse, the chips).
  */
-const Axes = memo(function Axes({ onGestureActive }) {
+const Axes = memo(function Axes() {
   const [values, setValues] = useState(() => AXES.map((a) => a.value));
   const setAt = useCallback((i, v) => setValues((prev) => prev.map((x, j) => (j === i ? v : x))), []);
   return (
     <View style={styles.axes}>
       {AXES.map((a, i) => (
-        <AxisRow key={a.from} index={i} axis={a} value={values[i]} setAt={setAt} onGestureActive={onGestureActive} />
+        <AxisRow key={a.from} index={i} axis={a} value={values[i]} setAt={setAt} />
       ))}
     </View>
   );
 });
 
 /** One axis; memoised so committing one leaves the other three alone. */
-const AxisRow = memo(function AxisRow({ index, axis, value, setAt, onGestureActive }) {
+const AxisRow = memo(function AxisRow({ index, axis, value, setAt }) {
   const onChange = useCallback((v) => setAt(index, v), [index, setAt]);
-  return <AxisSlider from={axis.from} to={axis.to} value={value} onChange={onChange} onGestureActive={onGestureActive} />;
+  return <AxisSlider from={axis.from} to={axis.to} value={value} onChange={onChange} />;
 });
 
 function Chip({ label, on, search }) {
@@ -98,7 +98,7 @@ function Chip({ label, on, search }) {
   );
 }
 
-export default function TastingNoteScreen({ onBack, onAxisGesture }) {
+export default function TastingNoteScreen({ onBack }) {
   const insets = useSafeAreaInsets();
   return (
     <ScreenFrame
@@ -140,7 +140,7 @@ export default function TastingNoteScreen({ onBack, onAxisGesture }) {
         <Text variant="body" color="muted" style={styles.cardIntro}>
           Drag only what you noticed. Untouched axes are left out.
         </Text>
-        <Axes onGestureActive={onAxisGesture} />
+        <Axes />
       </View>
 
       <View style={styles.section}>

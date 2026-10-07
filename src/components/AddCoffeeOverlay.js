@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { AxisPagerGestureContext } from './base/axisGestureContext';
 import RecordCoffeeScreen from '../screens/RecordCoffeeScreen';
 import TastingNoteScreen from '../screens/TastingNoteScreen';
 import { color, motion } from '../theme/tokens';
@@ -27,9 +29,11 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
   const [mounted, setMounted] = useState(false);
   const [noteMounted, setNoteMounted] = useState(false);
   const [onNote, setOnNote] = useState(false); // step 2 is showing: swipe back enabled
-  // A finger on a taste axis: the swipe-back pager stands aside so a sideways
-  // axis drag never pages the sheet.
-  const [axisGesture, setAxisGesture] = useState(false);
+  // The pager's native gesture: taste axes inside block it (blocksExternalGesture)
+  // so a sideways axis drag never pages the sheet. Replaces a JS-state lock that
+  // set scrollEnabled on touch-down — a round trip that can land after UIKit's
+  // pan has already begun.
+  const pagerGesture = useMemo(() => Gesture.Native(), []);
   const pendingPush = useRef(false);
   const pager = useRef(null);
   const translateY = useRef(new Animated.Value(height)).current;
@@ -86,25 +90,29 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
     // latter, and spreading it silently drops the positioning (the sheet then
     // lays out at 0 height). react-native-web still ships it, so web hides this.
     <Animated.View style={[StyleSheet.absoluteFill, styles.overlay, { transform: [{ translateY }] }]}>
-      <ScrollView
-        ref={pager}
-        horizontal
-        pagingEnabled
-        directionalLockEnabled
-        scrollEnabled={onNote && !axisGesture}
-        showsHorizontalScrollIndicator={false}
-        onContentSizeChange={onContentSizeChange}
-        onMomentumScrollEnd={settle}
-        keyboardShouldPersistTaps="handled">
-        <View style={{ width }}>
-          <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} />
-        </View>
-        {noteMounted ? (
-          <View style={{ width }}>
-            <TastingNoteScreen onBack={backToRecord} onAxisGesture={setAxisGesture} />
-          </View>
-        ) : null}
-      </ScrollView>
+      <AxisPagerGestureContext.Provider value={pagerGesture}>
+        <GestureDetector gesture={pagerGesture}>
+          <ScrollView
+            ref={pager}
+            horizontal
+            pagingEnabled
+            directionalLockEnabled
+            scrollEnabled={onNote}
+            showsHorizontalScrollIndicator={false}
+            onContentSizeChange={onContentSizeChange}
+            onMomentumScrollEnd={settle}
+            keyboardShouldPersistTaps="handled">
+            <View style={{ width }}>
+              <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} />
+            </View>
+            {noteMounted ? (
+              <View style={{ width }}>
+                <TastingNoteScreen onBack={backToRecord} />
+              </View>
+            ) : null}
+          </ScrollView>
+        </GestureDetector>
+      </AxisPagerGestureContext.Provider>
     </Animated.View>
   );
 }

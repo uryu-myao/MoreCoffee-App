@@ -1,10 +1,11 @@
 import * as Haptics from 'expo-haptics';
-import { memo, useEffect } from 'react';
+import { memo, useContext, useEffect } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { component, motion, size, spacing, textStyle, texture } from '../../theme/tokens';
+import { AxisPagerGestureContext } from './axisGestureContext';
 import Button from './Button';
 import Text from './Text';
 
@@ -127,6 +128,7 @@ function Pole({ label, litStyle, align }) {
 function AxisSlider({ from, to, value = null, derived = false, previous, caption, onChange, onGestureActive }) {
   const operable = !derived;
   const isEntered = operable && value != null;
+  const pagerGesture = useContext(AxisPagerGestureContext);
 
   const width = useSharedValue(0);
   const pos = useSharedValue(value ?? PLACEHOLDER); // points, on the UI thread
@@ -200,6 +202,11 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
       scheduleOnRN(commit, pos.value);
     });
 
+  // An enclosing pager (the Record sheet) waits for this axis to fail first.
+  if (pagerGesture) {
+    pan.blocksExternalGesture(pagerGesture);
+    tap.blocksExternalGesture(pagerGesture);
+  }
   const gesture = Gesture.Exclusive(pan, tap);
 
   const needleMove = useAnimatedStyle(() => ({ transform: [{ translateX: (pos.value / 100) * width.value }] }));
