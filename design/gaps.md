@@ -18,7 +18,7 @@ The cross-cutting items below (2 focus, 3 chips, 4 pressed / disabled / loading,
 | FieldRow (11) | disabled; empty value; loading (lookup) |
 | Star rating (12) | disabled / read-only |
 | List row (13) | loading / skeleton |
-| Taste axis slider (18) | dragging; clearing a set axis; disabled |
+| Taste axis slider (18) | disabled (dragging and clearing: specced 2026-10-07, §9) |
 | Grouped list (20) | empty group |
 | Navigation / settings row (21) | disabled; destructive look |
 | Notification row (22) | empty list |
@@ -51,6 +51,7 @@ Plus, globally:
 - **Boards**: about 21 (19 components with something missing, plus errors and empties).
 - The two components added in the second pass (word tag, attribute tag) bring no missing states.
 - **Not states, but work**: screen-reader roles (item 11).
+- **After the axis spec (2026-10-07)**: 32 → **30** per-component states (dragging and clearing settled), **40 → 38** in total.
 
 ---
 

@@ -130,6 +130,18 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   1. **The limit is reached** (deselecting another brings it back). The count explains it.
   2. **This option itself cannot be chosen now.** Nothing on screen explains it, so the screen reader must state the reason. A visible way to explain it is still missing (`gaps.md` 12).
 
+### Animation systems (added 2026-10-07)
+- **Existing scroll-linked animation stays on Animated** (native driver): the header collapse, the bottom bar's hide / reveal, the tab pager's indicator, press scale, the sheet slide.
+- **Gestures that follow the finger use Reanimated + gesture-handler** on the UI thread. The taste axis drag is the first.
+- **Do not rewrite the existing ones.** Two systems live side by side, each where it is used.
+
+### Dashed does not mean "cannot be operated" (added 2026-10-07)
+- **Colour decides whether it can be operated, not the line style.**
+  - A **muted** dashed frame or rail cannot be operated: `axis.rail.derived`, `border.addSlot.inert`.
+  - An **ink** dashed frame or rail can: `border.addSlot` (Add a photo, Add gear, 5b's Search), `axis.rail.empty`.
+- This holds without context: one look must not be operable on one screen and dead on another (1b vs 5b).
+- Scope: frames of controls and rails. `divider.soft` is a divider, not a control.
+
 ### Declarations that appear zero times in 30 screens
 These absences are design facts, not oversights — but several of them are also why `gaps.md` exists.
 
@@ -766,9 +778,94 @@ Padding is `inset.control` (the source's 13 / 16 folds to it) and the gap is `sp
 
 **Intro line per mode (2026-10-05)**: the line under the header changes with the mode. I made it is 5a verbatim ("Marked fields are required — all of them start pre-filled.") and Packaged is 5e with one word changed ("Packaged cups skip brewing and café — two fields left."; the mock says "Bottled", see `drift.md` D-14). No mock has a Barista line, because 5d replaces it with the error summary. Barista's line was **written to 5e's pattern** (what the mode skips, then how many fields are left): "Cups made for you skip beans and brewing — two fields left." Every line names the cup by who made it, matching the "Who made it?" field, not by its vessel or where it came from ("Café cups" was rejected on review). The line **crossfades** with `motion.expand` (same duration and bezier as the field block), the outgoing line laid over the incoming one, inside the same height-animating wrapper. All three fit on one line at 390pt, so the block does not change height. A longer translation would ease rather than jump.
 
+### Taste axis slider (spec, 2026-10-07; to be built as base `AxisSlider`)
+The input of Taste DNA and its display. Facts from the mocks: `components.md` (axis slider, stage 1). **The governing rule**: the user must always be able to tell a value they entered from a value that came out of their records. Every behaviour below was decided by asking whether it keeps that distinction intact.
+
+**States: one per axis, deciding rail and needle together.** Rail and needle are never specified separately, so a wrong pairing cannot be built. Tokens are added at implementation as `component.axis.state.<state>` → `{ rail, needle }`.
+
+| state | meaning | rail | needle | operable |
+|---|---|---|---|---|
+| `derived` | computed or historical (1b 4a 4b 5c) | `axis.rail.derived`: 1.5 dashed muted on ground | `axis.needle.derived`: `surface.muted`, 1.5 `border.medium`, 12 × 30 | no |
+| `empty` | nothing entered yet (5b) | `axis.rail.empty`: `border.addSlot`, 2 dashed ink, transparent | `axis.needle.empty`: same values as derived (same value, different meaning). **Its position, 50, is a placeholder, not a value: never saved, never read as "the default is 50".** | yes |
+| `provisional` | an empty axis while the finger is on it | empty rail | entered needle | (gesture in progress) |
+| `entered` | the user's own value for this cup (5b) | `axis.rail.entered`: 2 solid ink on raised | `axis.needle.entered`: `icon.accent` fill, 2 ink border, 12 × 32 (promoted from 5b's local constant) | yes |
+
+`texture.rule` (25 / 50 / 75%) is drawn on every rail state. Ghost (`axis.ghost`) and delta (`axis.delta`) belong to `derived` only, on 5c.
+
+**Value.**
+- An integer **0–100 points** ("points" is the term), one-point steps.
+- `null` = empty.
+- **No number is shown** on the axis.
+- The low pole is always on the left.
+
+**Anatomy, top to bottom.**
+- Pole labels: "<low> ↔ <high>", `label.eyebrow` `text.muted`.
+- `gap.row`.
+- The rail, `size.axis.rail` (20), with its needle. On operable states, a **44pt touch band** (`size.tapTarget`) centred on the rail.
+- `gap.row`, then a **line slot of fixed height** (one `meta` line, 17), always reserved:
+  - empty: "Not noted" (`meta` `text.muted`);
+  - entered: **Clear**;
+  - derived on 5c: the movement copy (`gaps.md` 13);
+  - derived elsewhere: no slot.
+- Axes in a set are `gap.axis` (20) apart.
+
+**Interaction (operable states).**
+- **Drag the needle, or touch / drag anywhere in the touch band.** The needle jumps to the touch and follows the finger.
+- Value = position on the rail, rounded to a whole point, clamped to 0–100.
+- **No snapping**, not even at 50. No mock value sits on a tick (26 38 18 47 58 66 72), so the ticks are reference lines, not stops.
+- **A selection haptic** as the value crosses 25, 50 or 75. The ticks exist as reference, so they are felt as reference: three per sweep, not one per point.
+
+**When it becomes entered (the provenance rule).**
+- **While the finger is down**, nothing is committed:
+  - an empty axis shows `provisional` (the needle changes, the rail stays dashed);
+  - an entered axis stays `entered` with its needle moving.
+- **On release** the value is committed and the axis is `entered`.
+- **If the gesture is taken over by vertical scroll**, the axis returns to exactly its previous state and value (empty stays empty).
+- So: empty → (provisional) → entered on release. **The only way back to empty is Clear.**
+
+**Under the finger.** The 12pt needle is covered by the finger, so the pole labels carry the position. During a drag:
+- the label of the pole the needle leans toward turns `text.primary`; the other stays `text.muted`;
+- **dead zone ±5 (45–55)**: both stay muted, showing "right in the middle".
+- At rest both labels are muted, as in the mocks.
+
+**Empty → entered transition.** The rail cannot morph dashed into solid, so on commit the two rail layers crossfade over `motion.expand` (340ms), which is defined for crossfades between states. *Check on device whether 340ms feels slow for a moment of commitment; a new token would be decided then.*
+
+**Clear.**
+- Shown **only when the axis is entered**, in the line slot under the rail (where an empty axis shows "Not noted").
+- Built as **Button's new text-only variant** (approved 2026-10-07; existing tokens only).
+- Clear returns the axis to `empty`: value `null`, needle back to the placeholder.
+- The slot height never changes, so Clear appearing or going moves nothing.
+
+**Gesture vs vertical scroll** (axes sit in scrolling, collapsing screens). **Vertical scroll has priority**:
+- Nothing is decided until the finger has moved a set distance.
+- If it passes the **vertical** threshold first, the gesture goes to the scroll and the axis reverts (rule above).
+- If it passes the **horizontal** threshold first, it is an axis drag, and the scroll does not get it back until the finger lifts.
+- Thresholds start at gesture-handler's common values (`activeOffsetX` ±10, `failOffsetY` ±10) and are tuned on device.
+- Why: moving an axis by mistake is worse than a missed scroll, and the revert keeps a misread cheap.
+- *Check on device*: an axis near a screen edge must not move when the user meant to scroll.
+
+**Screen reader.**
+- Operable axes have role **adjustable**.
+  - Value text: "38 points, leaning acid".
+  - Empty: **"Not entered yet"**.
+  - Swipe up / down = ±5 points. The first adjustment of an empty axis starts from 50.
+  - Custom action **Clear** when entered.
+- **Derived axes are not adjustable**: they read their value ("Acid to bitter, 58 points") and have no touch band.
+
+**Derived axes (1b 4a 4b 5c) are not operable**, and that shows by colour, not by context: muted dashed (§1 Dashed does not mean "cannot be operated").
+
+**Implementation.**
+- Reanimated + gesture-handler (§1 Animation systems).
+- The drag, the needle and the label emphasis run on the UI thread. JS sees only the commit (release) and the revert.
+- Must hold 60fps.
+
+**Open (outside this spec)**:
+- 5c's movement copy (6 of 8 directions) and its threshold (`gaps.md` 13);
+- device checks: the 340ms crossfade, the thresholds, the screen-edge case, and the 6:3 dashes on iOS.
+
 ### Component catalog — pending (Step 4, logged 2026-10-06)
 Three parts of 5b are drawn inline in `TastingNoteScreen` for now (display only). They become base components in a later round. Each entry lists what to settle then.
-- **Axis slider** (`component.axis.*`): rail + needle (+ ghost + delta on 5c), with drag.
+- **Axis slider** (`component.axis.*`): rail + needle (+ ghost + delta on 5c), with drag. **Spec written 2026-10-07** (§9 Taste axis slider); to be built.
   - The set needle (accent fill, 2px ink, 12 × 32) is a local constant today; decide whether to promote it to a token.
   - Also settle the rail naming; see the `axis.rail` note in §2.
 - **Flavour chip, multi-select**: three looks, all bordered surfaces that darken on press:
@@ -924,3 +1021,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-07 — Record sheet: swipe right on Tasting note returns to Log a cup. The steps are now a native paging ScrollView, locked on step 1; button and back use the platform scroll animation instead of `motion.expand`.
 - 2026-10-07 — §1 Hard Rules added: **Focus** (one 2px `color.caret` frame outside, `space.2` gap, non-touch focus only), **Tap affordance** (option form = outline / ink + 44 + in a set; roles and states on every pressable; 6a / 8d / 8h / 8f held), **Selection limit** (lock the unselected, accent count, one light impact at the limit). `border.empty` → `border.addSlot` (+ `.inert`); `border.track` is rails only.
 - 2026-10-07 — §1 added: **Colour roles** (blue = in force, ink = chosen; settings checkboxes are chosen) and **Disabled options** (the lock look as every option set's disabled state, two reasons). Tap affordance: 6a / 8d attribute tags are a display form, 8f / 8h word tags are pressable, and height decides. Focus: on iOS delegated to the OS.
+- 2026-10-07 — §9 Taste axis slider spec written: four states (derived / empty / provisional / entered) each deciding rail and needle, 0–100 points, commit on release with revert on scroll takeover, Clear only when entered, ±5 dead zone, vertical scroll priority, adjustable role. §1 added: Animation systems (Animated stays, Reanimated for finger-following gestures) and Dashed does not mean "cannot be operated" (colour decides).
