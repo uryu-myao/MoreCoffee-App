@@ -352,6 +352,37 @@ export const rotation = {
   sticker: -3,
 } as const;
 
+/**
+ * Taste axis parts (design-system.md §9 Taste axis slider). Defined apart so
+ * component.axis.state can pair them; read them through the state map, not
+ * one by one.
+ */
+const axisRail = {
+  /** computed or historical (1b 4a 4b 5c): muted dashed, not operable */
+  derived: { ...dashed.track, background: color.surface.ground, texture: texture.rule },
+  /** nothing entered yet (5b): the add-slot form — ink dashed, transparent, operable */
+  empty: { ...dashed.addSlot, background: 'transparent', texture: texture.rule },
+  /** the user's own value for this cup (5b): ink solid on raised */
+  entered: { width: shape.borderWidth.box, style: 'solid', color: color.border.strong, background: color.surface.raised, texture: texture.rule },
+} as const;
+
+const axisNeedle = {
+  /** a computed / historical value */
+  derived: { ...size.axis.needle, background: color.surface.muted, borderColor: color.border.medium, borderWidth: shape.borderWidth.divider },
+  /**
+   * Nothing entered. Same values as derived, different meaning (intentional).
+   * Its position — 50 — is a PLACEHOLDER, NOT A VALUE: never save it, never
+   * read it as "the default is 50". An empty axis has no value (null).
+   */
+  empty: { ...size.axis.needle, background: color.surface.muted, borderColor: color.border.medium, borderWidth: shape.borderWidth.divider },
+  /**
+   * The user's own value. Promoted from 5b's local constant (2026-10-07):
+   * accent fill, 2px ink, 12 × 32 — two taller than the others, matching the
+   * entered rail's thicker border.
+   */
+  entered: { w: size.axis.needle.w, h: 32, background: color.icon.accent, borderColor: color.border.strong, borderWidth: shape.borderWidth.box },
+} as const;
+
 /** Component anatomies whose parts are mechanism-bound. */
 export const component = {
   /**
@@ -372,21 +403,29 @@ export const component = {
    *
    * The rail shows where the value came from — not whether it can be edited,
    * and not whether there is one:
-   *   entered  solid: a value the user decided, themselves, for this cup (5b)
-   *   derived  dashed: everything else — the computed profile (1b, 4a, 4b),
-   *            history (5c), and an axis not noted yet (5b)
+   *   entered  ink solid: a value the user decided, themselves, for this cup
+   *   empty    ink dashed: no value yet, one to be entered (operable)
+   *   derived  muted dashed: computed profile (1b, 4a, 4b) or history (5c);
+   *            never operable
    * This carries a core promise: Taste DNA is arithmetic on your own records,
    * not a guess, and the UI must always let you tell what you put in from what
-   * came out of it. So solid / dashed is provenance, not decoration: never
-   * unify them. (design-system.md §2 B.)
+   * came out of it. So the rail is provenance, not decoration: never unify the
+   * states. Colour, not line style, tells operable from not (§1).
+   *
+   * state: ONE axis state decides rail and needle together, so a wrong pairing
+   * cannot be built. provisional = an empty axis while the finger is on it
+   * (needle already entered, rail still empty, nothing committed). An entered
+   * axis being adjusted stays entered; a derived axis is never operable and
+   * never provisional.
    */
   axis: {
-    rail: {
-      derived: { ...dashed.track, background: color.surface.ground, texture: texture.rule },
-      entered: { width: shape.borderWidth.box, style: 'solid', color: color.border.strong, background: color.surface.raised, texture: texture.rule },
-      height: size.axis.rail,
+    state: {
+      derived:     { rail: axisRail.derived, needle: axisNeedle.derived },
+      empty:       { rail: axisRail.empty, needle: axisNeedle.empty },
+      provisional: { rail: axisRail.empty, needle: axisNeedle.entered },
+      entered:     { rail: axisRail.entered, needle: axisNeedle.entered },
     },
-    needle: { ...size.axis.needle, background: color.surface.muted, borderColor: color.border.medium },
+    rail: { height: size.axis.rail },
     /** previous value */
     ghost:  { w: 10, h: 10, borderColor: color.border.medium },
     /** movement since the last value */

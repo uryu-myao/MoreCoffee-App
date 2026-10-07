@@ -1,28 +1,29 @@
+import { memo, useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AxisSlider from '../components/base/AxisSlider';
 import Button from '../components/base/Button';
 import Glyph from '../components/base/Glyph';
 import IconButton from '../components/base/IconButton';
 import SectionLabel from '../components/base/SectionLabel';
 import Text from '../components/base/Text';
-import { color, component, dashed, icon, layout, shape, size, space, spacing, state, texture } from '../theme/tokens';
+import { color, dashed, icon, layout, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
 /**
  * Tasting note (5b) — step 2 of 2 in the Record sheet, opened by "Add tasting
- * note" (AddCoffeeOverlay). Back returns to step 1. Still a STATIC SHELL:
- *   - the axes are drawn, not dragged
+ * note" (AddCoffeeOverlay). Back returns to step 1.
+ *   - the axes are live AxisSliders (drag, tap, Clear) — held in screen state,
+ *     not saved yet
  *   - "My words" is a frame + placeholder, no keyboard
  *   - the chips and both save buttons press (with feedback) but do nothing
  * Content is 5b's mock copy verbatim; no database.
  *
- * Drawn here rather than as components, on review (2026-10-06): the axis
- * slider, the flavour chips and the cup summary row become components in a
- * later round (design-system.md §9 Component catalog — pending).
+ * The flavour chips and the cup summary row are still drawn here; they become
+ * components later (design-system.md §9 Component catalog — pending).
  *
- * TODO: input (axis drag, "My words" keyboard, save flow) in later rounds; the
- * keyboard gets its own round because it can interfere with the header
- * collapse.
+ * TODO: save flow and the "My words" keyboard in later rounds; the keyboard
+ * gets its own round because it can interfere with the header collapse.
  */
 
 const NOOP = () => {};
@@ -30,12 +31,12 @@ const NOOP = () => {};
 /** 5b's cup, verbatim. */
 const CUP = { name: 'Ethiopia Guji', meta: 'I made it · V60 · 08:20', rating: 4 };
 
-/** 5b's four axes, verbatim. `at` is the needle position (0–1); null = not noted. */
+/** 5b's four axes, verbatim: points 0–100; null = not entered yet (empty). */
 const AXES = [
-  { from: 'Acid', to: 'Bitter', at: 0.26 },
-  { from: 'Light body', to: 'Full body', at: 0.38 },
-  { from: 'Light roast', to: 'Dark roast', at: 0.18 },
-  { from: 'Low sweetness', to: 'High sweetness', at: null },
+  { from: 'Acid', to: 'Bitter', value: 26 },
+  { from: 'Light body', to: 'Full body', value: 38 },
+  { from: 'Light roast', to: 'Dark roast', value: 18 },
+  { from: 'Low sweetness', to: 'High sweetness', value: null },
 ];
 
 /** 5b's flavour chips, verbatim; "Search" is the dashed opener. */
@@ -47,76 +48,30 @@ const FLAVORS = [
   { label: 'Citrus', on: false },
 ];
 
-/**
- * The needle of an axis that HAS a value (5b's three set axes). Local, not a
- * token, on review: it is promoted (or not) when the axis becomes a component.
- * Accent fill, 2px ink border, 12 × 32 — two taller than the unset needle
- * (component.axis.needle, 12 × 30).
- */
-const SET_NEEDLE = {
-  w: component.axis.needle.w,
-  h: 32,
-  fill: color.icon.accent,
-  borderWidth: shape.borderWidth.box,
-  borderColor: color.border.strong,
-};
-
 /** "My words" field: min-height is local to the field (not a token, on review). */
 const NOTE_MIN_HEIGHT = 84;
 
-/** texture.rule: vertical lines every 25%; the 0% line sits under the left border. */
-const RULE_STOPS = [0.25, 0.5, 0.75];
-
-function Axis({ from, to, at }) {
-  const set = at != null;
-  // entered: the user's own value for this cup; derived: anything else (here, not noted).
-  const rail = set ? component.axis.rail.entered : component.axis.rail.derived;
-  const needle = set
-    ? SET_NEEDLE
-    : { ...component.axis.needle, fill: component.axis.needle.background, borderWidth: shape.borderWidth.divider };
-  const railH = component.axis.rail.height;
-  const borderW = rail.width;
+/**
+ * The four axes own their state, so a commit re-renders the axes only — not
+ * the whole screen (ScreenFrame, the header collapse, the chips).
+ */
+const Axes = memo(function Axes({ onGestureActive }) {
+  const [values, setValues] = useState(() => AXES.map((a) => a.value));
+  const setAt = useCallback((i, v) => setValues((prev) => prev.map((x, j) => (j === i ? v : x))), []);
   return (
-    <View style={styles.axis}>
-      <View style={styles.axisEnds}>
-        <Text variant="labelEyebrow" color="muted">
-          {from}
-        </Text>
-        <Text variant="labelEyebrow" color="muted">
-          {to}
-        </Text>
-      </View>
-      <View
-        style={[
-          styles.rail,
-          { height: railH, borderWidth: borderW, borderStyle: rail.style, borderColor: rail.color, backgroundColor: rail.background },
-        ]}>
-        {RULE_STOPS.map((p) => (
-          <View key={p} style={[styles.ruleLine, { left: `${p * 100}%` }]} />
-        ))}
-        <View
-          style={{
-            position: 'absolute',
-            left: `${(set ? at : 0.5) * 100}%`,
-            marginLeft: -needle.w / 2,
-            // Centred on the rail; offsets are from inside its border.
-            top: (railH - needle.h) / 2 - borderW,
-            width: needle.w,
-            height: needle.h,
-            backgroundColor: needle.fill,
-            borderWidth: needle.borderWidth,
-            borderColor: needle.borderColor,
-          }}
-        />
-      </View>
-      {set ? null : (
-        <Text variant="meta" color="muted">
-          Not noted
-        </Text>
-      )}
+    <View style={styles.axes}>
+      {AXES.map((a, i) => (
+        <AxisRow key={a.from} index={i} axis={a} value={values[i]} setAt={setAt} onGestureActive={onGestureActive} />
+      ))}
     </View>
   );
-}
+});
+
+/** One axis; memoised so committing one leaves the other three alone. */
+const AxisRow = memo(function AxisRow({ index, axis, value, setAt, onGestureActive }) {
+  const onChange = useCallback((v) => setAt(index, v), [index, setAt]);
+  return <AxisSlider from={axis.from} to={axis.to} value={value} onChange={onChange} onGestureActive={onGestureActive} />;
+});
 
 function Chip({ label, on, search }) {
   return (
@@ -143,7 +98,7 @@ function Chip({ label, on, search }) {
   );
 }
 
-export default function TastingNoteScreen({ onBack }) {
+export default function TastingNoteScreen({ onBack, onAxisGesture }) {
   const insets = useSafeAreaInsets();
   return (
     <ScreenFrame
@@ -185,11 +140,7 @@ export default function TastingNoteScreen({ onBack }) {
         <Text variant="body" color="muted" style={styles.cardIntro}>
           Drag only what you noticed. Untouched axes are left out.
         </Text>
-        <View style={styles.axes}>
-          {AXES.map((a) => (
-            <Axis key={a.from} {...a} />
-          ))}
-        </View>
+        <Axes onGestureActive={onAxisGesture} />
       </View>
 
       <View style={styles.section}>
@@ -271,23 +222,6 @@ const styles = StyleSheet.create({
   axes: {
     marginTop: space[20],
     gap: spacing.gap.axis,
-  },
-  axis: {
-    gap: spacing.gap.row,
-  },
-  axisEnds: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  rail: {
-    position: 'relative',
-  },
-  ruleLine: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: texture.rule.lineWidth,
-    backgroundColor: texture.rule.color,
   },
   section: {
     marginTop: space[20],

@@ -38,7 +38,7 @@ Pressed, focus, tap affordance, the selection limit and the disabled look of opt
 | 15 | Badge | inline 30 / standalone 18 | component | tones neutral · accent · success · info · selected; sticker rotation (E-4) | static | — (not pressable) |
 | 16 | Section heading (`SectionLabel`) | ~25 screens | component | marked · plain | set, pre-filled, required, missing, optional, count | — |
 | 17 | Empty slot (`EmptySlot`) | 3a 3b 3d 5a 5d 5e | component | — | default, pressed, inert (5d) | — |
-| 18 | Taste axis slider | 5b (3 entered, 1 empty) · 1b 4a 4b (derived) · 5c (derived + ghost + delta) | inline (5b); **spec written** (§9) | states derived · empty · provisional · entered; ghost; delta | all four states, dragging, clearing (spec 2026-10-07) | disabled |
+| 18 | Taste axis slider | 5b (3 entered, 1 empty) · 1b 4a 4b (derived) · 5c (derived + ghost + delta) | **component** (`AxisSlider`, 2026-10-07; 5b uses it) | states derived · empty · provisional · entered; ghost; delta | all four states, dragging, clearing (spec 2026-10-07) | disabled |
 | 19 | Card (padded container) | 13: 1b ×2 3c 3e 4a 4b 5b 5c 7b 8e 8f 8j 8m | pattern only (no component) | padding 20/18 ×8 · 16 ×4 · 18/16 ×1 | static | — |
 | 20 | Grouped list (rows in one 2px frame, hairline-divided) | 13 screens: 5a 5d 5e 6a 7a 8c 8d 8g 8h 8i 8j 8l 8m | inline (5a's FieldRow groups) | — | static | **empty group** |
 | 21 | Navigation / settings row | 6a (3) 8d (3) 8g 8i 8j 8m (3) 3b (3, in a sheet) | not started | plain · with value ("2 of 3") · selected ("In use", 8m) · destructive (3b, 8g) | default, selected | disabled; a destructive look that is distinct |

@@ -778,7 +778,7 @@ Padding is `inset.control` (the source's 13 / 16 folds to it) and the gap is `sp
 
 **Intro line per mode (2026-10-05)**: the line under the header changes with the mode. I made it is 5a verbatim ("Marked fields are required — all of them start pre-filled.") and Packaged is 5e with one word changed ("Packaged cups skip brewing and café — two fields left."; the mock says "Bottled", see `drift.md` D-14). No mock has a Barista line, because 5d replaces it with the error summary. Barista's line was **written to 5e's pattern** (what the mode skips, then how many fields are left): "Cups made for you skip beans and brewing — two fields left." Every line names the cup by who made it, matching the "Who made it?" field, not by its vessel or where it came from ("Café cups" was rejected on review). The line **crossfades** with `motion.expand` (same duration and bezier as the field block), the outgoing line laid over the incoming one, inside the same height-animating wrapper. All three fit on one line at 390pt, so the block does not change height. A longer translation would ease rather than jump.
 
-### Taste axis slider (spec, 2026-10-07; to be built as base `AxisSlider`)
+### Taste axis slider (base `AxisSlider`; spec and build 2026-10-07)
 The input of Taste DNA and its display. Facts from the mocks: `components.md` (axis slider, stage 1). **The governing rule**: the user must always be able to tell a value they entered from a value that came out of their records. Every behaviour below was decided by asking whether it keeps that distinction intact.
 
 **States: one per axis, deciding rail and needle together.** Rail and needle are never specified separately, so a wrong pairing cannot be built. Tokens are added at implementation as `component.axis.state.<state>` → `{ rail, needle }`.
@@ -791,6 +791,10 @@ The input of Taste DNA and its display. Facts from the mocks: `components.md` (a
 | `entered` | the user's own value for this cup (5b) | `axis.rail.entered`: 2 solid ink on raised | `axis.needle.entered`: `icon.accent` fill, 2 ink border, 12 × 32 (promoted from 5b's local constant) | yes |
 
 `texture.rule` (25 / 50 / 75%) is drawn on every rail state. Ghost (`axis.ghost`) and delta (`axis.delta`) belong to `derived` only, on 5c.
+
+- **Adjusting an entered axis stays `entered`**: rail and needle unchanged, only the position moves. The value is already the user's own, and adjusting it loses nothing of that (confirmed on review).
+- **A derived axis is never `provisional`**: it is not operable, so no gesture reaches it.
+- `provisional` is internal. The component takes `derived` plus `value` (`null` → empty, a number → entered), so a state and a value can never disagree.
 
 **Value.**
 - An integer **0–100 points** ("points" is the term), one-point steps.
@@ -859,13 +863,29 @@ The input of Taste DNA and its display. Facts from the mocks: `components.md` (a
 - The drag, the needle and the label emphasis run on the UI thread. JS sees only the commit (release) and the revert.
 - Must hold 60fps.
 
+**Build notes (2026-10-07)**: `src/components/base/AxisSlider.js`.
+- Pan (`activeOffsetX` / `failOffsetY`) and a tap-to-set, `Exclusive`, on the rail with a `hitSlop` to the 44pt band.
+- Nothing visible changes before the pan activates, so a vertical takeover has nothing to revert. A pan cancelled after activation restores the committed value.
+- **Device-tuning constants** at the top of the file:
+  - `CROSSFADE_DEBUG_MS`: set it to 150 to compare against the spec's 340;
+  - `ACTIVE_OFFSET_X` = 10, `FAIL_OFFSET_Y` = 10, `TAP_MAX_DISTANCE` = 8.
+- **The Record sheet's swipe-back pager stands aside** while a finger is on an axis: touch down locks its scrolling, finalize unlocks it. Otherwise a sideways axis drag could page the sheet.
+- The four 5b axes own their state (memoised), so a commit re-renders the axes, not the screen.
+- Dev harness page "AxisSlider · dashes": every state, plus `border.addSlot` and `.inert`, for the dashed-line device check.
+- **Measured (390pt simulator; a real drag cannot be injected)**:
+  - 5b scroll: worst frame 17.4 ms (baseline 17.7);
+  - JS thread during 8 back-to-back commits / clears: one frame of 23–31 ms per commit (dev build, before memoising 41–44);
+  - empty → entered → Clear: the next section stays at y 700 throughout, so no jump, with Clear (13.3) centred in the 17pt slot.
+  - Drag frame timing on both threads needs the device: RN's Perf Monitor (dev menu) shows UI and JS fps.
+- 5b's rails span x 40–350: 40pt from both screen edges (22 gutter + 2 card border + 16 card padding), clear of iOS's edge-swipe zone.
+
 **Open (outside this spec)**:
 - 5c's movement copy (6 of 8 directions) and its threshold (`gaps.md` 13);
 - device checks: the 340ms crossfade, the thresholds, the screen-edge case, and the 6:3 dashes on iOS.
 
 ### Component catalog — pending (Step 4, logged 2026-10-06)
 Three parts of 5b are drawn inline in `TastingNoteScreen` for now (display only). They become base components in a later round. Each entry lists what to settle then.
-- **Axis slider** (`component.axis.*`): rail + needle (+ ghost + delta on 5c), with drag. **Spec written 2026-10-07** (§9 Taste axis slider); to be built.
+- **Axis slider** (`component.axis.*`): rail + needle (+ ghost + delta on 5c), with drag. **Specced and built 2026-10-07** (§9 Taste axis slider, `AxisSlider`).
   - The set needle (accent fill, 2px ink, 12 × 32) is a local constant today; decide whether to promote it to a token.
   - Also settle the rail naming; see the `axis.rail` note in §2.
 - **Flavour chip, multi-select**: three looks, all bordered surfaces that darken on press:

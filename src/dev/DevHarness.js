@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Text from '../components/base/Text';
 import { color, layout, shape, spacing } from '../theme/tokens';
+import AxisSliderPage from './pages/AxisSliderPage';
 import ButtonPage from './pages/ButtonPage';
 import EmptySlotPage from './pages/EmptySlotPage';
 import FieldRowPage from './pages/FieldRowPage';
@@ -28,6 +29,7 @@ const PAGES = [
   { key: 'button', title: 'Button', Page: ButtonPage },
   { key: 'iconButton', title: 'IconButton', Page: IconButtonPage },
   { key: 'emptySlot', title: 'EmptySlot', Page: EmptySlotPage },
+  { key: 'axisSlider', title: 'AxisSlider · dashes', Page: AxisSliderPage },
   { key: 'recordRow', title: 'Badge · RecordRow', Page: RecordRowPage },
 ];
 

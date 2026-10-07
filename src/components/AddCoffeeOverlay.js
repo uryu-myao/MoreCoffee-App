@@ -27,6 +27,9 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
   const [mounted, setMounted] = useState(false);
   const [noteMounted, setNoteMounted] = useState(false);
   const [onNote, setOnNote] = useState(false); // step 2 is showing: swipe back enabled
+  // A finger on a taste axis: the swipe-back pager stands aside so a sideways
+  // axis drag never pages the sheet.
+  const [axisGesture, setAxisGesture] = useState(false);
   const pendingPush = useRef(false);
   const pager = useRef(null);
   const translateY = useRef(new Animated.Value(height)).current;
@@ -88,7 +91,7 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
         horizontal
         pagingEnabled
         directionalLockEnabled
-        scrollEnabled={onNote}
+        scrollEnabled={onNote && !axisGesture}
         showsHorizontalScrollIndicator={false}
         onContentSizeChange={onContentSizeChange}
         onMomentumScrollEnd={settle}
@@ -98,7 +101,7 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
         </View>
         {noteMounted ? (
           <View style={{ width }}>
-            <TastingNoteScreen onBack={backToRecord} />
+            <TastingNoteScreen onBack={backToRecord} onAxisGesture={setAxisGesture} />
           </View>
         ) : null}
       </ScrollView>

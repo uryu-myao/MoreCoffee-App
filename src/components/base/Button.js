@@ -1,14 +1,19 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { color, icon, shadow, shape, size, spacing, state } from '../../theme/tokens';
+import { useRef } from 'react';
+import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
+import { color, icon, motion, shadow, shape, size, space, spacing, state } from '../../theme/tokens';
 import Glyph from './Glyph';
 import HardShadow from './HardShadow';
 import Text from './Text';
 
 /**
- * Full-width button (design-system.md §9 Buttons).
+ * Button (design-system.md §9 Buttons).
  *
- *   primary    action.bg fill, 2px ink outline, shadow.primary
- *   secondary  same geometry on surface.ground, ink label, no shadow
+ *   primary    full width: action.bg fill, 2px ink outline, shadow.primary
+ *   secondary  full width: same geometry on surface.ground, ink label, no shadow
+ *   text       label only (label.caps, ink): no fill, no frame, sized to its
+ *              label; the touch area is padded out to size.tapTarget. Added
+ *              2026-10-07 for the taste axis "Clear". Having no surface, it
+ *              presses by scale (state.pressed.scale over motion.press), §1
  *   disabled   either variant: ground fill, border.muted outline, text.muted
  *              label, no shadow — the border.addSlot.inert vocabulary from 5d
  *   pressed    the fill darkens (state.pressed.action / .surface); outline,
@@ -23,13 +28,45 @@ import Text from './Text';
  *
  * Props
  *   label     fixed copy
- *   variant   'primary' | 'secondary' (default 'primary')
+ *   variant   'primary' | 'secondary' | 'text' (default 'primary')
  *   trailingIcon   optional Glyph name drawn after the label
  *   disabled
  *   onPress
  *   testOnly_pressed   force the pressed look (dev harness)
  */
-export default function Button({
+export default function Button(props) {
+  if (props.variant === 'text') return <TextButton {...props} />;
+  return <FilledButton {...props} />;
+}
+
+const pressEasing = Easing.bezier(...motion.press.controlPoints);
+// Pads the label's line (label.caps, ~13) out to at least size.tapTarget (44).
+const TEXT_HIT_SLOP = { top: space[16], bottom: space[16], left: space[8], right: space[8] };
+
+function TextButton({ label, disabled = false, onPress, accessibilityLabel }) {
+  const scale = useRef(new Animated.Value(1)).current;
+  const scaleTo = (toValue) =>
+    Animated.timing(scale, { toValue, duration: motion.press.duration, easing: pressEasing, useNativeDriver: true }).start();
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      onPressIn={disabled ? undefined : () => scaleTo(state.pressed.scale)}
+      onPressOut={disabled ? undefined : () => scaleTo(1)}
+      hitSlop={TEXT_HIT_SLOP}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled }}>
+      <Animated.View style={{ transform: [{ scale }] }}>
+        <Text variant="labelCaps" color={disabled ? 'muted' : 'primary'}>
+          {label}
+        </Text>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+function FilledButton({
   label,
   variant = 'primary',
   trailingIcon,
