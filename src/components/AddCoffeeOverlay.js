@@ -1,60 +1,52 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, StyleSheet, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { AxisPagerGestureContext } from './base/axisGestureContext';
+import Reanimated, { Easing as REasing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { GESTURE_LOG, logGesture } from './base/gestureLog';
 import RecordCoffeeScreen from '../screens/RecordCoffeeScreen';
 import TastingNoteScreen from '../screens/TastingNoteScreen';
-import { color, motion } from '../theme/tokens';
+import { color, layout, motion } from '../theme/tokens';
+import { GESTURE_LOG, logGesture } from './base/gestureLog';
 
 const easing = Easing.bezier(...motion.expand.controlPoints);
+const stepEasing = REasing.bezier(...motion.expand.controlPoints);
+
+/**
+ * Swipe back starts only from the left screen edge, inside the screen gutter
+ * (layout.gutter, 22pt) — iOS's own edge-swipe convention. Device logs
+ * (2026-10-08) showed a full-width swipe-back pager taking touches meant for
+ * the taste axes; with the swipe confined to the edge strip, no touch on the
+ * card (the axes start 75pt in) can move the sheet.
+ */
+const EDGE = layout.gutter;
+/** Released past this share of the width (or flicked), the swipe goes back. */
+const BACK_DISTANCE = 0.35;
+const BACK_VELOCITY = 500;
 
 /**
  * The Record sheet, presented over the tabs as a full-screen sheet that slides
  * up (motion.expand). Two steps: Log a cup (5a), then Tasting note (5b) via
  * "Add tasting note".
  *
- * The steps are two pages of a horizontal paging ScrollView, so the way back
- * is both the back arrow and a swipe to the right (2026-10-07). The scroll
- * view is native: the drag, the settle and the arbitration with each step's
- * own vertical scroll run on the UI thread, as in the tab pager. Swiping only
- * works on step 2: on step 1 the pager is locked, so step 2 is reached only
- * through its button. Step 1 stays mounted, so its rating and fields survive.
- *
- * The button and the back arrow move the same native scroll position, so
- * they animate with the platform's scroll animation (scrollTo), not
- * motion.expand: a separate Animated push could not hand over to the drag.
+ * The steps are two pages moved by one UI-thread value (Reanimated): the
+ * button pushes step 2 in from the right and the back arrow pushes it out,
+ * over motion.expand (2026-10-08; restored now that no native scroll view
+ * owns the position). On step 2, a swipe from the LEFT EDGE follows the finger
+ * and goes back past 35% or on a flick. Step 1 stays mounted, so its rating
+ * and fields survive; it is never swiped to step 2.
  */
 export default function AddCoffeeOverlay({ visible, onClose }) {
   const { width, height } = useWindowDimensions();
   const [mounted, setMounted] = useState(false);
   const [noteMounted, setNoteMounted] = useState(false);
-  const [onNote, setOnNote] = useState(false); // step 2 is showing: swipe back enabled
-  // The pager's native gesture: taste axes inside block it (blocksExternalGesture)
-  // so a sideways axis drag never pages the sheet. Replaces a JS-state lock that
-  // set scrollEnabled on touch-down — a round trip that can land after UIKit's
-  // pan has already begun.
-  const pagerGesture = useMemo(
-    () =>
-      Gesture.Native()
-        .onBegin(() => {
-          if (GESTURE_LOG) scheduleOnRN(logGesture, 'sheet.pager(native)', 'BEGAN');
-        })
-        .onStart(() => {
-          if (GESTURE_LOG) scheduleOnRN(logGesture, 'sheet.pager(native)', 'ACTIVE');
-        })
-        .onEnd((e, success) => {
-          if (GESTURE_LOG) scheduleOnRN(logGesture, 'sheet.pager(native)', success ? 'END' : 'CANCELLED');
-        })
-        .onFinalize((e, success) => {
-          if (GESTURE_LOG && !success) scheduleOnRN(logGesture, 'sheet.pager(native)', 'FAILED (finalize)');
-        }),
-    []
-  );
-  const pendingPush = useRef(false);
-  const pager = useRef(null);
+  const [onNote, setOnNote] = useState(false); // step 2 showing: edge swipe enabled
   const translateY = useRef(new Animated.Value(height)).current;
+  const pos = useSharedValue(0); // 0 → Log a cup, 1 → Tasting note
+  const w = useSharedValue(width);
+
+  useEffect(() => {
+    w.value = width;
+  }, [w, width]);
 
   const slide = (toValue, done) =>
     Animated.timing(translateY, { toValue, duration: motion.expand.duration, easing, useNativeDriver: true }).start(done);
@@ -64,8 +56,10 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
     setMounted(true);
     setNoteMounted(false);
     setOnNote(false);
+    pos.value = 0;
     translateY.setValue(height);
     slide(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [height, translateY, visible]);
 
   const dismiss = () => {
@@ -77,29 +71,47 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
     });
   };
 
-  // Step 2 is mounted on first use; the push waits until its page is laid out.
-  const openNote = () => {
-    setOnNote(true);
-    if (noteMounted) pager.current?.scrollTo({ x: width, animated: true });
-    else {
-      pendingPush.current = true;
-      setNoteMounted(true);
-    }
+  const toStep = (to) => {
+    'worklet';
+    pos.value = withTiming(to, { duration: motion.expand.duration, easing: stepEasing });
   };
-  const onContentSizeChange = (w) => {
-    if (pendingPush.current && w >= width * 2) {
-      pendingPush.current = false;
-      pager.current?.scrollTo({ x: width, animated: true });
-    }
+  const openNote = () => {
+    setNoteMounted(true);
+    setOnNote(true);
+    toStep(1);
   };
   const backToRecord = () => {
     setOnNote(false);
-    pager.current?.scrollTo({ x: 0, animated: true });
+    toStep(0);
   };
-  // A swipe settles on a page: that page decides whether swiping stays on.
-  // Momentum end only: switching scrollEnabled off mid-settle could cut the
-  // paging animation short.
-  const settle = (e) => setOnNote(Math.round(e.nativeEvent.contentOffset.x / width) === 1);
+  const log = (st, extra) => logGesture('sheet.edge', st, extra);
+
+  const edgeSwipe = Gesture.Pan()
+    .enabled(onNote)
+    .hitSlop({ left: 0, width: EDGE })
+    .activeOffsetX(10)
+    .failOffsetY([-10, 10])
+    .onBegin((e) => {
+      if (GESTURE_LOG) scheduleOnRN(log, 'BEGAN', `x=${e.absoluteX.toFixed(1)}`);
+    })
+    .onStart(() => {
+      if (GESTURE_LOG) scheduleOnRN(log, 'ACTIVE');
+    })
+    .onUpdate((e) => {
+      pos.value = 1 - Math.min(1, Math.max(0, e.translationX / w.value));
+    })
+    .onEnd((e) => {
+      const back = e.translationX > w.value * BACK_DISTANCE || e.velocityX > BACK_VELOCITY;
+      toStep(back ? 0 : 1);
+      if (back) scheduleOnRN(setOnNote, false);
+      if (GESTURE_LOG) scheduleOnRN(log, back ? 'END → back' : 'END → stay');
+    })
+    .onFinalize((e, success) => {
+      if (GESTURE_LOG && !success) scheduleOnRN(log, 'FAILED');
+    });
+
+  const recordStyle = useAnimatedStyle(() => ({ transform: [{ translateX: -pos.value * w.value }] }));
+  const noteStyle = useAnimatedStyle(() => ({ transform: [{ translateX: (1 - pos.value) * w.value }] }));
 
   if (!mounted) return null;
 
@@ -118,34 +130,16 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
             }
           : undefined
       }>
-      <AxisPagerGestureContext.Provider value={pagerGesture}>
-        <GestureDetector gesture={pagerGesture}>
-          <ScrollView
-            ref={pager}
-            horizontal
-            pagingEnabled
-            directionalLockEnabled
-            scrollEnabled={onNote}
-            showsHorizontalScrollIndicator={false}
-            onContentSizeChange={onContentSizeChange}
-            onMomentumScrollEnd={(e) => {
-              if (GESTURE_LOG) logGesture('sheet.pager(UIKit)', 'MOMENTUM_END', `x=${e.nativeEvent.contentOffset.x.toFixed(1)}`);
-              settle(e);
-            }}
-            onScrollBeginDrag={GESTURE_LOG ? (e) => logGesture('sheet.pager(UIKit)', 'DRAG_BEGIN', `x=${e.nativeEvent.contentOffset.x.toFixed(1)}`) : undefined}
-            onScrollEndDrag={GESTURE_LOG ? (e) => logGesture('sheet.pager(UIKit)', 'DRAG_END', `x=${e.nativeEvent.contentOffset.x.toFixed(1)}`) : undefined}
-            keyboardShouldPersistTaps="handled">
-            <View style={{ width }}>
-              <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} />
-            </View>
-            {noteMounted ? (
-              <View style={{ width }}>
-                <TastingNoteScreen onBack={backToRecord} />
-              </View>
-            ) : null}
-          </ScrollView>
+      <Reanimated.View style={[StyleSheet.absoluteFill, recordStyle]}>
+        <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} />
+      </Reanimated.View>
+      {noteMounted ? (
+        <GestureDetector gesture={edgeSwipe}>
+          <Reanimated.View style={[StyleSheet.absoluteFill, styles.overlay, noteStyle]}>
+            <TastingNoteScreen onBack={backToRecord} />
+          </Reanimated.View>
         </GestureDetector>
-      </AxisPagerGestureContext.Provider>
+      ) : null}
     </Animated.View>
   );
 }

@@ -257,12 +257,14 @@ export const size = {
   checkbox: 24,
   weekday: { column: 68 },
   /**
-   * Taste axis slider, L3 + H1 (2026-10-08): rail 240 wide × 28 tall, centred
-   * in its card; handle 16 × 40 → 5 stops 56pt apart ((240 − 16) / 4). rail
+   * Taste axis slider, L3 + H1 (2026-10-08): rail 260 wide × 28 tall, centred
+   * in its card; handle 16 × 40 → 5 stops 61pt apart ((260 − 16) / 4). 260
+   * (was 240) fits the pole labels at label.caps: Low + High sweetness are 245
+   * together, leaving ~15 between them. rail
    * was 20 (the mock); railWidth and handle are new with this layout.
    * needle (12 × 30) is the display axis's, until AxisReadout replaces it.
    */
-  axis: { rail: 28, railWidth: 240, handle: { w: 16, h: 40 }, needle: { w: 12, h: 30 } },
+  axis: { rail: 28, railWidth: 260, handle: { w: 16, h: 40 }, needle: { w: 12, h: 30 } },
   meter: { track: 4 },
   marker: { line: { w: 2, h: 14 } },
   dot: { bullet: 6 },

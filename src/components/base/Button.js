@@ -13,7 +13,8 @@ import Text from './Text';
  *   text       label only (label.caps, ink): no fill, no frame, sized to its
  *              label; the touch area is padded out to size.tapTarget. Added
  *              2026-10-07 for the taste axis "Clear". Having no surface, it
- *              presses by scale (state.pressed.scale over motion.press), §1
+ *              presses by scale (state.pressed.scale over motion.press), §1.
+ *              small: label.eyebrow instead (the taste axis Clear, 2026-10-08)
  *   disabled   either variant: ground fill, border.muted outline, text.muted
  *              label, no shadow — the border.addSlot.inert vocabulary from 5d
  *   pressed    the fill darkens (state.pressed.action / .surface); outline,
@@ -43,7 +44,7 @@ const pressEasing = Easing.bezier(...motion.press.controlPoints);
 // Pads the label's line (label.caps, ~13) out to at least size.tapTarget (44).
 const TEXT_HIT_SLOP = { top: space[16], bottom: space[16], left: space[8], right: space[8] };
 
-function TextButton({ label, disabled = false, onPress, accessibilityLabel }) {
+function TextButton({ label, small = false, disabled = false, onPress, accessibilityLabel }) {
   const scale = useRef(new Animated.Value(1)).current;
   const scaleTo = (toValue) =>
     Animated.timing(scale, { toValue, duration: motion.press.duration, easing: pressEasing, useNativeDriver: true }).start();
@@ -58,7 +59,7 @@ function TextButton({ label, disabled = false, onPress, accessibilityLabel }) {
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled }}>
       <Animated.View style={{ transform: [{ scale }] }}>
-        <Text variant="labelCaps" color={disabled ? 'muted' : 'primary'}>
+        <Text variant={small ? 'labelEyebrow' : 'labelCaps'} color={disabled ? 'muted' : 'primary'}>
           {label}
         </Text>
       </Animated.View>

@@ -1,11 +1,10 @@
 import * as Haptics from 'expo-haptics';
-import { memo, useContext, useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { component, motion, size, spacing, state, textStyle, texture } from '../../theme/tokens';
-import { AxisPagerGestureContext } from './axisGestureContext';
 import Button from './Button';
 import { GESTURE_LOG, logGesture } from './gestureLog';
 import Text from './Text';
@@ -141,11 +140,11 @@ function Needle({ part, style }) {
 function Pole({ label, litStyle, align }) {
   return (
     <View style={align === 'right' ? styles.poleRight : null}>
-      <Text variant="labelEyebrow" color="muted">
+      <Text variant="labelCaps" color="muted">
         {label}
       </Text>
       <Animated.View style={[StyleSheet.absoluteFill, litStyle]} pointerEvents="none">
-        <Text variant="labelEyebrow" color="primary" style={align === 'right' ? styles.textRight : null}>
+        <Text variant="labelCaps" color="primary" style={align === 'right' ? styles.textRight : null}>
           {label}
         </Text>
       </Animated.View>
@@ -157,7 +156,6 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
   const operable = !derived;
   const isEntered = operable && value != null;
   const committedStep = value == null ? MIDDLE : valueToStep(value);
-  const pagerGesture = useContext(AxisPagerGestureContext);
   const who = `axis:${from}`;
 
   const trackW = useSharedValue(0); // the inset track the stops sit on
@@ -248,11 +246,6 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
       if (GESTURE_LOG && !success) scheduleOnRN(log, 'tap FAILED');
     });
 
-  // An enclosing pager (the Record sheet) waits for this axis to fail first.
-  if (pagerGesture) {
-    pan.blocksExternalGesture(pagerGesture);
-    tap.blocksExternalGesture(pagerGesture);
-  }
   const gesture = Gesture.Exclusive(pan, tap);
 
   const move = useAnimatedStyle(() => ({
@@ -262,8 +255,9 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
     ],
   }));
   const enteredStyle = useAnimatedStyle(() => ({ opacity: enteredOn.value }));
-  /** Clear sits under the handle and travels with it. */
+  /** Clear sits under the handle and travels with it; hidden while dragging. */
   const underHandle = useAnimatedStyle(() => ({
+    opacity: withTiming(dragging.value ? 0 : 1, { duration: PRESS_MS, easing: pressEasing }),
     transform: [{ translateX: withTiming((step.value / LAST) * trackW.value, { duration: PRESS_MS, easing: pressEasing }) }],
   }));
   const litStyle = useAnimatedStyle(() => ({ opacity: litOn.value }));
@@ -327,7 +321,7 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
     <View style={styles.slot}>
       {isEntered ? (
         <Animated.View style={[styles.underHandle, underHandle]} pointerEvents="box-none">
-          <Button variant="text" label="Clear" accessibilityLabel={`Clear ${from} to ${to}`} onPress={() => onChange?.(null)} />
+          <Button variant="text" small label="Clear" accessibilityLabel={`Clear ${from} to ${to}`} onPress={() => onChange?.(null)} />
         </Animated.View>
       ) : (
         <Text variant="meta" color="muted">
