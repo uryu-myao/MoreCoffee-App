@@ -849,21 +849,21 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 **Under the finger.** While dragging, the pole label on the side of the needle's step turns `text.primary`. At **Balanced neither does**: the middle step is the middle. There is no dead zone; the steps replace it.
 
 **Gesture.**
-- Pan (`activeOffsetX` / `failOffsetY` ±10) and tap-to-set, `Exclusive`, with a 44pt touch band (`hitSlop`). Vertical scroll has priority.
-- Inside the Record sheet, the axis blocks the sheet's swipe-back pager (`blocksExternalGesture`).
-- **Edge case, found by the gesture log on device (2026-10-08)**:
-  - The axis pan never let go: in every drag it stayed ACTIVE through AT_END (0 / 100) and past the rail (x down to −31) until the finger lifted.
-  - Every unwanted sheet movement was a separate touch in which **the axis received nothing** (no axis BEGAN), with only the sheet pager BEGAN → ACTIVE. The sheet moved 11–116pt and bounced back to page 2.
-  - So those touches started just **outside the rail's ends**, where the needle sits at 0 / 100, and the touch band reached only above and below the rail.
-  - **Fix**: the touch band now reaches 12pt past both ends as well (`hitSlop` on all sides). It still stops 28pt in from the screen edge, so the edge swipe back is untouched.
-  - To be re-checked on device with the log on.
+- Pan (`activeOffsetX` / `failOffsetY` ±10) and tap-to-set, `Exclusive`. Vertical scroll has priority.
+- **Touch band**: a real view 12pt larger than the rail on every side (negative margins, layout unchanged). A gesture-handler `hitSlop` was tried first and did nothing on iOS: no axis touch ever began outside the rail, because a touch outside a view's bounds is hit-tested to the view underneath.
+- **Competition with swipe-back, resolved by removing the competitor (2026-10-08).**
+  - Three device logs showed that the axis pan never let go. It stayed ACTIVE through 0 / 100 and past the rail until the finger lifted.
+  - Every unwanted sheet movement was a touch the axis never received, taken by the Record sheet's full-width swipe-back pager.
+  - Blocking from the axis (`blocksExternalGesture`, then the real touch band) did not hold.
+  - The sheet now swipes back only from a 44pt strip at the left edge (§9 Record sheet steps), so nothing competes with the axes. Device-confirmed: axis drags no longer move the sheet.
+  - Residual, not explained: a few touches logged inside an axis band never produced an axis BEGAN (`gaps.md` 14).
 
 **Screen reader.**
 - Role adjustable; one swipe = one step.
 - The value is read as the step's name ("Leaning bitter"); an empty axis reads "Not entered yet".
 - The first adjustment of an empty axis starts from Balanced. Custom action Clear when entered.
 
-**Device-tuning constants**: `ACTIVE_OFFSET_X` / `FAIL_OFFSET_Y` = 10, `TAP_MAX_DISTANCE` = 8 (top of `AxisSlider.js`). The 340ms crossfade is gone: the rail no longer changes.
+**Device-tuning constants**: `ACTIVE_OFFSET_X` / `FAIL_OFFSET_Y` = 10, `TAP_MAX_DISTANCE` = 8 (top of `AxisSlider.js`); the edge swipe's `EDGE` / `FAIL_OFFSET_Y` / `BACK_*` in `AddCoffeeOverlay.js`. The 340ms crossfade is gone: the rail no longer changes.
 
 ### Taste axis readout (AxisReadout — spec 2026-10-07, to be built)
 The display of computed values: 1b / 4a / 4b (the profile) and 5c (the change after a save). It is **not operable** and belongs to the read-only bar family of `beanFreshness`. No new visual language.

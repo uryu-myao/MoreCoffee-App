@@ -247,6 +247,20 @@ Plus, globally:
 
 ---
 
+## 14. Taste axis: a few touches inside the band never reach the axis — accepted for now (added 2026-10-08)
+
+**Parts affected**: `AxisSlider` on 5b.
+
+**Status**: the visible problem, axis drags moving the Record sheet, is **resolved by design**. The sheet's swipe back now starts only from a 44pt left-edge strip, so nothing competes with the axes. Device-confirmed.
+
+**What remains, accepted for now**: in the device logs a few touches started inside a logged axis band yet produced no axis BEGAN.
+- Possible cause: the band was logged once, at mount, so after the page scrolled the logged y no longer matched.
+- Unconfirmed. Since the page no longer moves, the effect is only that the drag does nothing; the user retries.
+
+**To close it**: log the band again on scroll (or log the touch in the axis's own coordinates) and check whether any genuinely inside touch is missed.
+
+---
+
 ## Step 4 device verification — RESOLVED (2026-10-04)
 
 The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.
