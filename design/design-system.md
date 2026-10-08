@@ -837,7 +837,7 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 - The rail is **260 × 28** (`size.axis.railWidth` / `size.axis.rail`), **centred** in its card.
 - The pole labels are **`label.caps`** (12; was `label.eyebrow` 10, enlarged on review 2026-10-08) and sit at the rail's ends. 260 (up from the first 240) fits the longest pair, Low / High sweetness at 245, with ~15 between.
 - The **handle is 16 × 40** (`size.axis.handle`), so the 5 stops are **61pt apart** ((260 − 16) / 4). The old full-width rail made 74.5, too far for a 5-step control.
-- **Grip**: a short centre line on the handle, as wide as its stroke (2) and 14 tall (the readout marker's height). It takes the handle's stroke colour until the axis is changed, then **turns white** (`icon.onAction`) once entered. Ink while lit.
+- **Grip**: a short centre line on the handle, as wide as its stroke (2) and 14 tall (the readout marker's height, the same as `beanFreshness`' todayMarker; approved 2026-10-08). It takes the handle's stroke colour until the axis is changed, then **turns white** (`icon.onAction`) once entered. Ink while lit.
 - **Clear sits under the handle and travels with it** (from Uryu's sketch), in the same fixed 17pt slot. It is **hidden while dragging** and set in **`label.eyebrow`** (the Button text variant's `small`), smaller than the pole labels. "Not noted" stays at the rail's start.
 - On iPhone 14 the rail spans x 65–325: 65pt from each screen edge.
 - Superseded the rail at full card width (310, 74.5 per step) and the 12 × 32 needle.
