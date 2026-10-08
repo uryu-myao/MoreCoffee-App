@@ -68,9 +68,56 @@ const N_ENTERED = { h: 32, bg: color.icon.accent, bw: 2, bc: color.border.strong
 const N_LIT_RATING = { h: 32, bg: color.icon.rating, bw: 2, bc: color.border.strong };
 const N_LIT_STRONG = { h: 32, bg: color.text.accentStrong, bw: 2, bc: color.border.strong };
 
+/** Rail length / size candidates (2026-10-08). Values in pt; static drawings. */
+function Axis2({ railW, railH, handleW, handleH, labelsAtRail, step = 3, from = "Low sweetness", to = "High sweetness" }) {
+  const track = railW - handleW;
+  const x = handleW / 2 + (step / 4) * track;
+  const poles = (
+    <View style={[styles.poles, labelsAtRail ? { width: railW, alignSelf: "center" } : null]}>
+      <Text variant="labelEyebrow" color="muted">{from}</Text>
+      <Text variant="labelEyebrow" color="muted">{to}</Text>
+    </View>
+  );
+  return (
+    <View style={{ gap: spacing.gap.row }}>
+      {poles}
+      <View style={{ width: railW, height: railH, alignSelf: "center", borderWidth: 1.5, borderColor: color.border.muted, backgroundColor: color.surface.ground }}>
+        {[1, 2, 3].map((i) => <View key={i} style={{ position: "absolute", top: 0, bottom: 0, width: 1.5, marginLeft: -0.75, left: handleW / 2 - 1.5 + (i / 4) * track, backgroundColor: color.surface.muted }} />)}
+        <View style={{ position: "absolute", left: x - handleW / 2 - 1.5, top: (railH - handleH) / 2 - 1.5, width: handleW, height: handleH, backgroundColor: color.icon.accent, borderWidth: 2, borderColor: color.border.strong }} />
+      </View>
+    </View>
+  );
+}
+function CardBox({ children }) {
+  return <View style={{ backgroundColor: color.surface.raised, borderWidth: 2, borderColor: color.border.strong, padding: 16, gap: 20 }}>{children}</View>;
+}
+
 export default function ReadoutExperimentPage() {
   return (
     <HarnessPage>
+      <HarnessGroup title="R layout — rail 28 tall, handle 16×40">
+        <HarnessCase label="now: rail 310 (card width), 74.5/step">
+          <CardBox><Axis2 railW={310} railH={20} handleW={12} handleH={32} from="Acid" to="Bitter" /><Axis2 railW={310} railH={20} handleW={12} handleH={32} /></CardBox>
+        </HarnessCase>
+        <HarnessCase label="L1: rail 220 centred, labels at the rail ends (51/step)">
+          <CardBox><Axis2 railW={220} railH={28} handleW={16} handleH={40} labelsAtRail from="Acid" to="Bitter" /><Axis2 railW={220} railH={28} handleW={16} handleH={40} labelsAtRail /></CardBox>
+        </HarnessCase>
+        <HarnessCase label="L2: rail 220 centred, labels at the card edges (51/step)">
+          <CardBox><Axis2 railW={220} railH={28} handleW={16} handleH={40} from="Acid" to="Bitter" /><Axis2 railW={220} railH={28} handleW={16} handleH={40} /></CardBox>
+        </HarnessCase>
+        <HarnessCase label="L3: rail 240 centred, labels at the rail ends (56/step)">
+          <CardBox><Axis2 railW={240} railH={28} handleW={16} handleH={40} labelsAtRail from="Acid" to="Bitter" /><Axis2 railW={240} railH={28} handleW={16} handleH={40} labelsAtRail /></CardBox>
+        </HarnessCase>
+      </HarnessGroup>
+      <HarnessGroup title="H size — rail 240">
+        <HarnessCase label="H1: rail 28, handle 16×40">
+          <CardBox><Axis2 railW={240} railH={28} handleW={16} handleH={40} labelsAtRail from="Acid" to="Bitter" /></CardBox>
+        </HarnessCase>
+        <HarnessCase label="H2: rail 32, handle 20×44">
+          <CardBox><Axis2 railW={240} railH={32} handleW={20} handleH={44} labelsAtRail from="Acid" to="Bitter" /></CardBox>
+        </HarnessCase>
+        <HarnessCase label="readout 4pt for contrast"><Row value={75} mode="B" /></HarnessCase>
+      </HarnessGroup>
       <HarnessGroup title="D add-slot dashes: ink (now) vs text.muted #6B5D55">
         {[color.border.strong, color.text.muted].map((c) => (
           <HarnessCase key={c} label={c === color.border.strong ? "ink #273D22 (now)" : "#6B5D55 (2 steps lighter)"}>
