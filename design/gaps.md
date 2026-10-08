@@ -265,6 +265,12 @@ Plus, globally:
 - The slot comes after the touch band, so it is drawn above it and wins the overlap. A touch there goes to Clear's Pressable, and the axis gets nothing. A drag cancels the press; **a tap there would clear the axis**.
 - Confirmed on the simulator with the renderer's own point lookup (`findNodeAtPoint`): the slot wins from about 23pt below the rail's top edge.
 
+**Re-measured after the 2026-10-08 revision** (Clear right-aligned under a 34pt track; simulator, `findNodeAtPoint` plus geometry):
+- Clear's slop now reaches about **5pt into the bottom of the track**, from the track's x 209 to 268. That is the right ~51pt, plus 8pt beyond the end.
+- No stop but the last is touched. At the last stop (handle x 230–256, y 4–30 of 34) only a **1pt strip at the handle's bottom** overlaps.
+- What remains: a tap just under the track's right end clears the axis. That spot sits right above the Clear label.
+- Decision pending: accept, or apply option 1 below.
+
 **Fix options** (none applied):
 1. **Draw the touch band above the slot**: render order or `zIndex`. The band wins its whole area and Clear keeps its slop elsewhere. Clear's reachable height then runs from the band's bottom down, about 31pt instead of 44.
 2. **Asymmetric slop for Clear**: top small, bottom larger, pushing its 44pt down into the 20pt gap before the next axis. Its slop must still not reach the next axis's labels.

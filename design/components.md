@@ -174,11 +174,7 @@ The Switch is not built yet. The taste-axis handle is now derived from it, so th
 - handle = track height − 8;
 - 260 wide, so a step is (252 − handle) / 4.
 
-Two candidates:
-- **A**: 30 / 22, identical to the Switch;
-- **B**: 34 / 26, read off Uryu's screenshot.
-
-The track height is pending (2026-10-08).
+**Chosen: B**, 34 / 26, read off Uryu's screenshot (built 2026-10-08). A, 30 / 22 and identical to the Switch, was compared and not taken.
 
 **Why**: a square handle belongs to the same family as the switch knob, so the app's shape vocabulary lines up (`design-system.md` §9 Taste axis slider).
 
