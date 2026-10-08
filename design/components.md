@@ -153,6 +153,35 @@ Every use, transcribed. The spec is not written yet; the behaviour the stills do
   - But it is one of the axis component's two states, the same mechanism-bound case as `state.pressed`, which was promoted on that ground.
   - If promoted, the naming rule says the existing `component.axis.needle` (the not-entered needle) is misnamed too. The pair would read `needle.derived` / `needle.entered`, matching the rail.
 
+## Switch and the axis handle share one geometry (recorded 2026-10-08)
+
+The Switch is not built yet. The taste-axis handle is now derived from it, so this relation is also **the premise for building the Switch**.
+
+**The Switch in the mocks** (8g, 8i ×3, 8j ×2, 8m; 3e's 62 × 34 ink switch is drift D-20):
+
+| part | value |
+|---|---|
+| track | **52 × 30**, border **2** |
+| padding (knob ↔ track) | **2** |
+| knob | **22 × 22**, square, border **2** |
+| off | track `border.muted` frame on `surface.sunken`; knob `surface.raised` with a `border.muted` frame |
+| on | track `border.strong` frame on `action.bg` (blue); knob `surface.raised` with a `border.strong` frame |
+
+**The relation**: knob = track height − 2 × border − 2 × padding (30 − 4 − 4 = 22). Border and padding are both 2. The knob is square.
+
+**The axis handle** follows the same relation:
+- border 2, inset 2, a square handle;
+- handle = track height − 8;
+- 260 wide, so a step is (252 − handle) / 4.
+
+Two candidates:
+- **A**: 30 / 22, identical to the Switch;
+- **B**: 34 / 26, read off Uryu's screenshot.
+
+The track height is pending (2026-10-08).
+
+**Why**: a square handle belongs to the same family as the switch knob, so the app's shape vocabulary lines up (`design-system.md` §9 Taste axis slider).
+
 ## Estimate
 
 | scope | items |
