@@ -478,8 +478,10 @@ Fixed element dimensions. **Never subject to the spacing scale** — snapping th
 | `size.badge.numeral` | 22 | 7 screens / 20 uses — numbered step badges, checkboxes |
 | `size.checkbox` | 24 | 3 screens / 22 uses |
 | `size.weekday.column` | 68 | 6 screens |
-| `size.axis.rail` | 20 | 6 screens / 26 uses |
-| `size.axis.needle` | `{ w: 12, h: 30 }` | 6 screens |
+| `size.axis.rail` | **28** (was 20, the mock; L3 + H1, 2026-10-08) | the slider's rail height |
+| `size.axis.railWidth` | 240 | the slider's rail width, centred in its card (added 2026-10-08) |
+| `size.axis.handle` | `{ w: 16, h: 40 }` | the slider's handle (added 2026-10-08); stops 56pt apart |
+| `size.axis.needle` | `{ w: 12, h: 30 }` | 6 screens; now only the display axis, until AxisReadout replaces it |
 | `size.meter.track` | 4 | 2 screens — `beanFreshness` height |
 | `size.marker.line` | `{ w: 2, h: 14 }` | marker / caret line width |
 | `size.dot.bullet` | 6 | 4 screens / 31 uses — square section bullets |
@@ -813,9 +815,18 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
   - The needle presses by scale, because it is under 44pt (§1 Pressed).
   - On release it settles to entered.
 
+**Layout and size: L3 + H1 (2026-10-08).**
+- The rail is **240 × 28** (`size.axis.railWidth` / `size.axis.rail`), **centred** in its card.
+- The pole labels sit at the rail's ends; at 240 the longest pair (Low / High sweetness, 225) still clears by about 15.
+- The **handle is 16 × 40** (`size.axis.handle`), so the 5 stops are **56pt apart** ((240 − 16) / 4). The old full-width rail made 74.5, too far for a 5-step control.
+- **Grip**: a short centre line on the handle, as wide as its stroke (2) and 14 tall (the readout marker's height). It takes the handle's stroke colour until the axis is changed, then **turns white** (`icon.onAction`) once entered. Ink while lit.
+- **Clear sits under the handle and travels with it** (from Uryu's sketch), in the same fixed 17pt slot. "Not noted" stays at the rail's start.
+- On iPhone 14 the rail spans x 75–315: 75pt from each screen edge, about 63pt clear of the 12pt touch band.
+- Superseded the rail at full card width (310, 74.5 per step) and the 12 × 32 needle.
+
 **Stops and travel.**
-- The 5 stops and the 3 reference lines (`texture.rule` at the inner stops) sit on a track **inset by half a needle (6pt)** from each rail end, so the needle never overhangs the rail at 0 or 100.
-- 5b's stops: x 46 / 120.5 / 195 / 269.5 / 344. The rail spans 40–350, 40pt from both screen edges.
+- The 5 stops and the 3 reference lines (`texture.rule` at the inner stops) sit on a track **inset by half the handle (8pt)** from each rail end, so the handle never overhangs the rail at 0 or 100.
+- 5b's stops on iPhone 14: x 83 / 139 / 195 / 251 / 307.
 - **Discrete = snapping**: the needle moves stop to stop (eased over `motion.press`).
 - **A selection haptic on every step change**, so the number of steps moved can be felt without looking.
 
@@ -1025,3 +1036,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-07 — §1 added: **Colour roles** (blue = in force, ink = chosen; settings checkboxes are chosen) and **Disabled options** (the lock look as every option set's disabled state, two reasons). Tap affordance: 6a / 8d attribute tags are a display form, 8f / 8h word tags are pressable, and height decides. Focus: on iOS delegated to the OS.
 - 2026-10-07 — §9 Taste axis slider spec written: four states (derived / empty / provisional / entered) each deciding rail and needle, 0–100 points, commit on release with revert on scroll takeover, Clear only when entered, ±5 dead zone, vertical scroll priority, adjustable role. §1 added: Animation systems (Animated stays, Reanimated for finger-following gestures) and Dashed does not mean "cannot be operated" (colour decides).
 - 2026-10-07 — Tab swipe removed (tab bar only). Taste axis slider revised: five steps named Strongly / Leaning / Balanced, one rail for every state (1.5 `border.muted` on ground), needle empty / lit (#C9821A) / entered, stops inset 6pt, a haptic per step. AxisReadout specified (fill from 50, marker carries the value). §1 Pressed: under 44pt scale, 44pt and up darken. `border.addSlot` lightened to #6B5D55; the dashed rule moved from §1 to §8.
+- 2026-10-08 — Taste axis slider L3 + H1: rail 240 × 28 centred with the labels at its ends, handle 16 × 40, stops 56pt apart; a centre grip that turns white once entered; Clear under the handle. Tokens: `size.axis.rail` 20 → 28, `size.axis.railWidth` and `size.axis.handle` added.

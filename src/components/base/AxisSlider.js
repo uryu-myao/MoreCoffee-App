@@ -30,8 +30,11 @@ import Text from './Text';
  * gesture taken away restores the committed step. Clear (entered only) is the
  * one way back to empty.
  *
- * The 5 stops and the 3 reference lines sit on a track inset by half a needle
- * (6pt) from each rail end, so the needle never overhangs the rail at 0 / 100.
+ * Layout L3 + H1 (2026-10-08): rail 240 × 28 centred, pole labels at its
+ * ends, handle 16 × 40 with a centre grip (stroke-wide, white once entered).
+ * The 5 stops and the 3 reference lines sit on a track inset by half a handle
+ * (8pt), so stops are 56pt apart and the handle never overhangs at 0 / 100.
+ * Clear sits under the handle and travels with it.
  *
  * Runs on the UI thread (Reanimated + gesture-handler, §1 Animation systems).
  *
@@ -54,6 +57,9 @@ const TAP_MAX_DISTANCE = 8;
 
 const STATE = component.axis.state;
 const RAIL_H = component.axis.rail.height;
+/** L3: a fixed-width rail centred in its card; the pole labels sit at its ends. */
+const RAIL_W = component.axis.rail.width;
+const GRIP = component.axis.grip;
 const BAND_PAD = (size.tapTarget - RAIL_H) / 2;
 /**
  * The touch band is a REAL view, BAND_PAD larger than the rail on every side
@@ -124,8 +130,10 @@ function Needle({ part, style }) {
           borderColor: part.borderColor,
         },
         style,
-      ]}
-    />
+      ]}>
+      {/* The grip: a short centre line, the handle's stroke wide. White once entered. */}
+      {part.grip ? <View style={[styles.grip, { backgroundColor: part.grip }]} /> : null}
+    </Animated.View>
   );
 }
 
@@ -254,6 +262,10 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
     ],
   }));
   const enteredStyle = useAnimatedStyle(() => ({ opacity: enteredOn.value }));
+  /** Clear sits under the handle and travels with it. */
+  const underHandle = useAnimatedStyle(() => ({
+    transform: [{ translateX: withTiming((step.value / LAST) * trackW.value, { duration: PRESS_MS, easing: pressEasing }) }],
+  }));
   const litStyle = useAnimatedStyle(() => ({ opacity: litOn.value }));
   const lowLit = useAnimatedStyle(() => ({ opacity: dragging.value && step.value < MIDDLE ? 1 : 0 }));
   const highLit = useAnimatedStyle(() => ({ opacity: dragging.value && step.value > MIDDLE ? 1 : 0 }));
@@ -314,7 +326,9 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
   ) : (
     <View style={styles.slot}>
       {isEntered ? (
-        <Button variant="text" label="Clear" accessibilityLabel={`Clear ${from} to ${to}`} onPress={() => onChange?.(null)} />
+        <Animated.View style={[styles.underHandle, underHandle]} pointerEvents="box-none">
+          <Button variant="text" label="Clear" accessibilityLabel={`Clear ${from} to ${to}`} onPress={() => onChange?.(null)} />
+        </Animated.View>
       ) : (
         <Text variant="meta" color="muted">
           Not noted
@@ -324,7 +338,7 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
   );
 
   return (
-    <View style={styles.axis} {...a11y}>
+    <View style={[styles.axis, operable && styles.axisSized]} {...a11y}>
       <View style={styles.poles}>
         <Pole label={from} litStyle={lowLit} />
         <Pole label={to} litStyle={highLit} align="right" />
@@ -387,6 +401,10 @@ const styles = StyleSheet.create({
   axis: {
     gap: spacing.gap.row,
   },
+  axisSized: {
+    width: RAIL_W,
+    alignSelf: 'center',
+  },
   poles: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -421,6 +439,26 @@ const styles = StyleSheet.create({
   needle: {
     position: 'absolute',
     left: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  grip: {
+    width: GRIP.w,
+    height: GRIP.h,
+  },
+  /**
+   * An anchor centred on the first stop (as wide as the rail, so the label is
+   * measured with room); its child centres on the handle. Touches pass through
+   * everywhere but the button itself.
+   */
+  underHandle: {
+    position: 'absolute',
+    left: INSET - RAIL_W / 2,
+    top: 0,
+    bottom: 0,
+    width: RAIL_W,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   /** Fixed height (one meta line): Not noted / Clear / caption swap without a jump. */
   slot: {

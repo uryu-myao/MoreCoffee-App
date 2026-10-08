@@ -256,7 +256,13 @@ export const size = {
   badge: { numeral: 22 },
   checkbox: 24,
   weekday: { column: 68 },
-  axis: { rail: 20, needle: { w: 12, h: 30 } },
+  /**
+   * Taste axis slider, L3 + H1 (2026-10-08): rail 240 wide × 28 tall, centred
+   * in its card; handle 16 × 40 → 5 stops 56pt apart ((240 − 16) / 4). rail
+   * was 20 (the mock); railWidth and handle are new with this layout.
+   * needle (12 × 30) is the display axis's, until AxisReadout replaces it.
+   */
+  axis: { rail: 28, railWidth: 240, handle: { w: 16, h: 40 }, needle: { w: 12, h: 30 } },
   meter: { track: 4 },
   marker: { line: { w: 2, h: 14 } },
   dot: { bullet: 6 },
@@ -380,20 +386,24 @@ const axisNeedle = {
    * Its position — 50 — is a PLACEHOLDER, NOT A VALUE: never save it, never
    * read it as "the default is 50". An empty axis has no value (null).
    */
-  empty: { ...size.axis.needle, background: color.surface.muted, borderColor: color.border.medium, borderWidth: shape.borderWidth.divider },
+  empty: { ...size.axis.handle, background: color.surface.muted, borderColor: color.border.medium, borderWidth: shape.borderWidth.divider, grip: color.border.medium },
+  /** The user's own value: accent fill, 2px ink. Its grip turns white — "changed". */
+  entered: { ...size.axis.handle, background: color.icon.accent, borderColor: color.border.strong, borderWidth: shape.borderWidth.box, grip: color.icon.onAction },
   /**
-   * The user's own value. Promoted from 5b's local constant (2026-10-07):
-   * accent fill, 2px ink, 12 × 32 — two taller than the others, matching the
-   * entered rail's thicker border.
+   * While the finger is on it: icon.rating (#C9821A, the same value under a
+   * handle role), so it reads as "entered, brighter", not a third state.
+   * Settles to entered on release (motion.press). Grip in ink: not yet changed.
    */
-  entered: { w: size.axis.needle.w, h: 32, background: color.icon.accent, borderColor: color.border.strong, borderWidth: shape.borderWidth.box },
-  /**
-   * While the finger is on it: the entered needle lit in icon.rating (#C9821A,
-   * the same value under a needle role), so it reads as "entered, brighter",
-   * not as a third state. Settles to entered on release (motion.press).
-   */
-  lit: { w: size.axis.needle.w, h: 32, background: color.icon.rating, borderColor: color.border.strong, borderWidth: shape.borderWidth.box },
+  lit: { ...size.axis.handle, background: color.icon.rating, borderColor: color.border.strong, borderWidth: shape.borderWidth.box, grip: color.border.strong },
 } as const;
+
+/**
+ * The short vertical grip at the handle's centre (2026-10-08, from Uryu's
+ * sketch): the handle's stroke width, the readout marker's 14 tall. It turns
+ * white once the axis has been changed (entered); before that it takes the
+ * handle's own stroke colour.
+ */
+const axisGrip = { w: shape.borderWidth.box, h: 14 } as const;
 
 /** Component anatomies whose parts are mechanism-bound. */
 export const component = {
@@ -437,7 +447,8 @@ export const component = {
       lit:     { rail: axisRail.track, needle: axisNeedle.lit },
       entered: { rail: axisRail.track, needle: axisNeedle.entered },
     },
-    rail: { height: size.axis.rail },
+    rail: { height: size.axis.rail, width: size.axis.railWidth },
+    grip: axisGrip,
     /** previous value */
     ghost:  { w: 10, h: 10, borderColor: color.border.medium },
     /** movement since the last value */
