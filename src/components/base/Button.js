@@ -14,7 +14,8 @@ import Text from './Text';
  *              label; the touch area is padded out to size.tapTarget. Added
  *              2026-10-07 for the taste axis "Clear". Having no surface, it
  *              presses by scale (state.pressed.scale over motion.press), §1.
- *              small: label.eyebrow instead (the taste axis Clear, 2026-10-08)
+ *              small: `meta` as written, not caps — the taste axis Clear, set
+ *              like the "Not noted" it replaces (2026-10-09; was label.eyebrow)
  *   disabled   either variant: ground fill, border.muted outline, text.muted
  *              label, no shadow — the border.addSlot.inert vocabulary from 5d
  *   pressed    the fill darkens (state.pressed.action / .surface); outline,
@@ -43,6 +44,9 @@ export default function Button(props) {
 const pressEasing = Easing.bezier(...motion.press.controlPoints);
 // Pads the label's line (label.caps, ~13) out to at least size.tapTarget (44).
 const TEXT_HIT_SLOP = { top: space[16], bottom: space[16], left: space[8], right: space[8] };
+// small: meta's 17pt line + 2 × 14 = 45. A smaller top reach also keeps the
+// taste axis Clear's slop shallower over the track above it (gaps.md 14).
+const SMALL_HIT_SLOP = { top: space[14], bottom: space[14], left: space[8], right: space[8] };
 
 function TextButton({ label, small = false, disabled = false, onPress, accessibilityLabel }) {
   const scale = useRef(new Animated.Value(1)).current;
@@ -54,12 +58,12 @@ function TextButton({ label, small = false, disabled = false, onPress, accessibi
       disabled={disabled}
       onPressIn={disabled ? undefined : () => scaleTo(state.pressed.scale)}
       onPressOut={disabled ? undefined : () => scaleTo(1)}
-      hitSlop={TEXT_HIT_SLOP}
+      hitSlop={small ? SMALL_HIT_SLOP : TEXT_HIT_SLOP}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled }}>
       <Animated.View style={{ transform: [{ scale }] }}>
-        <Text variant={small ? 'labelEyebrow' : 'labelCaps'} color={disabled ? 'muted' : 'primary'}>
+        <Text variant={small ? 'meta' : 'labelCaps'} color={disabled ? 'muted' : 'primary'}>
           {label}
         </Text>
       </Animated.View>
