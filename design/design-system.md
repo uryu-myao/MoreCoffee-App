@@ -821,13 +821,21 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 
 **Five steps.**
 
-| step | value (points) | name (screen reader) |
-|---|---|---|
-| 0 | 0 | Strongly {low} |
-| 1 | 25 | Leaning {low} |
-| 2 | 50 | **Balanced** |
-| 3 | 75 | Leaning {high} |
-| 4 | 100 | Strongly {high} |
+| step | value (points) | Acid ↔ Bitter | Body | Roast | Sweetness |
+|---|---|---|---|---|---|
+| 0 | 0 | Very bright | Very light-bodied | Very light roast | Barely sweet |
+| 1 | 25 | Bright | Light-bodied | Light roast | Lightly sweet |
+| 2 | 50 | **Balanced** | **Medium-bodied** | **Medium roast** | **Medium sweet** |
+| 3 | 75 | Bitter | Full-bodied | Dark roast | Sweet |
+| 4 | 100 | Very bitter | Very full-bodied | Very dark roast | Very sweet |
+
+**Step names (decided 2026-10-08; replace "Strongly / Leaning {pole}")**: the screen-reader value of each step. To be built with the revision above.
+- **Adjectives, per axis**, not a template over the pole labels: "Strongly light body" is not English.
+- **The middle step uses the most natural word in that axis's domain. It is not the same word on every axis.**
+- Acid ↔ Bitter's low end is **Bright**, not "Acidic": "acidic" sounds negative in English, and the mocks already say "Bright" (6a, 8f).
+- Roast stays a noun phrase (Light roast): roast level is talked about in nouns.
+- Sweetness is one-directional, not bipolar, so its weakest step is **Barely sweet** and its shape differs from the other axes.
+- Superseded table: Strongly {low} / Leaning {low} / Balanced / Leaning {high} / Strongly {high}.
 
 - Why not 1-point steps: Taste DNA is a weighted average with recency decay, so coarse input averages into fine output over many cups. The precision of the input does not set the precision of the output. Asking "38 or 39?" works against logging a cup in 15 seconds.
 - 9 steps was not taken.
@@ -883,7 +891,7 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 
 **Screen reader.**
 - Role adjustable; one swipe = one step.
-- The value is read as the step's name ("Leaning bitter"); an empty axis reads "Not entered yet".
+- The value is read as the step's name ("Bitter"); an empty axis reads "Not entered yet".
 - The first adjustment of an empty axis starts from Balanced. Custom action Clear when entered.
 
 **Device-tuning constants**: `ACTIVE_OFFSET_X` / `FAIL_OFFSET_Y` = 10, `TAP_MAX_DISTANCE` = 8 (top of `AxisSlider.js`); the edge swipe's `EDGE` / `FAIL_OFFSET_Y` / `BACK_*` in `AddCoffeeOverlay.js`. The 340ms crossfade is gone: the rail no longer changes.
@@ -1075,3 +1083,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-08 — §1 Colour roles: three roles. Brown = a value the user entered (axis entered, selected flavour tags), beside blue = in force and ink = chosen. Tap affordance: 5b's brown multi-select is an application of the rule, not an exception. StarRating's gold left open.
 - 2026-10-08 — §1 Colour roles: scope limited to the state of options and values (badges, errors, markers, caret out of scope). Rating stars keep `icon.rating` gold as their own vocabulary. 8f's blue DNA bars → brown (D-22).
 - 2026-10-08 — §9 Taste axis slider: revision specified (square handle derived from the Switch knob, dots at the stops, Clear / Not noted right-aligned under the track, no lit colour while dragging). Size and colours pending.
+- 2026-10-08 — §9 Taste axis step names: per-axis adjectives (Very bright … Very bitter, Very light-bodied … Very full-bodied, Very light roast … Very dark roast, Barely sweet … Very sweet); the middle step takes each axis's most natural word.
