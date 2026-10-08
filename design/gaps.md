@@ -99,6 +99,8 @@ Plus, globally:
 
 **First visible cost (2026-10-06)**: 5b's flavour chips at `inset.control` (44 tall) wrap to **3 rows** at 390pt where the mock's 39-tall chips take 2. This cannot be solved in implementation; it stays at 3 rows for now. To bring with the chip component: whether 44 can hold 2 rows (tighter horizontal padding, fewer chips per row, shorter labels); how much taller the whole screen gets; and whether the mock's 39 was deliberate or simply did not consider tap height.
 
+**Resolved for the mock's chips (2026-10-08)**: horizontal padding back to the mock's 14 (`space.14`) keeps the five chips at 44 tall in **2 rows** at 390pt. Display rule decided with it: selected + unselected = 5 chips, plus Search. Longer words can still make 3 rows (item 15).
+
 **Status (2026-10-04)** for the maker chips (`SegmentedControl`): height is resolved by `inset.control` (44px, no hit-slop). Selected is the 5a ink fill. Pressed follows the §1 Hard Rule. Disabled is still undesigned. The 3f / 2b chips remain open under OQ-13.
 
 ---
@@ -267,6 +269,20 @@ Plus, globally:
 1. **Draw the touch band above the slot**: render order or `zIndex`. The band wins its whole area and Clear keeps its slop elsewhere. Clear's reachable height then runs from the band's bottom down, about 31pt instead of 44.
 2. **Asymmetric slop for Clear**: top small, bottom larger, pushing its 44pt down into the 20pt gap before the next axis. Its slop must still not reach the next axis's labels.
 3. Both.
+
+---
+
+## 15. Flavour tags: long words can make 3 rows — accepted, not solved (added 2026-10-08)
+
+**Parts affected**: the flavour tags on 5b.
+
+**Decided**: 5 chips are shown, selected + unselected (unselected = 5 − selected), plus Search. With the built-in words this keeps **2 rows** at 331–386pt widths: iPhone SE to Pro Max, at 14 padding and 44 tall.
+
+**What remains**: no fixed count can guarantee the rows once the user's own words are long.
+- Computed: with the five longest built-in words (Blackcurrant, White peach, Grapefruit, Black tea, Jasmine) the set takes **3 rows**.
+- The only guarantee is to measure and show "as many as fit in 2 rows". That needs layout measurement and is not built.
+
+**Status**: recorded, not solved now.
 
 ---
 
