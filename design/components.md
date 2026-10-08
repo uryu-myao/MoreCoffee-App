@@ -93,7 +93,18 @@ Primitives, not counted: `Text`, `Glyph`, `HardShadow`, `DashedRule`, `DotTextur
 - It does share a **token** with the derived rail: `border.track` (1.5px dashed `border.muted`) is documented as "a measuring rail or placeholder frame". By the 2026-10-06 naming rule, one token currently carries both dashed meanings.
 - Flagged, not changed.
 
-**Words shown three ways**: 5b's flavour chips, 8h's word tags and 8f's word tags show the **same data**: the words a user logs. 8h says "Words appear as chips when you log a cup"; 8f counts them; 8l searches them. They have three looks and possibly three roles (input / manage / stats). They are **not merged now**; merging is decided while their specs are written (2026-10-07).
+**Flavours and words are two kinds of data (corrected 2026-10-08)**. The earlier note here said 5b's flavour chips, 8h's word tags and 8f's word tags show the same data. They do not:
+- **Flavours** (5b's chips): what the cup tasted of. Nouns, capitalised in the data (Jasmine, White peach, Black tea, Cocoa, Citrus). Also shown on 2a's record rows ("Floral, peach", "Cocoa, walnut").
+- **Words** (8h, 8f, 8l): how the user described it. Free text, lowercase as typed (juicy, tea-like, too roasty, syrupy, papery).
+- The two lists share only "cocoa" (and "peach" against 5b's "White peach").
+- **Where words come from, read from the mocks**: 5b's **My words** field (the italic note), not the chips.
+  - The field and 8h's screen share the name "My words".
+  - 7a: "Taste DNA now reads your notes. Your own words feed the profile, not just the sliders."
+  - 7b: "the words you write on a cup — juicy, too roasty, syrupy — count too".
+  - 8g: "Your words are matched, not read" and "Read my words: Let notes shape the profile".
+  - 8l's Words search lists cups by a word in their note ("9 cups say "juicy"").
+- One sentence does not fit: 8h's "Words appear as chips when you log a cup". No logging screen shows words as chips; read here as "the words you write appear here as chips".
+- So the three looks are not one component: the flavour chip is an input (§1 Colour roles: brown, entered); the word tag (#38) belongs to words. Flavours: capitalised in the data, uppercased on screen by `label.caps`. Words: stored and shown as typed.
 
 **Are the 13 framed cards one component?**
 - The **container** is one: 2px ink on raised, square, no shadow.
