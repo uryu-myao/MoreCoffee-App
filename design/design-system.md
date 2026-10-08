@@ -709,8 +709,12 @@ Every `ScreenFrame` with `scroll`: Records (standard header), and Log a cup and 
 ### Record sheet steps (2026-10-07; swipe revised 2026-10-08)
 **Revised 2026-10-08: swipe back only from the left screen edge.**
 - Three device logs showed the full-width swipe-back pager taking touches meant for the taste axes. Each time the axis received nothing, and blocking from the axis (`blocksExternalGesture`, hit areas) did not hold.
-- Swipe back now starts only inside the screen gutter at the left edge (`layout.gutter`, 22pt), the iOS edge-swipe convention. No touch on the card (the axes start well inside it) can move the sheet.
-- The steps are moved by one Reanimated value, not a ScrollView. The edge swipe follows the finger; past 35% of the width, or on a flick, it goes back.
+- Swipe back now starts only from a strip at the left edge, the iOS edge-swipe convention. No touch on the card (the axes start well inside it) can move the sheet.
+- The steps are moved by one Reanimated value, not a ScrollView. The edge swipe follows the finger.
+- Tuned from the next device log:
+  - 22pt (the gutter) was too hard to hit: swipes starting at x 27–51 never began. Most that did begin failed on a little vertical drift (±10) or stopped short of 35%.
+  - Now the strip is **`size.tapTarget` (44)** wide, vertical drift up to **±30** is tolerated (horizontal 10 still decides first), and it goes back past **25%** of the width or on a **300pt/s** flick.
+  - The axes' touch bands start ~65pt in (77pt on a 430pt phone).
 - The button push and the back arrow use **`motion.expand` again** (the push confirmed on device on 2026-10-07): no native scroll position has to be shared with the drag any more.
 - The notes below describe the earlier pager.
 

@@ -5,23 +5,32 @@ import Reanimated, { Easing as REasing, useAnimatedStyle, useSharedValue, withTi
 import { scheduleOnRN } from 'react-native-worklets';
 import RecordCoffeeScreen from '../screens/RecordCoffeeScreen';
 import TastingNoteScreen from '../screens/TastingNoteScreen';
-import { color, layout, motion } from '../theme/tokens';
+import { color, motion, size } from '../theme/tokens';
 import { GESTURE_LOG, logGesture } from './base/gestureLog';
 
 const easing = Easing.bezier(...motion.expand.controlPoints);
 const stepEasing = REasing.bezier(...motion.expand.controlPoints);
 
 /**
- * Swipe back starts only from the left screen edge, inside the screen gutter
- * (layout.gutter, 22pt) — iOS's own edge-swipe convention. Device logs
- * (2026-10-08) showed a full-width swipe-back pager taking touches meant for
- * the taste axes; with the swipe confined to the edge strip, no touch on the
- * card (the axes start 75pt in) can move the sheet.
+ * Swipe back starts only from a strip at the left screen edge — iOS's own
+ * edge-swipe convention. Device logs (2026-10-08) showed a full-width
+ * swipe-back pager taking touches meant for the taste axes; confined to the
+ * strip, no touch on the card can move the sheet.
+ *
+ * Tuned from the next device log: at 22pt the strip was too hard to hit
+ * (swipes starting at x 27–51 never began), and of the swipes that did begin,
+ * most FAILED on a little vertical drift (failOffsetY ±10) or ended short of
+ * 35%. Now:
+ *   EDGE           size.tapTarget (44): one tap target wide. The taste axes'
+ *                  touch bands start ~65pt in (77pt on a 430pt phone).
+ *   FAIL_OFFSET_Y  ±30: a thumb swipe drifts; horizontal 10 still decides first.
+ *   BACK_*         25% of the width, or a 300pt/s flick.
  */
-const EDGE = layout.gutter;
-/** Released past this share of the width (or flicked), the swipe goes back. */
-const BACK_DISTANCE = 0.35;
-const BACK_VELOCITY = 500;
+const EDGE = size.tapTarget;
+const ACTIVE_OFFSET_X = 10;
+const FAIL_OFFSET_Y = 30;
+const BACK_DISTANCE = 0.25;
+const BACK_VELOCITY = 300;
 
 /**
  * The Record sheet, presented over the tabs as a full-screen sheet that slides
@@ -32,7 +41,7 @@ const BACK_VELOCITY = 500;
  * button pushes step 2 in from the right and the back arrow pushes it out,
  * over motion.expand (2026-10-08; restored now that no native scroll view
  * owns the position). On step 2, a swipe from the LEFT EDGE follows the finger
- * and goes back past 35% or on a flick. Step 1 stays mounted, so its rating
+ * and goes back past 25% or on a flick. Step 1 stays mounted, so its rating
  * and fields survive; it is never swiped to step 2.
  */
 export default function AddCoffeeOverlay({ visible, onClose }) {
@@ -89,8 +98,8 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
   const edgeSwipe = Gesture.Pan()
     .enabled(onNote)
     .hitSlop({ left: 0, width: EDGE })
-    .activeOffsetX(10)
-    .failOffsetY([-10, 10])
+    .activeOffsetX(ACTIVE_OFFSET_X)
+    .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
     .onBegin((e) => {
       if (GESTURE_LOG) scheduleOnRN(log, 'BEGAN', `x=${e.absoluteX.toFixed(1)}`);
     })
