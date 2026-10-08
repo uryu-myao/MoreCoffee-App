@@ -14,6 +14,19 @@ Moves and follow-ups that are neither drift (a design value to correct) nor a de
 
 **Re-check after the move**: the header collapse inside the overlay. Everything verified so far was outside a modal: the overlay has no ScrollChromeContext, and its own slide-up transform sits above the collapse.
 
+## T-2 · Flavour tags: Search opens nothing yet — logged 2026-10-08
+
+**Now**: when the flavour tags are built, their **Search** opener is pressable (button role, press feedback) but **does nothing**.
+
+**Target** (decided 2026-10-08): Search opens a bottom sheet with a search field and a candidate list. A query with no match offers **Add "xxx"**, which adds a new flavour (the same way out as typing a café by hand when MapKit has no match).
+
+**Why it waits**: the sheet (component #25) and the search field (#24) are not built. The order was changed for this:
+1. flavour tags (the tags themselves; Search inert);
+2. search field / bottom sheet;
+3. wire Search to the sheet.
+
+**Re-check when wired**: at the selection limit Search is locked with the options (§1 Selection limit).
+
 ## V2 candidates
 
 Out of V1's scope (the capture → Taste DNA loop only). Kept so the idea is not lost; treated like Try next and Atlas.
