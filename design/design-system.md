@@ -72,6 +72,11 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **Brown = a value the user entered**: the taste axis once entered, a selected flavour tag.
 - **Ink vs brown**: ink says "I picked which one"; brown says "I entered what I tasted in this cup". Brown values are the input of Taste DNA.
 - **Do not mix them.**
+- **Scope (2026-10-08)**: the three roles apply **only to the state of options and values**. Badges, error states, markers and the caret have roles of their own and are out of scope.
+- **Rating stars are `icon.rating` (gold), outside the three roles (2026-10-08).**
+  - Stars are a sign that already means something across cultures, and the gold is part of that sign.
+  - Turning them brown for uniformity would cost recognisability.
+  - This is not an exception: the star brings its own vocabulary.
 - **Why three (2026-10-08)**: "selected = ink" was imprecise.
   - 5b's selected flavour tags are brown in the mock (`badge.bg.accent` fill, `border.accent` frame and label), and stay brown.
   - They are not an exception to the selection rule. They belong to another role, the user's own input, like the axis's entered handle (accent fill).
@@ -81,7 +86,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - all 8 switches are on = blue by rule, not drift (3e's ink is D-20);
   - 8c's blue checkbox is drift (D-19);
   - 5b's flavour tags are brown by rule.
-- **Open (2026-10-08)**: StarRating's filled star is `icon.rating` (#C9821A, gold), not the accent brown. A rating is also a value entered for this cup; whether the stars take the brown role is not yet decided.
+- 8f's four Taste DNA bars are blue in the mock: drift, to brown (D-22). They are computed values, not something in force. Blue stays with what the user operates.
 
 ### Focus (added 2026-10-07)
 - **One treatment for every focusable element, no branching**: a **2px** (`shape.borderWidth.box`) square frame in **`color.caret`** (`#067BC2`), drawn **outside** the element with a **`space.2`** gap.
@@ -1057,3 +1062,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-08 — Taste axis slider L3 + H1: rail 240 × 28 centred with the labels at its ends, handle 16 × 40, stops 56pt apart; a centre grip that turns white once entered; Clear under the handle. Tokens: `size.axis.rail` 20 → 28, `size.axis.railWidth` and `size.axis.handle` added.
 - 2026-10-08 — Record sheet: swipe back only from the left edge (22pt gutter), with the steps on a Reanimated value and the push back on `motion.expand`. Taste axis: pole labels `label.caps`, rail 260 (61pt steps), Clear smaller (`label.eyebrow`) and hidden while dragging.
 - 2026-10-08 — §1 Colour roles: three roles. Brown = a value the user entered (axis entered, selected flavour tags), beside blue = in force and ink = chosen. Tap affordance: 5b's brown multi-select is an application of the rule, not an exception. StarRating's gold left open.
+- 2026-10-08 — §1 Colour roles: scope limited to the state of options and values (badges, errors, markers, caret out of scope). Rating stars keep `icon.rating` gold as their own vocabulary. 8f's blue DNA bars → brown (D-22).
