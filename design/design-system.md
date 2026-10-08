@@ -97,7 +97,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - all 8 switches are on = blue by rule, not drift (3e's ink is D-20);
   - 8c's blue checkbox is drift (D-19);
   - 5b's flavour tags are brown by rule.
-- 8f's four Taste DNA bars are blue in the mock: drift, to brown (D-22). They are computed values, not something in force. Blue stays with what the user operates.
+- 8f's four Taste DNA bars are blue in the mock: drift (D-22). They are AxisReadout drawn before it existed, so they are replaced by it and become neutral. Blue stays with what the user operates.
 
 ### Focus (added 2026-10-07)
 - **One treatment for every focusable element, no branching**: a **2px** (`shape.borderWidth.box`) square frame in **`color.caret`** (`#067BC2`), drawn **outside** the element with a **`space.2`** gap.
@@ -924,7 +924,7 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 **Device-tuning constants**: `ACTIVE_OFFSET_X` / `FAIL_OFFSET_Y` = 10, `TAP_MAX_DISTANCE` = 8 (top of `AxisSlider.js`); the edge swipe's `EDGE` / `FAIL_OFFSET_Y` / `BACK_*` in `AddCoffeeOverlay.js`. The 340ms crossfade is gone: the rail no longer changes.
 
 ### Taste axis readout (AxisReadout — spec 2026-10-07, to be built)
-The display of computed values: 1b / 4a / 4b (the profile) and 5c (the change after a save). It is **not operable** and belongs to the read-only bar family of `beanFreshness`. No new visual language.
+The display of computed values: 1b / 4a / 4b (the profile), 5c (the change after a save), and 8f's four bars (D-22, 2026-10-08). It is **not operable** and belongs to the read-only bar family of `beanFreshness`. No new visual language.
 
 | part | value | from beanFreshness |
 |---|---|---|
@@ -1108,7 +1108,7 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-08 — Taste axis slider L3 + H1: rail 240 × 28 centred with the labels at its ends, handle 16 × 40, stops 56pt apart; a centre grip that turns white once entered; Clear under the handle. Tokens: `size.axis.rail` 20 → 28, `size.axis.railWidth` and `size.axis.handle` added.
 - 2026-10-08 — Record sheet: swipe back only from the left edge (22pt gutter), with the steps on a Reanimated value and the push back on `motion.expand`. Taste axis: pole labels `label.caps`, rail 260 (61pt steps), Clear smaller (`label.eyebrow`) and hidden while dragging.
 - 2026-10-08 — §1 Colour roles: three roles. Brown = a value the user entered (axis entered, selected flavour tags), beside blue = in force and ink = chosen. Tap affordance: 5b's brown multi-select is an application of the rule, not an exception. StarRating's gold left open.
-- 2026-10-08 — §1 Colour roles: scope limited to the state of options and values (badges, errors, markers, caret out of scope). Rating stars keep `icon.rating` gold as their own vocabulary. 8f's blue DNA bars → brown (D-22).
+- 2026-10-08 — §1 Colour roles: scope limited to the state of options and values (badges, errors, markers, caret out of scope). Rating stars keep `icon.rating` gold as their own vocabulary. 8f's blue DNA bars: drift D-22 (corrected later the same day: replaced by AxisReadout, neutral).
 - 2026-10-08 — §9 Taste axis slider: revision specified (square handle derived from the Switch knob, dots at the stops, Clear / Not noted right-aligned under the track, no lit colour while dragging). Size and colours pending.
 - 2026-10-08 — §9 Taste axis step names: per-axis adjectives (Very bright … Very bitter, Very light-bodied … Very full-bodied, Very light roast … Very dark roast, Barely sweet … Very sweet); the middle step takes each axis's most natural word.
 - 2026-10-08 — Taste axis slider built to the revision, size B: track 260 × 34 (2 `text.secondary` frame, `border.subtle` dots), square 26 handle inset 2, grip 2 × 8 white, Clear / Not noted right-aligned; lit and pole-ink removed. Tokens: `size.axis` rail 34 / inset / handle 26 / dot; `axis.needle.lit` and `state.lit` removed.
