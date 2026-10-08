@@ -257,14 +257,14 @@ export const size = {
   checkbox: 24,
   weekday: { column: 68 },
   /**
-   * Taste axis slider, L3 + H1 (2026-10-08): rail 260 wide × 28 tall, centred
-   * in its card; handle 16 × 40 → 5 stops 61pt apart ((260 − 16) / 4). 260
-   * (was 240) fits the pole labels at label.caps: Low + High sweetness are 245
-   * together, leaving ~15 between them. rail
-   * was 20 (the mock); railWidth and handle are new with this layout.
+   * Taste axis slider (2026-10-08, from Uryu's screenshots, size B): a 260 × 34
+   * track and a SQUARE 26 handle, the Switch knob's geometry (components.md
+   * "Switch and the axis handle"): border 2 + inset 2 on each side, so
+   * handle = rail − 8. Stops are (260 − 2·2 − 2·2 − 26) / 4 = 56.5pt apart and
+   * stop 0 sits 17 in from the track's outer edge. dot: the 5 stop marks.
    * needle (12 × 30) is the display axis's, until AxisReadout replaces it.
    */
-  axis: { rail: 28, railWidth: 260, handle: { w: 16, h: 40 }, needle: { w: 12, h: 30 } },
+  axis: { rail: 34, railWidth: 260, inset: 2, handle: { w: 26, h: 26 }, dot: 6, needle: { w: 12, h: 30 } },
   meter: { track: 4 },
   marker: { line: { w: 2, h: 14 } },
   dot: { bullet: 6 },
@@ -371,11 +371,16 @@ export const rotation = {
  */
 const axisRail = {
   /**
-   * The slider's one rail, in every state (2026-10-07): a weak frame (1.5,
-   * border.muted) on a ground track. The rail states nothing; the needle does.
-   * Superseded: the empty (ink dashed) and entered (ink solid) rails.
+   * The slider's one track, in every state (2026-10-08): a 2px frame on the
+   * card colour, with a dot at each stop. The track states nothing; the handle
+   * does. Colours read off Uryu's screenshot, matched to the nearest tokens:
+   *   frame  #5C5049 — color.text.secondary (ΔE 0.8; no border token is that dark
+   *          short of ink)
+   *   dots   #E4D6CC — border.subtle, the value of the reference lines they
+   *          replace; visibility on the card 1.33:1 against the screenshot's 1.40
+   * Superseded: the 1.5 border.muted frame on ground with 3 reference lines.
    */
-  track: { width: shape.borderWidth.divider, style: 'solid', color: color.border.muted, background: color.surface.ground, texture: texture.rule },
+  track: { width: shape.borderWidth.box, style: 'solid', color: color.text.secondary, background: color.surface.raised, dot: color.border.subtle },
   /** computed or historical (1b 4a 4b 5c) — to be replaced by AxisReadout, then removed */
   derived: { ...dashed.track, background: color.surface.ground, texture: texture.rule },
 } as const;
@@ -384,28 +389,22 @@ const axisNeedle = {
   /** a computed / historical value */
   derived: { ...size.axis.needle, background: color.surface.muted, borderColor: color.border.medium, borderWidth: shape.borderWidth.divider },
   /**
-   * Nothing entered. Same values as derived, different meaning (intentional).
-   * Its position — 50 — is a PLACEHOLDER, NOT A VALUE: never save it, never
-   * read it as "the default is 50". An empty axis has no value (null).
+   * Nothing entered: a muted square resting at Balanced. Its position — 50 —
+   * is a PLACEHOLDER, NOT A VALUE: never save it, never read it as "the default
+   * is 50". An empty axis has no value (null).
    */
-  empty: { ...size.axis.handle, background: color.surface.muted, borderColor: color.border.medium, borderWidth: shape.borderWidth.divider, grip: color.border.medium },
-  /** The user's own value: accent fill, 2px ink. Its grip turns white — "changed". */
+  empty: { ...size.axis.handle, background: color.surface.muted, borderColor: color.border.muted, borderWidth: shape.borderWidth.box, grip: color.icon.onAction },
+  /** The user's own value: accent fill, 2px ink, white grip. */
   entered: { ...size.axis.handle, background: color.icon.accent, borderColor: color.border.strong, borderWidth: shape.borderWidth.box, grip: color.icon.onAction },
-  /**
-   * While the finger is on it: icon.rating (#C9821A, the same value under a
-   * handle role), so it reads as "entered, brighter", not a third state.
-   * Settles to entered on release (motion.press). Grip in ink: not yet changed.
-   */
-  lit: { ...size.axis.handle, background: color.icon.rating, borderColor: color.border.strong, borderWidth: shape.borderWidth.box, grip: color.border.strong },
+  // lit (#C9821A while dragging) was removed 2026-10-08; see design-system.md §9.
 } as const;
 
 /**
- * The short vertical grip at the handle's centre (2026-10-08, from Uryu's
- * sketch): the handle's stroke width, the readout marker's 14 tall. It turns
- * white once the axis has been changed (entered); before that it takes the
- * handle's own stroke colour.
+ * The short vertical grip at the handle's centre: the handle's stroke wide,
+ * 8 tall — about a third of the 26 handle (2026-10-08; 14 read too long in
+ * the square handle). White in both states, as in Uryu's screenshots.
  */
-const axisGrip = { w: shape.borderWidth.box, h: 14 } as const;
+const axisGrip = { w: shape.borderWidth.box, h: space[8] } as const;
 
 /** Component anatomies whose parts are mechanism-bound. */
 export const component = {
@@ -438,18 +437,16 @@ export const component = {
    *
    * state: ONE axis state decides rail and needle together, so a wrong pairing
    * cannot be built. The slider's rail is the same in every state (2026-10-07);
-   * the needle carries the state: empty (muted), lit (while touched — gold),
-   * entered (accent). derived belongs to the display axis, to be replaced by
+   * the handle carries the state: empty (muted) or entered (accent). derived belongs to the display axis, to be replaced by
    * AxisReadout.
    */
   axis: {
     state: {
       derived: { rail: axisRail.derived, needle: axisNeedle.derived },
       empty:   { rail: axisRail.track, needle: axisNeedle.empty },
-      lit:     { rail: axisRail.track, needle: axisNeedle.lit },
       entered: { rail: axisRail.track, needle: axisNeedle.entered },
     },
-    rail: { height: size.axis.rail, width: size.axis.railWidth },
+    rail: { height: size.axis.rail, width: size.axis.railWidth, inset: size.axis.inset, dot: size.axis.dot },
     grip: axisGrip,
     /** previous value */
     ghost:  { w: 10, h: 10, borderColor: color.border.medium },

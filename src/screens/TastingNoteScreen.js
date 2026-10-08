@@ -8,6 +8,7 @@ import IconButton from '../components/base/IconButton';
 import SectionLabel from '../components/base/SectionLabel';
 import Text from '../components/base/Text';
 import { color, dashed, icon, layout, shape, size, space, spacing, state } from '../theme/tokens';
+import { TASTE_AXES } from '../constants/tasteAxes';
 import ScreenFrame from './ScreenFrame';
 
 /**
@@ -32,15 +33,12 @@ const NOOP = () => {};
 const CUP = { name: 'Ethiopia Guji', meta: 'I made it · V60 · 08:20', rating: 4 };
 
 /**
- * 5b's four axes: points 0–100 on five steps; null = not entered yet (empty).
- * The mock's 26 / 38 / 18 snap to the nearest step (25 / 50 / 25).
+ * 5b's four axes (src/constants/tasteAxes.js): points 0–100 on five steps;
+ * null = not entered yet (empty). The mock's 26 / 38 / 18 snap to the nearest
+ * step (25 / 50 / 25).
  */
-const AXES = [
-  { from: 'Acid', to: 'Bitter', value: 25 },
-  { from: 'Light body', to: 'Full body', value: 50 },
-  { from: 'Light roast', to: 'Dark roast', value: 25 },
-  { from: 'Low sweetness', to: 'High sweetness', value: null },
-];
+const MOCK_VALUES = [25, 50, 25, null];
+const AXES = TASTE_AXES.map((a, i) => ({ ...a, value: MOCK_VALUES[i] }));
 
 /** 5b's flavour chips, verbatim; "Search" is the dashed opener. */
 const FLAVORS = [
@@ -64,7 +62,7 @@ const Axes = memo(function Axes() {
   return (
     <View style={styles.axes}>
       {AXES.map((a, i) => (
-        <AxisRow key={a.from} index={i} axis={a} value={values[i]} setAt={setAt} />
+        <AxisRow key={a.key} index={i} axis={a} value={values[i]} setAt={setAt} />
       ))}
     </View>
   );
@@ -73,7 +71,7 @@ const Axes = memo(function Axes() {
 /** One axis; memoised so committing one leaves the other three alone. */
 const AxisRow = memo(function AxisRow({ index, axis, value, setAt }) {
   const onChange = useCallback((v) => setAt(index, v), [index, setAt]);
-  return <AxisSlider from={axis.from} to={axis.to} value={value} onChange={onChange} />;
+  return <AxisSlider from={axis.from} to={axis.to} steps={axis.steps} value={value} onChange={onChange} />;
 });
 
 function Chip({ label, on, search }) {

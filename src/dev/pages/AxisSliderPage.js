@@ -1,25 +1,28 @@
 import { useState } from 'react';
 import AxisSlider from '../../components/base/AxisSlider';
 import EmptySlot from '../../components/base/EmptySlot';
+import { TASTE_AXES } from '../../constants/tasteAxes';
 import { HarnessCase, HarnessGroup, HarnessPage } from '../harness';
 
 /**
- * AxisSlider states (five steps, one rail; the needle carries the state),
+ * AxisSlider states (five steps, one track; the square handle carries the state),
  * plus the dashed borders left in the product — border.addSlot (#6B5D55) and
  * .inert — and the old derived display axis, until AxisReadout replaces it.
  */
+const [, BODY, , SWEET] = TASTE_AXES;
+
 export default function AxisSliderPage() {
   const [empty, setEmpty] = useState(null);
-  const [entered, setEntered] = useState(38);
+  const [entered, setEntered] = useState(25);
 
   return (
     <HarnessPage>
       <HarnessGroup title="operable (drag, tap, Clear)">
-        <HarnessCase label="empty — muted needle resting at Balanced (a placeholder)">
-          <AxisSlider from="Low sweetness" to="High sweetness" value={empty} onChange={setEmpty} />
+        <HarnessCase label="empty — muted square resting at Balanced (a placeholder)">
+          <AxisSlider from={SWEET.from} to={SWEET.to} steps={SWEET.steps} value={empty} onChange={setEmpty} />
         </HarnessCase>
-        <HarnessCase label="entered — accent needle, Clear; touch lights it gold">
-          <AxisSlider from="Light body" to="Full body" value={entered} onChange={setEntered} />
+        <HarnessCase label="entered — accent square, Clear; touch scales it">
+          <AxisSlider from={BODY.from} to={BODY.to} steps={BODY.steps} value={entered} onChange={setEntered} />
         </HarnessCase>
       </HarnessGroup>
 

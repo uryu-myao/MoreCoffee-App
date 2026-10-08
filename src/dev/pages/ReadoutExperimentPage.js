@@ -2,6 +2,7 @@
 import { StyleSheet, View } from 'react-native';
 import Text from '../../components/base/Text';
 import AxisSlider from '../../components/base/AxisSlider';
+import { TASTE_AXES } from '../../constants/tasteAxes';
 import { color, size, spacing } from '../../theme/tokens';
 import { HarnessCase, HarnessGroup, HarnessPage } from '../harness';
 import Glyph from '../../components/base/Glyph';
@@ -168,7 +169,7 @@ export default function ReadoutExperimentPage() {
       <HarnessGroup title="4 height vs the 20pt slider">
         <HarnessCase label="readout 4pt (B)"><Row value={72} mode="B" centre /></HarnessCase>
         <HarnessCase label="AxisSlider (entered) for contrast">
-          <AxisSlider from="Acid" to="Bitter" value={72} onChange={() => {}} />
+          <AxisSlider from="Acid" to="Bitter" steps={TASTE_AXES[0].steps} value={75} onChange={() => {}} />
         </HarnessCase>
       </HarnessGroup>
       <HarnessGroup title="6 5c ghost + delta (B) — 44 → 38">
