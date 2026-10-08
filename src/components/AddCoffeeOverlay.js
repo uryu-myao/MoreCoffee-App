@@ -107,7 +107,17 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
     // StyleSheet.absoluteFill, not absoluteFillObject: RN 0.86 removed the
     // latter, and spreading it silently drops the positioning (the sheet then
     // lays out at 0 height). react-native-web still ships it, so web hides this.
-    <Animated.View style={[StyleSheet.absoluteFill, styles.overlay, { transform: [{ translateY }] }]}>
+    <Animated.View
+      style={[StyleSheet.absoluteFill, styles.overlay, { transform: [{ translateY }] }]}
+      // Debug: log where each touch starts, to place the touches the axis misses.
+      onStartShouldSetResponderCapture={
+        GESTURE_LOG
+          ? (e) => {
+              logGesture('touch', 'START', `window (${e.nativeEvent.pageX.toFixed(1)}, ${e.nativeEvent.pageY.toFixed(1)})`);
+              return false;
+            }
+          : undefined
+      }>
       <AxisPagerGestureContext.Provider value={pagerGesture}>
         <GestureDetector gesture={pagerGesture}>
           <ScrollView

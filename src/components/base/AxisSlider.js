@@ -56,15 +56,19 @@ const STATE = component.axis.state;
 const RAIL_H = component.axis.rail.height;
 const BAND_PAD = (size.tapTarget - RAIL_H) / 2;
 /**
- * The touch band reaches past the rail's ENDS too, not only above and below.
- * Device log (2026-10-08): every unwanted sheet page came from a touch that
- * started just outside the rail's left / right end — where the needle sits at
- * 0 / 100 — so the axis never received it (no axis BEGAN) and the sheet pager
- * took it. The axis itself never let go mid-drag: it stayed ACTIVE past 0 /
- * 100 until the finger lifted. 12pt keeps the band clear of the screen-edge
- * swipe (the rail starts 40pt in).
+ * The touch band is a REAL view, BAND_PAD larger than the rail on every side
+ * (negative margins cancel its padding, so layout does not move).
+ *
+ * Device logs (2026-10-08): every unwanted sheet page came from a touch the
+ * axis never received (no axis BEGAN), started just outside the rail — where
+ * the needle sits at 0 / 100. A gesture-handler hitSlop was tried first and
+ * did NOT help: across both logs no axis touch ever began outside the rail
+ * (every BEGAN had 0 ≤ x ≤ rail width). On iOS a touch outside a view's bounds
+ * is hit-tested to the view underneath, so the axis's recognizer never sees
+ * it; the hit area has to be the view's own bounds. 12pt still keeps it clear
+ * of the screen-edge swipe (the rail starts 40pt in).
  */
-const HIT_SLOP = { top: BAND_PAD, bottom: BAND_PAD, left: BAND_PAD, right: BAND_PAD };
+const HIT = BAND_PAD;
 const STEPS = 5;
 const LAST = STEPS - 1;
 const MIDDLE = LAST / 2;
@@ -190,18 +194,18 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
     .enabled(operable)
     .activeOffsetX([-ACTIVE_OFFSET_X, ACTIVE_OFFSET_X])
     .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
-    .hitSlop(HIT_SLOP)
+
     .onBegin((e) => {
       pressIn();
-      if (GESTURE_LOG) scheduleOnRN(log, 'pan BEGAN', `x=${e.x.toFixed(1)}`);
+      if (GESTURE_LOG) scheduleOnRN(log, 'pan BEGAN', `x=${(e.x - HIT).toFixed(1)}`);
     })
     .onStart((e) => {
       dragging.value = 1;
-      setFromX(e.x, false);
-      if (GESTURE_LOG) scheduleOnRN(log, 'pan ACTIVE', `x=${e.x.toFixed(1)} step=${step.value}`);
+      setFromX(e.x - HIT, false);
+      if (GESTURE_LOG) scheduleOnRN(log, 'pan ACTIVE', `x=${(e.x - HIT).toFixed(1)} step=${step.value}`);
     })
     .onUpdate((e) => {
-      setFromX(e.x, GESTURE_LOG);
+      setFromX(e.x - HIT, GESTURE_LOG);
     })
     .onEnd((e, success) => {
       if (success) {
@@ -210,24 +214,24 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
       } else {
         step.value = committedStep; // taken away: back to exactly before
       }
-      if (GESTURE_LOG) scheduleOnRN(log, success ? 'pan END' : 'pan CANCELLED', `x=${e.x.toFixed(1)} step=${step.value}`);
+      if (GESTURE_LOG) scheduleOnRN(log, success ? 'pan END' : 'pan CANCELLED', `x=${(e.x - HIT).toFixed(1)} step=${step.value}`);
     })
     .onFinalize((e, success) => {
       dragging.value = 0;
       pressOut();
-      if (GESTURE_LOG && !success) scheduleOnRN(log, 'pan FAILED (finalize, never ended successfully)', `x=${e.x.toFixed(1)}`);
+      if (GESTURE_LOG && !success) scheduleOnRN(log, 'pan FAILED (finalize, never ended successfully)', `x=${(e.x - HIT).toFixed(1)}`);
     });
 
   const tap = Gesture.Tap()
     .enabled(operable)
     .maxDistance(TAP_MAX_DISTANCE)
-    .hitSlop(HIT_SLOP)
+
     .onBegin(() => {
       if (GESTURE_LOG) scheduleOnRN(log, 'tap BEGAN');
     })
     .onEnd((e, success) => {
       if (!success) return;
-      setFromX(e.x, false);
+      setFromX(e.x - HIT, false);
       enteredOn.value = 1;
       scheduleOnRN(commit, step.value);
       if (GESTURE_LOG) scheduleOnRN(log, 'tap END', `step=${step.value}`);
@@ -325,7 +329,25 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
         <Pole label={from} litStyle={lowLit} />
         <Pole label={to} litStyle={highLit} align="right" />
       </View>
-      {operable ? <GestureDetector gesture={gesture}>{rail}</GestureDetector> : rail}
+      {operable ? (
+        <GestureDetector gesture={gesture}>
+          <View
+            style={styles.hitArea}
+            onLayout={
+              GESTURE_LOG
+                ? (e) => {
+                    e.target?.measureInWindow?.((x, y, w, h) =>
+                      logGesture(who, 'hit area', `window x ${x.toFixed(1)}–${(x + w).toFixed(1)}, y ${y.toFixed(1)}–${(y + h).toFixed(1)}`)
+                    );
+                  }
+                : undefined
+            }>
+            {rail}
+          </View>
+        </GestureDetector>
+      ) : (
+        rail
+      )}
       {slot}
     </View>
   );
@@ -377,6 +399,11 @@ const styles = StyleSheet.create({
   },
   rail: {
     height: RAIL_H,
+  },
+  /** The real touch band: HIT bigger than the rail on every side, layout unchanged. */
+  hitArea: {
+    margin: -HIT,
+    padding: HIT,
   },
   track: {
     position: 'absolute',
