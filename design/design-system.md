@@ -808,6 +808,17 @@ Padding is `inset.control` (the source's 13 / 16 folds to it) and the gap is `sp
 ### Taste axis slider (base `AxisSlider`; revised 2026-10-07)
 The input of Taste DNA, on 5b only. **The display of Taste DNA is a different component, AxisReadout** (below): the two look different, so what can be operated is clear at a glance. The governing rule still holds: a value the user entered must never be confused with one that came out of their records.
 
+**Revision 2026-10-08: square handle, dots, Clear on the right (specified from Uryu's screenshots; to be built once the size is chosen).** It supersedes the layout and look below where they differ.
+- **Handle**: a square, derived from the Switch knob (border 2, inset 2, handle = track height − 8; `components.md` "Switch and the axis handle"). It is big enough to grab by its body, without relying on touch slop.
+- **Stops**: a small round **dot** at each of the 5 stops, replacing the short vertical reference lines.
+- **Clear / Not noted**: **right-aligned under the track**, no longer centred under the handle.
+- **Intent**:
+  - The square handle is in the same family as the switch knob, so the app's shape vocabulary lines up.
+  - Dots say *where you can stop*; the handle says *where you are*. The two layers no longer mix, as the old reference lines and the handle's centre line did.
+- **Lit while dragging (#C9821A): removed.** The colour scheme is reviewed as a whole first. The press scale stays, and so does the selection haptic per step. Checked on device in that "nothing added" state before anything is added.
+- **Pending**: the track height (A 30 / B 34), the track's frame colour, the dot's colour, the grip's length, and whether the dot under the handle is hidden or just covered.
+- Pole labels stay `text.muted`. The screenshots' green labels are Uryu's draft, on hold.
+
 **Five steps.**
 
 | step | value (points) | name (screen reader) |
@@ -1063,3 +1074,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-08 — Record sheet: swipe back only from the left edge (22pt gutter), with the steps on a Reanimated value and the push back on `motion.expand`. Taste axis: pole labels `label.caps`, rail 260 (61pt steps), Clear smaller (`label.eyebrow`) and hidden while dragging.
 - 2026-10-08 — §1 Colour roles: three roles. Brown = a value the user entered (axis entered, selected flavour tags), beside blue = in force and ink = chosen. Tap affordance: 5b's brown multi-select is an application of the rule, not an exception. StarRating's gold left open.
 - 2026-10-08 — §1 Colour roles: scope limited to the state of options and values (badges, errors, markers, caret out of scope). Rating stars keep `icon.rating` gold as their own vocabulary. 8f's blue DNA bars → brown (D-22).
+- 2026-10-08 — §9 Taste axis slider: revision specified (square handle derived from the Switch knob, dots at the stops, Clear / Not noted right-aligned under the track, no lit colour while dragging). Size and colours pending.
