@@ -72,6 +72,17 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **Brown = a value the user entered**: the taste axis once entered, a selected flavour tag.
 - **Ink vs brown**: ink says "I picked which one"; brown says "I entered what I tasted in this cup". Brown values are the input of Taste DNA.
 - **Do not mix them.**
+- **Neutral = a computed, historical or estimated value** (Taste DNA, AxisReadout, 8f's bars): `border.medium` and the neutral tiers, never brown (2026-10-08).
+  - Brown marks a value the user entered. Use it for computed values too, and it stops marking anything.
+  - So computed values are neutral, and **colour carries the distinction**. The shapes differ too (what can be operated and what cannot), but a shape is noticed only once attention goes to it; colour is seen before.
+  - In this product "did I put this value in?" is the most important distinction, so it gets the stronger means.
+- **Which colour for a value: decide in this order (2026-10-08).**
+  1. A value the user entered → **brown**.
+  2. A computed, historical or estimated value → **neutral**.
+  3. A state in force now → **blue**.
+  4. A display of which one was chosen → **ink**.
+  5. None of these (badges, errors, markers, the caret, rating stars) → its own role, outside these rules.
+- **Never pick a colour "to make it stand out".** Colour carries meaning; emphasis comes from size, position and space.
 - **Scope (2026-10-08)**: the three roles apply **only to the state of options and values**. Badges, error states, markers and the caret have roles of their own and are out of scope.
 - **Rating stars are `icon.rating` (gold), outside the three roles (2026-10-08).**
   - Stars are a sign that already means something across cultures, and the gold is part of that sign.
@@ -1101,3 +1112,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-08 — §9 Taste axis slider: revision specified (square handle derived from the Switch knob, dots at the stops, Clear / Not noted right-aligned under the track, no lit colour while dragging). Size and colours pending.
 - 2026-10-08 — §9 Taste axis step names: per-axis adjectives (Very bright … Very bitter, Very light-bodied … Very full-bodied, Very light roast … Very dark roast, Barely sweet … Very sweet); the middle step takes each axis's most natural word.
 - 2026-10-08 — Taste axis slider built to the revision, size B: track 260 × 34 (2 `text.secondary` frame, `border.subtle` dots), square 26 handle inset 2, grip 2 × 8 white, Clear / Not noted right-aligned; lit and pole-ink removed. Tokens: `size.axis` rail 34 / inset / handle 26 / dot; `axis.needle.lit` and `state.lit` removed.
+- 2026-10-08 — §1 Colour roles: computed / historical / estimated values are neutral, never brown (colour carries "did I enter this?"); a five-step order for choosing a value's colour; never colour for emphasis.
