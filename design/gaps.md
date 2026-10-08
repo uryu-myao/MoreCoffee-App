@@ -247,17 +247,26 @@ Plus, globally:
 
 ---
 
-## 14. Taste axis: a few touches inside the band never reach the axis — accepted for now (added 2026-10-08)
+## 14. Taste axis: touches just below the handle reach Clear, not the axis — cause found, fix not chosen (added 2026-10-08)
 
-**Parts affected**: `AxisSlider` on 5b.
+**Parts affected**: `AxisSlider` on 5b (entered axes, where Clear shows). Not a scrolling problem: the only text button outside the dev harness is this Clear.
 
-**Status**: the visible problem, axis drags moving the Record sheet, is **resolved by design**. The sheet's swipe back now starts only from a 44pt left-edge strip, so nothing competes with the axes. Device-confirmed.
+**Status**: the visible problem, axis drags moving the Record sheet, is **resolved by design** (left-edge swipe only, device-confirmed). This item is what remained, and **its cause is now found**. The fix is not yet chosen.
 
-**What remains, accepted for now**: in the device logs a few touches started inside a logged axis band yet produced no axis BEGAN.
-- Possible cause: the band was logged once, at mount, so after the page scrolled the logged y no longer matched.
-- Unconfirmed. Since the page no longer moves, the effect is only that the drag does nothing; the user retries.
+**Evidence (device log 2026-10-08)**: in-band touches split cleanly by distance below the rail's top edge.
+- **All 15 hits were 6.7–17.0pt down. All 10 misses were 19.3–35.6pt down**, and every miss was under the handle (within about 28pt of it horizontally).
+- The guess that the band was logged stale after a scroll was wrong. On the simulator the logged y equals the live y; only x was stale, measured while the page was still sliding in.
 
-**To close it**: log the band again on scroll (or log the touch in the axis's own coordinates) and check whether any genuinely inside touch is missed.
+**Cause**: Clear's touch slop reaches up into the rail.
+- Clear is a text button with `hitSlop` top / bottom 16 (`Button.js` `TEXT_HIT_SLOP`). It sits in the 17pt slot under the rail and travels with the handle.
+- In React Native's Fabric renderer a child's `hitSlop` widens its parents' overflow area (`YogaLayoutableShadowNode.cpp`). So iOS hit-testing reaches Clear 16pt above it: to about 13–17pt above the rail's bottom edge.
+- The slot comes after the touch band, so it is drawn above it and wins the overlap. A touch there goes to Clear's Pressable, and the axis gets nothing. A drag cancels the press; **a tap there would clear the axis**.
+- Confirmed on the simulator with the renderer's own point lookup (`findNodeAtPoint`): the slot wins from about 23pt below the rail's top edge.
+
+**Fix options** (none applied):
+1. **Draw the touch band above the slot**: render order or `zIndex`. The band wins its whole area and Clear keeps its slop elsewhere. Clear's reachable height then runs from the band's bottom down, about 31pt instead of 44.
+2. **Asymmetric slop for Clear**: top small, bottom larger, pushing its 44pt down into the 20pt gap before the next axis. Its slop must still not reach the next axis's labels.
+3. Both.
 
 ---
 

@@ -863,7 +863,7 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
   - Every unwanted sheet movement was a touch the axis never received, taken by the Record sheet's full-width swipe-back pager.
   - Blocking from the axis (`blocksExternalGesture`, then the real touch band) did not hold.
   - The sheet now swipes back only from a 44pt strip at the left edge (§9 Record sheet steps), so nothing competes with the axes. Device-confirmed: axis drags no longer move the sheet.
-  - Residual, not explained: a few touches logged inside an axis band never produced an axis BEGAN (`gaps.md` 14).
+  - Residual, **cause found 2026-10-08**: touches just under the handle go to Clear, whose 16pt `hitSlop` reaches up into the rail, drawn above the band (`gaps.md` 14; fix not chosen).
 
 **Screen reader.**
 - Role adjustable; one swipe = one step.
