@@ -55,6 +55,16 @@ const TAP_MAX_DISTANCE = 8;
 const STATE = component.axis.state;
 const RAIL_H = component.axis.rail.height;
 const BAND_PAD = (size.tapTarget - RAIL_H) / 2;
+/**
+ * The touch band reaches past the rail's ENDS too, not only above and below.
+ * Device log (2026-10-08): every unwanted sheet page came from a touch that
+ * started just outside the rail's left / right end — where the needle sits at
+ * 0 / 100 — so the axis never received it (no axis BEGAN) and the sheet pager
+ * took it. The axis itself never let go mid-drag: it stayed ACTIVE past 0 /
+ * 100 until the finger lifted. 12pt keeps the band clear of the screen-edge
+ * swipe (the rail starts 40pt in).
+ */
+const HIT_SLOP = { top: BAND_PAD, bottom: BAND_PAD, left: BAND_PAD, right: BAND_PAD };
 const STEPS = 5;
 const LAST = STEPS - 1;
 const MIDDLE = LAST / 2;
@@ -180,7 +190,7 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
     .enabled(operable)
     .activeOffsetX([-ACTIVE_OFFSET_X, ACTIVE_OFFSET_X])
     .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
-    .hitSlop({ top: BAND_PAD, bottom: BAND_PAD })
+    .hitSlop(HIT_SLOP)
     .onBegin((e) => {
       pressIn();
       if (GESTURE_LOG) scheduleOnRN(log, 'pan BEGAN', `x=${e.x.toFixed(1)}`);
@@ -211,7 +221,7 @@ function AxisSlider({ from, to, value = null, derived = false, previous, caption
   const tap = Gesture.Tap()
     .enabled(operable)
     .maxDistance(TAP_MAX_DISTANCE)
-    .hitSlop({ top: BAND_PAD, bottom: BAND_PAD })
+    .hitSlop(HIT_SLOP)
     .onBegin(() => {
       if (GESTURE_LOG) scheduleOnRN(log, 'tap BEGAN');
     })

@@ -829,7 +829,12 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 **Gesture.**
 - Pan (`activeOffsetX` / `failOffsetY` ±10) and tap-to-set, `Exclusive`, with a 44pt touch band (`hitSlop`). Vertical scroll has priority.
 - Inside the Record sheet, the axis blocks the sheet's swipe-back pager (`blocksExternalGesture`).
-- **The edge case is under investigation** on device: dragging past 0 / 100, and drags starting at the rail's left end, can still page the sheet. A gesture log (`gestureLog.js`, `GESTURE_LOG`) records each handler's BEGAN / ACTIVE / END / CANCELLED / FAILED with timestamps, so the winner is identified before it is fixed.
+- **Edge case, found by the gesture log on device (2026-10-08)**:
+  - The axis pan never let go: in every drag it stayed ACTIVE through AT_END (0 / 100) and past the rail (x down to −31) until the finger lifted.
+  - Every unwanted sheet movement was a separate touch in which **the axis received nothing** (no axis BEGAN), with only the sheet pager BEGAN → ACTIVE. The sheet moved 11–116pt and bounced back to page 2.
+  - So those touches started just **outside the rail's ends**, where the needle sits at 0 / 100, and the touch band reached only above and below the rail.
+  - **Fix**: the touch band now reaches 12pt past both ends as well (`hitSlop` on all sides). It still stops 28pt in from the screen edge, so the edge swipe back is untouched.
+  - To be re-checked on device with the log on.
 
 **Screen reader.**
 - Role adjustable; one swipe = one step.
