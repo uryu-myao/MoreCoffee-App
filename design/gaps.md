@@ -249,7 +249,7 @@ Plus, globally:
 
 ---
 
-## 14. Taste axis: touches just below the handle reach Clear, not the axis — cause found, fix not chosen (added 2026-10-08)
+## 14. Taste axis: Clear's touch slop over the track's bottom right — accepted (added 2026-10-08, accepted 2026-10-09)
 
 **Parts affected**: `AxisSlider` on 5b (entered axes, where Clear shows). Not a scrolling problem: the only text button outside the dev harness is this Clear.
 
@@ -269,7 +269,11 @@ Plus, globally:
 - Clear's slop now reaches about **5pt into the bottom of the track**, from the track's x 209 to 268. That is the right ~51pt, plus 8pt beyond the end.
 - No stop but the last is touched. At the last stop (handle x 230–256, y 4–30 of 34) only a **1pt strip at the handle's bottom** overlaps.
 - What remains: a tap just under the track's right end clears the axis. That spot sits right above the Clear label.
-- Decision pending: accept, or apply option 1 below.
+- **Accepted (2026-10-09).**
+  - Since Clear became `meta` with a 14pt slop, it reaches about **6pt** into the track (simulator).
+  - Horizontally it covers the track's x ~220–268.
+  - At the last stop that is a 2pt strip of the handle's bottom.
+  - No fix applied.
 
 **Fix options** (none applied):
 1. **Draw the touch band above the slot**: render order or `zIndex`. The band wins its whole area and Clear keeps its slop elsewhere. Clear's reachable height then runs from the band's bottom down, about 31pt instead of 44.
