@@ -66,19 +66,26 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **If the name and the reality disagree, fix the name, not the comment.**
 - Why: the same mistake was made three times. `axis.rail.readonly / editable` and the interim `unset / set` were both read off one screen. `border.empty.disabled` was named for 5d and is also used on 2a, where nothing can be pressed. A comment that contradicts its name loses to the name.
 
-### Colour roles: blue vs ink (added 2026-10-07)
+### Colour roles: blue, ink, brown (added 2026-10-07, three roles 2026-10-08)
 - **Blue = this is in force now**: the primary action, the active tab, a switch that is on.
-- **Ink = the user chose this**: tags, checkboxes, weekdays, single-select options.
+- **Ink = the user chose this**: single-select options, checkboxes, weekdays, sort order.
+- **Brown = a value the user entered**: the taste axis once entered, a selected flavour tag.
+- **Ink vs brown**: ink says "I picked which one"; brown says "I entered what I tasted in this cup". Brown values are the input of Taste DNA.
 - **Do not mix them.**
+- **Why three (2026-10-08)**: "selected = ink" was imprecise.
+  - 5b's selected flavour tags are brown in the mock (`badge.bg.accent` fill, `border.accent` frame and label), and stay brown.
+  - They are not an exception to the selection rule. They belong to another role, the user's own input, like the axis's entered handle (accent fill).
 - Grounding: the mocks' own note (above 2a) says "blue only for the primary action and the active tab". A switch that is on is in force in the same sense as the active tab; it is not "chosen".
 - **Boundary**: a checkbox in a settings list is *chosen*, so ink. A tick alone puts nothing in force; it takes effect only on save or apply.
 - Consequences:
   - all 8 switches are on = blue by rule, not drift (3e's ink is D-20);
-  - 8c's blue checkbox is drift (D-19).
+  - 8c's blue checkbox is drift (D-19);
+  - 5b's flavour tags are brown by rule.
+- **Open (2026-10-08)**: StarRating's filled star is `icon.rating` (#C9821A, gold), not the accent brown. A rating is also a value entered for this cup; whether the stars take the brown role is not yet decided.
 
 ### Focus (added 2026-10-07)
 - **One treatment for every focusable element, no branching**: a **2px** (`shape.borderWidth.box`) square frame in **`color.caret`** (`#067BC2`), drawn **outside** the element with a **`space.2`** gap.
-  - It never changes the element's own border or fill: those already carry meaning (selected = ink, dashed = provenance / add entry, error = brown).
+  - It never changes the element's own border or fill: those already carry meaning (chosen = ink, entered = brown, dashed = provenance / add entry, error = a brown frame).
   - It is drawn above `HardShadow`.
   - A bare glyph (a tab icon) is framed by its visual box (`component.tabBar.slot`), or by its 44pt target if smaller.
 - Why no branch, unlike Pressed: pressed branches because surface vs no surface physically changes what can be drawn. A frame drawn outside works the same either way.
@@ -97,7 +104,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 
 ### Tap affordance (added 2026-10-07)
 - **A pressable option looks like an option**:
-  - an outline (1.5 `border.muted`) when unselected; an ink fill when selected (or 5b's accent tint + accent border for multi-select);
+  - an outline (1.5 `border.muted`) when unselected; when selected, the fill of its colour role (Colour roles above): ink for a choice, brown (accent tint + accent border) for an entered value such as 5b's flavour tags;
   - **44pt tall** (`inset.control`);
   - **always in a set**: two or more options, with a selected member or a count.
 - **A label that cannot be pressed looks like a Badge**: tinted fill, no `border.muted` outline, badge sizes.
@@ -1049,3 +1056,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-07 — Tab swipe removed (tab bar only). Taste axis slider revised: five steps named Strongly / Leaning / Balanced, one rail for every state (1.5 `border.muted` on ground), needle empty / lit (#C9821A) / entered, stops inset 6pt, a haptic per step. AxisReadout specified (fill from 50, marker carries the value). §1 Pressed: under 44pt scale, 44pt and up darken. `border.addSlot` lightened to #6B5D55; the dashed rule moved from §1 to §8.
 - 2026-10-08 — Taste axis slider L3 + H1: rail 240 × 28 centred with the labels at its ends, handle 16 × 40, stops 56pt apart; a centre grip that turns white once entered; Clear under the handle. Tokens: `size.axis.rail` 20 → 28, `size.axis.railWidth` and `size.axis.handle` added.
 - 2026-10-08 — Record sheet: swipe back only from the left edge (22pt gutter), with the steps on a Reanimated value and the push back on `motion.expand`. Taste axis: pole labels `label.caps`, rail 260 (61pt steps), Clear smaller (`label.eyebrow`) and hidden while dragging.
+- 2026-10-08 — §1 Colour roles: three roles. Brown = a value the user entered (axis entered, selected flavour tags), beside blue = in force and ink = chosen. Tap affordance: 5b's brown multi-select is an application of the rule, not an exception. StarRating's gold left open.
