@@ -886,7 +886,10 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 
 **Layout (L3 + H1, 2026-10-08; sizes as revised above).**
 - The track is centred in its card. The pole labels are **`label.caps`** and sit at its ends; 260 fits the longest pair, Low / High sweetness at 245.
-- **Clear / Not noted** sit **right-aligned under the track**, in a fixed 17pt slot. Clear is **`label.eyebrow`** (the Button text variant's `small`) and **hides while dragging**.
+- **Clear / Not noted** sit **right-aligned under the track**, in a fixed 17pt slot. Clear **hides while dragging**.
+- **Both are set alike (2026-10-09)**: `meta` (12 / 600), as written, no caps, no extra spacing. Clear is the Button text variant's `small`.
+  - The colour does the work: Clear is ink (pressable); **"Not noted" is `border.medium`**, a quiet status.
+  - Contrast of "Not noted": 2.32:1 on the card, under AA for text, accepted as a placeholder-like status. iOS's own placeholder grey is lower.
 - On iPhone 14 the track spans x 65–325.
 - Superseded:
   - the full-width rail (310, 74.5 per step);
@@ -1113,3 +1116,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-08 — §9 Taste axis step names: per-axis adjectives (Very bright … Very bitter, Very light-bodied … Very full-bodied, Very light roast … Very dark roast, Barely sweet … Very sweet); the middle step takes each axis's most natural word.
 - 2026-10-08 — Taste axis slider built to the revision, size B: track 260 × 34 (2 `text.secondary` frame, `border.subtle` dots), square 26 handle inset 2, grip 2 × 8 white, Clear / Not noted right-aligned; lit and pole-ink removed. Tokens: `size.axis` rail 34 / inset / handle 26 / dot; `axis.needle.lit` and `state.lit` removed.
 - 2026-10-08 — §1 Colour roles: computed / historical / estimated values are neutral, never brown (colour carries "did I enter this?"); a five-step order for choosing a value's colour; never colour for emphasis.
+- 2026-10-09 — Taste axis: Clear in `meta` as written, like "Not noted" (was `label.eyebrow` caps); "Not noted" in `border.medium`, quieter than Clear.
