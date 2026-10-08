@@ -490,9 +490,11 @@ Fixed element dimensions. **Never subject to the spacing scale** — snapping th
 | `size.badge.numeral` | 22 | 7 screens / 20 uses — numbered step badges, checkboxes |
 | `size.checkbox` | 24 | 3 screens / 22 uses |
 | `size.weekday.column` | 68 | 6 screens |
-| `size.axis.rail` | **28** (was 20, the mock; L3 + H1, 2026-10-08) | the slider's rail height |
-| `size.axis.railWidth` | **260** | the slider's rail width, centred in its card (added 2026-10-08 at 240; 260 once the pole labels went to `label.caps`) |
-| `size.axis.handle` | `{ w: 16, h: 40 }` | the slider's handle (added 2026-10-08); stops 56pt apart |
+| `size.axis.rail` | **34** (20 in the mock; 28 for L3 + H1; 34 from 2026-10-08, size B) | the slider's track height |
+| `size.axis.railWidth` | **260** | the slider's track width, centred in its card (added 2026-10-08 at 240; 260 once the pole labels went to `label.caps`) |
+| `size.axis.inset` | **2** | handle ↔ frame, the Switch's padding (2026-10-08) |
+| `size.axis.handle` | `{ w: 26, h: 26 }` | the square handle = track − 2 × border − 2 × inset (2026-10-08; was 16 × 40); stops 56.5pt apart |
+| `size.axis.dot` | **6** | the stop dots (2026-10-08) |
 | `size.axis.needle` | `{ w: 12, h: 30 }` | 6 screens; now only the display axis, until AxisReadout replaces it |
 | `size.meter.track` | 4 | 2 screens — `beanFreshness` height |
 | `size.marker.line` | `{ w: 2, h: 14 }` | marker / caret line width |
@@ -808,7 +810,7 @@ Padding is `inset.control` (the source's 13 / 16 folds to it) and the gap is `sp
 ### Taste axis slider (base `AxisSlider`; revised 2026-10-07)
 The input of Taste DNA, on 5b only. **The display of Taste DNA is a different component, AxisReadout** (below): the two look different, so what can be operated is clear at a glance. The governing rule still holds: a value the user entered must never be confused with one that came out of their records.
 
-**Revision 2026-10-08: square handle, dots, Clear on the right (specified from Uryu's screenshots; to be built once the size is chosen).** It supersedes the layout and look below where they differ.
+**Revision 2026-10-08: square handle, dots, Clear on the right (from Uryu's screenshots; built 2026-10-08, size B).**
 - **Handle**: a square, derived from the Switch knob (border 2, inset 2, handle = track height − 8; `components.md` "Switch and the axis handle"). It is big enough to grab by its body, without relying on touch slop.
 - **Stops**: a small round **dot** at each of the 5 stops, replacing the short vertical reference lines.
 - **Clear / Not noted**: **right-aligned under the track**, no longer centred under the handle.
@@ -816,7 +818,25 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
   - The square handle is in the same family as the switch knob, so the app's shape vocabulary lines up.
   - Dots say *where you can stop*; the handle says *where you are*. The two layers no longer mix, as the old reference lines and the handle's centre line did.
 - **Lit while dragging (#C9821A): removed.** The colour scheme is reviewed as a whole first. The press scale stays, and so does the selection haptic per step. Checked on device in that "nothing added" state before anything is added.
-- **Pending**: the track height (A 30 / B 34), the track's frame colour, the dot's colour, the grip's length, and whether the dot under the handle is hidden or just covered.
+- **Size B** (screenshot geometry):
+  - track 260 × 34;
+  - square handle 26, inset 2;
+  - stops 56.5pt apart, stop 0 17pt in.
+  - A (30 / 22, identical to the Switch) was compared and not taken.
+- **The dot under the handle is covered, not hidden.** The handle is **always opaque**.
+  - Hiding by step would drop the destination dot before the 100ms move arrives, and show the old one while the handle still covers it.
+  - Pressed (0.88 → 22.9pt) still covers the 6pt dot.
+  - If a translucent handle is ever wanted, switch to hiding with a fade over the same motion.
+- **Colours** are the nearest tokens to the screenshot:
+  - frame: 2px `text.secondary` (#5C5049, ΔE 0.8; no border token is that dark short of ink);
+  - inside: `surface.raised`;
+  - dots: `border.subtle` (#E4D6CC, the value of the reference lines they replace; 1.33:1 on the card against the screenshot's 1.40);
+  - handle empty: `surface.muted` fill, 2 `border.muted`;
+  - handle entered: `icon.accent` fill, 2 ink.
+- **Grip 2 × 8**, about a third of the handle; 14 read too long.
+  - White (`icon.onAction`) in both states, as in the screenshots.
+  - The "turns white once entered" signal is gone: the fill carries entered. On the empty handle the white grip is 1.42:1, decoration only.
+- The pole labels' ink while leaning was removed with the lit colour, so dragging adds nothing visual beyond the handle's movement and its press scale (held for the whole touch).
 - Pole labels stay `text.muted`. The screenshots' green labels are Uryu's draft, on hold.
 
 **Five steps.**
@@ -842,34 +862,30 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 - Stored as integer **0–100 points**, step i = round(i × 100 / 4). A later change of step count needs no data migration: old values snap to the nearest step.
 - "Balanced", not "Middle": Middle describes the slider's position, Balanced describes the coffee. The app talks about coffee, not about its controls.
 
-**States: the rail is the same in every state; the needle carries the state.** One state decides both (`component.axis.state.*`):
+**States: the track is the same in every state; the handle carries the state.** One state decides both (`component.axis.state.*`):
 
-| state | rail | needle |
+| state | track | handle |
 |---|---|---|
-| `empty` (value null) | the track: 1.5 solid `border.muted` on a `surface.ground` fill + `texture.rule` | `axis.needle.empty`: `surface.muted`, 1.5 `border.medium`, 12 × 30, resting at Balanced as a **placeholder, never a value** |
-| `lit` (finger on it) | same | `axis.needle.lit`: `icon.rating` #C9821A (same value, needle role), 2 ink, 12 × 32, scaled to 0.88 |
-| `entered` | same | `axis.needle.entered`: `icon.accent`, 2 ink, 12 × 32 |
+| `empty` (value null) | 260 × 34, 2 `text.secondary` frame on `surface.raised`, a `border.subtle` dot at each stop | `axis.needle.empty`: 26 square, `surface.muted`, 2 `border.muted`, white grip; resting at Balanced as a **placeholder, never a value** |
+| `entered` | same | `axis.needle.entered`: 26 square, `icon.accent`, 2 ink, white grip |
 
-- The rail is a weak frame (1.5 = internal / weak in §1 Shape), so the needle leads. An unentered axis no longer looks "confirmed" (the ink solid rail did).
-- The rail also differs clearly from AxisReadout's 4pt bar.
-- **Lit**: gold reads as "entered, brighter", not as a third state. `accentStrong` (#8A4602) was too close to entered.
-  - In and out over `motion.press` (100ms).
-  - The needle presses by scale, because it is under 44pt (§1 Pressed).
-  - On release it settles to entered.
+- While the finger is down the handle is scaled to 0.88, over `motion.press`. It is under 44pt to the eye (§1 Pressed).
+- Removed 2026-10-08: `lit` (#C9821A while touched).
+- The track differs clearly from AxisReadout's 4pt bar.
 
-**Layout and size: L3 + H1 (2026-10-08).**
-- The rail is **260 × 28** (`size.axis.railWidth` / `size.axis.rail`), **centred** in its card.
-- The pole labels are **`label.caps`** (12; was `label.eyebrow` 10, enlarged on review 2026-10-08) and sit at the rail's ends. 260 (up from the first 240) fits the longest pair, Low / High sweetness at 245, with ~15 between.
-- The **handle is 16 × 40** (`size.axis.handle`), so the 5 stops are **61pt apart** ((260 − 16) / 4). The old full-width rail made 74.5, too far for a 5-step control.
-- **Grip**: a short centre line on the handle, as wide as its stroke (2) and 14 tall (the readout marker's height, the same as `beanFreshness`' todayMarker; approved 2026-10-08). It takes the handle's stroke colour until the axis is changed, then **turns white** (`icon.onAction`) once entered. Ink while lit.
-- **Clear sits under the handle and travels with it** (from Uryu's sketch), in the same fixed 17pt slot. It is **hidden while dragging** and set in **`label.eyebrow`** (the Button text variant's `small`), smaller than the pole labels. "Not noted" stays at the rail's start.
-- On iPhone 14 the rail spans x 65–325: 65pt from each screen edge.
-- Superseded the rail at full card width (310, 74.5 per step) and the 12 × 32 needle.
+**Layout (L3 + H1, 2026-10-08; sizes as revised above).**
+- The track is centred in its card. The pole labels are **`label.caps`** and sit at its ends; 260 fits the longest pair, Low / High sweetness at 245.
+- **Clear / Not noted** sit **right-aligned under the track**, in a fixed 17pt slot. Clear is **`label.eyebrow`** (the Button text variant's `small`) and **hides while dragging**.
+- On iPhone 14 the track spans x 65–325.
+- Superseded:
+  - the full-width rail (310, 74.5 per step);
+  - the 12 × 32 and 16 × 40 needles;
+  - Clear travelling under the handle.
 
 **Stops and travel.**
-- The 5 stops and the 3 reference lines (`texture.rule` at the inner stops) sit on a track **inset by half the handle (8pt)** from each rail end, so the handle never overhangs the rail at 0 or 100.
-- 5b's stops on iPhone 14: x 73 / 134 / 195 / 256 / 317.
-- **Discrete = snapping**: the needle moves stop to stop (eased over `motion.press`).
+- The 5 stops and their dots sit **inset 2 + half the handle (15pt) inside the frame**, so the handle never touches the frame at 0 or 100.
+- 5b's stops on iPhone 14: x 82 / 138.5 / 195 / 251.5 / 308.
+- **Discrete = snapping**: the handle moves stop to stop (eased over `motion.press`).
 - **A selection haptic on every step change**, so the number of steps moved can be felt without looking.
 
 **Commit.**
@@ -1084,3 +1100,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-08 — §1 Colour roles: scope limited to the state of options and values (badges, errors, markers, caret out of scope). Rating stars keep `icon.rating` gold as their own vocabulary. 8f's blue DNA bars → brown (D-22).
 - 2026-10-08 — §9 Taste axis slider: revision specified (square handle derived from the Switch knob, dots at the stops, Clear / Not noted right-aligned under the track, no lit colour while dragging). Size and colours pending.
 - 2026-10-08 — §9 Taste axis step names: per-axis adjectives (Very bright … Very bitter, Very light-bodied … Very full-bodied, Very light roast … Very dark roast, Barely sweet … Very sweet); the middle step takes each axis's most natural word.
+- 2026-10-08 — Taste axis slider built to the revision, size B: track 260 × 34 (2 `text.secondary` frame, `border.subtle` dots), square 26 handle inset 2, grip 2 × 8 white, Clear / Not noted right-aligned; lit and pole-ink removed. Tokens: `size.axis` rail 34 / inset / handle 26 / dot; `axis.needle.lit` and `state.lit` removed.
