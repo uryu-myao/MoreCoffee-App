@@ -27,6 +27,14 @@ Moves and follow-ups that are neither drift (a design value to correct) nor a de
 
 **Re-check when wired**: at the selection limit Search is locked with the options (§1 Selection limit).
 
+## V1 candidates
+
+- **The bag's printed flavours as the first flavour suggestions** (2026-10-09).
+  - When a cup is logged from a bag, offer that bag's `notes` (the flavours printed on it: Jasmine, White peach, Black tea) first among 5b's flavour suggestions, ahead of history and the bundled list.
+  - They are the words on the bag being brewed right now, so the best guess; local, no backend.
+  - Needs a notes field in 3c / 3g, not built until this is adopted (`data-model.md` `beans.notes`).
+  - Decide once the flavour tags work.
+
 ## V2 candidates
 
 Out of V1's scope (the capture → Taste DNA loop only). Kept so the idea is not lost; treated like Try next and Atlas.

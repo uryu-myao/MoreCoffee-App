@@ -198,13 +198,29 @@ The Switch is not built yet. The taste-axis handle is now derived from it, so th
 | 36 | 3e / 3g "Replace" (ink 1.5) and "Remove photo" (`border.muted` 1.5, no fill); 7a "Mark all read" (`border.muted`, no fill) | secondary · a muted-frame look |
 
 **Proposal**, two axes, kept apart:
-- **`variant`** = surface and role: `primary` · `secondary` · `quiet` (1.5 `border.muted`, no fill: 3e / 3g "Remove photo", 7a) · `text`.
+- **`variant`** = surface and role: `primary` · `secondary` · `text` (a `quiet` look was proposed and dropped, see below).
 - **`size`** = height, for surfaced variants only: `full` (56, or 52 for secondary per `gaps.md` 4) · `row` (44) · `compact` (40) · `small` (36, touch area padded to 44 with `hitSlop`, `gaps.md` 19).
 - **The text variant takes no size.** Its typography is its own prop, e.g. `type: 'caps' | 'inline'`: `inline` = `meta` as written, today's `small`. Rename `small` → `type="inline"`, so `small` is free for the 36 height.
 - 48 (8f) is a single use; decide with 8f.
 
 **Approved 2026-10-09**: the two axes (`variant` × `size`, surfaced variants only), and the text variant's `type="inline"` replacing `small`, so `small` is the 36 size. 48 is decided with 8f.
-**Open (report 2026-10-09)**: whether `quiet` is needed at all, and why secondary's full height is 52. Not built; the rename touches one call site (AxisSlider's Clear).
+- **`quiet` is dropped (2026-10-09). The variants are `primary` · `secondary` · `text`.** A 1.5 `border.muted` frame with no fill is §1's look for an *unselected option*, so a button in it reads as a choice. 3e / 3g "Remove photo" and 7a "Mark all read" become `secondary` + `small` (36). That "Remove photo" was lighter than "Replace" no longer matters: destructive actions get no look of their own.
+- **Secondary's full height is 52 by design** (every mock; it sits one step under the primary it usually stacks beneath). The code's 56 is drift D-32.
+- Not built; the rename touches one call site (AxisSlider's Clear).
+
+## Bag form: origin, region and process (decided 2026-10-09; not built)
+
+- **Never required, never blocking**: §1's principle, "required fields start pre-filled and never block".
+- **3c (new bag, the 15-second path)**: one optional line under Roast level, "Origin · Process", shown with any guess. Saving without touching it is fine.
+- **3g (edit bag)**: full fields.
+  - Under Roaster: a two-column row "Origin / Region", like 3e's "Maker / Added on".
+  - Under Roast level: "Process".
+- **Inputs**:
+  - **Process**: an option set, Washed / Natural / Honey / Anaerobic. `anaerobic` is added to the table.
+  - **Origin**: a country, from a bottom sheet with a search field. The bundled country list, with the user's history first.
+    - **That sheet and search field are the flavour tags' Search** (`todo.md` T-2). Build them there first and reuse them here; do not build a second one.
+  - **Region**: free text, with history as suggestions.
+- **Guessing from the bean name**: proposal 2026-10-09, see the report. A guess must read as a guess, and an unconfirmed guess must not be saved as the user's input.
 
 ## Row menus: gear and words are built differently (recorded 2026-10-09)
 
