@@ -275,7 +275,10 @@ function AxisSlider({ from, to, steps, value = null, derived = false, previous, 
       <Rail part={railPart} derived={derived} />
       {derived && previous != null ? <GhostAndDelta from={previous} to={value} /> : null}
       <View
-        style={[styles.track, { left: derived ? 0 : TRACK_INSET, right: derived ? 0 : TRACK_INSET }]}
+        // The handle's layer sits INSIDE the 2px frame, like the dots' layer (a
+        // child of the framed view). It used to start at the frame's outer edge,
+        // which put the handle 2pt high and up to 1pt off the dots (2026-10-09).
+        style={[styles.track, derived ? styles.trackDerived : styles.trackOperable]}
         pointerEvents="none"
         onLayout={(e) => {
           trackW.value = e.nativeEvent.layout.width;
@@ -404,6 +407,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     bottom: 0,
+  },
+  trackOperable: {
+    left: STOP0,
+    right: STOP0,
+    top: BORDER,
+    bottom: BORDER,
+  },
+  trackDerived: {
+    left: 0,
+    right: 0,
   },
   ruleLine: {
     position: 'absolute',
