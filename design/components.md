@@ -179,6 +179,32 @@ The Switch is not built yet. The taste-axis handle is now derived from it, so th
 
 **Why**: a square handle belongs to the same family as the switch knob, so the app's shape vocabulary lines up (`design-system.md` §9 Taste axis slider).
 
+## Button: variant and size are mixed today (recorded 2026-10-09, proposal)
+
+**Today (`Button.js`)**:
+- `variant`: `primary` (blue fill) · `secondary` (ground fill, ink frame) · `text` (no surface, underlined).
+- **`small`**, a boolean that only the text variant reads. It switches the label from `label.caps` to `meta` as written: the taste axis Clear.
+- The filled variants have **one height**: `size.button.primary` (56; secondary is 52 in the mocks, `gaps.md` 4).
+
+**So the two axes are mixed**. `small` sounds like a size but changes typography, and only on the variant that has no size. The real sizes in the mocks are not expressible:
+
+| height | uses | look |
+|---|---|---|
+| 56, full width | 14 primary (1b 2b 3a 3c 3e 3g 4a 4b 5a–5e 7b 8e); 8c Next (not full width) | primary |
+| 52, full width | 7 secondary (1b 3b 5a 5b 5c 5e) | secondary |
+| 48 | 8f (shadowed) | — |
+| 44 | 3c "Use" (blue); 3d "Edit" / "Finish bag" | primary · secondary |
+| 40 | 6d "Save", 8j "Send" (blue); 8h "Add" (ink frame) | primary · secondary |
+| 36 | 3e / 3g "Replace" (ink 1.5) and "Remove photo" (`border.muted` 1.5, no fill); 7a "Mark all read" (`border.muted`, no fill) | secondary · a muted-frame look |
+
+**Proposal**, two axes, kept apart:
+- **`variant`** = surface and role: `primary` · `secondary` · `quiet` (1.5 `border.muted`, no fill: 3e / 3g "Remove photo", 7a) · `text`.
+- **`size`** = height, for surfaced variants only: `full` (56, or 52 for secondary per `gaps.md` 4) · `row` (44) · `compact` (40) · `small` (36, touch area padded to 44 with `hitSlop`, `gaps.md` 19).
+- **The text variant takes no size.** Its typography is its own prop, e.g. `type: 'caps' | 'inline'`: `inline` = `meta` as written, today's `small`. Rename `small` → `type="inline"`, so `small` is free for the 36 height.
+- 48 (8f) is a single use; decide with 8f.
+
+**Status**: proposal; not built. The rename touches one call site (AxisSlider's Clear).
+
 ## Row menus: gear and words are built differently (recorded 2026-10-09)
 
 - **Gear (3b)**: each item has a full page, 3e (Edit gear). The ⋮ sheet only repeated 3e's contents (default, edit, remove), so the ⋮ goes. The row opens 3e directly, with a chevron (drift D-26).
