@@ -10,12 +10,16 @@ import Text from './Text';
  *
  *   primary    full width: action.bg fill, 2px ink outline, shadow.primary
  *   secondary  full width: same geometry on surface.ground, ink label, no shadow
- *   text       label only (label.caps, ink): no fill, no frame, sized to its
+ *   text       label only (label.caps, ink, underlined — §1: a text-only
+ *              action is underlined): no fill, no frame, sized to its
  *              label; the touch area is padded out to size.tapTarget. Added
  *              2026-10-07 for the taste axis "Clear". Having no surface, it
  *              presses by scale (state.pressed.scale over motion.press), §1.
- *              small: `meta` as written, not caps — the taste axis Clear, set
- *              like the "Not noted" it replaces (2026-10-09; was label.eyebrow)
+ *              small: `meta` as written, not caps, UNDERLINED — the taste axis
+ *              Clear, set like the "Not noted" it replaces (2026-10-09; was
+ *              label.eyebrow). The underline is §1's "a text-only action is
+ *              underlined" (the means text.inlineAction defines); colour
+ *              alone never marks pressable.
  *   disabled   either variant: ground fill, border.muted outline, text.muted
  *              label, no shadow — the border.addSlot.inert vocabulary from 5d
  *   pressed    the fill darkens (state.pressed.action / .surface); outline,
@@ -64,7 +68,7 @@ function TextButton({ label, small = false, disabled = false, onPress, accessibi
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled }}>
       <Animated.View style={{ transform: [{ scale }] }}>
-        <Text variant={small ? 'meta' : 'labelCaps'} color={disabled ? 'muted' : 'primary'}>
+        <Text variant={small ? 'meta' : 'labelCaps'} color={disabled ? 'muted' : 'primary'} style={styles.underline}>
           {label}
         </Text>
       </Animated.View>
@@ -111,6 +115,10 @@ function FilledButton({
 }
 
 const styles = StyleSheet.create({
+  /** §1: a text-only action is underlined; colour alone never marks pressable. */
+  underline: {
+    textDecorationLine: 'underline',
+  },
   base: {
     height: size.button.primary,
     borderWidth: shape.borderWidth.box,
