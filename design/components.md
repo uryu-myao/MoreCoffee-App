@@ -178,6 +178,15 @@ The Switch is not built yet. The taste-axis handle is now derived from it, so th
 
 **Why**: a square handle belongs to the same family as the switch knob, so the app's shape vocabulary lines up (`design-system.md` §9 Taste axis slider).
 
+## Row menus: gear and words are built differently (recorded 2026-10-09)
+
+- **Gear (3b)**: each item has a full page, 3e (Edit gear). The ⋮ sheet only repeated 3e's contents (default, edit, remove), so the ⋮ goes. The row opens 3e directly, with a chevron (drift D-26).
+- **Words (8h)**: the ⋮ stays as drawn.
+  - The menu's contents are not in the mocks.
+  - There is no page behind a word: rename and merge happen in place ("Tap a word to rename it everywhere, or merge it into another").
+  - So 8h cannot follow 3b. Its ⋮ is specced when 8h is built.
+- **Beans (3d)**: no ⋮. "Edit" and "Finish bag" sit on each card. Whether bean cards should follow gear (card tap → 3g) is open (report 2026-10-09).
+
 ## Estimate
 
 | scope | items |
