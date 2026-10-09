@@ -171,6 +171,13 @@ Plus, globally:
 
 **Needs designing**: a third state (resting / too fresh), which also settles OQ-3 (whether `peakBand` is intentionally state-dependent).
 
+**Exposed by 3g (noted 2026-10-09, not solved)**:
+- 3g lets the user edit "Roasted on" and says freshness is "Recounted from the roast date when you change it".
+- Set the roast date to today and the bag is at day 0. The elapsed bar is empty, before the peak band (17%), in exactly the undefined resting range. It has no colour and no label.
+- Two more open points:
+  - `beans` has only `opened_at` ("drives the freshness meter"); there is no roast-date column, though 3g counts from the roast date. Which date drives freshness is undecided.
+  - The mocks' day counts do not agree on a base date. 3d / 3g say "opened Apr 6 · Day 7" with roasted Mar 30, while 5a's cup on Apr 8 shows "day 7".
+
 ---
 
 ## 9. The weekday strip's active-day underline is unimplemented
@@ -320,6 +327,47 @@ Plus, globally:
 **What they do not have**: no confirmation before finishing, and no undo right after it (toast or similar). A slip has to be found and reversed in 3f. Reopening may also need a free slot (5 at most).
 
 **Status**: recorded, not designed. The button itself becomes secondary (drift D-25).
+
+---
+
+## 18. Destructive actions: confirmation and undo (added 2026-10-09)
+
+**Rule (§1)**: destructive actions get no look of their own. They are protected by confirmation or undo, not colour.
+
+| action | where | confirm? | undo / recovery? | what is lost |
+|---|---|---|---|---|
+| Discard | 6d footer, beside "Unsaved changes" | none drawn | none | unsaved profile edits |
+| Remove photo | 6d, 3e, 3g | none drawn | effectively until Save (6d has Discard; 3e / 3g have only Back, and leaving with unsaved changes is undesigned) | the photo |
+| Remove from my gear | 3b sheet, 3e | none drawn | none | the gear item. Its cups keep it, as the copy promises ("Your 2 logged cups keep this grinder"): cups store the grinder as text |
+| Finish bag | 3d | none drawn | **yes: 3f "Reopen bag"** (may need a free slot) | nothing; see item 17 |
+| Delete this bag | 3g | none drawn | none | **undefined for cups**, see below |
+
+**Delete this bag: what happens to its cups is not settled. Do not build it until it is.**
+- 3g says only "Not finish — erases it". There is no note like 3e's "Your 2 logged cups keep this grinder."
+- The data model links a cup to its bag (`cups.bean_id → beans`, `ON DELETE SET NULL`).
+  - So deleting a bag keeps the cups but **strips their bean**: name, roaster, origin and process.
+  - Those are Try Next and Taste DNA inputs.
+  - Gear differs: a cup stores the grinder as text, so removing gear loses nothing from cups.
+- To decide:
+  - whether delete keeps the cups' bean (keep a snapshot, or forbid delete while cups exist and point to Finish);
+  - and the note 3g shows to say so.
+- In a local-first app the records are the only asset, so this needs the same explicitness as 3e.
+
+**Status**: recorded; nothing designed. Item 17 (Finish bag) is the Finish row above.
+
+---
+
+## 19. 36pt buttons fall short of the 44pt tap target (added 2026-10-09)
+
+**Parts affected**: the 36-tall compact button. 3e and 3g photo "Replace" / "Remove photo" (1.5 frame, 11px caps); 7a "Mark all read" (1.5 `border.muted`, no fill).
+
+**Gap**: 36 < 44 (`size.tapTarget`). Two ways:
+- keep the drawn 36 and pad the touch area with `hitSlop` (4 above and below);
+- or draw them at 44.
+
+The photo pair sits beside a 76 thumbnail, so 44 would still fit its height.
+
+**Status**: recorded, not decided. The button itself is a Button variant (`components.md` #3), not built.
 
 ---
 
