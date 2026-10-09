@@ -110,6 +110,38 @@ A versioned `schema_migrations (version, name, applied_at)` table, not a single 
 
 ---
 
+## Planned changes (decided 2026-10-09, not built)
+
+Not in `schema.ts` yet. They change the structure, so they land as a migration once the design is settled. They come **before** the bag-delete feature (`gaps.md` 18).
+
+### Cups copy their bag's details at logging
+- When a cup is logged, the bag's details are **copied onto the cup** and stored there. `bean_id` stays as a reference, but **display and Taste DNA read the cup's copies**.
+- **Why**:
+  - It matches gear, which a cup already stores as text (`grinder`).
+  - A cup is a fact that happened: that day, that coffee. A reference would let a later edit of the bag rewrite past cups, and a delete strip them (`ON DELETE SET NULL`).
+  - In a local-first app the records are the only asset, so they must not depend on a foreign-key chain.
+- **Copied** (the bag's identity and the Taste DNA / Try Next inputs): `name`, `roaster`, `origin`, `region`, `process`, `roast_level`.
+  - Candidates, undecided: `roasted_at` (so the cup's "day N" stays reproducible) and `notes` (the bag's printed flavour notes).
+  - Not copied: `opened_at`, size and photo. They describe the bag, not the cup.
+- **Open**: whether a later edit of the bag is also applied to its past cups' copies. 3e / 3g's footers promise "Edits apply to the N cups already logged" (report 2026-10-09).
+
+### Bag fields: the forms and the table disagree
+| field | 3c (new bag) | 3g (edit bag) | `beans` |
+|---|---|---|---|
+| Bean name | yes | yes | `name` |
+| Roaster | yes | yes | `roaster` |
+| Roast level | Light / Medium / Dark | same | `roast_level`, 6 values (+ other) |
+| Roasted on | yes | yes | **missing** |
+| Opened on | set by "Open this bag" | yes | `opened_at` |
+| Size | yes | yes | **missing** |
+| Photo | yes | yes | **missing** |
+| Origin / region / process | — | — | present, but no form asks for them (Try Next inputs) |
+| notes (flavour tags) | — | — | present, no form |
+
+- **Roast date**: freshness is counted from it in 3g ("Recounted from the roast date"), and the meter's peak band fits degassing. 8i's "Bag going stale — around day 21 after opening" counts from opening. So **both dates are needed** (`gaps.md` 8).
+
+---
+
 ## No price
 
 **There is no price column anywhere, deliberately.** A hand-entered price is always partial: people skip it, round it, or forget it for some cups. Partial price data cannot support spend reporting, because any total built on it is wrong in an unknown direction. Meanwhile, collecting it still costs UI space and user attention on every log.
