@@ -4,7 +4,7 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { color, component, motion, size, spacing, state, textStyle, texture } from '../../theme/tokens';
+import { component, motion, size, spacing, state, textStyle, texture } from '../../theme/tokens';
 import Button from './Button';
 import { GESTURE_LOG, logGesture } from './gestureLog';
 import Text from './Text';
@@ -312,8 +312,7 @@ function AxisSlider({ from, to, steps, value = null, derived = false, previous, 
           <Button variant="text" small label="Clear" accessibilityLabel={`Clear ${from} to ${to}`} onPress={() => onChange?.(null)} />
         </Animated.View>
       ) : (
-        // Quieter than Clear (2026-10-09): a status, not something to press.
-        <Text variant="meta" color={color.border.medium}>
+        <Text variant="meta" color="muted">
           Not noted
         </Text>
       )}
