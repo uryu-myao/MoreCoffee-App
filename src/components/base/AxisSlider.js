@@ -381,9 +381,7 @@ function GhostAndDelta({ from, to }) {
 }
 
 const styles = StyleSheet.create({
-  axis: {
-    gap: spacing.gap.row,
-  },
+  axis: {},
   axisSized: {
     width: RAIL_W,
     alignSelf: 'center',
@@ -391,6 +389,7 @@ const styles = StyleSheet.create({
   poles: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: spacing.gap.row,
   },
   textRight: {
     textAlign: 'right',
@@ -445,9 +444,11 @@ const styles = StyleSheet.create({
   },
   /**
    * Fixed height (one meta line): Not noted / Clear / caption swap without a
-   * jump. Right-aligned under the track (2026-10-08).
+   * jump. Right-aligned under the track (2026-10-08), gap.tight below it
+   * (2026-10-09; was gap.row): the status belongs to its track.
    */
   slot: {
+    marginTop: spacing.gap.tight,
     height: textStyle.meta.lineHeight,
     justifyContent: 'center',
     alignItems: 'flex-end',

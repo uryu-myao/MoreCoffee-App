@@ -44,9 +44,10 @@ export default function Button(props) {
 const pressEasing = Easing.bezier(...motion.press.controlPoints);
 // Pads the label's line (label.caps, ~13) out to at least size.tapTarget (44).
 const TEXT_HIT_SLOP = { top: space[16], bottom: space[16], left: space[8], right: space[8] };
-// small: meta's 17pt line + 2 × 14 = 45. A smaller top reach also keeps the
-// taste axis Clear's slop shallower over the track above it (gaps.md 14).
-const SMALL_HIT_SLOP = { top: space[14], bottom: space[14], left: space[8], right: space[8] };
+// small (the taste axis Clear): meta's 17pt line + 8 + 20 = 45. Most of the
+// reach goes down: the track sits gap.tight (4) above, so a top of 8 reaches
+// only 4pt into it; 20 below ends where the next axis begins (gap.axis).
+const SMALL_HIT_SLOP = { top: space[8], bottom: space[20], left: space[8], right: space[8] };
 
 function TextButton({ label, small = false, disabled = false, onPress, accessibilityLabel }) {
   const scale = useRef(new Animated.Value(1)).current;
