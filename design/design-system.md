@@ -127,7 +127,9 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - **always in a set**: two or more options, with a selected member or a count.
 - **A text-only action is underlined. Colour alone never tells pressable from not pressable (2026-10-09).** The means is the one `text.inlineAction` already defines (an inline text action = underline); size, weight and case follow the context. First use: the taste axis Clear. Twelve text-only actions in the mocks rely on colour alone (2b, 5d, 6d, 7b, 8c, 8e, 8f, 8h, 8l). They are not changed yet (report 2026-10-09).
 - **An outline with no fill never means "selected" (checked 2026-10-09).**
-  - In all 30 screens, all 12 selected options are **fill + frame**: ink fill with an ink frame, on 2a 2b 3a 3b 3c 3e 3f 4a 5d 5e 6d 8i 8j 8l.
+  - In all 30 screens every selected option is **filled with ink**.
+  - 12 are fill + a 2px ink frame: 3a and 8m checked boxes, 3e's switch (D-20), 6d "Home brewer", 8i's five weekdays, 8j "An idea", 8l "Words".
+  - The segmented options are an ink fill with no frame: 2a "All", 2b "Month", 3a "Brewer", 3b / 4a "Default", 3c "Light", 3e "Grinder", 3f "Newest", 5d "Barista", 5e "Ready-to-drink", 8d "This week".
   - A 2px ink outline on the card colour is a pressable control or a frame: icon buttons, My gear / My beans, unchecked checkboxes, switch knobs.
   - Keep it that way. The one exception, 8f's "juicy 9", is drift D-23.
 - **A label that cannot be pressed looks like a Badge**: tinted fill, no `border.muted` outline, badge sizes.
@@ -1131,4 +1133,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-09 — Taste axis: Clear in `meta` as written, like "Not noted" (was `label.eyebrow` caps); "Not noted" in `border.medium`, quieter than Clear.
 - 2026-10-09 — Taste axis: handle centred in the track (its layer now inside the frame, like the dots); Clear / Not noted `gap.tight` under the track; Clear's slop top 8 / bottom 20; "Not noted" back to `text.muted` (2.32:1 was under the 3:1 floor).
 - 2026-10-09 — §1 Colour roles: 8f's "most used" frame on "juicy 9" classed as a marker (out of scope).
-- 2026-10-09 — §1 Tap affordance: a text-only action is underlined (colour alone never marks pressable; first use: Clear); an outline with no fill never means selected (all 12 selected options are fill + frame). 8f's "juicy 9" frame removed (D-23).
+- 2026-10-09 — §1 Tap affordance: a text-only action is underlined (colour alone never marks pressable; first use: Clear); an outline with no fill never means selected (every selected option is ink-filled). 8f's "juicy 9" frame removed (D-23).
