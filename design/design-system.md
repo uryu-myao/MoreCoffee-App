@@ -83,7 +83,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   4. A display of which one was chosen → **ink**.
   5. None of these (badges, errors, markers, the caret, rating stars) → its own role, outside these rules.
      - 8f's 2px ink frame on its first word tag ("juicy 9") is such a marker (2026-10-09). It means "used most", not chosen and not entered.
-     - Open: whether it reads as "selected" beside the other, pressable word tags (report 2026-10-09).
+     - It could read as "selected", so the frame is removed: drift D-23. Order (it comes first) carries "used most"; nothing else is added. Check on device whether order alone is enough.
 - **Never pick a colour "to make it stand out".** Colour carries meaning; emphasis comes from size, position and space.
 - **Scope (2026-10-08)**: the three roles apply **only to the state of options and values**. Badges, error states, markers and the caret have roles of their own and are out of scope.
 - **Rating stars are `icon.rating` (gold), outside the three roles (2026-10-08).**
@@ -125,6 +125,11 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - an outline (1.5 `border.muted`) when unselected; when selected, the fill of its colour role (Colour roles above): ink for a choice, brown (accent tint + accent border) for an entered value such as 5b's flavour tags;
   - **44pt tall** (`inset.control`);
   - **always in a set**: two or more options, with a selected member or a count.
+- **A text-only action is underlined. Colour alone never tells pressable from not pressable (2026-10-09).** The means is the one `text.inlineAction` already defines (an inline text action = underline); size, weight and case follow the context. First use: the taste axis Clear. Twelve text-only actions in the mocks rely on colour alone (2b, 5d, 6d, 7b, 8c, 8e, 8f, 8h, 8l). They are not changed yet (report 2026-10-09).
+- **An outline with no fill never means "selected" (checked 2026-10-09).**
+  - In all 30 screens, all 12 selected options are **fill + frame**: ink fill with an ink frame, on 2a 2b 3a 3b 3c 3e 3f 4a 5d 5e 6d 8i 8j 8l.
+  - A 2px ink outline on the card colour is a pressable control or a frame: icon buttons, My gear / My beans, unchecked checkboxes, switch knobs.
+  - Keep it that way. The one exception, 8f's "juicy 9", is drift D-23.
 - **A label that cannot be pressed looks like a Badge**: tinted fill, no `border.muted` outline, badge sizes.
 - **Except one display form, the attribute tag** (6a "Acidity high", 8d "Blackcurrant"): a 1.5 `border.muted` outline on no fill, padding 7/9, 11px label. It is consistent across both screens (5 uses, identical values) and never pressable on its own. On 6a it sits inside the pressable Taste DNA card, which is the target (→ 8f); on 8d it describes a suggestion and leads nowhere.
 - **So the outline alone does not mean pressable; height does.** A pressable option is 44pt. The attribute tag is about 29.
@@ -893,7 +898,7 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 - **Both are set alike (2026-10-09)**: `meta` (12 / 600), as written, no caps, no extra spacing. Clear is the Button text variant's `small`.
   - Clear is ink (pressable); **"Not noted" is `text.muted`** (6.19:1).
   - Corrected 2026-10-09: `border.medium` (2.32:1) fell under the 3:1 floor. "Not noted" stands alone outside any field, so it has to be readable by itself. A field's placeholder is not a precedent: its frame already says "something goes here".
-  - Open: whether colour alone tells that Clear is pressable (report 2026-10-09; underline proposed).
+  - **Clear is underlined** (2026-10-09, §1 Tap affordance). Colour alone did not tell that it can be pressed.
 - On iPhone 14 the track spans x 65–325.
 - Superseded:
   - the full-width rail (310, 74.5 per step);
@@ -1126,3 +1131,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-09 — Taste axis: Clear in `meta` as written, like "Not noted" (was `label.eyebrow` caps); "Not noted" in `border.medium`, quieter than Clear.
 - 2026-10-09 — Taste axis: handle centred in the track (its layer now inside the frame, like the dots); Clear / Not noted `gap.tight` under the track; Clear's slop top 8 / bottom 20; "Not noted" back to `text.muted` (2.32:1 was under the 3:1 floor).
 - 2026-10-09 — §1 Colour roles: 8f's "most used" frame on "juicy 9" classed as a marker (out of scope).
+- 2026-10-09 — §1 Tap affordance: a text-only action is underlined (colour alone never marks pressable; first use: Clear); an outline with no fill never means selected (all 12 selected options are fill + frame). 8f's "juicy 9" frame removed (D-23).
