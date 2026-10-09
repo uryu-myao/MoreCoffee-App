@@ -82,6 +82,8 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   3. A state in force now → **blue**.
   4. A display of which one was chosen → **ink**.
   5. None of these (badges, errors, markers, the caret, rating stars) → its own role, outside these rules.
+     - 8f's 2px ink frame on its first word tag ("juicy 9") is such a marker (2026-10-09). It means "used most", not chosen and not entered.
+     - Open: whether it reads as "selected" beside the other, pressable word tags (report 2026-10-09).
 - **Never pick a colour "to make it stand out".** Colour carries meaning; emphasis comes from size, position and space.
 - **Scope (2026-10-08)**: the three roles apply **only to the state of options and values**. Badges, error states, markers and the caret have roles of their own and are out of scope.
 - **Rating stars are `icon.rating` (gold), outside the three roles (2026-10-08).**
@@ -1123,3 +1125,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-08 — §1 Colour roles: computed / historical / estimated values are neutral, never brown (colour carries "did I enter this?"); a five-step order for choosing a value's colour; never colour for emphasis.
 - 2026-10-09 — Taste axis: Clear in `meta` as written, like "Not noted" (was `label.eyebrow` caps); "Not noted" in `border.medium`, quieter than Clear.
 - 2026-10-09 — Taste axis: handle centred in the track (its layer now inside the frame, like the dots); Clear / Not noted `gap.tight` under the track; Clear's slop top 8 / bottom 20; "Not noted" back to `text.muted` (2.32:1 was under the 3:1 floor).
+- 2026-10-09 — §1 Colour roles: 8f's "most used" frame on "juicy 9" classed as a marker (out of scope).
