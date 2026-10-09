@@ -66,6 +66,10 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **If the name and the reality disagree, fix the name, not the comment.**
 - Why: the same mistake was made three times. `axis.rail.readonly / editable` and the interim `unset / set` were both read off one screen. `border.empty.disabled` was named for 5d and is also used on 2a, where nothing can be pressed. A comment that contradicts its name loses to the name.
 
+### Words: bag and beans (added 2026-10-09)
+- **bag = one bag you bought**: the unit you add, open, finish, reopen, edit and delete, that takes a slot, and that a cup is logged from. **beans = the coffee itself** (its name, roaster, origin), and the shelf as a whole ("My beans", like "My gear").
+- So "Bean name" (the coffee's name) and "My beans" (the shelf) are right; anything done to one bag says "bag". The mocks' mismatches are drift D-31.
+
 ### Colour roles: blue, ink, brown (added 2026-10-07, three roles 2026-10-08)
 - **Blue = this is in force now**: the primary action, the active tab, a switch that is on.
 - **Ink = the user chose this**: single-select options, checkboxes, weekdays, sort order.
@@ -1144,3 +1148,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-09 — §1 Colour roles: 8f's "most used" frame on "juicy 9" classed as a marker (out of scope).
 - 2026-10-09 — §1 Tap affordance: a text-only action is underlined (colour alone never marks pressable; first use: Clear); an outline with no fill never means selected (every selected option is ink-filled). 8f's "juicy 9" frame removed (D-23).
 - 2026-10-09 — §1 Tap affordance: three means (row chevron, text underline, surface frame / fill), none by colour. Text actions are ink + underline, never brown; brown now carries only entered values. Destructive actions: no own look yet, protected by confirm / undo.
+- 2026-10-09 — §1 Words: bag = one bag bought (the unit acted on); beans = the coffee and the shelf. Mismatches → D-31.
