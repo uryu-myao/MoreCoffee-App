@@ -203,7 +203,8 @@ The Switch is not built yet. The taste-axis handle is now derived from it, so th
 - **The text variant takes no size.** Its typography is its own prop, e.g. `type: 'caps' | 'inline'`: `inline` = `meta` as written, today's `small`. Rename `small` → `type="inline"`, so `small` is free for the 36 height.
 - 48 (8f) is a single use; decide with 8f.
 
-**Status**: proposal; not built. The rename touches one call site (AxisSlider's Clear).
+**Approved 2026-10-09**: the two axes (`variant` × `size`, surfaced variants only), and the text variant's `type="inline"` replacing `small`, so `small` is the 36 size. 48 is decided with 8f.
+**Open (report 2026-10-09)**: whether `quiet` is needed at all, and why secondary's full height is 52. Not built; the rename touches one call site (AxisSlider's Clear).
 
 ## Row menus: gear and words are built differently (recorded 2026-10-09)
 

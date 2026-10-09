@@ -889,6 +889,9 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 - Roast stays a noun phrase (Light roast): roast level is talked about in nouns.
 - Sweetness is one-directional, not bipolar, so its weakest step is **Barely sweet** and its shape differs from the other axes.
 - Superseded table: Strongly {low} / Leaning {low} / Balanced / Leaning {high} / Strongly {high}.
+- **The Roast axis is the cup's perceived roast, not the bag's label (2026-10-09).**
+  - It keeps five steps like the other three axes. The bag's `roast_level` (Light / Medium / Dark, transcribed) is separate data and never pre-fills it.
+  - A gap between the two is information about how this person tastes, not a conflict to remove (`data-model.md` Planned changes).
 
 - Why not 1-point steps: Taste DNA is a weighted average with recency decay, so coarse input averages into fine output over many cups. The precision of the input does not set the precision of the output. Asking "38 or 39?" works against logging a cup in 15 seconds.
 - 9 steps was not taken.
@@ -1149,3 +1152,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-09 — §1 Tap affordance: a text-only action is underlined (colour alone never marks pressable; first use: Clear); an outline with no fill never means selected (every selected option is ink-filled). 8f's "juicy 9" frame removed (D-23).
 - 2026-10-09 — §1 Tap affordance: three means (row chevron, text underline, surface frame / fill), none by colour. Text actions are ink + underline, never brown; brown now carries only entered values. Destructive actions: no own look yet, protected by confirm / undo.
 - 2026-10-09 — §1 Words: bag = one bag bought (the unit acted on); beans = the coffee and the shelf. Mismatches → D-31.
+- 2026-10-09 — §9 Taste axis: the Roast axis is perceived roast, five steps, independent of the bag's transcribed roast level.

@@ -375,7 +375,7 @@ Plus, globally:
 - `bean_id` stays a reference, but display and Taste DNA read the cup's own copies. So deleting a bag no longer strips its cups.
 - **Build order: the copy (a migration) lands before the delete feature.** Delete is not built on the reference model.
 
-**3g needs a delete note like 3e's.** The wording is to be decided; it must say:
+**3g needs a delete note like 3e's.** The wording is decided later with the other copy; **the note must cover all four points** (approved 2026-10-09):
 1. the cups logged from this bag stay (with their count, as 3e does);
 2. they keep the coffee's details: name, roaster, origin, process, roast level;
 3. only the bag goes: off My beans (its slot is freed), with its photo, dates and size;
@@ -394,7 +394,8 @@ Plus, globally:
 - **Form of a confirmation: a bottom sheet** (`components.md` #25). The design has no dialog anywhere.
   - Anatomy as 3b's former action sheet: the item at the top (thumbnail, name, meta); then the consequence in plain words; then the destructive action as a row; then a 52 Cancel.
   - Only 2b's options sheet is drawn now, so this is a new use of the sheet, not a new component.
-- **Status**: decided in outline; nothing built. Item 17 is settled by the Finish row.
+- **Approved 2026-10-09**: confirmation for **Remove from my gear** and **Delete this bag** only, as a bottom sheet built like 3b's former action sheet.
+- **Status**: decided; nothing built. Item 17 is settled by the Finish row.
 
 ---
 
