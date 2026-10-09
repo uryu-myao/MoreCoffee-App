@@ -125,7 +125,15 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - an outline (1.5 `border.muted`) when unselected; when selected, the fill of its colour role (Colour roles above): ink for a choice, brown (accent tint + accent border) for an entered value such as 5b's flavour tags;
   - **44pt tall** (`inset.control`);
   - **always in a set**: two or more options, with a selected member or a count.
-- **A text-only action is underlined. Colour alone never tells pressable from not pressable (2026-10-09).** The means is the one `text.inlineAction` already defines (an inline text action = underline); size, weight and case follow the context. First use: the taste axis Clear. Twelve text-only actions in the mocks rely on colour alone (2b, 5d, 6d, 7b, 8c, 8e, 8f, 8h, 8l). They are not changed yet (report 2026-10-09).
+- **Three means say "pressable", none of them colour (2026-10-09):**
+  - **a whole row** → the **chevron** at its end, the same glyph on 14+ rows (5a / 5d / 5e field rows, 6a, 8d, 8g);
+  - **text alone** → an **underline** (below);
+  - **a part with a surface** → its **frame or fill**.
+- **Text actions are ink + underline (2026-10-09).**
+  - The underline may be left off where the position already says "action", e.g. the slot right of a sheet title, or beside a search field.
+  - **Never brown.** Brown marks a value the user entered; used on an action, the mark fades. Brown now carries only entered values.
+  - Destructive actions (Discard, Remove photo, …) get no look of their own for now. They are protected by confirmation or undo, not by colour (`gaps.md` 18); whether to add a warning colour, which the product has none of, is a separate decision (`components.md` #3).
+- **Detail — a text-only action is underlined. Colour alone never tells pressable from not pressable (2026-10-09).** The means is the one `text.inlineAction` already defines (an inline text action = underline); size, weight and case follow the context. First use: the taste axis Clear. Twelve text-only actions in the mocks rely on colour alone (2b, 5d, 6d, 7b, 8c, 8e, 8f, 8h, 8l). They are not changed yet (report 2026-10-09).
 - **An outline with no fill never means "selected" (checked 2026-10-09).**
   - In all 30 screens every selected option is **filled with ink**.
   - 12 are fill + a 2px ink frame: 3a and 8m checked boxes, 3e's switch (D-20), 6d "Home brewer", 8i's five weekdays, 8j "An idea", 8l "Words".
@@ -1135,3 +1143,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-09 — Taste axis: handle centred in the track (its layer now inside the frame, like the dots); Clear / Not noted `gap.tight` under the track; Clear's slop top 8 / bottom 20; "Not noted" back to `text.muted` (2.32:1 was under the 3:1 floor).
 - 2026-10-09 — §1 Colour roles: 8f's "most used" frame on "juicy 9" classed as a marker (out of scope).
 - 2026-10-09 — §1 Tap affordance: a text-only action is underlined (colour alone never marks pressable; first use: Clear); an outline with no fill never means selected (every selected option is ink-filled). 8f's "juicy 9" frame removed (D-23).
+- 2026-10-09 — §1 Tap affordance: three means (row chevron, text underline, surface frame / fill), none by colour. Text actions are ink + underline, never brown; brown now carries only entered values. Destructive actions: no own look yet, protected by confirm / undo.
