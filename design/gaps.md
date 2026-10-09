@@ -297,6 +297,32 @@ Plus, globally:
 
 ---
 
+## 16. Records filter: no "filter on" look (added 2026-10-09)
+
+**Parts affected**: 2a's filter icon button, the 2b filter sheet.
+
+**Gap**: no mock shows the button while a filter is applied. 2a shows "All", with the button tinted brown; that tint is removed as stating nothing (drift D-24).
+
+**Direction, not built**:
+- A filter that is applied is a state in force now, so by §1 Colour roles it is **blue**.
+- Whether a count goes with it (e.g. how many filters) is undecided.
+
+**Status**: recorded, not designed or built.
+
+---
+
+## 17. "Finish bag" has no confirmation and no immediate undo (added 2026-10-09)
+
+**Parts affected**: 3d's "Finish bag".
+
+**What the mocks have**: finishing moves the bag to "Finished bags" (3f), which keeps its cups and notes. 3f offers **"Reopen bag"**, so the action can be reversed from the archive.
+
+**What they do not have**: no confirmation before finishing, and no undo right after it (toast or similar). A slip has to be found and reversed in 3f. Reopening may also need a free slot (5 at most).
+
+**Status**: recorded, not designed. The button itself becomes secondary (drift D-25).
+
+---
+
 ## Step 4 device verification — RESOLVED (2026-10-04)
 
 The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.
