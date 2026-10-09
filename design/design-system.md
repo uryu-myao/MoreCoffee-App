@@ -886,10 +886,12 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 
 **Layout (L3 + H1, 2026-10-08; sizes as revised above).**
 - The track is centred in its card. The pole labels are **`label.caps`** and sit at its ends; 260 fits the longest pair, Low / High sweetness at 245.
-- **Clear / Not noted** sit **right-aligned under the track**, in a fixed 17pt slot. Clear **hides while dragging**.
+- **Clear / Not noted** sit **right-aligned under the track**, **`gap.tight` (4) below it** (2026-10-09; was `gap.row` 8), in a fixed 17pt slot. Clear **hides while dragging**.
+- **Clear's touch slop** (the text button's `small`) is **top 8 / bottom 20**: 17 + 28 = 45. Most of the reach goes down, so it reaches only 4pt into the track's bottom right and ends where the next axis's labels begin (`gaps.md` 14).
 - **Both are set alike (2026-10-09)**: `meta` (12 / 600), as written, no caps, no extra spacing. Clear is the Button text variant's `small`.
-  - The colour does the work: Clear is ink (pressable); **"Not noted" is `border.medium`**, a quiet status.
-  - Contrast of "Not noted": 2.32:1 on the card, under AA for text, accepted as a placeholder-like status. iOS's own placeholder grey is lower.
+  - Clear is ink (pressable); **"Not noted" is `text.muted`** (6.19:1).
+  - Corrected 2026-10-09: `border.medium` (2.32:1) fell under the 3:1 floor. "Not noted" stands alone outside any field, so it has to be readable by itself. A field's placeholder is not a precedent: its frame already says "something goes here".
+  - Open: whether colour alone tells that Clear is pressable (report 2026-10-09; underline proposed).
 - On iPhone 14 the track spans x 65–325.
 - Superseded:
   - the full-width rail (310, 74.5 per step);
@@ -898,6 +900,9 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 
 **Stops and travel.**
 - The 5 stops and their dots sit **inset 2 + half the handle (15pt) inside the frame**, so the handle never touches the frame at 0 or 100.
+- The handle's layer and the dots' layer **both sit inside the 2px frame**.
+  - Fixed 2026-10-09: the handle's layer started at the frame's outer edge. That put the handle 2pt high (inner gaps 0 / 4) and up to 1pt off its dot.
+  - Measured after the fix: inner gaps 2 / 2, centred on the dot, grip centred. Both states share the 2px border.
 - 5b's stops on iPhone 14: x 82 / 138.5 / 195 / 251.5 / 308.
 - **Discrete = snapping**: the handle moves stop to stop (eased over `motion.press`).
 - **A selection haptic on every step change**, so the number of steps moved can be felt without looking.
@@ -1117,3 +1122,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-08 — Taste axis slider built to the revision, size B: track 260 × 34 (2 `text.secondary` frame, `border.subtle` dots), square 26 handle inset 2, grip 2 × 8 white, Clear / Not noted right-aligned; lit and pole-ink removed. Tokens: `size.axis` rail 34 / inset / handle 26 / dot; `axis.needle.lit` and `state.lit` removed.
 - 2026-10-08 — §1 Colour roles: computed / historical / estimated values are neutral, never brown (colour carries "did I enter this?"); a five-step order for choosing a value's colour; never colour for emphasis.
 - 2026-10-09 — Taste axis: Clear in `meta` as written, like "Not noted" (was `label.eyebrow` caps); "Not noted" in `border.medium`, quieter than Clear.
+- 2026-10-09 — Taste axis: handle centred in the track (its layer now inside the frame, like the dots); Clear / Not noted `gap.tight` under the track; Clear's slop top 8 / bottom 20; "Not noted" back to `text.muted` (2.32:1 was under the 3:1 floor).

@@ -270,7 +270,8 @@ Plus, globally:
 - No stop but the last is touched. At the last stop (handle x 230–256, y 4–30 of 34) only a **1pt strip at the handle's bottom** overlaps.
 - What remains: a tap just under the track's right end clears the axis. That spot sits right above the Clear label.
 - **Accepted (2026-10-09).**
-  - Since Clear became `meta` with a 14pt slop, it reaches about **6pt** into the track (simulator).
+  - Since Clear became `meta` with a 14pt slop, it reached about **6pt** into the track (simulator).
+  - **Now (2026-10-09)**: the line moved to `gap.tight` (4) under the track and the slop to top 8 / bottom 20. Measured: **4pt** into the track, ending exactly at the next axis's labels below.
   - Horizontally it covers the track's x ~220–268.
   - At the last stop that is a 2pt strip of the handle's bottom.
   - No fix applied.
