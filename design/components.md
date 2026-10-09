@@ -185,7 +185,31 @@ The Switch is not built yet. The taste-axis handle is now derived from it, so th
   - The menu's contents are not in the mocks.
   - There is no page behind a word: rename and merge happen in place ("Tap a word to rename it everywhere, or merge it into another").
   - So 8h cannot follow 3b. Its ⋮ is specced when 8h is built.
-- **Beans (3d)**: no ⋮. "Edit" and "Finish bag" sit on each card. Whether bean cards should follow gear (card tap → 3g) is open (report 2026-10-09).
+- **Beans (3d)**: no ⋮. "Edit" (→ 3g, added 2026-10-09) and "Finish bag" sit on each card. Whether bean cards should follow gear (card tap → 3g) is open (report 2026-10-09).
+
+## 3g Edit bag — read against 3e Edit gear (added to the mocks 2026-10-09)
+
+3g is the page behind 3d's "Edit". It is built like 3e, part for part:
+
+| part | 3e Edit gear | 3g Edit bag | same? |
+|---|---|---|---|
+| header | back 44, "Edit gear" (serif 40), count "2 / Cups logged" | back 44, "Edit bag", "3 / Cups logged" | yes |
+| photo | 76 thumbnail, caption, Replace (36, 1.5 ink) / Remove photo (36, 1.5 `border.muted`) | same; caption "This bag's thumbnail everywhere." | yes |
+| form card | 2px ink on raised, padding 20 / 18, gap 20 | same | yes |
+| first field | "Name", active, blue caret | "Bean name", active, caret, ellipsis on overflow | label differs |
+| option set | Category: 4 options (ink fill = selected) | Roast level: Light / Medium / Dark | same look |
+| field row | Maker · Added on (2 columns) | Roasted on · Opened on · Size (3 columns) | count differs |
+| notes field | "My settings note" (min 78, 1.5 frame, `#F9F5F2`) | none | 3g has none |
+| card foot (below 1.5 dashed) | "My default grinder" + switch (62 × 34 ink, drift D-20) | freshness meter (the 3d "drink now" bar, `beanFreshness`) + "Day 7 · drink now" + "Recounted from the roast date when you change it." | different by design |
+| destructive row | "Remove from my gear" / "Frees 1 slot" | "Delete this bag" / "Not finish — erases it" | yes (both brown labels) |
+| footer | Save changes (primary) + "Edits apply to the 2 cups already logged with it." | same, "…from this bag." | yes |
+
+- **No new token, style or component.**
+  - Its freshness track `#E8DCD3` was already folded into `surface.muted` (`beanFreshness.track`).
+  - Its parts are the ones 3e already needs, several of them not built yet: the 36 compact button, the underlined form field, the destructive row.
+- **Naming**: the mock's caption says "Edit beans", the screen title "Edit bag". The rest of the beans flow says "bag" ("Add a bag", "Finish bag").
+- **Not in 3g**: "Finish bag". It stays on the 3d card; 3g's "Delete this bag" erases, which is a different act.
+- Both destructive rows set their label in brown (#9E5202), an action in brown. The same open point as D-27: destructive actions have no look of their own yet.
 
 ## Estimate
 

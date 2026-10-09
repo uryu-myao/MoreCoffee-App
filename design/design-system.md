@@ -129,7 +129,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **An outline with no fill never means "selected" (checked 2026-10-09).**
   - In all 30 screens every selected option is **filled with ink**.
   - 12 are fill + a 2px ink frame: 3a and 8m checked boxes, 3e's switch (D-20), 6d "Home brewer", 8i's five weekdays, 8j "An idea", 8l "Words".
-  - The segmented options are an ink fill with no frame: 2a "All", 2b "Month", 3a "Brewer", 3c "Light", 3e "Grinder", 3f "Newest", 5d "Barista", 5e "Ready-to-drink".
+  - The segmented options are an ink fill with no frame: 2a "All", 2b "Month", 3a "Brewer", 3c "Light", 3e "Grinder", 3f "Newest", 3g "Light" (added 2026-10-09), 5d "Barista", 5e "Ready-to-drink".
   - Not options: 3b / 4a "Default" and 8d "This week" are 9px badges.
   - A 2px ink outline on the card colour is a pressable control or a frame: icon buttons, My gear / My beans, unchecked checkboxes, switch knobs.
   - Keep it that way. The one exception, 8f's "juicy 9", is drift D-23.
