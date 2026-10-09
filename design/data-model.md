@@ -114,6 +114,34 @@ A versioned `schema_migrations (version, name, applied_at)` table, not a single 
 
 Not in `schema.ts` yet. They change the structure, so they land as a migration once the design is settled. They come **before** the bag-delete feature (`gaps.md` 18).
 
+**One migration, not several (decided 2026-10-09).** All of the following land together:
+- the cup copies of bag details;
+- the tasting-note columns;
+- `roasted_at`, size and photo on bags;
+- the 4-step roast level;
+- `anaerobic`.
+
+Do not stack small migrations.
+
+### The tasting note has no columns yet (found 2026-10-09; priority)
+5b's input has nowhere to go except "My words", so building 5b first would let a user enter a note that is not kept. Proposal:
+
+| data | today | proposal |
+|---|---|---|
+| **My words** (free text) | `cups.note` exists ("the tasting note") | keep `note`. It is stored as written and never rewritten (see words below) |
+| **flavour tags** (up to 5) | **no column** | `cups.flavours TEXT NOT NULL DEFAULT '[]'`: a JSON array of the **words themselves**, in the order chosen, `CHECK (json_valid(flavours) AND json_type(flavours) = 'array' AND json_array_length(flavours) <= 5)` |
+| **the four axes** | **no columns** | `axis_acidity`, `axis_body`, `axis_roast`, `axis_sweetness`: `INTEGER NULL`, `CHECK (… BETWEEN 0 AND 100)`. Points on the 5 steps; `NULL` = not noted (§9). Keys as `src/constants/tasteAxes.js` |
+
+- **Why an array, not a join table**: at most 5 per cup, read with the cup. The bundled list lives in code, and history (frequency order) is a `json_each` over cups: hundreds to thousands of rows. Same reasoning as `beans.notes`.
+- **Why the words, not word ids**:
+  - Flavours have **no master table and no rename UI**. 8h's rename / merge belongs to *My words*, a different list (`components.md` "Flavours and words are two kinds of data").
+  - Storing the text keeps a cup the fact it was, as with the bag copies.
+  - If renaming a flavour is ever wanted, it is an explicit rewrite at that moment (as bag edits are), never a reference.
+- **My words and 8h**:
+  - 8h's words are *matched* from notes (8g: "Your words are matched, not read"). Renaming or merging a word "everywhere" must not rewrite anyone's note text; the note is the user's own writing.
+  - So 8h needs its own small table (a word, and what it merges into), used for matching and counting. The notes stay as typed.
+  - Proposal; specced with 8h.
+
 ### Cups copy their bag's details at logging
 - When a cup is logged, the bag's details are **copied onto the cup** and stored there. `bean_id` stays as a reference, but **display and Taste DNA read the cup's copies**.
 - **Why**:
@@ -127,13 +155,14 @@ Not in `schema.ts` yet. They change the structure, so they land as a migration o
   - `opened_at`, size and photo: they describe the bag, not the cup;
   - **`notes`**: the bag's printed flavour text, not something that happened in the cup. What the user tasted lives in the cup's flavour tags and My words. Copying the label's text in would put "what I entered" and "what the bag said" in one place, the same mixing of sources §1's brown / neutral rule forbids.
 - **Editing a bag (decided 2026-10-09, option B)**: on Save, 3e / 3g also rewrite **the copied fields** on the cups already logged from it, as their footers say ("Edits apply to the N cups already logged").
-  - Conditions: the footer note stays on screen, with the real count (seeing how many cups change is what makes B acceptable); only copied fields sync (opening date, size and photo were never copied).
+  - Conditions: the footer note stays on screen, with the real count, **and says which fields sync** (wording decided later) (seeing how many cups change is what makes B acceptable); only copied fields sync (opening date, size and photo were never copied).
   - **B is an explicit rewrite at edit time, not a live reference.** Do not "simplify" it back to reading the bag through `bean_id`: a reference would also let a delete strip cups, and would make every edit silent.
   - Deleting a bag rewrites nothing (decided).
-- **`beans.notes` today**:
-  - No form fills it and nothing reads it: only `repository.ts` parses it; the seed is `[]`.
-  - The table notes say Try Next "can scan them all". So it was meant as a Try Next input, from the bag side. It needs no copy on cups.
-  - Whether Try Next uses it at all is undecided.
+- **`beans.notes`: kept, with one recorded use (2026-10-09)**:
+  - It is the bag's printed flavours (Jasmine, White peach, Black tea), the same vocabulary as 5b's flavour tags. So when a cup is logged from that bag, its notes can be **the first flavour suggestions**: more precise than the bundled list or history, and with no backend (`todo.md` V1 candidate).
+  - Whether Try Next also uses it is a V2 call.
+  - **No form fills it yet** (3c / 3g need a field, built only if that use is adopted). Until then it is a kept column with a stated purpose, not a dead one.
+  - It is never copied to cups (decided).
 - **Not the same thing**: 5b's flavour tags are per cup and have **no column yet** (the tasting note is not saved).
 
 ### Bag fields: the forms and the table disagree
@@ -154,7 +183,14 @@ Not in `schema.ts` yet. They change the structure, so they land as a migration o
   - The cup's Roast axis (5b, five steps) is **what the user perceived**.
   - 5b starts every axis empty ("Drag only what you noticed"), so the bag never pre-fills the axis, and no scale mapping is needed.
   - A gap between them is information (a "Medium" that always reads dark to this person), not a conflict to remove. The axis stays at five steps like the other three.
-  - The table's 6 values + other (`light` · `medium-light` · `medium` · `medium-dark` · `dark` · `other`) were set when this model was written, on the belief that "the mocks define no scale". 3c / 3g do: Light / Medium / Dark. Which to keep is open (report 2026-10-09).
+  - The table's 6 values + other (`light` · `medium-light` · `medium` · `medium-dark` · `dark` · `other`) were set when this model was written, on the belief that "the mocks define no scale". 3c / 3g do: Light / Medium / Dark.
+- **The bag's roast level becomes 4 steps + unset (decided 2026-10-09)**: `light` · `medium` · `medium-dark` · `dark`, `NULL` = unset. 3c / 3g's forms gain "Medium-dark".
+  - **The asymmetry is deliberate. Do not "complete" it with medium-light.**
+  - Medium-dark (中深煎り) is a standard class on Japanese labels: 浅 / 中 / 中深 / 深. With 3 steps those bags cannot be transcribed.
+  - 6 steps would be false precision: roasters' granularity differs, so finer steps do not make bags more comparable.
+  - A symmetric 5 would match the Roast axis's 5 and invite "set both the same", erasing the difference that is the information. An uneven 4 shows by its shape that these are two scales.
+  - `other` is dropped (proposal 2026-10-09). A label that does not map is left unset; `other` gives Try Next nothing to compare.
+- **Process: `anaerobic` is added (decided 2026-10-09)**, giving `washed` · `natural` · `honey` · `anaerobic`, `NULL` = unset or unknown. `other` is dropped too (proposal), for the same reason.
 - **Roast date**: freshness is counted from it in 3g ("Recounted from the roast date"), and the meter's peak band fits degassing. 8i's "Bag going stale — around day 21 after opening" counts from opening. So **both dates are needed** (`gaps.md` 8).
 
 ---
