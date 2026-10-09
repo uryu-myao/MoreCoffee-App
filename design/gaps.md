@@ -178,6 +178,22 @@ Plus, globally:
   - `beans` has only `opened_at` ("drives the freshness meter"); there is no roast-date column, though 3g counts from the roast date. Which date drives freshness is undecided.
   - The mocks' day counts do not agree on a base date. 3d / 3g say "opened Apr 6 · Day 7" with roasted Mar 30, while 5a's cup on Apr 8 shows "day 7".
 
+**Read further 2026-10-09: two clocks.**
+- **Today**:
+  - `beanFreshness` exists only as tokens; the meter (`components.md` #28) is not built.
+  - `data-model.md` says `opened_at` "drives the freshness meter", so the only date stored is the opening date.
+- **What the mocks count from**:
+  - "Day 7" fits **the roast date** best. 3g says so outright ("Recounted from the roast date").
+  - The meter's shape is degassing: its peak band runs ~day 6–19 of a ~37-day track, and the elapsed fill at day 7 is 19%.
+  - From the opening date the two bags on one screen would need different "todays": Ethiopia Apr 13, Fuglen Apr 19.
+  - From the roast date, Day 7 means Apr 6. That agrees with Fuglen (roasted ~Mar 11, not shown) but not with 4b's cups dated Apr 7–8. The mocks are not fully consistent either way.
+- **Opening is a second clock**: 8i "Bag going stale — around day 21 after opening" (oxidation), and 6a's "1 stale".
+- **So both dates are needed**:
+  - roast date → freshness day, the peak, and the resting state this item lacks;
+  - opening date → staleness.
+  - `roasted_at` is missing from the model (`data-model.md` Planned changes).
+- **With a roast date, a resting state is required**, not optional: a bag roasted today is day 0, before the peak band.
+
 ---
 
 ## 9. The weekday strip's active-day underline is unimplemented
@@ -328,6 +344,8 @@ Plus, globally:
 
 **Status**: recorded, not designed. The button itself becomes secondary (drift D-25).
 
+**Settled 2026-10-09 (item 18)**: 3f's "Reopen bag" is the recovery; no confirmation or immediate undo is added.
+
 ---
 
 ## 18. Destructive actions: confirmation and undo (added 2026-10-09)
@@ -353,7 +371,30 @@ Plus, globally:
   - and the note 3g shows to say so.
 - In a local-first app the records are the only asset, so this needs the same explicitness as 3e.
 
-**Status**: recorded; nothing designed. Item 17 (Finish bag) is the Finish row above.
+**Decided 2026-10-09: cups copy their bag's details when they are logged** (`data-model.md` Planned changes).
+- `bean_id` stays a reference, but display and Taste DNA read the cup's own copies. So deleting a bag no longer strips its cups.
+- **Build order: the copy (a migration) lands before the delete feature.** Delete is not built on the reference model.
+
+**3g needs a delete note like 3e's.** The wording is to be decided; it must say:
+1. the cups logged from this bag stay (with their count, as 3e does);
+2. they keep the coffee's details: name, roaster, origin, process, roast level;
+3. only the bag goes: off My beans (its slot is freed), with its photo, dates and size;
+4. unlike Finish, it does not go to Finished bags and cannot be reopened. If the bag is simply used up, Finish is the right action.
+
+**The five, once cups copy their details** (proposal, 2026-10-09):
+
+| action | what is lost | needs |
+|---|---|---|
+| Discard (6d) | the unsaved edits only | **nothing**: it is the explicit answer to "Unsaved changes" |
+| Remove photo (6d 3e 3g) | the photo, once saved | **nothing at removal**: it is staged until Save; covered by item 20 (leaving unsaved) |
+| Remove from my gear (3e) | the gear item: settings note, photo, default flag; its slot is freed. Cups keep the grinder (text) | **confirm**: no archive or reopen exists for gear, and the settings note is the user's own writing |
+| Finish bag (3d) | nothing; the bag moves to 3f | **nothing**: 3f's "Reopen bag" is the way back (item 17) |
+| Delete this bag (3g) | the bag record: photo, dates, size, freshness. Cups and their copied details stay | **confirm**: irreversible, and easily confused with Finish |
+
+- **Form of a confirmation: a bottom sheet** (`components.md` #25). The design has no dialog anywhere.
+  - Anatomy as 3b's former action sheet: the item at the top (thumbnail, name, meta); then the consequence in plain words; then the destructive action as a row; then a 52 Cancel.
+  - Only 2b's options sheet is drawn now, so this is a new use of the sheet, not a new component.
+- **Status**: decided in outline; nothing built. Item 17 is settled by the Finish row.
 
 ---
 
@@ -368,6 +409,16 @@ Plus, globally:
 The photo pair sits beside a 76 thumbnail, so 44 would still fit its height.
 
 **Status**: recorded, not decided. The button itself is a Button variant (`components.md` #3), not built.
+
+---
+
+## 20. Leaving a form with unsaved changes (added 2026-10-09)
+
+**Parts affected**: every edit form. 3e (Edit gear), 3g (Edit bag), 6d (Edit profile).
+
+**Gap**: only 6d draws a pattern: a footer with "Unsaved changes" and "Discard", Save in the header. 3e / 3g have Back and a footer "Save changes", and nothing says what Back does with unsaved edits: discard silently, ask, or keep a draft. Remove photo (item 18) depends on it, since a removal is only staged until Save.
+
+**Status**: recorded, not designed. One answer for all forms, likely built from 6d's pattern.
 
 ---
 
