@@ -120,10 +120,21 @@ Not in `schema.ts` yet. They change the structure, so they land as a migration o
   - It matches gear, which a cup already stores as text (`grinder`).
   - A cup is a fact that happened: that day, that coffee. A reference would let a later edit of the bag rewrite past cups, and a delete strip them (`ON DELETE SET NULL`).
   - In a local-first app the records are the only asset, so they must not depend on a foreign-key chain.
-- **Copied** (the bag's identity and the Taste DNA / Try Next inputs): `name`, `roaster`, `origin`, `region`, `process`, `roast_level`.
-  - Candidates, undecided: `roasted_at` (so the cup's "day N" stays reproducible) and `notes` (the bag's printed flavour notes).
-  - Not copied: `opened_at`, size and photo. They describe the bag, not the cup.
-- **Open**: whether a later edit of the bag is also applied to its past cups' copies. 3e / 3g's footers promise "Edits apply to the N cups already logged" (report 2026-10-09).
+- **Copied** (decided 2026-10-09):
+  - `name`, `roaster`, `origin`, `region`, `process`, `roast_level`;
+  - **`roasted_at`**: the date itself, never the day count. "Day N" is computed for display. The date cannot be recovered once lost, and how a cup's rating relates to the bean's age is a future input for Taste DNA (it has recency decay).
+- **Not copied**:
+  - `opened_at`, size and photo: they describe the bag, not the cup;
+  - **`notes`**: the bag's printed flavour text, not something that happened in the cup. What the user tasted lives in the cup's flavour tags and My words. Copying the label's text in would put "what I entered" and "what the bag said" in one place, the same mixing of sources §1's brown / neutral rule forbids.
+- **Editing a bag (decided 2026-10-09, option B)**: on Save, 3e / 3g also rewrite **the copied fields** on the cups already logged from it, as their footers say ("Edits apply to the N cups already logged").
+  - Conditions: the footer note stays on screen, with the real count (seeing how many cups change is what makes B acceptable); only copied fields sync (opening date, size and photo were never copied).
+  - **B is an explicit rewrite at edit time, not a live reference.** Do not "simplify" it back to reading the bag through `bean_id`: a reference would also let a delete strip cups, and would make every edit silent.
+  - Deleting a bag rewrites nothing (decided).
+- **`beans.notes` today**:
+  - No form fills it and nothing reads it: only `repository.ts` parses it; the seed is `[]`.
+  - The table notes say Try Next "can scan them all". So it was meant as a Try Next input, from the bag side. It needs no copy on cups.
+  - Whether Try Next uses it at all is undecided.
+- **Not the same thing**: 5b's flavour tags are per cup and have **no column yet** (the tasting note is not saved).
 
 ### Bag fields: the forms and the table disagree
 | field | 3c (new bag) | 3g (edit bag) | `beans` |
@@ -138,6 +149,12 @@ Not in `schema.ts` yet. They change the structure, so they land as a migration o
 | Origin / region / process | — | — | present, but no form asks for them (Try Next inputs) |
 | notes (flavour tags) | — | — | present, no form |
 
+- **Roast level vs the Roast axis (2026-10-09): two different data.**
+  - The bag's `roast_level` is **transcribed from the bag**: what the roaster calls it. 3c's form copies the label ("Shoot the bag", Roasted on, Size).
+  - The cup's Roast axis (5b, five steps) is **what the user perceived**.
+  - 5b starts every axis empty ("Drag only what you noticed"), so the bag never pre-fills the axis, and no scale mapping is needed.
+  - A gap between them is information (a "Medium" that always reads dark to this person), not a conflict to remove. The axis stays at five steps like the other three.
+  - The table's 6 values + other (`light` · `medium-light` · `medium` · `medium-dark` · `dark` · `other`) were set when this model was written, on the belief that "the mocks define no scale". 3c / 3g do: Light / Medium / Dark. Which to keep is open (report 2026-10-09).
 - **Roast date**: freshness is counted from it in 3g ("Recounted from the roast date"), and the meter's peak band fits degassing. 8i's "Bag going stale — around day 21 after opening" counts from opening. So **both dates are needed** (`gaps.md` 8).
 
 ---
