@@ -1,5 +1,5 @@
 import { memo, useCallback, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AxisSlider from '../components/base/AxisSlider';
 import Button from '../components/base/Button';
@@ -7,8 +7,11 @@ import Glyph from '../components/base/Glyph';
 import IconButton from '../components/base/IconButton';
 import SectionLabel from '../components/base/SectionLabel';
 import Text from '../components/base/Text';
-import { color, dashed, icon, layout, shape, size, space, spacing, state } from '../theme/tokens';
+import { useRecordDraft } from '../components/RecordDraft';
+import { BUNDLED_FLAVOURS, FLAVOUR_LIMIT } from '../constants/flavours';
 import { TASTE_AXES } from '../constants/tasteAxes';
+import { resolveTextStyle } from '../theme/fonts';
+import { color, dashed, icon, layout, shape, size, space, spacing, state, textStyle } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
 /**
@@ -29,68 +32,101 @@ import ScreenFrame from './ScreenFrame';
 
 const NOOP = () => {};
 
-/** 5b's cup, verbatim. */
-const CUP = { name: 'Ethiopia Guji', meta: 'I made it · V60 · 08:20', rating: 4 };
+const MODE_LABEL = { made_it: 'I made it', barista: 'Barista', packaged: 'Packaged' };
+const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+
+/** The cup being noted, from the draft: what it is, then mode · method · time. */
+function cupSummary(defaults, mode) {
+  if (mode === 'made_it') {
+    const method = defaults.brewer?.name;
+    return { name: defaults.bag?.name ?? 'No bag', meta: [MODE_LABEL.made_it, method, timeFormat.format(new Date())].filter(Boolean).join(' · ') };
+  }
+  if (mode === 'barista') return { name: 'Flat white', meta: [MODE_LABEL.barista, defaults.cafe?.name, timeFormat.format(new Date())].filter(Boolean).join(' · ') };
+  const product = defaults.product ? [defaults.product.brand, defaults.product.name].filter(Boolean).join(' · ') : 'No product';
+  return { name: product, meta: [MODE_LABEL.packaged, timeFormat.format(new Date())].join(' · ') };
+}
 
 /**
- * 5b's four axes (src/constants/tasteAxes.js): points 0–100 on five steps;
- * null = not entered yet (empty). The mock's 26 / 38 / 18 snap to the nearest
- * step (25 / 50 / 25).
+ * The flavour chips shown: the selected ones in the order chosen, then
+ * unselected bundled words up to FLAVOUR_LIMIT in all (gaps.md 15: 5 shown,
+ * plus Search). Stage 1: the bundled list in its own order; history and 8n's
+ * ordering come later.
  */
-const MOCK_VALUES = [25, 50, 25, null];
-const AXES = TASTE_AXES.map((a, i) => ({ ...a, value: MOCK_VALUES[i] }));
-
-/** 5b's flavour chips, verbatim; "Search" is the dashed opener. */
-const FLAVORS = [
-  { label: 'Jasmine', on: true },
-  { label: 'White peach', on: true },
-  { label: 'Black tea', on: true },
-  { label: 'Cocoa', on: false },
-  { label: 'Citrus', on: false },
-];
+function shownFlavours(selected) {
+  const rest = BUNDLED_FLAVOURS.map((f) => f.word).filter((w) => !selected.includes(w));
+  return [...selected.map((w) => ({ word: w, on: true })), ...rest.slice(0, Math.max(0, FLAVOUR_LIMIT - selected.length)).map((w) => ({ word: w, on: false }))];
+}
 
 /** "My words" field: min-height is local to the field (not a token, on review). */
 const NOTE_MIN_HEIGHT = 84;
 
 /**
- * The four axes own their state, so a commit re-renders the axes only — not
- * the whole screen (ScreenFrame, the header collapse, the chips).
+ * The four axes. Their values live in the Record sheet's draft (shared with
+ * 5a, kept when going back). An axis commits on release only, so a commit
+ * re-renders rarely; AxisRow is memoised so the other three stay put.
  */
-const Axes = memo(function Axes() {
-  const [values, setValues] = useState(() => AXES.map((a) => a.value));
-  const setAt = useCallback((i, v) => setValues((prev) => prev.map((x, j) => (j === i ? v : x))), []);
+const Axes = memo(function Axes({ axes, setAxis }) {
   return (
     <View style={styles.axes}>
-      {AXES.map((a, i) => (
-        <AxisRow key={a.key} index={i} axis={a} value={values[i]} setAt={setAt} />
+      {TASTE_AXES.map((a) => (
+        <AxisRow key={a.key} axis={a} value={axes[a.key]} setAxis={setAxis} />
       ))}
     </View>
   );
 });
 
 /** One axis; memoised so committing one leaves the other three alone. */
-const AxisRow = memo(function AxisRow({ index, axis, value, setAt }) {
-  const onChange = useCallback((v) => setAt(index, v), [index, setAt]);
+const AxisRow = memo(function AxisRow({ axis, value, setAxis }) {
+  const onChange = useCallback((v) => setAxis(axis.key, v), [axis.key, setAxis]);
   return <AxisSlider from={axis.from} to={axis.to} steps={axis.steps} value={value} onChange={onChange} />;
 });
 
-function Chip({ label, on, search }) {
+/**
+ * My words. The text stays in this field's own state and is mirrored into the
+ * draft's ref, so typing re-renders this field only (design-system.md §3:
+ * text.note, the one italic). TODO: the keyboard's effect on the header
+ * collapse gets its own round.
+ */
+function MyWords({ noteRef }) {
+  const [text, setText] = useState(noteRef.current);
+  return (
+    <TextInput
+      value={text}
+      onChangeText={(t) => {
+        setText(t);
+        noteRef.current = t;
+      }}
+      multiline
+      placeholder="Cooled down it turned into iced tea…"
+      placeholderTextColor={color.text.muted}
+      accessibilityLabel="My words"
+      style={[styles.note, styles.noteInput]}
+    />
+  );
+}
+
+function Chip({ label, on, search, locked, onPress }) {
   return (
     <Pressable
-      onPress={NOOP}
+      onPress={locked ? undefined : onPress}
+      disabled={locked}
       // Multi-select: each flavour is a checkbox to a screen reader; Search opens.
       accessibilityRole={search ? 'button' : 'checkbox'}
-      accessibilityState={search ? undefined : { checked: on }}>
+      accessibilityState={search ? { disabled: Boolean(locked) } : { checked: on }}
+      accessibilityHint={locked ? `Limit reached, ${FLAVOUR_LIMIT} of ${FLAVOUR_LIMIT}. Deselect a flavour to choose another.` : undefined}>
       {({ pressed }) => (
         <View
           style={[
             styles.chip,
             on && styles.chipOn,
             search && styles.chipSearch,
+            // At the limit Search is locked like the other options (§1 Selection
+            // limit): the inert dashed frame, muted label, no press response.
+            locked && styles.chipSearchLocked,
             // Bordered chip = a surface → the fill darkens (§1 Pressed).
-            pressed && styles.chipPressed,
+            pressed && !locked && styles.chipPressed,
           ]}>
-          <Text variant="labelCaps" color={on ? 'accentStrong' : search ? 'muted' : 'secondary'}>
+          <Text variant="labelCaps" color={on ? 'accentStrong' : search || locked ? 'muted' : 'secondary'}>
             {label}
           </Text>
         </View>
@@ -101,6 +137,10 @@ function Chip({ label, on, search }) {
 
 export default function TastingNoteScreen({ onBack }) {
   const insets = useSafeAreaInsets();
+  const { defaults, mode, rating, axes, setAxis, flavours, toggleFlavour, noteRef, save } = useRecordDraft();
+  if (!defaults) return null;
+  const cup = cupSummary(defaults, mode);
+  const atLimit = flavours.length >= FLAVOUR_LIMIT;
   return (
     <ScreenFrame
       scroll
@@ -122,15 +162,15 @@ export default function TastingNoteScreen({ onBack }) {
         <View style={styles.summaryThumb} />
         <View style={styles.summaryText}>
           <Text variant="label" truncate="name">
-            {CUP.name}
+            {cup.name}
           </Text>
           <Text variant="bodySm" color="muted" truncate="meta">
-            {CUP.meta}
+            {cup.meta}
           </Text>
         </View>
         <View style={styles.summaryRating}>
           <Glyph name="star" token={icon.fill.sm} filled />
-          <Text variant="numeralInline">{String(CUP.rating)}</Text>
+          <Text variant="numeralInline">{rating > 0 ? String(rating) : '–'}</Text>
         </View>
       </View>
 
@@ -141,38 +181,33 @@ export default function TastingNoteScreen({ onBack }) {
         <Text variant="body" color="muted" style={styles.cardIntro}>
           Drag only what you noticed. Untouched axes are left out.
         </Text>
-        <Axes />
+        <Axes axes={axes} setAxis={setAxis} />
       </View>
 
       <View style={styles.section}>
-        <SectionLabel variant="plain" label="Flavors" status="count" statusLabel="3 of 5" />
+        <SectionLabel variant="plain" label="Flavors" status="count" statusLabel={`${flavours.length} of ${FLAVOUR_LIMIT}`} />
         <View style={styles.chips}>
-          {FLAVORS.map((f) => (
-            <Chip key={f.label} {...f} />
+          {shownFlavours(flavours).map((f) => (
+            <Chip key={f.word} label={f.word} on={f.on} onPress={() => toggleFlavour(f.word)} />
           ))}
-          <Chip label="Search" search />
+          {/* TODO(T-2): opens the search sheet once it exists; inert for now. */}
+          <Chip label="Search" search locked={atLimit} onPress={NOOP} />
         </View>
       </View>
 
       <View style={styles.section}>
         <SectionLabel variant="plain" label="My words" />
-        {/* A field: frame + placeholder only, no keyboard yet. A surface → darkens on press. */}
-        <Pressable onPress={NOOP} accessibilityRole="button" accessibilityLabel="My words">
-          {({ pressed }) => (
-            <View style={[styles.note, pressed && styles.notePressed]}>
-              <Text variant="note" color="muted">
-                Cooled down it turned into iced tea…
-              </Text>
-            </View>
-          )}
-        </Pressable>
+        <MyWords noteRef={noteRef} />
       </View>
 
       {/* 5b's buttons sit on the ground (no footer panel). The mock's 52pt
           secondary is right; Button still renders it at 56 (gaps.md 4). */}
       <View style={[styles.actions, { paddingBottom: Math.max(insets.bottom, layout.screen.bottom) }]}>
-        <Button label="Save this cup" onPress={NOOP} />
-        <Button label="Save without the note" variant="secondary" onPress={NOOP} />
+        {/* Save this cup saves everything; Save without the note is the one,
+            explicit way to drop the axes, flavours and My words (§1). The
+            rating is required on both steps. */}
+        <Button label="Save this cup" onPress={() => save({ withNote: true })} disabled={rating === 0} />
+        <Button label="Save without the note" variant="secondary" onPress={() => save({ withNote: false })} disabled={rating === 0} />
       </View>
     </ScreenFrame>
   );
@@ -256,6 +291,9 @@ const styles = StyleSheet.create({
     borderStyle: dashed.addSlot.style,
     borderColor: dashed.addSlot.color,
   },
+  chipSearchLocked: {
+    borderColor: dashed.addSlotInert.color,
+  },
   chipPressed: {
     backgroundColor: state.pressed.surface,
   },
@@ -266,8 +304,10 @@ const styles = StyleSheet.create({
     borderColor: color.border.strong,
     backgroundColor: color.surface.raised,
   },
-  notePressed: {
-    backgroundColor: state.pressed.surface,
+  noteInput: {
+    ...resolveTextStyle(textStyle.note),
+    color: color.text.primary,
+    textAlignVertical: 'top',
   },
   actions: {
     marginTop: space[28],

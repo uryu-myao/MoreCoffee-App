@@ -48,6 +48,10 @@ export type NewCup = {
   drinkType: string | null;
   productId: number | null;
   boughtAtPlaceId: number | null;
+  /** The tasting note (5b). Absent = saved without it. */
+  axes?: { acidity: number | null; body: number | null; roast: number | null; sweetness: number | null };
+  flavours?: string[];
+  note?: string | null;
 };
 
 /**
@@ -67,11 +71,11 @@ export async function insertCup(db: SQLiteDatabase, cup: NewCup): Promise<number
   const packaged = cup.mode === 'packaged';
   const bagId = madeIt ? cup.bagId : null;
   const result = await db.runAsync(
-    `INSERT INTO cups (rating, mode,
+    `INSERT INTO cups (rating, mode, note, flavours, axis_acidity, axis_body, axis_roast, axis_sweetness,
                        bag_id, bean_name, bean_roaster, bean_origin, bean_region, bean_process, bean_roast_level, bean_roasted_at,
                        brewer_id, brew_method, grinder_id, grinder,
                        place_id, drink_type, product_id, bought_at_place_id)
-     SELECT ?, ?,
+     SELECT ?, ?, ?, ?, ?, ?, ?, ?,
             b.id, b.name, b.roaster, b.origin, b.region, b.process, b.roast_level, b.roasted_at,
             ?, ?, ?, ?,
             ?, ?, ?, ?
@@ -79,6 +83,12 @@ export async function insertCup(db: SQLiteDatabase, cup: NewCup): Promise<number
     [
       cup.rating,
       cup.mode,
+      cup.note ?? null,
+      JSON.stringify(cup.flavours ?? []),
+      cup.axes?.acidity ?? null,
+      cup.axes?.body ?? null,
+      cup.axes?.roast ?? null,
+      cup.axes?.sweetness ?? null,
       madeIt ? cup.brewerId : null,
       madeIt ? cup.brewMethod : null,
       madeIt ? cup.grinderId : null,

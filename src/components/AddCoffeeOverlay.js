@@ -7,6 +7,7 @@ import RecordCoffeeScreen from '../screens/RecordCoffeeScreen';
 import TastingNoteScreen from '../screens/TastingNoteScreen';
 import { color, motion, size } from '../theme/tokens';
 import { GESTURE_LOG, logGesture } from './base/gestureLog';
+import { RecordDraftProvider } from './RecordDraft';
 
 const easing = Easing.bezier(...motion.expand.controlPoints);
 const stepEasing = REasing.bezier(...motion.expand.controlPoints);
@@ -139,16 +140,20 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
             }
           : undefined
       }>
-      <Reanimated.View style={[StyleSheet.absoluteFill, recordStyle]}>
-        <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} />
-      </Reanimated.View>
-      {noteMounted ? (
-        <GestureDetector gesture={edgeSwipe}>
-          <Reanimated.View style={[StyleSheet.absoluteFill, styles.overlay, noteStyle]}>
-            <TastingNoteScreen onBack={backToRecord} />
-          </Reanimated.View>
-        </GestureDetector>
-      ) : null}
+      {/* The cup being recorded, shared by both steps; discarded when the sheet
+          closes (it unmounts with it). Saving dismisses the sheet. */}
+      <RecordDraftProvider onSaved={dismiss}>
+        <Reanimated.View style={[StyleSheet.absoluteFill, recordStyle]}>
+          <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} />
+        </Reanimated.View>
+        {noteMounted ? (
+          <GestureDetector gesture={edgeSwipe}>
+            <Reanimated.View style={[StyleSheet.absoluteFill, styles.overlay, noteStyle]}>
+              <TastingNoteScreen onBack={backToRecord} />
+            </Reanimated.View>
+          </GestureDetector>
+        ) : null}
+      </RecordDraftProvider>
     </Animated.View>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import Button from '../components/base/Button';
 import EmptySlot from '../components/base/EmptySlot';
 import FieldRow from '../components/base/FieldRow';
@@ -9,18 +9,19 @@ import SectionLabel from '../components/base/SectionLabel';
 import SegmentedControl from '../components/base/SegmentedControl';
 import StarRating from '../components/base/StarRating';
 import Text from '../components/base/Text';
-import { useDatabase } from '../data/DatabaseProvider';
-import { insertCup, loadRecordDefaults } from '../data/repository';
+import { useRecordDraft } from '../components/RecordDraft';
 import { color, icon, motion, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
 /**
- * Record coffee — 5a "Log a cup". All three maker modes. Field sets show the
- * most recent bean / café / product / store from the database (dev builds
- * seed them on first run); rows render a chevron and do nothing yet.
- * SAVE THIS CUP inserts a cup row and dismisses — a local insert, so there is
- * no spinner, no disabled state and nothing to wait for. A genuine failure is
- * shown plainly and the overlay stays open, so the cup is never silently lost.
+ * Record coffee — 5a "Log a cup". All three maker modes. The cup being
+ * recorded is the Record sheet's draft (components/RecordDraft.js), shared
+ * with 5b. Field sets show the latest open bag and the default gear (I made
+ * it), or the most recent café / product / store; rows render a chevron and do
+ * nothing yet (pickers: stage 3).
+ * SAVE THIS CUP saves everything entered so far — including anything entered
+ * in 5b before coming back (design-system.md §1 Saving a cup) — and dismisses.
+ * A genuine failure is shown plainly and the sheet stays open.
  *
  * Switching modes keeps the rating (it is about the cup, not who made it),
  * resets the conditional field set (keyed by mode), and keeps the photo slot.
@@ -104,21 +105,16 @@ function IntroText({ text }) {
   );
 }
 
-function Section({ label, status, children }) {
+function Section({ label, status, plain, children }) {
   return (
     <View style={styles.section}>
-      <SectionLabel label={label} status={status} />
+      <SectionLabel label={label} status={status} variant={plain ? 'plain' : 'marked'} />
       {children}
     </View>
   );
 }
 
-/**
- * Defaults with no table behind them yet (no gear or drink tables in V1): the
- * mock's values, written into the cup as-is.
- */
-const DEFAULT_BREW_METHOD = 'V60';
-const DEFAULT_GRINDER = 'Comandante C40';
+/** The mock's drink: there is no drink table in V1 (Barista is a later stage). */
 const DEFAULT_DRINK = 'Flat white';
 
 /** Shown for a field with no row behind it (an empty database). TODO(Step 5): pickers. */
@@ -133,22 +129,40 @@ const DAY_MS = 86400000;
  * "Chilled, unsweetened" (not in the schema) wait for the features behind them.
  * TODO(Step 5): rows open their pickers; tapping does nothing yet.
  */
-function beanMeta(bean) {
-  if (!bean) return undefined;
-  if (bean.opened_at == null) return bean.roaster ?? undefined;
-  const day = Math.floor((Date.now() - bean.opened_at) / DAY_MS);
-  return [bean.roaster, `day ${day}`].filter(Boolean).join(' · ');
+/** Roaster · day N, the day counted from the roast date (gaps.md 8: two clocks). */
+function bagMeta(bag) {
+  if (!bag) return undefined;
+  if (bag.roasted_at == null) return bag.roaster ?? undefined;
+  const day = Math.floor((Date.now() - bag.roasted_at) / DAY_MS);
+  return [bag.roaster, `day ${day}`].filter(Boolean).join(' · ');
 }
 
 const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
 
+/**
+ * I made it: the bag and the method, off the shelf. With no bag or no gear the
+ * row says "Add a bag" / "Add gear" (placeholder look, text.secondary) and the
+ * section drops its required mark: a mark promises "always filled", and an
+ * empty shelf cannot keep that promise (design-system.md §1 Required marks).
+ * Neither blocks Save. TODO(T-4): the rows open 3c / 3a once they exist.
+ */
 function MadeItFields({ defaults }) {
-  const { bag: bean } = defaults;
+  const { bag, brewer, grinder } = defaults;
+  const method = [brewer?.name, grinder?.name].filter(Boolean).join(' · ');
+  const filled = Boolean(bag && method);
   return (
-    <Section label="From my shelf" status="prefilled">
+    <Section label="From my shelf" status={filled ? 'prefilled' : undefined} plain={!filled}>
       <View style={styles.card}>
-        <FieldRow swatch label="Beans" value={bean?.name ?? NONE} meta={beanMeta(bean)} />
-        <FieldRow divided label="Method" value={`${DEFAULT_BREW_METHOD} · ${DEFAULT_GRINDER}`} meta="Your default brewer" />
+        {bag ? (
+          <FieldRow swatch label="Bag" value={bag.name} meta={bagMeta(bag)} />
+        ) : (
+          <FieldRow swatch label="Bag" value="Add a bag" placeholder />
+        )}
+        {method ? (
+          <FieldRow divided label="Method" value={method} meta={brewer ? 'Your default brewer' : undefined} />
+        ) : (
+          <FieldRow divided label="Method" value="Add gear" placeholder />
+        )}
       </View>
     </Section>
   );
@@ -240,7 +254,6 @@ function ExpandingBlock({ children }) {
   );
 }
 
-const EMPTY_DEFAULTS = { bag: null, brewer: null, grinder: null, cafe: null, product: null, store: null };
 
 /*
  * Header date / time: the live clock, since it is what Save stores (created_at,
@@ -282,54 +295,9 @@ function useMinuteClock() {
 }
 
 export default function RecordCoffeeScreen({ onClose, onAddNote }) {
-  const db = useDatabase();
-  // 0 = not rated yet. Rating is the one required field (the database rejects
-  // anything outside 1–5), so Save stays disabled until a star is tapped.
-  const [rating, setRating] = useState(0);
+  const { defaults, rating, setRating, mode: maker, setMode: setMaker, save } = useRecordDraft();
   const now = useMinuteClock();
-  const [maker, setMaker] = useState('made_it');
-  const [defaults, setDefaults] = useState(null);
   const Fields = FIELD_SETS[maker];
-
-  useEffect(() => {
-    let alive = true;
-    loadRecordDefaults(db).then(
-      (d) => alive && setDefaults(d),
-      (error) => {
-        console.error('[record] could not read defaults', error);
-        if (!alive) return;
-        setDefaults(EMPTY_DEFAULTS);
-        Alert.alert("Couldn't read your beans and places", String(error?.message ?? error));
-      }
-    );
-    return () => {
-      alive = false;
-    };
-  }, [db]);
-
-  const save = async () => {
-    try {
-      await insertCup(db, {
-        rating,
-        mode: maker,
-        bagId: defaults?.bag?.id ?? null,
-        brewerId: defaults?.brewer?.id ?? null,
-        brewMethod: DEFAULT_BREW_METHOD,
-        grinderId: defaults?.grinder?.id ?? null,
-        grinder: DEFAULT_GRINDER,
-        placeId: defaults?.cafe?.id ?? null,
-        drinkType: DEFAULT_DRINK,
-        productId: defaults?.product?.id ?? null,
-        boughtAtPlaceId: defaults?.store?.id ?? null,
-      });
-      onClose();
-    } catch (error) {
-      // Never drop a cup silently: say so, and keep the overlay open with
-      // everything still filled in so the user can try again.
-      console.error('[record] save failed', error);
-      Alert.alert("This cup wasn't saved", String(error?.message ?? error));
-    }
-  };
 
   // The defaults are a local read (milliseconds); render once they are in, so
   // the field sets never flash empty values while the sheet slides up.
@@ -354,7 +322,7 @@ export default function RecordCoffeeScreen({ onClose, onAddNote }) {
       footer={
         <>
           {/* Minimum viable validation: the full 5d error state comes later. */}
-          <Button label="Save this cup" onPress={save} disabled={rating === 0} />
+          <Button label="Save this cup" onPress={() => save({ withNote: true })} disabled={rating === 0} />
           {/* Opens the tasting note (5b), step 2 of 2 in this sheet. */}
           <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" onPress={onAddNote} />
         </>

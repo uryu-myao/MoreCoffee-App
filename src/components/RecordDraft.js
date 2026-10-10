@@ -1,0 +1,116 @@
+import * as Haptics from 'expo-haptics';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Platform } from 'react-native';
+import { FLAVOUR_LIMIT } from '../constants/flavours';
+import { useDatabase } from '../data/DatabaseProvider';
+import { insertCup, loadRecordDefaults } from '../data/repository';
+
+/**
+ * The one cup being recorded, shared by both steps of the Record sheet: 5a
+ * (Log a cup) and 5b (Tasting note). It lives in AddCoffeeOverlay, so it lasts
+ * while the sheet is open and is discarded when it closes — no drafts in V1.
+ *
+ * Going back from 5b to 5a keeps everything: the two steps are one record.
+ * Saving is ONE insert, at whichever Save is pressed (design-system.md §1
+ * "Saving a cup"):
+ *   5a Save this cup            everything entered so far (incl. 5b's input)
+ *   5b Save this cup            everything
+ *   5b Save without the note    5a's part only — the one, explicit way to
+ *                               drop the axes, flavour tags and My words
+ * The rating is required on both steps. A failed save is shown plainly and
+ * the sheet stays open with everything still entered (nothing is lost).
+ *
+ * My words is typed often, so its text lives in a ref (noteRef): the field
+ * keeps its own state and typing never re-renders either step.
+ */
+const RecordDraftContext = createContext(null);
+
+const EMPTY_DEFAULTS = { bag: null, brewer: null, grinder: null, cafe: null, product: null, store: null };
+const EMPTY_AXES = { acidity: null, body: null, roast: null, sweetness: null };
+/** The mock's drink: there is no drink table in V1 (Barista is a later stage). */
+const DEFAULT_DRINK = 'Flat white';
+
+export function RecordDraftProvider({ onSaved, children }) {
+  const db = useDatabase();
+  const [defaults, setDefaults] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [mode, setMode] = useState('made_it');
+  const [axes, setAxes] = useState(EMPTY_AXES);
+  const [flavours, setFlavours] = useState([]);
+  const noteRef = useRef('');
+  const saving = useRef(false);
+
+  useEffect(() => {
+    let alive = true;
+    loadRecordDefaults(db).then(
+      (d) => alive && setDefaults(d),
+      (error) => {
+        console.error('[record] could not read defaults', error);
+        if (!alive) return;
+        setDefaults(EMPTY_DEFAULTS);
+        Alert.alert("Couldn't read your bags and gear", String(error?.message ?? error));
+      }
+    );
+    return () => {
+      alive = false;
+    };
+  }, [db]);
+
+  const setAxis = useCallback((key, value) => setAxes((prev) => ({ ...prev, [key]: value })), []);
+
+  /** Select / deselect a flavour. Reaching the limit gives one light impact (§1 Selection limit). */
+  const toggleFlavour = useCallback((word) => {
+    setFlavours((prev) => {
+      if (prev.includes(word)) return prev.filter((w) => w !== word);
+      if (prev.length >= FLAVOUR_LIMIT) return prev;
+      const next = [...prev, word];
+      if (next.length === FLAVOUR_LIMIT && Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      return next;
+    });
+  }, []);
+
+  const save = useCallback(
+    async ({ withNote }) => {
+      if (rating === 0 || saving.current || !defaults) return;
+      saving.current = true;
+      const note = noteRef.current.trim();
+      try {
+        await insertCup(db, {
+          rating,
+          mode,
+          bagId: defaults.bag?.id ?? null,
+          brewerId: defaults.brewer?.id ?? null,
+          brewMethod: defaults.brewer?.name ?? null,
+          grinderId: defaults.grinder?.id ?? null,
+          grinder: defaults.grinder?.name ?? null,
+          placeId: defaults.cafe?.id ?? null,
+          drinkType: DEFAULT_DRINK,
+          productId: defaults.product?.id ?? null,
+          boughtAtPlaceId: defaults.store?.id ?? null,
+          ...(withNote ? { axes, flavours, note: note || null } : {}),
+        });
+        onSaved();
+      } catch (error) {
+        // Never drop a cup silently: say so, and keep the sheet open with
+        // everything still entered so the user can try again.
+        console.error('[record] save failed', error);
+        Alert.alert("This cup wasn't saved", `Everything you entered is still here. ${String(error?.message ?? error)}`);
+      } finally {
+        saving.current = false;
+      }
+    },
+    [axes, db, defaults, flavours, mode, onSaved, rating]
+  );
+
+  const value = useMemo(
+    () => ({ defaults, rating, setRating, mode, setMode, axes, setAxis, flavours, toggleFlavour, noteRef, save }),
+    [axes, defaults, flavours, mode, rating, save, setAxis, toggleFlavour]
+  );
+  return <RecordDraftContext.Provider value={value}>{children}</RecordDraftContext.Provider>;
+}
+
+export function useRecordDraft() {
+  const draft = useContext(RecordDraftContext);
+  if (!draft) throw new Error('useRecordDraft must be used inside RecordDraftProvider (AddCoffeeOverlay)');
+  return draft;
+}
