@@ -258,6 +258,16 @@ Which of these are V1 is open (report 2026-10-10).
 | 2c the cup again | everything above, "day 7 when brewed" | as above |
 | 3d → 3f finish | slots | the finished state (c) |
 
+**V1 settings: exactly two, in one place (decided 2026-10-10)**. They live together, e.g. a single-row `settings` table:
+
+| setting | from | read | effect |
+|---|---|---|---|
+| "I mostly drink out" | 8c | **once**: the first cup's default mode (Barista) | from the 2nd cup on, the last cup's mode is the default, so the setting stops mattering |
+| "How do you take your coffee?" (Black / With milk / Depends on the day) | 8n | **every cup** | orders 5b's tasting-note suggestions |
+
+- The second is read for good, so it should be changeable. V1 has no settings screen (`gaps.md` 22).
+- It needs the bundled flavour words to carry a group ("acidity / origin" vs "body / sweetness"); proposal in `components.md`, to be decided. Whether it also orders the axes (C-1) is open; the scope is fixed after that.
+
 **Result**: with a–d, every value on the path has a column, except these findings:
 1. **Cups should reference their gear as well as copy it.**
    - 3e says "Edits apply to the 2 cups already logged with it" (option B), and 3b shows "used in N cups". Matching by name text breaks on a rename or two items with one name.
@@ -269,7 +279,7 @@ Which of these are V1 is open (report 2026-10-10).
 3. ~~8c's other two steps are not drawn.~~ **Drawn 2026-10-10 as 8n and 8o:**
    - **8o** (3/3, first bag: Bean name; Roaster and Roasted on optional) → `beans` (b, c). Covered.
    - **8n** (1/3, "How do you take your coffee?": Black / With milk / Depends on the day) **"sets which tasting notes show first when you log a cup"**. It is **a new input with nowhere to go** under a–d: one setting. It changes 5b's ordering, not whether the loop runs.
-   - Decide: store it in V1 (one settings row), or let the order come from history alone.
+   - **Decided 2026-10-10: stored in V1.** History has no first cups, and the first cups are exactly where this setting should work. Asking it in first setup and then ignoring it would be the worst form.
 4. 2c's "22 clicks": see the addendum (open).
 
 ### The tasting note has no columns yet (found 2026-10-09; priority)

@@ -440,6 +440,16 @@ The user sees the past rewritten.
 
 ---
 
+## 22. A first-setup choice that cannot be changed in V1 (added 2026-10-10)
+
+**What**: 8n's "How do you take your coffee?" (Black / With milk / Depends on the day) is stored in V1 and read on every cup: it orders the tasting-note suggestions. **V1 has no settings screen**, so once chosen it cannot be changed. "Skip all" leaves it unset.
+
+**Contrast**: 8c's "I mostly drink out" is read once (the first cup's default) and stops mattering after; it needs no editing.
+
+**Status**: recorded, not solved. Options when the settings screen comes (V1.5): an entry for it there; or, before that, a way back into first setup.
+
+---
+
 ## Step 4 device verification — RESOLVED (2026-10-04)
 
 The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.
