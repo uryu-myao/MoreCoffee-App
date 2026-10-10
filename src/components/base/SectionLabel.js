@@ -25,20 +25,24 @@ const STATUS = {
   optional:  { label: 'Optional',   tone: 'muted' },
   // A neutral count ("3 of 5", 5b Flavors); the caller supplies the copy.
   count:     { label: null,         tone: 'muted' },
+  // The same count at a selection limit ("5 of 5"): it turns accent to explain
+  // why the rest are locked (design-system.md §1 Selection limit).
+  limit:     { label: null,         tone: 'accent' },
 };
 
 const TONE_COLOR = {
   success: color.text.success,
   error: state.error.text,
   muted: color.text.muted,
+  accent: color.text.accent,
 };
 
 /**
  * Props
  *   label        section name (fixed copy)
  *   variant      'marked' (default) | 'plain'
- *   status       'set' | 'prefilled' | 'required' | 'missing' | 'optional' | 'count' | undefined
- *   statusLabel  overrides the status copy; required for 'missing' and 'count'
+ *   status       'set' | 'prefilled' | 'required' | 'missing' | 'optional' | 'count' | 'limit' | undefined
+ *   statusLabel  overrides the status copy; required for 'missing', 'count' and 'limit'
  */
 export default function SectionLabel({ label, variant = 'marked', status, statusLabel }) {
   const s = status ? STATUS[status] : null;

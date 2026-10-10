@@ -187,7 +187,7 @@ export default function TastingNoteScreen({ onBack }) {
       </View>
 
       <View style={styles.section}>
-        <SectionLabel variant="plain" label="Flavors" status="count" statusLabel={`${flavours.length} of ${FLAVOUR_LIMIT}`} />
+        <SectionLabel variant="plain" label="Flavors" status={atLimit ? 'limit' : 'count'} statusLabel={`${flavours.length} of ${FLAVOUR_LIMIT}`} />
         <View style={styles.chips}>
           {shownFlavours(flavours).map((f) => (
             <Chip key={f.word} label={f.word} on={f.on} onPress={() => toggleFlavour(f.word)} />
