@@ -288,6 +288,26 @@ The bundled list is the starting point for 5b's flavour tags (never a whitelist;
   - 8c's "I mostly drink out" is a setting, not gear; it stays in first setup.
 - The full 3a (catalogue by category, search, specific models, "Not listed — add your own", cap 8) replaces it later, the same way.
 
+## Bottom sheet, search sheet, pickers (built 2026-10-10)
+
+**Split** (decided 2026-10-10):
+- **BottomSheet** (#25): shared by all three uses (date picker, search sheet, stage 3's pickers).
+- **SearchSheet** = BottomSheet + SearchField (#24) + a checkbox list: flavours now, the bag's Origin later.
+- **Stage 3's bag / gear pickers** are a separate component: 5 bags and 8 gear need no search, and their rows carry more (photo, roaster, day N, Default).
+
+**SearchSheet parameters**: `placeholder`, `items` ({ key, label, hint?, searchText? }, ordered by the caller), `selected`, `mode` (multi built; single for Origin to come), `limit`, `onToggle`, `onAdd` + `normalize`, `match`, `onClose`. Origin will need `mode: 'single'` (pick and close), `searchText` (aliases), sections ("Recent"), and clearing.
+
+**Search sheet layout** (decided 2026-10-10): runs from under the status bar to the keyboard's top; when the keyboard goes, only the bottom edge moves (the top never jumps).
+- **Measured on an SE (375 × 667)**: list starts at 125pt; rows are 53.5pt.
+- **With the keyboard up**: the keyboard is 260pt (216 + 44 QuickType), so the list has 667 − 260 − 12 − 125 = **270pt, 5 rows**. The software keyboard could not be shown here (headless simulator), so this figure is the measured layout plus the standard keyboard height. To confirm on a device.
+- With the keyboard down: about 9.5 rows.
+
+**Word order in the flavour sheet**: words new in this cup first, then history (most used, then most recent), then the bundled words in their order. Matching ignores case, and words starting with the query come first.
+
+**Add row**: last row; "Add \"Word\"" beside a 24 dashed `border.addSlot` box with a plus. Not drawn in any mock.
+
+**Date sheet**: iOS spinner in the BottomSheet, text in `text.primary`, `maximumDate` today; a picked day is stored as its local midnight. Compact and inline both bring OS round shapes (a pill; a round selected day). The spinner's selection band is still a light rounded bar from the OS.
+
 ## Single-select: can it be cleared? (recorded 2026-10-10)
 
 **Today**: `SegmentedControl` cannot clear. Pressing the selected chip is a no-op (and gives no feedback: its ink fill has no darker tier, §1 Pressed). Once chosen, a value cannot return to empty.
