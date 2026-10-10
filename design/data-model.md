@@ -242,9 +242,10 @@ Which of these are V1 is open (report 2026-10-10).
 
 | step | data | stored in (a–d) |
 |---|---|---|
-| 8c first setup | gear picks (generic: "Pour-over dripper", "Hand grinder") | gear table (d) |
+| 8n first setup 1/3 | how you take your coffee | **nowhere**, see finding 3 |
+| 8c first setup 2/3 | gear picks (generic: "Pour-over dripper", "Hand grinder") | gear table (d) |
+| 8o first setup 3/3 | first bag: name (roaster, roast date optional) | `beans` (b, c) |
 | 8c | "I mostly drink out" | **nowhere**, see finding 2 |
-| 8c | steps 1 and 3 | **not drawn** ("Setup · 2 of 3"), see finding 3 |
 | 3c add a bag | name, roaster, roast level, roast date, size, photo, opened | `beans` (b, c) |
 | 5a | date / time, rating, mode | `logged_at`, `rating`, `mode` |
 | 5a | Bag pre-filled, with "day 7, drink now" | `bean_id` + copies (b); the day from `roasted_at` |
@@ -265,7 +266,10 @@ Which of these are V1 is open (report 2026-10-10).
 2. **8c's "I mostly drink out"** has nowhere to go under a–d.
    - Its likely job is the first cup's default mode (Barista); later cups take the last cup's mode.
    - Either store one setting for it, or treat the choice as "no gear" and default the first cup to I made it.
-3. **8c's other two steps are not drawn.** They may hold inputs. The design is needed before the migration is final.
+3. ~~8c's other two steps are not drawn.~~ **Drawn 2026-10-10 as 8n and 8o:**
+   - **8o** (3/3, first bag: Bean name; Roaster and Roasted on optional) → `beans` (b, c). Covered.
+   - **8n** (1/3, "How do you take your coffee?": Black / With milk / Depends on the day) **"sets which tasting notes show first when you log a cup"**. It is **a new input with nowhere to go** under a–d: one setting. It changes 5b's ordering, not whether the loop runs.
+   - Decide: store it in V1 (one settings row), or let the order come from history alone.
 4. 2c's "22 clicks": see the addendum (open).
 
 ### The tasting note has no columns yet (found 2026-10-09; priority)
