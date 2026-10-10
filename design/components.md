@@ -222,6 +222,39 @@ The Switch is not built yet. The taste-axis handle is now derived from it, so th
   - **Region**: free text, with history as suggestions.
 - **Guessing from the bean name**: proposal 2026-10-09, see the report. A guess must read as a guess, and an unconfirmed guess must not be saved as the user's input.
 
+## Single-select: can it be cleared? (recorded 2026-10-10)
+
+**Today**: `SegmentedControl` cannot clear. Pressing the selected chip is a no-op (and gives no feedback: its ink fill has no darker tier, §1 Pressed). Once chosen, a value cannot return to empty.
+
+**Spec addition**: a `clearable` flag. When set, pressing the selected chip clears it (value → empty). Needed wherever empty is a valid answer. Otherwise a pre-filled value cannot be removed, and the pre-fill becomes an imposition, against "required fields start pre-filled and never block".
+
+| use | options | clearable? | why |
+|---|---|---|---|
+| 5a 5d 5e Who made it | I made it / Barista / Packaged | no | structural, never empty |
+| 2a records filter | All / I made it / Barista / Ready-to-drink | no | "All" is the empty state |
+| 2b Group by | Month / Brew method / Roaster / None | no | "None" is the empty state |
+| 3a gear category | Brewer / Grinder / Kettle / Scale | no | tabs, one always shown |
+| 3e gear Category | Brewer / Grinder / Kettle / Scale | no | a gear item has a category |
+| 3f sort | Newest / Best rated / Most cups | no | one order always applies |
+| 6d How I brew | Home brewer / Café goer / Barista / Just starting | no | "Just starting" covers the unsure case |
+| 8j topic | An idea / Logging / Taste DNA / Something else | no | "Something else" covers the rest |
+| 8l scope | Words / Beans / Gear | no | a search has a scope |
+| **3c 3g Roast level** | Light / Medium / Medium-dark / Dark | **yes** | unset is valid, and a reused bag pre-fills it |
+| **3c 3g Process** (planned) | Washed / Natural / Honey / Anaerobic | **yes** | unset means unknown (no "Unknown" option) |
+
+- **Open**: the selected chip of a clearable set needs press feedback. It does respond now. Its ink fill has no darker tier, so it would take the scale, or a step lighter. To decide when built.
+
+## 8h words: merges live in their own table (policy, 2026-10-10)
+
+- Renaming or merging a word in 8h **never rewrites note text**. Notes stay as the user wrote them (`cups.note`).
+- A separate table holds "this word merges into that one" (and renames). Matching and counting read it. Details are specced with 8h (`data-model.md`).
+
+## Suggested value row (#35) when there is no guess (2026-10-10)
+
+- When a guess cannot be made (a blend, a farm or station name, two countries in the name), **no suggestion row is shown**. #35 has only two states, offered and applied, and no empty one.
+- The field itself stays (e.g. 3c's optional "Origin · Process" line), simply without a suggestion.
+- An unconfirmed suggestion is never saved (decided 2026-10-09).
+
 ## Row menus: gear and words are built differently (recorded 2026-10-09)
 
 - **Gear (3b)**: each item has a full page, 3e (Edit gear). The ⋮ sheet only repeated 3e's contents (default, edit, remove), so the ⋮ goes. The row opens 3e directly, with a chevron (drift D-26).
