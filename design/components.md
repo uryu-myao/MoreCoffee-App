@@ -242,7 +242,7 @@ The Switch is not built yet. The taste-axis handle is now derived from it, so th
 | **3c 3g Roast level** | Light / Medium / Medium-dark / Dark | **yes** | unset is valid, and a reused bag pre-fills it |
 | **3c 3g Process** (planned) | Washed / Natural / Honey / Anaerobic | **yes** | unset means unknown (no "Unknown" option) |
 
-- **Open**: the selected chip of a clearable set needs press feedback. It does respond now. Its ink fill has no darker tier, so it would take the scale, or a step lighter. To decide when built.
+- **Open**: the selected chip of a clearable set needs press feedback. Today it does not respond. Its ink fill has no darker tier, so it would take the scale, or a step lighter. To decide when built.
 
 ## 8h words: merges live in their own table (policy, 2026-10-10)
 
