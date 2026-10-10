@@ -228,6 +228,32 @@ The Switch is not built yet. The taste-axis handle is now derived from it, so th
   - **Region**: free text, with history as suggestions.
 - **Guessing from the bean name**: proposal 2026-10-09, see the report. A guess must read as a guess, and an unconfirmed guess must not be saved as the user's input.
 
+## Bundled flavour list and its groups (proposal, 2026-10-10)
+
+The bundled list is the starting point for 5b's flavour tags (never a whitelist; new words go into history).
+- **The list (proposed 2026-10-08, not yet confirmed)**: one concrete name per flavour-wheel family. Mock words first; ＊ = added to cover a missing family.
+- **No group attribute exists yet.** 8n ("How do you take your coffee?") needs one to order the suggestions.
+- 8n's own labels give the two groups:
+  - Black → "Acidity, origin";
+  - With milk → "Body, sweetness";
+  - Depends on the day → no reordering.
+- **Proposed groups** (the classification is to be decided):
+
+| word | source | family | proposed group |
+|---|---|---|---|
+| Jasmine | 5b | floral | acidity / origin |
+| Peach | 2a (White peach merged in) | stone fruit | acidity / origin |
+| Grapefruit | 8d | citrus | acidity / origin |
+| Blackcurrant | 8d | berry | acidity / origin |
+| Black tea | 5b | tea | acidity / origin |
+| Cocoa | 5b 2a | chocolate | body / sweetness |
+| Walnut | 2a | nut | body / sweetness |
+| ＊Caramel | added | sweet | body / sweetness |
+| ＊Cinnamon | added | spice | body / sweetness (or neither: spice sits with roast) |
+| ＊Smoke | added | roast | body / sweetness (or neither; alternative "Toast") |
+
+- Five to five, if Cinnamon and Smoke stay in body / sweetness. If they are "neither", a third, unordered group is needed. Words added by the user from history carry no group; they follow history order.
+
 ## Single-select: can it be cleared? (recorded 2026-10-10)
 
 **Today**: `SegmentedControl` cannot clear. Pressing the selected chip is a no-op (and gives no feedback: its ink fill has no darker tier, §1 Pressed). Once chosen, a value cannot return to empty.
