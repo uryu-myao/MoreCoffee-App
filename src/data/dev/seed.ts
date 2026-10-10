@@ -4,7 +4,7 @@
  * false and drops that branch before collecting dependencies in production
  * builds, so this module is never bundled or shipped.
  *
- * Reference rows (beans / places / products) seed a development database on
+ * Reference rows (bags / gear / places / products) seed a development database on
  * first run. Sample cups are used by scripts/check-schema.ts only, so cups
  * saved on device are never mixed with fixtures.
  *
@@ -24,10 +24,25 @@ const at = (iso: string) => new Date(iso).getTime();
 export function seedReferenceStatements(): SeedStatement[] {
   return [
     {
-      sql: `INSERT INTO beans (id, name, roaster, origin, region, process, notes, opened_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      // 5a: "Blue Bottle · day 7, drink now" on Apr 8 → opened Apr 1. 2a: Washed.
-      params: [1, 'Ethiopia Guji', 'Blue Bottle', 'Ethiopia', 'Guji', 'washed', '[]', at('2026-04-01T08:00:00+09:00')],
+      // 3g "Edit bag": Ethiopia Guji · Blue Bottle · Light · roasted Mar 30 ·
+      // opened Apr 6 · 250 g. 2a: Washed. 5b's printed flavours as notes.
+      sql: `INSERT INTO bags (id, name, roaster, origin, region, process, roast_level, notes, roasted_at, opened_at, size_g)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      params: [1, 'Ethiopia Guji', 'Blue Bottle', 'Ethiopia', 'Guji', 'washed', 'light', '["Jasmine","White peach","Black tea"]', at('2026-03-30T08:00:00+09:00'), at('2026-04-06T08:00:00+09:00'), 250],
+    },
+    {
+      // 3b: Hario V60 02 (default brewer), Comandante C40 (grinder; 3e: default,
+      // added Apr 2, settings note), Fellow Stagg EKG (kettle).
+      sql: `INSERT INTO gear (id, name, category, maker, settings_note, is_default, added_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      params: [1, 'Hario V60 02', 'brewer', 'Hario', null, 1, at('2026-04-02T08:00:00+09:00')],
+    },
+    {
+      sql: `INSERT INTO gear (id, name, category, maker, settings_note, is_default, added_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      params: [2, 'Comandante C40', 'grinder', 'Comandante', '22 clicks for V60, 18 for AeroPress. Zero point re-set Mar 30.', 1, at('2026-04-02T08:00:00+09:00')],
+    },
+    {
+      sql: `INSERT INTO gear (id, name, category, maker, settings_note, is_default, added_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      params: [3, 'Fellow Stagg EKG', 'kettle', 'Fellow', null, 0, at('2026-04-02T08:00:00+09:00')],
     },
     {
       sql: `INSERT INTO places (id, name, kind) VALUES (?, ?, ?)`,
@@ -44,13 +59,19 @@ export function seedReferenceStatements(): SeedStatement[] {
   ];
 }
 
+/** The gear rows alone: a dev database from before migration 2 has bags but no gear. */
+export function seedGearStatements(): SeedStatement[] {
+  return seedReferenceStatements().filter((st) => st.sql.includes('INSERT INTO gear'));
+}
+
 export function seedCupStatements(): SeedStatement[] {
   return [
     {
-      // 2a "Ethiopia Guji · I made it · Floral, peach · 4" + 5a's brewer.
-      sql: `INSERT INTO cups (id, created_at, rating, mode, note, bean_id, brew_method, grinder)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      params: [1, at('2026-04-08T08:20:00+09:00'), 4, 'made_it', 'Floral, peach', 1, 'V60', 'Comandante C40'],
+      // 2a "Ethiopia Guji · I made it · Floral, peach · 4" + 5a's method; the
+      // bag's details copied as at logging (the cup copy rule).
+      sql: `INSERT INTO cups (id, created_at, rating, mode, note, flavours, bag_id, bean_name, bean_roaster, bean_origin, bean_region, bean_process, bean_roast_level, bean_roasted_at, brewer_id, brew_method, grinder_id, grinder)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      params: [1, at('2026-04-08T08:20:00+09:00'), 4, 'made_it', 'Floral, peach', '["Floral","Peach"]', 1, 'Ethiopia Guji', 'Blue Bottle', 'Ethiopia', 'Guji', 'washed', 'light', at('2026-03-30T08:00:00+09:00'), 1, 'V60', 2, 'Comandante C40'],
     },
     {
       // 2a "House espresso · Barista · Fuglen · Cocoa, walnut · 5".

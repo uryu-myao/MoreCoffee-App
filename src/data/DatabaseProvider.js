@@ -36,11 +36,13 @@ export default function DatabaseProvider({ children }) {
         if (__DEV__) {
           // Dev-only reference rows on first run. Required inside the __DEV__
           // branch so production builds drop the seed module entirely.
-          const { seedReferenceStatements } = require('./dev/seed');
-          const row = await db.getFirstAsync('SELECT COUNT(*) AS n FROM beans');
-          if (row.n === 0) {
+          const { seedGearStatements, seedReferenceStatements } = require('./dev/seed');
+          const row = await db.getFirstAsync('SELECT COUNT(*) AS n FROM bags');
+          const gear = await db.getFirstAsync('SELECT COUNT(*) AS n FROM gear');
+          const seed = row.n === 0 ? seedReferenceStatements() : gear.n === 0 ? seedGearStatements() : [];
+          if (seed.length) {
             await inTransaction(db, async (tx) => {
-              for (const s of seedReferenceStatements()) await tx.runAsync(s.sql, s.params);
+              for (const s of seed) await tx.runAsync(s.sql, s.params);
             });
           }
         }

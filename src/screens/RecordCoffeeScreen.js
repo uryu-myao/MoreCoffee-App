@@ -143,7 +143,7 @@ function beanMeta(bean) {
 const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
 
 function MadeItFields({ defaults }) {
-  const { bean } = defaults;
+  const { bag: bean } = defaults;
   return (
     <Section label="From my shelf" status="prefilled">
       <View style={styles.card}>
@@ -240,7 +240,7 @@ function ExpandingBlock({ children }) {
   );
 }
 
-const EMPTY_DEFAULTS = { bean: null, cafe: null, product: null, store: null };
+const EMPTY_DEFAULTS = { bag: null, brewer: null, grinder: null, cafe: null, product: null, store: null };
 
 /*
  * Header date / time: the live clock, since it is what Save stores (created_at,
@@ -312,8 +312,10 @@ export default function RecordCoffeeScreen({ onClose, onAddNote }) {
       await insertCup(db, {
         rating,
         mode: maker,
-        beanId: defaults?.bean?.id ?? null,
+        bagId: defaults?.bag?.id ?? null,
+        brewerId: defaults?.brewer?.id ?? null,
         brewMethod: DEFAULT_BREW_METHOD,
+        grinderId: defaults?.grinder?.id ?? null,
         grinder: DEFAULT_GRINDER,
         placeId: defaults?.cafe?.id ?? null,
         drinkType: DEFAULT_DRINK,

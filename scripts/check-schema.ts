@@ -69,21 +69,78 @@ for (const c of cups) if (c.logged_at !== c.created_at) fail(`seed cup ${c.id}: 
 const rejects = (label: string, sql: string) => {
   try { db.exec(sql); fail(`constraint not enforced: ${label}`); } catch { /* expected */ }
 };
+const accepts = (label: string, sql: string) => {
+  try { db.exec(sql); } catch (e) { fail(`should be accepted: ${label} (${(e as Error).message})`); }
+};
 rejects('rating 0', `INSERT INTO cups (rating, mode) VALUES (0, 'made_it')`);
-rejects('rating missing', `INSERT INTO cups (mode) VALUES ('made_it')`);
+accepts('rating missing (a draft, migration 2)', `INSERT INTO cups (mode) VALUES ('made_it')`);
 rejects('mode missing', `INSERT INTO cups (rating) VALUES (3)`);
-rejects('free-text roast level', `INSERT INTO beans (name, roast_level) VALUES ('x', 'City+')`);
+rejects('free-text roast level', `INSERT INTO bags (name, roast_level) VALUES ('x', 'City+')`);
+rejects('roast level medium-light (4 steps, deliberately)', `INSERT INTO bags (name, roast_level) VALUES ('x', 'medium-light')`);
+rejects('roast level other (dropped)', `INSERT INTO bags (name, roast_level) VALUES ('x', 'other')`);
 rejects('unknown mode', `INSERT INTO cups (rating, mode) VALUES (3, 'gifted')`);
-rejects('unknown process', `INSERT INTO beans (name, process) VALUES ('x', 'anaerobic')`);
-rejects('bean notes not an array', `INSERT INTO beans (name, notes) VALUES ('x', '"floral"')`);
+accepts('process anaerobic', `INSERT INTO bags (name, process) VALUES ('x', 'anaerobic')`);
+rejects('process other (dropped)', `INSERT INTO bags (name, process) VALUES ('x', 'other')`);
+rejects('bag notes not an array', `INSERT INTO bags (name, notes) VALUES ('x', '"floral"')`);
+rejects('flavours not an array', `INSERT INTO cups (rating, mode, flavours) VALUES (3, 'made_it', '"jasmine"')`);
+rejects('six flavours', `INSERT INTO cups (rating, mode, flavours) VALUES (3, 'made_it', '["a","b","c","d","e","f"]')`);
+accepts('five flavours', `INSERT INTO cups (rating, mode, flavours) VALUES (3, 'made_it', '["a","b","c","d","e"]')`);
+rejects('axis above 100', `INSERT INTO cups (rating, mode, axis_body) VALUES (3, 'made_it', 101)`);
+rejects('axis below 0', `INSERT INTO cups (rating, mode, axis_roast) VALUES (3, 'made_it', -1)`);
+rejects('copied bean process outside the list', `INSERT INTO cups (rating, mode, bean_process) VALUES (3, 'made_it', 'other')`);
+rejects('unknown gear category', `INSERT INTO gear (name, category) VALUES ('x', 'tamper')`);
+rejects('two default grinders', `INSERT INTO gear (name, category, is_default) VALUES ('g2', 'grinder', 1)`);
+accepts('a second, non-default grinder', `INSERT INTO gear (name, category, is_default) VALUES ('g3', 'grinder', 0)`);
+rejects('dangling brewer_id', `INSERT INTO cups (rating, mode, brewer_id) VALUES (3, 'made_it', 999)`);
+rejects('a second settings row', `INSERT INTO settings (id) VALUES (2)`);
+rejects('unknown coffee style', `UPDATE settings SET coffee_style = 'latte' WHERE id = 1`);
+rejects('drinks_out not 0/1', `UPDATE settings SET drinks_out = 2 WHERE id = 1`);
+{
+  const n = (db.prepare('SELECT COUNT(*) AS n FROM settings').get() as { n: number }).n;
+  if (n !== 1) fail(`settings: expected exactly one row after migrations, got ${n}`);
+}
 rejects('unknown place kind', `INSERT INTO places (name, kind) VALUES ('x', 'kiosk')`);
 rejects('unknown container', `INSERT INTO products (brand, container) VALUES ('x', 'jar')`);
-rejects('dangling bean_id', `INSERT INTO cups (rating, mode, bean_id) VALUES (3, 'made_it', 999)`);
+rejects('dangling bag_id', `INSERT INTO cups (rating, mode, bag_id) VALUES (3, 'made_it', 999)`);
 rejects('duplicate external_id', `INSERT INTO places (name, kind, external_id) VALUES ('a', 'cafe', 'mk1'); INSERT INTO places (name, kind, external_id) VALUES ('b', 'cafe', 'mk1')`);
 
 const minimal = db.prepare("INSERT INTO cups (rating, mode) VALUES (5, 'barista')").run();
 const row = db.prepare('SELECT created_at, logged_at FROM cups WHERE id = ?').get(minimal.lastInsertRowid) as { created_at: number; logged_at: number };
 if (!row.created_at || row.logged_at !== row.created_at) fail('a minimal cup (rating + mode) did not get created_at / logged_at defaults');
+
+// Upgrade path: a version-1 database with data, then migration 2. Checks the
+// copies are backfilled from the bag and unmapped values become NULL.
+{
+  const old = new DatabaseSync(':memory:');
+  old.exec('PRAGMA foreign_keys = ON');
+  old.exec(MIGRATIONS_TABLE);
+  const run = (m: (typeof migrations)[number]) => {
+    old.exec('BEGIN');
+    for (const sql of m.statements) old.exec(sql);
+    old.exec('COMMIT');
+  };
+  run(migrations[0]);
+  old.exec(`INSERT INTO beans (id, name, roaster, origin, process, roast_level) VALUES (7, 'Kenya AA', 'Glitch', 'Kenya', 'other', 'medium-light')`);
+  old.exec(`INSERT INTO beans (id, name, process, roast_level) VALUES (8, 'Brazil Cerrado', 'natural', 'dark')`);
+  old.exec(`INSERT INTO cups (id, rating, mode, bean_id, grinder) VALUES (1, 4, 'made_it', 7, 'C40'), (2, 3, 'made_it', 8, NULL)`);
+  for (const m of migrations.slice(1)) run(m);
+  const b7 = old.prepare('SELECT process, roast_level FROM bags WHERE id = 7').get() as { process: string | null; roast_level: string | null };
+  if (b7.process !== null || b7.roast_level !== null) fail(`upgrade: 'other' / 'medium-light' should become NULL, got ${b7.process} / ${b7.roast_level}`);
+  const c1 = old.prepare('SELECT bag_id, bean_name, bean_roaster, bean_origin, grinder, flavours, logged_at FROM cups WHERE id = 1').get() as Record<string, unknown>;
+  if (c1.bag_id !== 7 || c1.bean_name !== 'Kenya AA' || c1.bean_roaster !== 'Glitch' || c1.bean_origin !== 'Kenya' || c1.grinder !== 'C40' || c1.flavours !== '[]' || !c1.logged_at)
+    fail(`upgrade: cup 1 not carried over with its copies: ${JSON.stringify(c1)}`);
+  const c2 = old.prepare('SELECT bean_process, bean_roast_level FROM cups WHERE id = 2').get() as Record<string, unknown>;
+  if (c2.bean_process !== 'natural' || c2.bean_roast_level !== 'dark') fail(`upgrade: cup 2 copies wrong: ${JSON.stringify(c2)}`);
+  // Deleting the bag keeps the cup and its copied details (the point of copying).
+  old.exec('DELETE FROM bags WHERE id = 7');
+  const after = old.prepare('SELECT bag_id, bean_name FROM cups WHERE id = 1').get() as Record<string, unknown>;
+  if (after.bag_id !== null || after.bean_name !== 'Kenya AA') fail(`delete bag: cup should keep its copies with bag_id NULL, got ${JSON.stringify(after)}`);
+  const trig = old.prepare(`SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'trigger' AND name = 'cups_logged_at_default'`).get() as { n: number };
+  if (trig.n !== 1) fail('upgrade: logged_at trigger missing after the cups rebuild');
+  old.prepare('INSERT INTO cups (rating, mode) VALUES (5, ?)').run('barista');
+  const fresh = old.prepare('SELECT created_at, logged_at FROM cups ORDER BY id DESC LIMIT 1').get() as { created_at: number; logged_at: number };
+  if (fresh.logged_at !== fresh.created_at) fail('upgrade: logged_at no longer defaults to created_at');
+}
 
 if (problems.length) {
   console.error(`check:schema FAILED (${problems.length})\n  - ${problems.join('\n  - ')}`);
