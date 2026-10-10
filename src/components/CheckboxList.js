@@ -1,12 +1,12 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { color, icon, shape, size, space, spacing, state } from '../theme/tokens';
+import { color, dashed, icon, shape, size, space, spacing, state } from '../theme/tokens';
 import Glyph from './base/Glyph';
 import Text from './base/Text';
 
 /**
- * Gear pick list (design/components.md "Adding a bag and gear…"; catalogue #7
- * checkbox list, #8 checkbox): 8c's generic gear as a multi-select list in
- * one 2px frame, hairline-divided like 5a's field groups.
+ * Checkbox list (catalogue #7 checkbox list, #8 checkbox): a multi-select
+ * list in one 2px frame, hairline-divided like 5a's field groups. Used by 3a's
+ * Gear pick list (8c's generic gear) and the flavour search sheet.
  *
  * Row (8c): a 24 checkbox, the name (title) and an optional hint (meta,
  * text.muted). Checked = ink box with a ground tick and the name in ink (a
@@ -16,13 +16,20 @@ import Text from './base/Text';
  * #FFF8F1 was absorbed into surface.raised, so a checked row has no tint.
  * The row is the pressable (≥ 44pt), so its pressed look is the surface.
  *
+ * Add row (search sheet, `add`): last row, "Add \"xxx\"" beside a 24 dashed
+ * box (border.addSlot, the "add" vocabulary of 5b's Search opener) holding a
+ * plus. It locks with the rest at the cap.
+ * TODO: no mock draws the add row; to be shown to Design.
+ *
  * Props
- *   items     [{ name, hint? }]
+ *   items     [{ name, label?, hint? }] — name is the key; label is shown (defaults to name)
  *   selected  names checked
  *   locked    true at the cap: unchecked rows can't be checked
  *   onToggle  (name) => void
+ *   add       optional { label, onPress }: the add row
  */
-export default function GearPickList({ items, selected, locked = false, onToggle }) {
+export default function CheckboxList({ items, selected, locked = false, onToggle, add }) {
+  if (items.length === 0 && !add) return null;
   return (
     <View style={styles.frame}>
       {items.map((item, i) => {
@@ -35,13 +42,13 @@ export default function GearPickList({ items, selected, locked = false, onToggle
             disabled={off}
             accessibilityRole="checkbox"
             accessibilityState={{ checked: on, disabled: off }}
-            accessibilityLabel={item.hint ? `${item.name}, ${item.hint}` : item.name}
+            accessibilityLabel={item.hint ? `${item.label ?? item.name}, ${item.hint}` : item.label ?? item.name}
             style={({ pressed }) => [styles.row, i > 0 && styles.divided, pressed && styles.pressed]}>
             <View style={[styles.box, on && styles.boxOn]}>
               {on ? <Glyph name="check" token={icon.xs} color={color.text.onInverse} /> : null}
             </View>
             <Text variant="title" color={on ? 'primary' : off ? 'muted' : 'secondary'} style={styles.name} truncate="name">
-              {item.name}
+              {item.label ?? item.name}
             </Text>
             {item.hint ? (
               <Text variant="meta" color="muted" truncate="meta">
@@ -51,6 +58,22 @@ export default function GearPickList({ items, selected, locked = false, onToggle
           </Pressable>
         );
       })}
+      {add ? (
+        <Pressable
+          onPress={add.onPress}
+          disabled={locked}
+          accessibilityRole="button"
+          accessibilityState={{ disabled: locked }}
+          accessibilityLabel={add.label}
+          style={({ pressed }) => [styles.row, items.length > 0 && styles.divided, pressed && styles.pressed]}>
+          <View style={[styles.box, styles.addBox, locked && styles.addBoxLocked]}>
+            <Glyph name="plus" token={icon.xs} color={locked ? color.text.muted : color.text.primary} />
+          </View>
+          <Text variant="title" color={locked ? 'muted' : 'primary'} style={styles.name} truncate="name">
+            {add.label}
+          </Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -87,6 +110,13 @@ const styles = StyleSheet.create({
   boxOn: {
     borderColor: color.border.strong,
     backgroundColor: color.surface.inverse,
+  },
+  addBox: {
+    borderStyle: dashed.addSlot.style,
+    borderColor: dashed.addSlot.color,
+  },
+  addBoxLocked: {
+    borderColor: dashed.addSlotInert.color,
   },
   name: {
     flex: 1,

@@ -27,3 +27,13 @@ export const BUNDLED_FLAVOURS = [
 
 /** At most this many flavours on a cup (5b "3 of 5"; cups.flavours enforces it). */
 export const FLAVOUR_LIMIT = 5;
+
+/**
+ * A new word as stored (decided: stored with a capital first letter, shown in
+ * caps): spaces trimmed and collapsed, first letter upper-cased, the rest as
+ * typed ("black tea" → "Black tea", the bundled list's form).
+ */
+export const normalizeFlavour = (text) => {
+  const t = text.trim().replace(/\s+/g, ' ');
+  return t.charAt(0).toUpperCase() + t.slice(1);
+};

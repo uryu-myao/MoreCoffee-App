@@ -101,6 +101,22 @@ export async function insertGear(
   return { brewer: brewer ?? null, grinder: grinder ?? null };
 }
 
+/**
+ * Flavour words used before, most used first, then most recently used
+ * (the search sheet's order, report 2026-10-10: words used once sink).
+ * Grouped ignoring case; the latest spelling is shown.
+ */
+export async function listFlavourHistory(db: SQLiteDatabase): Promise<{ word: string; uses: number }[]> {
+  return db.getAllAsync<{ word: string; uses: number }>(
+    `SELECT (SELECT j2.value FROM cups c2, json_each(c2.flavours) j2
+              WHERE lower(j2.value) = lower(j.value) ORDER BY c2.logged_at DESC LIMIT 1) AS word,
+            COUNT(*) AS uses
+       FROM cups c, json_each(c.flavours) j
+      GROUP BY lower(j.value)
+      ORDER BY uses DESC, MAX(c.logged_at) DESC`
+  );
+}
+
 /** What Record coffee hands over on Save. Mode-specific fields are only read for their mode. */
 export type NewCup = {
   rating: number;

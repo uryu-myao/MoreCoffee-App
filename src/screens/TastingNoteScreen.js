@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AxisSlider from '../components/base/AxisSlider';
@@ -9,7 +9,10 @@ import IconButton from '../components/base/IconButton';
 import SectionLabel from '../components/base/SectionLabel';
 import Text from '../components/base/Text';
 import { useRecordDraft } from '../components/RecordDraft';
-import { BUNDLED_FLAVOURS, FLAVOUR_LIMIT } from '../constants/flavours';
+import SearchSheet from '../components/SearchSheet';
+import { useDatabase } from '../data/DatabaseProvider';
+import { listFlavourHistory } from '../data/repository';
+import { BUNDLED_FLAVOURS, FLAVOUR_LIMIT, normalizeFlavour } from '../constants/flavours';
 import { TASTE_AXES } from '../constants/tasteAxes';
 import { resolveTextStyle } from '../theme/fonts';
 import { color, dashed, icon, layout, shape, size, space, spacing, state, textStyle } from '../theme/tokens';
@@ -31,7 +34,6 @@ import ScreenFrame from './ScreenFrame';
  * gets its own round because it can interfere with the header collapse.
  */
 
-const NOOP = () => {};
 
 const MODE_LABEL = { made_it: 'I made it', barista: 'Barista', packaged: 'Packaged' };
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
@@ -147,95 +149,146 @@ function Chip({ label, on, search, locked, onPress }) {
   );
 }
 
+/**
+ * The search sheet's words (decided 2026-10-10): words used before (most used,
+ * then most recent), then the bundled words not among them, in their order.
+ * Words selected in this cup but not in either (just added) lead, so a new
+ * word stays visible and can be unticked.
+ */
+function searchItems(history, selected) {
+  const seen = new Set();
+  const out = [];
+  const push = (word) => {
+    const k = word.toLowerCase();
+    if (seen.has(k)) return;
+    seen.add(k);
+    out.push({ key: word, label: word });
+  };
+  const known = new Set([...history.map((h) => h.word.toLowerCase()), ...BUNDLED_FLAVOURS.map((f) => f.word.toLowerCase())]);
+  selected.filter((w) => !known.has(w.toLowerCase())).forEach(push);
+  history.forEach((h) => push(h.word));
+  BUNDLED_FLAVOURS.forEach((f) => push(f.word));
+  return out;
+}
+
 export default function TastingNoteScreen({ onBack }) {
   const insets = useSafeAreaInsets();
+  const db = useDatabase();
   const { defaults, mode, rating, axes, setAxis, flavours, toggleFlavour, noteRef, setNoteFilled, hasTastingInput, save } = useRecordDraft();
+  const [searching, setSearching] = useState(false);
+  const [history, setHistory] = useState([]);
+  useEffect(() => {
+    if (!searching) return;
+    let alive = true;
+    listFlavourHistory(db).then(
+      (rows) => alive && setHistory(rows),
+      (error) => console.error('[flavours] could not read history', error)
+    );
+    return () => {
+      alive = false;
+    };
+  }, [db, searching]);
   if (!defaults) return null;
   const cup = cupSummary(defaults, mode);
   const atLimit = flavours.length >= FLAVOUR_LIMIT;
   return (
-    <ScreenFrame
-      scroll
-      compact
-      title="Tasting note"
-      leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
-      meta={
-        <View style={styles.headerMeta}>
-          <Text variant="labelEyebrow" color="muted">
-            Step 2 of 2
-          </Text>
-          <Text variant="labelCaps" color="accent" style={styles.skippable}>
-            Skippable
-          </Text>
+    <View style={styles.screen}>
+      <ScreenFrame
+        scroll
+        compact
+        title="Tasting note"
+        leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
+        meta={
+          <View style={styles.headerMeta}>
+            <Text variant="labelEyebrow" color="muted">
+              Step 2 of 2
+            </Text>
+            <Text variant="labelCaps" color="accent" style={styles.skippable}>
+              Skippable
+            </Text>
+          </View>
+        }>
+        {/* The cup being noted (5b's summary row; a component later). */}
+        <View style={styles.summary}>
+          <View style={styles.summaryThumb} />
+          <View style={styles.summaryText}>
+            <Text variant="label" truncate="name">
+              {cup.name}
+            </Text>
+            <Text variant="bodySm" color="muted" truncate="meta">
+              {cup.meta}
+            </Text>
+          </View>
+          <View style={styles.summaryRating}>
+            <Glyph name="star" token={icon.fill.sm} filled />
+            <Text variant="numeralInline">{rating > 0 ? String(rating) : '–'}</Text>
+          </View>
         </View>
-      }>
-      {/* The cup being noted (5b's summary row; a component later). */}
-      <View style={styles.summary}>
-        <View style={styles.summaryThumb} />
-        <View style={styles.summaryText}>
-          <Text variant="label" truncate="name">
-            {cup.name}
+
+        <View style={styles.card}>
+          <Text variant="displaySm" color="accent">
+            Where did it sit?
           </Text>
-          <Text variant="bodySm" color="muted" truncate="meta">
-            {cup.meta}
+          <Text variant="body" color="muted" style={styles.cardIntro}>
+            Drag only what you noticed. Untouched axes are left out.
           </Text>
+          <Axes axes={axes} setAxis={setAxis} />
         </View>
-        <View style={styles.summaryRating}>
-          <Glyph name="star" token={icon.fill.sm} filled />
-          <Text variant="numeralInline">{rating > 0 ? String(rating) : '–'}</Text>
+
+        <View style={styles.section}>
+          <SectionLabel variant="plain" label="Flavors" status={atLimit ? 'limit' : 'count'} statusLabel={`${flavours.length} of ${FLAVOUR_LIMIT}`} />
+          <View style={styles.chips}>
+            {shownFlavours(flavours).map((f) => (
+              <Chip key={f.word} label={f.word} on={f.on} onPress={() => toggleFlavour(f.word)} />
+            ))}
+            <Chip label="Search" search locked={atLimit} onPress={() => setSearching(true)} />
+          </View>
         </View>
-      </View>
 
-      <View style={styles.card}>
-        <Text variant="displaySm" color="accent">
-          Where did it sit?
-        </Text>
-        <Text variant="body" color="muted" style={styles.cardIntro}>
-          Drag only what you noticed. Untouched axes are left out.
-        </Text>
-        <Axes axes={axes} setAxis={setAxis} />
-      </View>
-
-      <View style={styles.section}>
-        <SectionLabel variant="plain" label="Flavors" status={atLimit ? 'limit' : 'count'} statusLabel={`${flavours.length} of ${FLAVOUR_LIMIT}`} />
-        <View style={styles.chips}>
-          {shownFlavours(flavours).map((f) => (
-            <Chip key={f.word} label={f.word} on={f.on} onPress={() => toggleFlavour(f.word)} />
-          ))}
-          {/* TODO(T-2): opens the search sheet once it exists; inert for now. */}
-          <Chip label="Search" search locked={atLimit} onPress={NOOP} />
+        <View style={styles.section}>
+          <SectionLabel variant="plain" label="My words" />
+          <MyWords noteRef={noteRef} setNoteFilled={setNoteFilled} />
         </View>
-      </View>
 
-      <View style={styles.section}>
-        <SectionLabel variant="plain" label="My words" />
-        <MyWords noteRef={noteRef} setNoteFilled={setNoteFilled} />
-      </View>
-
-      {/* 5b's buttons sit on the ground (no footer panel). The mock's 52pt
-          secondary is right; Button still renders it at 56 (gaps.md 4). */}
-      <View style={[styles.actions, { paddingBottom: Math.max(insets.bottom, layout.screen.bottom) }]}>
-        {/* Save this cup saves everything; Save without the note is the one,
-            explicit way to drop the axes, flavours and My words (§1). The
-            rating is required on both steps. */}
-        <Button label="Save this cup" onPress={() => save({ withNote: true })} disabled={rating === 0} />
-        {/* "Discard and save" once anything is entered: the verb says it drops
-            input, where "without the note" left open what it covers (decided
-            2026-10-10; overrides the mock's copy). Full width, so the swap
-            never changes the button's size; the label is also what VoiceOver
-            reads. */}
-        <Button
-          label={hasTastingInput ? 'Discard and save' : 'Save without the note'}
-          variant="secondary"
-          onPress={() => save({ withNote: false })}
-          disabled={rating === 0}
-        />
-      </View>
-    </ScreenFrame>
+        {/* 5b's buttons sit on the ground (no footer panel). The mock's 52pt
+            secondary is right; Button still renders it at 56 (gaps.md 4). */}
+        <View style={[styles.actions, { paddingBottom: Math.max(insets.bottom, layout.screen.bottom) }]}>
+          {/* Save this cup saves everything; Save without the note is the one,
+              explicit way to drop the axes, flavours and My words (§1). The
+              rating is required on both steps. */}
+          <Button label="Save this cup" onPress={() => save({ withNote: true })} disabled={rating === 0} />
+          {/* "Discard and save" once anything is entered: the verb says it drops
+              input, where "without the note" left open what it covers (decided
+              2026-10-10; overrides the mock's copy). Full width, so the swap
+              never changes the button's size; the label is also what VoiceOver
+              reads. */}
+          <Button
+            label={hasTastingInput ? 'Discard and save' : 'Save without the note'}
+            variant="secondary"
+            onPress={() => save({ withNote: false })}
+            disabled={rating === 0}
+          />
+        </View>
+      </ScreenFrame>
+      <SearchSheet
+        visible={searching}
+        onClose={() => setSearching(false)}
+        placeholder="Search flavors"
+        items={searchItems(history, flavours)}
+        selected={flavours}
+        limit={FLAVOUR_LIMIT}
+        onToggle={toggleFlavour}
+        onAdd={toggleFlavour}
+        normalize={normalizeFlavour}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   headerMeta: {
     alignItems: 'flex-end',
   },

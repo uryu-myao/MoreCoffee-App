@@ -3,7 +3,7 @@ import { Alert, StyleSheet, View } from 'react-native';
 import Button from '../components/base/Button';
 import IconButton from '../components/base/IconButton';
 import Text from '../components/base/Text';
-import GearPickList from '../components/GearPickList';
+import CheckboxList from '../components/CheckboxList';
 import { useRecordDraft } from '../components/RecordDraft';
 import { GEAR_LIMIT, GEAR_TYPES } from '../constants/gear';
 import { useDatabase } from '../data/DatabaseProvider';
@@ -70,7 +70,7 @@ export default function AddGearScreen({ onBack }) {
           ) : null}
         </View>
       }>
-      <GearPickList items={GEAR_TYPES} selected={selected} locked={owned == null || left <= 0} onToggle={toggle} />
+      <CheckboxList items={GEAR_TYPES} selected={selected} locked={owned == null || left <= 0} onToggle={toggle} />
     </ScreenFrame>
   );
 }
