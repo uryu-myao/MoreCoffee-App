@@ -18,6 +18,9 @@ import Text from './Text';
  *   icon      Glyph name drawn inside the swatch (implies `swatch`)
  *   divided   hairline above the row
  *   error     5d missing-field state: dashed swatch with a plus, error-toned text
+ *   placeholder  the value is an invitation, not a value ("Add a bag" when the
+ *             shelf is empty): `text.secondary`, the placeholder colour of
+ *             the plain fields (gaps.md 23, until D-38 settles it)
  *   onPress
  *   testOnly_pressed   force the pressed look (dev harness)
  *
@@ -31,6 +34,7 @@ export default function FieldRow({
   icon: iconName,
   divided = false,
   error = false,
+  placeholder = false,
   onPress,
   testOnly_pressed,
 }) {
@@ -58,7 +62,7 @@ export default function FieldRow({
         <Text variant="labelEyebrow" color={error ? state.error.text : 'muted'}>
           {label}
         </Text>
-        <Text variant="title" color={error ? state.error.text : 'primary'} truncate="name">
+        <Text variant="title" color={error ? state.error.text : placeholder ? 'secondary' : 'primary'} truncate="name">
           {value}
         </Text>
         {meta ? (
