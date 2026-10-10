@@ -4,9 +4,9 @@ import { Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-n
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TABS } from '../constants/navigation';
 import { color, component, layout, motion, shape, size, state } from '../theme/tokens';
-import { AddCoffeeIcon, CalendarIcon, HomeIcon, ProfileIcon, RecordsIcon } from './icons/TabBarIcons';
+import { AddCoffeeIcon, HomeIcon, ProfileIcon, RecordsIcon, TryNextIcon } from './icons/TabBarIcons';
 
-const ICONS = { home: HomeIcon, records: RecordsIcon, tryNext: CalendarIcon, profile: ProfileIcon };
+const ICONS = { home: HomeIcon, records: RecordsIcon, tryNext: TryNextIcon, profile: ProfileIcon };
 const { slot, addSlot } = component.tabBar;
 
 /**
