@@ -70,6 +70,14 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - Why: a control that is invisible but pressable, or one that should be pressable but has gone, both break operability. The collapse is a side effect of scrolling, not a sign that the user has given up on an action: being unable to go back after scrolling is plainly wrong.
 - Precedent: Record coffee's close button does not scale. The same principle covers 5b's back button above the title, which stays where it is while the title shrinks beneath it (§9 Header collapse).
 
+### Required marks keep a promise (added 2026-10-10)
+- **A required mark means "this is always filled", not "you must type this before saving".** 5a: "Marked fields are required — all of them start pre-filled."
+- **So a field that cannot be filled shows no required mark.**
+  - With no bag, Bag is not marked and shows "Add a bag". With no gear, Method is not marked and shows "Add gear".
+  - Neither blocks saving. Only the rating gates Save.
+- The mark is not fixed per field: it follows whether the field can be filled. With one bag or more, Bag is marked again and pre-filled with the latest open bag.
+- Why: a mark on an empty field breaks the promise. It would do so on the very first screen a new user sees (someone who skipped 8o).
+
 ### Correct values in drift point to the spec (added 2026-10-10)
 - **A drift's correct value refers to this document directly** (§9 for a component, §2–§8 for a token).
 - **Never to another screen's part as the example**: that part may itself be off-spec. D-25 ("as Edit") and D-40 ("as Replace") broke exactly this way.
@@ -1172,3 +1180,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-10 — §1 Words: "shelf" defined as registered belongings, gear + beans (picked in 5a); words are excluded because they come out of logging rather than being picked.
 - 2026-10-10 — §1: drift's correct values refer to this document directly, never to another screen's part (D-25 / D-40 broke on that).
 - 2026-10-10 — §5: the rule for what is a size token (drawn alike in 2+ places; derived values are formulas in §9); `size.switch` and `size.button.row` added. §4: serif-ink spacing uses primitives directly (D-34). §9: Radio marker spec with its inner mark as a formula.
+- 2026-10-10 — §1: a required mark is the promise "always filled"; a field that cannot be filled (no bag, no gear) shows no mark and does not block Save.

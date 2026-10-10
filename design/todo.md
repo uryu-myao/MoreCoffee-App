@@ -27,6 +27,14 @@ Moves and follow-ups that are neither drift (a design value to correct) nor a de
 
 **Re-check when wired**: at the selection limit Search is locked with the options (§1 Selection limit).
 
+## T-4 · 5a's "Add a bag" / "Add gear" lead nowhere yet — logged 2026-10-10
+
+**Now (5a stage 1)**: with no bag or no gear, 5a's rows show "Add a bag" / "Add gear" without a required mark (§1 Required marks), and pressing them does nothing. 3c (add a bag) and 3a (add gear) are not built.
+
+**Consequence**: someone with no bag (8o skipped) has no way to register one, so every cup they log has no bean details. Taste DNA's axes still work, but Try next and the bean side do not.
+
+**Target**: the rows open 3c / 3a. Priority: see the 5a stage plan.
+
 ## V1 candidates
 
 - **The bag's printed flavours as the first flavour suggestions** (2026-10-09).
