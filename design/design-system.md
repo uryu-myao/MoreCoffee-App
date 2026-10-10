@@ -381,7 +381,26 @@ React Native has no `em` and no unitless line height, so both are converted: `le
 | `numeral.inline` | 22 | 400 | 22 | 22/1, 26/1, 24/1, 21/1, 19 | 10 screens / 33 uses |
 | `text.note` | 20 **italic** | 400 | 28 | 20/1.4 italic (formerly E-3) | 1 screen / 1 use: the 5b "My words" input. Colour `color.text.muted`. The only italic; do not use italics elsewhere. Its `min-height: 84` stays local to the field |
 
-The seven stray display sizes (27/31/33/34/36/38/42) collapse into two steps. Single-line numerals authored at 0.8–1.0 line height are folded to 1.02 — at one line there is no visual difference.
+The seven stray display sizes (27/31/33/34/36/38/42) collapse into two steps. The display styles fold to ~1.02. **The numerals keep their authored line heights**: `numeral.hero` 0.82 (79 at 96), `numeral.inline` 1.0.
+
+**Line height is not glyph height (corrected 2026-10-10).** An earlier sentence here said "numerals authored at 0.8–1.0 are folded to 1.02 — at one line there is no visual difference".
+- That was wrong twice: the numerals were never folded (the table and tokens kept 0.82 / 1.0), and line height does change what touches what.
+- **The nature of the error**: the line-box values were right; the sentence reasoned about the box and left out where the ink actually sits.
+
+Measured from the font file (Instrument Serif, per 1000):
+- **Content area** 1.300 em: ascent 990 + descent 310.
+- **Digit ink** −10 … 745: 0.755 em. Cap height 720; "g" reaches −215; "Á" reaches 950.
+
+| style | box | ink of digits / caps in the box (CSS) | spills? |
+|---|---|---|---|
+| `numeral.hero` 96 / 79 | 79 | digits 0.6 → 73.1 from the box top | no. The ink fills the box, so **the box edges are the ink edges** |
+| `numeral.inline` 22 / 22 | 22 | 2.1 → 18.7 | no |
+| `display.lg` 40 / 41 | 41 | caps 4.3 → 34.5 | descenders ~1.7 below, accents ~3.9 above |
+| `display.sm` 30 / 31 | 31 | caps 3.3 → 26.0 | descenders and accents, slightly |
+
+- **Rule**: space around serif text is set by the ink, not left to line-box leftover. A box at or under the ink (the hero numeral) needs real space from its neighbours.
+- 1b gives none: "CUPS TOTAL" sits 2px above the digits, where 4a / 4b put 10 + 2 (`drift.md` D-34).
+- On iOS the short boxes are replaced by the natural box (§3.2), so the same spacing must come from the container.
 
 ### Sans (Archivo)
 | style | size | weight | lineHeight | letterSpacing | transform | replaces | reach |
@@ -1125,3 +1144,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-10 — Header: 33 screens covered (the 30 of the token pass + 3g, 8n, 8o read directly); `process/` files marked not to be used for values. §9 Buttons rewritten to the variant × size decision. Roast line: bag levels in 4 steps. Bottom sheet: 3b removed, planned uses listed. Stale lines in the pending catalog and `text.inlineAction` brought up to date.
 - 2026-10-10 — Prepared for Design: references to files Design does not receive (exceptions record, data model, to-do list, RN token object, i18n notes) replaced by inline summaries. §10 rewritten: five true exceptions, located but with values withheld, never to be referenced on a new screen.
 - 2026-10-10 — **Self-contradictions removed** (Design's review). The taste axis is specified once, in §9 Taste axis slider: two states, the square handle, the solid track. §2 B, §1 Pressed, §2 colours, §5 `size.axis.needle` and §8's dashed rail now point there, and the old parts are marked retiring. A "Superseded — do not draw" list names every earlier version (the solid / dashed provenance rail, 20 / 28 rails, needles, the gold lit, pole ink, reference lines, Clear under the handle). Also fixed: §9 still described pole labels lighting while dragging, a 12pt touch band (5 now) and Clear's 16pt slop (8 / 20 now). §2 C no longer calls the tab bar "floating", and `shadow.floating` is no longer said to have no consumer (D-33).
+- 2026-10-10 — §3: the claim that single-line numerals were "folded to 1.02 — no visual difference" is corrected. They keep 0.82 / 1.0; glyph extents are measured and recorded. The error was reasoning about the line box without the ink. 1b's 2px label-to-numeral gap is drift D-34.
