@@ -48,6 +48,10 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **Surface → darken.** **Nothing else changes**: border, label/ink, glyph and `HardShadow` stay as they are. The change is instant (no motion).
 - A fill that is already ink (the selected chip) has no darker tier and does not respond. Pressing it is a no-op anyway. Disabled controls do not respond.
 - Darken applies to: Button, SegmentedControl options, FieldRow, StarRating stars, IconButton, and the bottom bar's + (an ink square, so no darker tier: no visual change). Scale applies to: the bottom-bar tab icons. Every tappable component added later takes one of the two by this test; its Step 4 component spec says which.
+- **The condition above both tests (2026-10-10): the feedback must be perceptible.** Surface and size choose the means, *provided that means can be seen*. Where it cannot, scale is used:
+  - **too small to see a darker fill under the finger**: under 44pt (the axis handle, checkboxes);
+  - **no darker tier left**: a fill that is already the darkest, i.e. the ink-filled selected chip of a clearable set (Roast level, Process). Pressing it clears it, so it must respond.
+  - Not a third exception: one rule, "use the means that can be perceived".
 - **Size decides too (2026-10-07): under 44pt, scale; 44pt and up, darken.**
   - Some parts have a surface but are too small for its change to be seen, because the finger covers it: the taste axis needle (12 × 32), checkboxes (24), the avatar edit button (34).
   - So the press feedback depends not only on whether the element has a surface, but on whether that change can be perceived.
@@ -1153,3 +1157,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-09 — §1 Tap affordance: three means (row chevron, text underline, surface frame / fill), none by colour. Text actions are ink + underline, never brown; brown now carries only entered values. Destructive actions: no own look yet, protected by confirm / undo.
 - 2026-10-09 — §1 Words: bag = one bag bought (the unit acted on); beans = the coffee and the shelf. Mismatches → D-31.
 - 2026-10-09 — §9 Taste axis: the Roast axis is perceived roast, five steps, independent of the bag's transcribed roast level.
+- 2026-10-10 — §1 Pressed: perceptibility is the condition above surface and size. Where a darker fill cannot be seen (under 44pt) or does not exist (an ink-filled selected chip in a clearable set), scale is used.

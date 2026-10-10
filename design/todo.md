@@ -35,6 +35,10 @@ Moves and follow-ups that are neither drift (a design value to correct) nor a de
   - Needs a notes field in 3c / 3g, not built until this is adopted (`data-model.md` `beans.notes`).
   - Decide once the flavour tags work.
 
+## T-3 · 8j Send feedback: no sending path — logged 2026-10-10
+
+8j's form (topic, message, screenshot, app version, reply email) has nowhere to send to. Mail composer, a form endpoint and a backend are all undecided. Outside the capture loop. **Do not build the screen until the path is defined.**
+
 ## V2 candidates
 
 Out of V1's scope (the capture → Taste DNA loop only). Kept so the idea is not lost; treated like Try next and Atlas.

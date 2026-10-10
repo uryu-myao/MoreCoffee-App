@@ -423,6 +423,23 @@ The photo pair sits beside a 76 thumbnail, so 44 would still fit its height.
 
 ---
 
+## 21. Taste DNA is recomputed, so its history can move (added 2026-10-10)
+
+**What**: Taste DNA and its shifts are not stored; they are computed from cups as of a date (`data-model.md` Storage audit). That is right for a local-first record. But anything that changes the inputs or the arithmetic changes past results too:
+- 5c's "this cup pushed you brighter", 2c's "This cup pushed you brighter", 8f's "Last shift", "shifted 4 days ago".
+
+The user sees the past rewritten.
+
+**Triggers**:
+- **"Read my words"** (8g) toggled. Out of V1: the setting screen is not in V1, so it cannot be toggled yet.
+- **Editing a cup**: in the design. 2c has an edit button (pencil); its destination is not drawn. Changing a past cup's rating or axes moves every later shift.
+- **Deleting a cup**: **not in the design.** No screen offers it (2c: back, edit, share only), so not in V1.
+- A change to the arithmetic in a later release.
+
+**Status**: recorded, not solved. When cup editing is built, decide whether past shifts may move or are kept as they were shown.
+
+---
+
 ## Step 4 device verification — RESOLVED (2026-10-04)
 
 The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.
