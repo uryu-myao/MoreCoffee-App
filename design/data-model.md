@@ -110,6 +110,19 @@ A versioned `schema_migrations (version, name, applied_at)` table, not a single 
 
 ---
 
+## Migration 2 landed (2026-10-10)
+
+The "V1 migration scope" below (a–d, nullable rating, the two settings) is **built as migration 2**. The planned items it covers are no longer plans. The tables above still describe migration 1; `src/data/schema.ts` is the current shape.
+
+Names as built:
+- **`beans` is renamed `bags`** (§1 Words: the unit a cup is logged from), and `cups.bean_id` is renamed `cups.bag_id`.
+- The copies on cups keep the `bean_` prefix: `bean_name`, `bean_roaster`, `bean_origin`, `bean_region`, `bean_process`, `bean_roast_level`, `bean_roasted_at`. They describe the coffee ("Bean name").
+- Bags: `size_g`, `finished_at` (NULL = open, counts against the 5 slots).
+- Gear: `gear (name, category, maker, settings_note, is_default, photo_uri, added_at)`. A partial unique index allows one default per category.
+- Settings: one row, `drinks_out` (0 / 1) and `coffee_style` (`black` / `with_milk` / `depends`); NULL when first setup was skipped.
+
+Not in it (unchanged decisions): drafts' screen and flow, profile, the other settings, 8h's merge table, remembered filters.
+
 ## Planned changes (decided 2026-10-09, not built)
 
 Not in `schema.ts` yet. They change the structure, so they land as a migration once the design is settled. They come **before** the bag-delete feature (`gaps.md` 18).
