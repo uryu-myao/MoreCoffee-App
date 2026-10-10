@@ -70,6 +70,13 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - Why: a control that is invisible but pressable, or one that should be pressable but has gone, both break operability. The collapse is a side effect of scrolling, not a sign that the user has given up on an action: being unable to go back after scrolling is plainly wrong.
 - Precedent: Record coffee's close button does not scale. The same principle covers 5b's back button above the title, which stays where it is while the title shrinks beneath it (§9 Header collapse).
 
+### Saving a cup: three ways, none of them drops input silently (added 2026-10-10)
+- **5a "Save this cup"** saves everything entered so far, including anything entered in 5b before going back.
+- **5b "Save this cup"** saves everything.
+- **5b "Save without the note"** saves only 5a's part. It is **the one way to drop** the axes, flavour tags and My words, and it is an explicit act.
+- One insert, at whichever Save is pressed. Closing the sheet discards the record; there are no drafts in V1.
+- **Correction**: an earlier rule said "5a's Save = no tasting note". It overlooked that 5b can go back to 5a. Under it, axes entered in 5b would have been dropped without a word, the worst kind of behaviour for this product.
+
 ### Required marks keep a promise (added 2026-10-10)
 - **A required mark means "this is always filled", not "you must type this before saving".** 5a: "Marked fields are required — all of them start pre-filled."
 - **So a field that cannot be filled shows no required mark.**
@@ -1181,3 +1188,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-10 — §1: drift's correct values refer to this document directly, never to another screen's part (D-25 / D-40 broke on that).
 - 2026-10-10 — §5: the rule for what is a size token (drawn alike in 2+ places; derived values are formulas in §9); `size.switch` and `size.button.row` added. §4: serif-ink spacing uses primitives directly (D-34). §9: Radio marker spec with its inner mark as a formula.
 - 2026-10-10 — §1: a required mark is the promise "always filled"; a field that cannot be filled (no bag, no gear) shows no mark and does not block Save.
+- 2026-10-10 — §1: three save paths; only 5b's "Save without the note" drops tasting input, explicitly. Corrects the earlier "5a's Save = no note" rule, which would have dropped 5b's input silently.
