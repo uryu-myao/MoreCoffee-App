@@ -536,6 +536,14 @@ The user sees the past rewritten.
 
 ---
 
+## 29. §1's "count turns accent at the limit" does nothing on 3a and 3c (added 2026-10-10; decide at the final polish)
+
+**What**: 3a's "N / 8 Selected" and 3c's "N / 5 Bags open" are the header stat, which is `color.text.accent` at every value. Reaching the limit changes nothing, so §1 Selection limit's "the count explains it" does not work on these two screens. Only the line under the button ("0 slots left", "No slots free…") says so.
+
+**To decide at the final polish**: change the rule, or give these two counts another resting colour.
+
+---
+
 ## Step 4 device verification — RESOLVED (2026-10-04)
 
 The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.

@@ -54,3 +54,10 @@ Moves and follow-ups that are neither drift (a design value to correct) nor a de
 Out of V1's scope (the capture → Taste DNA loop only). Kept so the idea is not lost; treated like Try next and Atlas.
 
 - **Filter Records by a taste attribute** (2026-10-07): tapping 6a's "Acidity high" or 8d's "Blackcurrant" would lead to the records with that attribute. No mock draws the destination, and 8l's search covers words / beans / gear / rating, not attributes. It would be a new screen, so it is not built in V1. The attribute tags stay display-only (`design-system.md` §1 Tap affordance).
+
+## T-5. Roast date ≤ opened date, once 3g edits both (recorded 2026-10-10)
+**Now**: 3c sets the opened date to today, and Roasted on's picker stops at today (`maximumDate`), so roasted ≤ opened holds by itself.
+**When 3g can edit the roast and opened dates separately**: the roast date's maximum becomes the opened date (and the opened date's minimum the roast date).
+
+## T-6. Check §1 against the code at the final polish (recorded 2026-10-10)
+5b's "5 of 5" did not turn accent at the limit although §1 says so (fixed 2026-10-10). Before release, go through §1 rule by rule and confirm each is implemented.

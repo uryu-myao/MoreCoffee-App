@@ -64,6 +64,10 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - Size is the objective test. The five existing components are all 44pt or more and keep darkening.
   - The axis handle (26) is under 44: it presses by scale (0.88 over `motion.press`). Its touch band and travel do not shrink.
 - **Haptics follow the gesture, not the component.** A discrete press gives a **light impact**: today only the bottom bar does; Button, FieldRow and the other pressables have no haptic yet and take light impact when their Step 4 spec applies this rule. Sweeping across a continuous set of options gives **selection** (StarRating). Selection is the API built for stepping through values, and a light impact would make changing stars feel duller. Do not unify them.
+- **Haptics come in three kinds (2026-10-10). Consult before adding a fourth.**
+  - **light impact**: a discrete press;
+  - **selection**: sweeping across a continuous set of options;
+  - **warning** (iOS `UINotificationFeedbackGenerator` `.warning`): touching something that cannot act. First use: 5b's locked Search opener. Light impact already means "pressed" everywhere, so giving it to something that does nothing would read as "it pressed, and nothing happened".
 
 ### Header collapse (added 2026-10-06)
 - **Controls never fade and are never disabled by the collapse.** Back, close, save and other functional controls stay fully visible and pressable throughout. **Only information fades**: the eyebrow, the date / time, and meta labels.
@@ -207,6 +211,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **Selected options stay live.** Deselecting one unlocks the rest at once.
 - **The count explains it**: at the limit it turns `color.text.accent` ("5 of 5", "3 of 3 picked", "8 / 8 Selected").
 - **A light impact at the moment the limit is reached, once.** "Now locked" reaches the user wherever they are looking. A press on a locked option stays silent.
+  - **Exception, 5b's locked Search opener (2026-10-10)**: a press gives the **warning** haptic. Search opens a sheet rather than choosing an option, and a press that opens nothing gave no sign at all. Whether every locked or disabled option should do the same is open (report 2026-10-10).
 - Why lock rather than allow the tap and then refuse: an option that looks pressable but will not select is a small failure each time.
 
 ### Disabled options (added 2026-10-07)
@@ -1195,3 +1200,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-10 — §1: a required mark is the promise "always filled"; a field that cannot be filled (no bag, no gear) shows no mark and does not block Save.
 - 2026-10-10 — §1: three save paths; only 5b's "Save without the note" drops tasting input, explicitly. Corrects the earlier "5a's Save = no note" rule, which would have dropped 5b's input silently.
 - 2026-10-10 — §1 Saving a cup: 5b's second button reads "Discard and save" once anything is entered (a new decision overriding the mock's "Save without the note").
+- 2026-10-10 — §1 Haptics: three kinds (light impact, selection, warning); consult before adding a fourth. Warning's first use: 5b's locked Search opener (an exception to "a locked option stays silent", pending the wider question).
