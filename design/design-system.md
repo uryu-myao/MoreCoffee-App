@@ -62,7 +62,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - Some parts have a surface but are too small for its change to be seen, because the finger covers it: the taste axis handle (26 square since 2026-10-08; 12 × 32 when this was written), checkboxes (24), the avatar edit button (34).
   - So the press feedback depends not only on whether the element has a surface, but on whether that change can be perceived.
   - Size is the objective test. The five existing components are all 44pt or more and keep darkening.
-  - The axis needle is under 44: it presses by scale (0.88 over `motion.press`). Its touch band and travel do not shrink.
+  - The axis handle (26) is under 44: it presses by scale (0.88 over `motion.press`). Its touch band and travel do not shrink.
 - **Haptics follow the gesture, not the component.** A discrete press gives a **light impact**: today only the bottom bar does; Button, FieldRow and the other pressables have no haptic yet and take light impact when their Step 4 spec applies this rule. Sweeping across a continuous set of options gives **selection** (StarRating). Selection is the API built for stepping through values, and a light impact would make changing stars feel duller. Do not unify them.
 
 ### Header collapse (added 2026-10-06)
@@ -246,7 +246,7 @@ Grouped by role. Every hex is a value that qualified **inside that role** (≥3 
 | `color.border.muted` | `#C8BCB4` | unselected frames, tracks |
 | `color.border.soft` | `#D8C9BF` | 20 screens; hairlines inside cards |
 | `color.border.subtle` | `#E4D6CC` | 18 screens; the weakest divider |
-| `color.border.medium` | `#B3A69E` | 5 screens; axis needle, ghost marker |
+| `color.border.medium` | `#B3A69E` | 5 screens; the AxisReadout fill, the 5c ghost / delta (and the retiring display axis) |
 | `color.border.accent` | `#8A4602` | tinted badges and brown-bordered chips |
 
 `color.border.muted` / `soft` / `subtle` all qualify independently (Gate A, ΔE00 3.07–3.63). They are three real tiers.
@@ -339,23 +339,14 @@ Two meters exist. They look similar and are **not** one component: different ana
 
 The marker is intentionally one step darker than the fill it sits on — it is a `2px` line standing at the right edge of the bar, and matching the fill colour makes "today" unreadable. (4b currently matches them; see `drift.md`.)
 
-**B. `axis`** — a taste axis slider. Rail + needle (+ ghost + delta), `20px` tall, bipolar with labelled ends, **no fill**. Appears on 1b, 4a, 4b, 5b, 5c.
+**B. `axis`** — the taste axis. **Not specified here**:
+- the input is §9 **Taste axis slider** (5b);
+- the display is §9 **Taste axis readout** (1b 4a 4b 5c 8f);
+- sizes are §5 `size.axis.*`.
 
-| part | value | notes |
-|---|---|---|
-| `axis.rail.derived` | `1.5px dashed` `#C8BCB4` on `#F4EDEA` + `texture.rule` | a value the user did not enter for this cup: the computed profile (1b, 4a, 4b), history (5c), an axis not noted yet (5b) |
-| `axis.rail.entered` | `2px solid` `#273D22` on `#FFFCFA` + `texture.rule` | a value the user decided, themselves, for this cup (5b's set axes) |
-| `axis.needle` | fill `#E4D6CC`, border `#B3A69E`, `12 × 30` | |
-| `axis.ghost` | border `#B3A69E`, `10 × 10`, transparent fill | previous value (5c) |
-| `axis.delta` | `#B3A69E`, `2px` tall | movement since last value (5c) |
+The token set still holds the old display axis's parts: `axis.rail.derived`, `axis.needle` (12 × 30), `axis.ghost` and `axis.delta`. **They are removed when AxisReadout is built. Do not draw with them.** The principle they carried (what you put in must never look like what came out of it) is now held by two different components and by colour (§1: entered = brown, computed = neutral).
 
-**Renamed 2026-10-06** (formerly `readonly` / `editable`; an interim `unset` / `set` was never shipped). The rail shows **where the value came from**:
-- Solid means a value the user decided, themselves, for this cup. Dashed is everything else: computed profile values, history, and an axis not noted yet.
-- It is **not about editability**: 5b holds both kinds side by side, all editable. It is **not about whether there is a value** either: 1b / 4a / 4b show values on dashed rails.
-
-**Why this matters**: it carries one of MoreCoffee's core promises. Taste DNA is arithmetic on your own records, not a guess. The UI therefore has to let you tell, at a glance, what you put in from what came out of it. Solid / dashed is a statement of data provenance, not decoration: **do not unify them.**
-
-**C. `tabBar`** — the bottom tab bar carried by the floating bar (§9). Four tab slots and one wider add slot, centred in the bar. Appears on 1b, 2a, 4a, 4b, 6a and 8d. *Added 2026-10-04.* The original extraction missed its two raw icon colours, which are written as lowercase hex in the source; they are the only lowercase hex values on the in-scope screens.
+**C. `tabBar`** — the bottom tab bar's slots and icon colours. Its layout (full width on the bottom edge, 60 row, no shadow) is specified once, in §9 Bottom bar. Four tab slots and one wider add slot, centred in the bar. Appears on 1b, 2a, 4a, 4b, 6a and 8d. *Added 2026-10-04.* The original extraction missed its two raw icon colours, which are written as lowercase hex in the source; they are the only lowercase hex values on the in-scope screens.
 
 | part | value | notes |
 |---|---|---|
@@ -538,7 +529,7 @@ Fixed element dimensions. **Never subject to the spacing scale** — snapping th
 | `size.axis.inset` | **2** | handle ↔ frame, the Switch's padding (2026-10-08) |
 | `size.axis.handle` | `{ w: 26, h: 26 }` | the square handle = track − 2 × border − 2 × inset (2026-10-08; was 16 × 40); stops 56.5pt apart |
 | `size.axis.dot` | **6** | the stop dots (2026-10-08) |
-| `size.axis.needle` | `{ w: 12, h: 30 }` | 6 screens; now only the display axis, until AxisReadout replaces it |
+| `size.axis.needle` | `{ w: 12, h: 30 }` | **retiring**: the old display axis only; removed when AxisReadout is built. Do not use |
 | `size.meter.track` | 4 | 2 screens — `beanFreshness` height |
 | `size.marker.line` | `{ w: 2, h: 14 }` | marker / caret line width |
 | `size.dot.bullet` | 6 | 4 screens / 31 uses — square section bullets |
@@ -593,7 +584,7 @@ All hard: blur 0, isotropic offset, single ink. Offset **scales with the element
 
 `dashed` is a **semantic system, not decoration** (58 uses / 21 screens). It never means "draft". It has **two uses, written separately** (revised 2026-10-06; formerly one rule, "a surface that is not real content", which fits empty slots but not the axis rail):
 - **An entry for adding something (nothing in it yet)**: `border.addSlot`, `border.addSlot.inert`.
-- **The value shown is not one the user entered**: `axis.rail.derived` (§2 B).
+- **The value shown is not one the user entered**: `axis.rail.derived` (§2 B). **Retiring**: the display axis becomes AxisReadout, a 4pt bar with no dashes, and the slider has a solid track. Do not draw new dashed rails. Once AxisReadout is built, dashed keeps one use, the add entry.
 
 What they share is "not something the user has settled". They are still two uses, not one rule; do not merge them.
 
@@ -604,7 +595,7 @@ What they share is "not something the user has settled". They are still two uses
 | `border.addSlot` | `2px dashed` #6B5D55 (`icon.muted`'s value; ink until 2026-10-07, lightened two steps on review: ΔE00 32.6 from `.inert`, 5.46:1 on ground, 6.19:1 on raised) | an entry for adding something, and pressable — the empty slots ("Add a photo", "Add gear", "Add beans") and 5b's "Search" opener. Renamed 2026-10-07 from `border.empty`: "an entry you can add through" is closer to what it is than "empty" | 10 uses / 10 screens + 5b |
 | `border.addSlot.inert` | `2px dashed` `color.border.muted` | an empty slot that cannot be pressed now (5d's blocked add button), or is not a thing to press at all (2a's empty list frame). Renamed 2026-10-06 from `border.empty.disabled` (misnamed the 2a frame), then 2026-10-07 to `addSlot.inert` with its parent | 2 uses |
 | `divider.soft` | `1.5px dashed` `color.border.soft` | a secondary line inside a card, separating meta or a closing remark from the body | 24 uses |
-| `border.track` | `1.5px dashed` `color.border.muted` | the axis rail of a value the user did not enter: `axis.rail.derived` only. Since 2026-10-07 it no longer covers the search placeholder, which moved to `border.addSlot` (drift D-21) | 14 uses |
+| `border.track` | `1.5px dashed` `color.border.muted` | **retiring** with `axis.rail.derived` (see above). The axis rail of a value the user did not enter, only. Since 2026-10-07 it no longer covers the search placeholder, which moved to `border.addSlot` (drift D-21) | 14 uses |
 | `state.error.dashed` | `1.5px dashed` `#9E5202` | error emphasis (5d) **A** | 1 use |
 
 **RN implementation note**: iOS cannot dash a single border side. Single-edge dashed lines (`divider.soft` and the like) render through the base `DashedRule` component, which clips a fully dashed box to its top edge. Full dashed frames (`border.addSlot`, formerly `border.empty`; the 5d error swatch) use `borderStyle: 'dashed'` directly.
@@ -816,7 +807,7 @@ Swiping horizontally moves between the four tab screens: Home → Records → Tr
 
 **Why it changed**: the source (6a / 8d, and in flow on 1b / 2a / 4a / 4b) draws a 90%-wide floating bar with `shadow.floating`. That spec was drawn against an empty screen. Over real content (a full Records list) the elevation read as noise and worked against the design, so the bar went full width and the shadow came off.
 
-**Superseded**: the 90% width, the 2px box outline, `shadow.floating`, the `space.4` side padding, and the fade band (`state.fade`, `layout.fade.top`). `shadow.floating`, `state.fade` and `layout.fade.top` now have **no consumer**; they are kept as tokens pending a decision. `HardShadow` itself is still used by the primary `Button`, `StarRating`'s error state, and the FieldRow harness.
+**Superseded**: the 90% width, the 2px box outline, `shadow.floating`, the `space.4` side padding, and the fade band (`state.fade`, `layout.fade.top`). `state.fade` and `layout.fade.top` now have **no consumer**; `shadow.floating` keeps its §7 role for width-flexible primaries (the setup flow's 8c / 8o, `drift.md` D-33); they are kept as tokens pending a decision. `HardShadow` itself is still used by the primary `Button`, `StarRating`'s error state, and the FieldRow harness.
 
 ### Empty slot (base `EmptySlot`, 2026-10-05)
 The `border.addSlot` slot as a component: always a button, full width. It is the row form from 3a, 3b, 3d, 5a, 5d and 5e.
@@ -854,37 +845,36 @@ Padding is `inset.control` (the source's 13 / 16 folds to it) and the gap is `sp
 
 **Intro line per mode (2026-10-05)**: the line under the header changes with the mode. I made it is 5a verbatim ("Marked fields are required — all of them start pre-filled.") and Packaged is 5e with one word changed ("Packaged cups skip brewing and café — two fields left."; the mock says "Bottled", see `drift.md` D-14). No mock has a Barista line, because 5d replaces it with the error summary. Barista's line was **written to 5e's pattern** (what the mode skips, then how many fields are left): "Cups made for you skip beans and brewing — two fields left." Every line names the cup by who made it, matching the "Who made it?" field, not by its vessel or where it came from ("Café cups" was rejected on review). The line **crossfades** with `motion.expand` (same duration and bezier as the field block), the outgoing line laid over the incoming one, inside the same height-animating wrapper. All three fit on one line at 390pt, so the block does not change height. A longer translation would ease rather than jump.
 
-### Taste axis slider (base `AxisSlider`; revised 2026-10-07)
-The input of Taste DNA, on 5b only. **The display of Taste DNA is a different component, AxisReadout** (below): the two look different, so what can be operated is clear at a glance. The governing rule still holds: a value the user entered must never be confused with one that came out of their records.
+### Taste axis slider (base `AxisSlider`) — the one place this component is specified (current as of 2026-10-09)
+The input of Taste DNA, on 5b only. **Its display is a different component, AxisReadout** (next section). The two look different, so what can be operated is clear at a glance. A value the user entered must never be confused with one that came out of their records (§1 Colour roles: entered = brown, computed = neutral). Token sizes: §5 `size.axis.*`.
 
-**Revision 2026-10-08: square handle, dots, Clear on the right (from Uryu's screenshots; built 2026-10-08, size B).**
-- **Handle**: a square, derived from the Switch knob (border 2, inset 2, handle = track height − 8; `components.md` "Switch and the axis handle"). It is big enough to grab by its body, without relying on touch slop.
-- **Stops**: a small round **dot** at each of the 5 stops, replacing the short vertical reference lines.
-- **Clear / Not noted**: **right-aligned under the track**, no longer centred under the handle.
+**Look** (from Uryu's screenshots, size B, 2026-10-08):
+- **Track**: 260 × 34, centred in its card. A 2px `color.text.secondary` frame (#5C5049, the screenshot's colour; no border token is that dark short of ink) on `surface.raised`. The same in every state.
+- **Dots**: a 6pt round dot in `border.subtle` at each of the 5 stops (1.33:1 on the card).
+- **Stops**: 15pt inside the frame (stop 0 is 17pt from the track's outer edge), 56.5pt apart. The handle's layer and the dots' layer both sit inside the frame.
+- **Handle**: a 26pt square, inset 2 from the frame. It is the Switch knob's geometry: border 2, inset 2, handle = track − 8.
+  - It is **always opaque** and simply covers the dot under it.
+  - Hiding the dot by step would drop the destination dot before the 100ms move arrives.
+- **Grip**: a 2 × 8 white line (`icon.onAction`) at the handle's centre, in both states. It is decoration; the fill carries the state.
 - **Intent**:
-  - The square handle is in the same family as the switch knob, so the app's shape vocabulary lines up.
-  - Dots say *where you can stop*; the handle says *where you are*. The two layers no longer mix, as the old reference lines and the handle's centre line did.
-- **Lit while dragging (#C9821A): removed.** The colour scheme is reviewed as a whole first. The press scale stays, and so does the selection haptic per step. Checked on device in that "nothing added" state before anything is added.
-- **Size B** (screenshot geometry):
-  - track 260 × 34;
-  - square handle 26, inset 2;
-  - stops 56.5pt apart, stop 0 17pt in.
-  - A (30 / 22, identical to the Switch) was compared and not taken.
-- **The dot under the handle is covered, not hidden.** The handle is **always opaque**.
-  - Hiding by step would drop the destination dot before the 100ms move arrives, and show the old one while the handle still covers it.
-  - Pressed (0.88 → 22.9pt) still covers the 6pt dot.
-  - If a translucent handle is ever wanted, switch to hiding with a fade over the same motion.
-- **Colours** are the nearest tokens to the screenshot:
-  - frame: 2px `text.secondary` (#5C5049, ΔE 0.8; no border token is that dark short of ink);
-  - inside: `surface.raised`;
-  - dots: `border.subtle` (#E4D6CC, the value of the reference lines they replace; 1.33:1 on the card against the screenshot's 1.40);
-  - handle empty: `surface.muted` fill, 2 `border.muted`;
-  - handle entered: `icon.accent` fill, 2 ink.
-- **Grip 2 × 8**, about a third of the handle; 14 read too long.
-  - White (`icon.onAction`) in both states, as in the screenshots.
-  - The "turns white once entered" signal is gone: the fill carries entered. On the empty handle the white grip is 1.42:1, decoration only.
-- The pole labels' ink while leaning was removed with the lit colour, so dragging adds nothing visual beyond the handle's movement and its press scale (held for the whole touch).
-- Pole labels stay `text.muted`. The screenshots' green labels are Uryu's draft, on hold.
+  - The square handle belongs with the switch knob, so the shape vocabulary lines up.
+  - Dots say *where you can stop*; the handle says *where you are*.
+
+**States: exactly two.** The track is the same in both; the handle carries the state.
+
+| state | handle |
+|---|---|
+| `empty` (value null) | `surface.muted` fill, 2px `border.muted`; rests at Balanced as a **placeholder, never a value** |
+| `entered` | `icon.accent` fill, 2px ink (`border.strong`) |
+
+- **Pressed**: the handle scales to 0.88 over `motion.press` for the whole touch. It is under 44pt to the eye (§1 Pressed). **Nothing else changes while dragging**: no colour, no label change. Per step there is a selection haptic.
+
+**Labels and the status line**:
+- The pole labels are `label.caps`, `text.muted`, at the track's ends. 260 fits the longest pair (Low / High sweetness, 245).
+- Under the track, `gap.tight` (4) below, in a fixed 17pt slot, **right-aligned**:
+  - entered → **Clear**: `meta` as written, ink, **underlined**, hidden while dragging;
+  - empty → **"Not noted"**: `meta`, `text.muted` (6.19:1).
+- Clear's touch area is padded 8 up and 20 down (45 tall). It reaches 4pt into the track's bottom right, an accepted overlap (`gaps.md` 14).
 
 **Five steps.**
 
@@ -896,80 +886,40 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 | 3 | 75 | Bitter | Full-bodied | Dark roast | Sweet |
 | 4 | 100 | Very bitter | Very full-bodied | Very dark roast | Very sweet |
 
-**Step names (decided 2026-10-08; replace "Strongly / Leaning {pole}")**: the screen-reader value of each step. To be built with the revision above.
-- **Adjectives, per axis**, not a template over the pole labels: "Strongly light body" is not English.
-- **The middle step uses the most natural word in that axis's domain. It is not the same word on every axis.**
-- Acid ↔ Bitter's low end is **Bright**, not "Acidic": "acidic" sounds negative in English, and the mocks already say "Bright" (6a, 8f).
-- Roast stays a noun phrase (Light roast): roast level is talked about in nouns.
-- Sweetness is one-directional, not bipolar, so its weakest step is **Barely sweet** and its shape differs from the other axes.
-- Superseded table: Strongly {low} / Leaning {low} / Balanced / Leaning {high} / Strongly {high}.
-- **The Roast axis is the cup's perceived roast, not the bag's label (2026-10-09).**
-  - It keeps five steps like the other three axes. The bag's roast level is separate data and never pre-fills it. It is transcribed from the label, in **4 steps**: Light / Medium / Medium-dark / Dark, plus unset (2026-10-09).
-  - The uneven 4 against the axis's 5 is deliberate: matching counts would invite "set both the same". Do not add medium-light to complete it.
-  - A gap between the two is information about how this person tastes, not a conflict to remove.
+- **Step names** are the screen reader's value. They are adjectives per axis, not a template over the pole labels.
+  - The middle step uses each axis's most natural word, not the same word on every axis.
+  - Bright, not "Acidic" (negative in English; the mocks say Bright).
+  - Roast stays a noun phrase.
+  - Sweetness is one-directional, so its weakest step is "Barely sweet".
+- **The Roast axis is the cup's perceived roast, not the bag's label.** The bag's roast level is separate, transcribed data in **4 steps** (Light / Medium / Medium-dark / Dark, + unset) and never pre-fills the axis.
+  - The uneven 4 against the axis's 5 is deliberate: matching counts would invite "set both the same". Do not add medium-light.
+  - A gap between the two tells how this person tastes.
+- **Why five, not finer**: Taste DNA is a weighted average with recency decay, so coarse input averages into fine output. "38 or 39?" works against logging in 15 seconds.
+- **Storage**: integer points 0–100, step i = round(i × 100 / 4). A later change of step count needs no migration: old values snap to the nearest step.
 
-- Why not 1-point steps: Taste DNA is a weighted average with recency decay, so coarse input averages into fine output over many cups. The precision of the input does not set the precision of the output. Asking "38 or 39?" works against logging a cup in 15 seconds.
-- 9 steps was not taken.
-- Stored as integer **0–100 points**, step i = round(i × 100 / 4). A later change of step count needs no data migration: old values snap to the nearest step.
-- "Balanced", not "Middle": Middle describes the slider's position, Balanced describes the coffee. The app talks about coffee, not about its controls.
+**Behaviour.**
+- **Discrete**: the handle snaps stop to stop (eased over `motion.press`). Tap-to-set and drag both work.
+- **Commit on release**: nothing commits while the finger is down; a gesture taken away restores the committed step. **Clear** is the one way back to empty.
+- **Gesture**: pan (`activeOffsetX` / `failOffsetY` ±10) and tap, exclusive. Vertical scroll has priority.
+  - The touch band is a real view padded to 44 tall (5 above and below the track), not a `hitSlop`. On iOS a touch outside a view's own bounds goes to the view underneath.
+  - The Record sheet swipes back only from a 44pt strip at the left edge (§9 Record sheet steps), so nothing competes with the axes.
+- **Screen reader**:
+  - role adjustable, one swipe = one step;
+  - the value is the step's name; an empty axis reads "Not entered yet";
+  - the first adjustment of an empty axis starts from Balanced;
+  - custom action Clear when entered.
+- **Device-tuning constants** (in code): `ACTIVE_OFFSET_X` / `FAIL_OFFSET_Y` = 10, `TAP_MAX_DISTANCE` = 8; the edge swipe's `EDGE` / `FAIL_OFFSET_Y` / `BACK_*`.
 
-**States: the track is the same in every state; the handle carries the state.** One state decides both (`component.axis.state.*`):
-
-| state | track | handle |
-|---|---|---|
-| `empty` (value null) | 260 × 34, 2 `text.secondary` frame on `surface.raised`, a `border.subtle` dot at each stop | `axis.needle.empty`: 26 square, `surface.muted`, 2 `border.muted`, white grip; resting at Balanced as a **placeholder, never a value** |
-| `entered` | same | `axis.needle.entered`: 26 square, `icon.accent`, 2 ink, white grip |
-
-- While the finger is down the handle is scaled to 0.88, over `motion.press`. It is under 44pt to the eye (§1 Pressed).
-- Removed 2026-10-08: `lit` (#C9821A while touched).
-- The track differs clearly from AxisReadout's 4pt bar.
-
-**Layout (L3 + H1, 2026-10-08; sizes as revised above).**
-- The track is centred in its card. The pole labels are **`label.caps`** and sit at its ends; 260 fits the longest pair, Low / High sweetness at 245.
-- **Clear / Not noted** sit **right-aligned under the track**, **`gap.tight` (4) below it** (2026-10-09; was `gap.row` 8), in a fixed 17pt slot. Clear **hides while dragging**.
-- **Clear's touch slop** (the text button's `small`) is **top 8 / bottom 20**: 17 + 28 = 45. Most of the reach goes down, so it reaches only 4pt into the track's bottom right and ends where the next axis's labels begin (`gaps.md` 14).
-- **Both are set alike (2026-10-09)**: `meta` (12 / 600), as written, no caps, no extra spacing. Clear is the Button text variant's `small`.
-  - Clear is ink (pressable); **"Not noted" is `text.muted`** (6.19:1).
-  - Corrected 2026-10-09: `border.medium` (2.32:1) fell under the 3:1 floor. "Not noted" stands alone outside any field, so it has to be readable by itself. A field's placeholder is not a precedent: its frame already says "something goes here".
-  - **Clear is underlined** (2026-10-09, §1 Tap affordance). Colour alone did not tell that it can be pressed.
-- On iPhone 14 the track spans x 65–325.
-- Superseded:
-  - the full-width rail (310, 74.5 per step);
-  - the 12 × 32 and 16 × 40 needles;
-  - Clear travelling under the handle.
-
-**Stops and travel.**
-- The 5 stops and their dots sit **inset 2 + half the handle (15pt) inside the frame**, so the handle never touches the frame at 0 or 100.
-- The handle's layer and the dots' layer **both sit inside the 2px frame**.
-  - Fixed 2026-10-09: the handle's layer started at the frame's outer edge. That put the handle 2pt high (inner gaps 0 / 4) and up to 1pt off its dot.
-  - Measured after the fix: inner gaps 2 / 2, centred on the dot, grip centred. Both states share the 2px border.
-- 5b's stops on iPhone 14: x 82 / 138.5 / 195 / 251.5 / 308.
-- **Discrete = snapping**: the handle moves stop to stop (eased over `motion.press`).
-- **A selection haptic on every step change**, so the number of steps moved can be felt without looking.
-
-**Commit.**
-- Nothing commits while the finger is down.
-- Release commits the step (onChange). A gesture taken away restores the committed step.
-- **Clear** (Button text variant), shown only when entered, is the one way back to empty. It sits in a fixed 17pt slot shared with "Not noted", so nothing jumps.
-
-**Under the finger.** While dragging, the pole label on the side of the needle's step turns `text.primary`. At **Balanced neither does**: the middle step is the middle. There is no dead zone; the steps replace it.
-
-**Gesture.**
-- Pan (`activeOffsetX` / `failOffsetY` ±10) and tap-to-set, `Exclusive`. Vertical scroll has priority.
-- **Touch band**: a real view 12pt larger than the rail on every side (negative margins, layout unchanged). A gesture-handler `hitSlop` was tried first and did nothing on iOS: no axis touch ever began outside the rail, because a touch outside a view's bounds is hit-tested to the view underneath.
-- **Competition with swipe-back, resolved by removing the competitor (2026-10-08).**
-  - Three device logs showed that the axis pan never let go. It stayed ACTIVE through 0 / 100 and past the rail until the finger lifted.
-  - Every unwanted sheet movement was a touch the axis never received, taken by the Record sheet's full-width swipe-back pager.
-  - Blocking from the axis (`blocksExternalGesture`, then the real touch band) did not hold.
-  - The sheet now swipes back only from a 44pt strip at the left edge (§9 Record sheet steps), so nothing competes with the axes. Device-confirmed: axis drags no longer move the sheet.
-  - Residual, **cause found 2026-10-08**: touches just under the handle go to Clear, whose 16pt `hitSlop` reaches up into the rail, drawn above the band (`gaps.md` 14; fix not chosen).
-
-**Screen reader.**
-- Role adjustable; one swipe = one step.
-- The value is read as the step's name ("Bitter"); an empty axis reads "Not entered yet".
-- The first adjustment of an empty axis starts from Balanced. Custom action Clear when entered.
-
-**Device-tuning constants**: `ACTIVE_OFFSET_X` / `FAIL_OFFSET_Y` = 10, `TAP_MAX_DISTANCE` = 8 (top of `AxisSlider.js`); the edge swipe's `EDGE` / `FAIL_OFFSET_Y` / `BACK_*` in `AddCoffeeOverlay.js`. The 340ms crossfade is gone: the rail no longer changes.
+**Superseded — do not draw** (kept so they are recognised, not reused):
+- a rail that states provenance by solid vs dashed (`axis.rail.entered` / `.derived`);
+- 20 / 28pt rails;
+- a full-width rail;
+- reference lines at the stops;
+- 12 × 30 / 12 × 32 / 16 × 40 needles;
+- the gold `lit` handle while dragging (#C9821A);
+- pole labels turning ink while leaning;
+- Clear centred under the handle;
+- the "Strongly / Leaning" step names.
 
 ### Taste axis readout (AxisReadout — spec 2026-10-07, to be built)
 The display of computed values: 1b / 4a / 4b (the profile), 5c (the change after a save), and 8f's four bars (D-22, 2026-10-08). It is **not operable** and belongs to the read-only bar family of `beanFreshness`. No new visual language.
@@ -995,9 +945,7 @@ The display of computed values: 1b / 4a / 4b (the profile), 5c (the change after
 
 ### Component catalog — pending (Step 4, logged 2026-10-06)
 Three parts of 5b are drawn inline in `TastingNoteScreen` for now (display only). They become base components in a later round. Each entry lists what to settle then.
-- **Axis slider** (`component.axis.*`): rail + needle (+ ghost + delta on 5c), with drag. **Specced and built 2026-10-07** (§9 Taste axis slider, `AxisSlider`).
-  - Superseded 2026-10-08: the needle is now a square 26 handle, tokenised (§9 Taste axis slider, revision).
-  - Also settle the rail naming; see the `axis.rail` note in §2.
+- **Axis slider**: built; specified in §9 Taste axis slider (the one place).
 - **Flavour chip, multi-select**: three looks, all bordered surfaces that darken on press:
   - selected: `badge.bg.accent` + `border.accent`, `accentStrong` label;
   - unselected: `border.muted`, `secondary` label;
@@ -1176,3 +1124,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-10 — §1 Pressed: perceptibility is the condition above surface and size. Where a darker fill cannot be seen (under 44pt) or does not exist (an ink-filled selected chip in a clearable set), scale is used.
 - 2026-10-10 — Header: 33 screens covered (the 30 of the token pass + 3g, 8n, 8o read directly); `process/` files marked not to be used for values. §9 Buttons rewritten to the variant × size decision. Roast line: bag levels in 4 steps. Bottom sheet: 3b removed, planned uses listed. Stale lines in the pending catalog and `text.inlineAction` brought up to date.
 - 2026-10-10 — Prepared for Design: references to files Design does not receive (exceptions record, data model, to-do list, RN token object, i18n notes) replaced by inline summaries. §10 rewritten: five true exceptions, located but with values withheld, never to be referenced on a new screen.
+- 2026-10-10 — **Self-contradictions removed** (Design's review). The taste axis is specified once, in §9 Taste axis slider: two states, the square handle, the solid track. §2 B, §1 Pressed, §2 colours, §5 `size.axis.needle` and §8's dashed rail now point there, and the old parts are marked retiring. A "Superseded — do not draw" list names every earlier version (the solid / dashed provenance rail, 20 / 28 rails, needles, the gold lit, pole ink, reference lines, Clear under the handle). Also fixed: §9 still described pole labels lighting while dragging, a 12pt touch band (5 now) and Clear's 16pt slop (8 / 20 now). §2 C no longer calls the tab bar "floating", and `shadow.floating` is no longer said to have no consumer (D-33).
