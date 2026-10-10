@@ -214,7 +214,9 @@ const styles = StyleSheet.create({
     borderWidth: shape.borderWidth.box,
     borderColor: color.border.strong,
     backgroundColor: color.surface.raised,
-    paddingVertical: space[20],
+    // inset.container (14 / 16), as StarRating's card: drift D-18, decided
+    // 2026-10-10 (the mocks' 20 / 18 is the drift, not the token).
+    paddingVertical: spacing.inset.container.v,
     paddingHorizontal: spacing.inset.container.h,
   },
   cardIntro: {
