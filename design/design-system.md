@@ -1,12 +1,18 @@
 # MoreCoffee — Design System
 
-Reverse-extracted from the shipped screen designs. Every value here is traceable to `process/evidence.md`.
+Reverse-extracted from the shipped screen designs, then revised by decisions recorded in this file (each dated, see §12 Changelog).
 
-- **Source**: `MoreCoffee design.dc.html`, inline styles, 32 frames → **30 unique screens**
-- **Evidence base**: `process/evidence.md` (raw frequency), `process/roles.md` (role annotation), `process/step3-role-thresholds.md` (role-scoped threshold pass)
-- **Date**: 2026-09-20
-- **Out of scope**: `9a` `9b` `8a` (Welcome — designed separately), `1a` (rejected direction), `2c` (superseded by 5a), `8b` `8k` (sign-in / account, held with Welcome). `6b` `6c` are the same screen as `6a`, scrolled.
-- **Screens covered (30)**: 1b · 2a · 2b · 3a · 3b · 3c · 3d · 3e · 3f · 4a · 4b · 5a · 5b · 5c · 5d · 5e · 6a · 6d · 7a · 7b · 8c · 8d · 8e · 8f · 8g · 8h · 8i · 8j · 8l · 8m
+- **Source**: `MoreCoffee design.dc.html`, inline styles. 42 boards in the file as of 2026-10-10.
+- **Token extraction (Step 3, sealed 2026-09-20)** was run on **30 screens**, from `process/evidence.md` (raw frequency), `process/roles.md` (role annotation) and `process/step3-role-thresholds.md` (role-scoped threshold pass). The token values trace there.
+- **Screens covered now (33)**: the 30, plus three added to the mocks later and read directly, not through the evidence pass: **3g** Edit bag (2026-10-09), **8n** First setup 1/3 and **8o** First setup 3/3 (2026-10-10).
+  - The 30: 1b · 2a · 2b · 3a · 3b · 3c · 3d · 3e · 3f · 4a · 4b · 5a · 5b · 5c · 5d · 5e · 6a · 6d · 7a · 7b · 8c · 8d · 8e · 8f · 8g · 8h · 8i · 8j · 8l · 8m.
+- **Read but outside the token set**:
+  - `2c`, the cup's own page (read for storage, 2026-10-10);
+  - `6b` `6c`, the same screen as `6a` scrolled;
+  - `8b` `8k`, sign-in / account, held with Welcome.
+- **Out of scope**: `9a` `9b` `8a` (Welcome, designed separately), `1a` (rejected direction).
+- **Updated**: 2026-10-10.
+- **Do not take values from the `process/` files.** They hold the raw values from before the merges, many of them discarded. The values in this file and in `tokens.ts` are the ones in force.
 
 **Method**: values were tagged by role (the property they are declared on + the element type they land on), then judged **inside each role** against a ≥3-screen threshold. Merges required two gates — Gate A (two values both qualifying in one role AND ΔE00 ≥ 2.0 are parallel intent, never merged) and Gate B (ΔE00 ≤ 8 non-text / ≤ 5 text, plus a WCAG contrast check that must not drop). Mechanism-bound values (scrim, error state, caret, meters) are promoted regardless of frequency.
 
@@ -53,7 +59,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - **no darker tier left**: a fill that is already the darkest, i.e. the ink-filled selected chip of a clearable set (Roast level, Process). Pressing it clears it, so it must respond.
   - Not a third exception: one rule, "use the means that can be perceived".
 - **Size decides too (2026-10-07): under 44pt, scale; 44pt and up, darken.**
-  - Some parts have a surface but are too small for its change to be seen, because the finger covers it: the taste axis needle (12 × 32), checkboxes (24), the avatar edit button (34).
+  - Some parts have a surface but are too small for its change to be seen, because the finger covers it: the taste axis handle (26 square since 2026-10-08; 12 × 32 when this was written), checkboxes (24), the avatar edit button (34).
   - So the press feedback depends not only on whether the element has a surface, but on whether that change can be perceived.
   - Size is the objective test. The five existing components are all 44pt or more and keep darkening.
   - The axis needle is under 44: it presses by scale (0.88 over `motion.press`). Its touch band and travel do not shrink.
@@ -404,7 +410,7 @@ The seven stray display sizes (27/31/33/34/36/38/42) collapse into two steps. Si
 
 **`text.weekday` shares family, size and weight with `label.eyebrow` but is a separate style**: its content is already a single uppercase letter so it carries no `text-transform`, and its letter spacing is 0.20 against 1.60 — an 8× difference — to keep a single glyph optically centred. Deliberately distinct, not a variant.
 
-**`text.inlineAction`** is the only expression of "this word is tappable" (3f "Reopen bag", 5d "Go to first"). It pairs with `color.text.link`, which qualifies independently on 4 screens. Two screens is a reflection of how many screens have inline actions so far. In RN, `textDecorationLine: 'underline'` is supported; `textDecorationColor` is a separate property — confirm it inherits the text colour, and add it to the token if it does not.
+**`text.inlineAction`** (3f "Reopen bag", 5d "Go to first") defines the underline that §1 Tap affordance now applies to **every** text-only action (2026-10-09). This style is its 11px caps instance; other text actions keep their own size and take only the underline. It pairs with `color.text.link`, which qualifies independently on 4 screens. Two screens is a reflection of how many screens have inline actions so far. In RN, `textDecorationLine: 'underline'` is supported; `textDecorationColor` is a separate property — confirm it inherits the text colour, and add it to the token if it does not.
 
 ### 3.1 Truncation policy (resolves `gaps.md` item 1 — confirmed by design 2026-10-04)
 
@@ -601,7 +607,7 @@ What they share is "not something the user has settled". They are still two uses
 | `border.track` | `1.5px dashed` `color.border.muted` | the axis rail of a value the user did not enter: `axis.rail.derived` only. Since 2026-10-07 it no longer covers the search placeholder, which moved to `border.addSlot` (drift D-21) | 14 uses |
 | `state.error.dashed` | `1.5px dashed` `#9E5202` | error emphasis (5d) **A** | 1 use |
 
-**RN implementation note**: iOS cannot dash a single border side. Single-edge dashed lines (`divider.soft` and the like) render through the base `DashedRule` component, which clips a fully dashed box to its top edge. Full dashed frames (`border.empty`, the 5d error swatch) use `borderStyle: 'dashed'` directly.
+**RN implementation note**: iOS cannot dash a single border side. Single-edge dashed lines (`divider.soft` and the like) render through the base `DashedRule` component, which clips a fully dashed box to its top edge. Full dashed frames (`border.addSlot`, formerly `border.empty`; the 5d error swatch) use `borderStyle: 'dashed'` directly.
 
 ---
 
@@ -669,7 +675,11 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 ### Card
 `2px solid color.border.strong` on `color.surface.raised`, `inset.container`, internal groups separated by `gap.section`, meta separated by `divider.soft`. No radius, no shadow unless it is a control.
 
-### Bottom sheet (2 uses: 2b, 3b)
+### Bottom sheet (2b; 3b's action sheet removed by drift D-26)
+Planned uses (2026-10-09 / -10):
+- the confirmation for "Remove from my gear" and "Delete this bag", built like 3b's former action sheet (`gaps.md` 18);
+- the search sheet shared by the flavour tags' Search and the bag's Origin (`todo.md` T-2).
+
 `position: absolute`, pinned bottom, `color.surface.raised`, `2px solid` top border, `padding: 22 22 34`, a `size.sheet.handle` bar centred at the top with `-6` optical margin. Behind it: the page at `opacity: 0.45` plus `color.scrim`.
 
 ### Header eyebrow and stat (2026-10-06)
@@ -812,7 +822,7 @@ Swiping horizontally moves between the four tab screens: Home → Records → Tr
 The `border.addSlot` slot as a component: always a button, full width. It is the row form from 3a, 3b, 3d, 5a, 5d and 5e.
 - **Anatomy**: `dashed.addSlot` frame (2px dashed ink) on a transparent ground, `inset.control` padding, then glyph → label → optional trailing tag, `space.12` apart. The glyph is `icon.md` by default (5a's camera); 3b's plus is `icon.sm`. The label is `label.caps` in ink. The tag is `label.caps` in `color.text.muted`, pushed to the right edge.
 - **Source fit**: 3x pads 14 / 16 (`inset.control` exactly); 5x pads 16, folded to it. The 10–11px glyph-label gap folds to `space.12`. The tag is `label.caps` on 3b and 3d; 5a, 5d and 5e set it at 11/600 (`drift.md` D-12).
-- **States**: default; **pressed**, where the fill darkens to `state.pressed.surface` (§1 Hard Rule); **disabled** (5d), where the frame drops to `dashed.emptyInert` (`border.empty.inert`), the glyph to `color.icon.muted` and the label to `color.text.secondary`. A disabled slot does not respond to press.
+- **States**: default; **pressed**, where the fill darkens to `state.pressed.surface` (§1 Hard Rule); **disabled** (5d), where the frame drops to `dashed.addSlotInert` (`border.addSlot.inert`, formerly `border.empty.inert`), the glyph to `color.icon.muted` and the label to `color.text.secondary`. A disabled slot does not respond to press.
 - **Not part of this component**: the 76px square photo slot (3c), the 2a empty-list frame (not a button), and the "Try next — opens at 5 cups" teaser card (1b, 4a, 4b, 5c).
 
 ### Badge (base `Badge`, 2026-10-05)
@@ -894,7 +904,8 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 - Sweetness is one-directional, not bipolar, so its weakest step is **Barely sweet** and its shape differs from the other axes.
 - Superseded table: Strongly {low} / Leaning {low} / Balanced / Leaning {high} / Strongly {high}.
 - **The Roast axis is the cup's perceived roast, not the bag's label (2026-10-09).**
-  - It keeps five steps like the other three axes. The bag's `roast_level` (Light / Medium / Dark, transcribed) is separate data and never pre-fills it.
+  - It keeps five steps like the other three axes. The bag's roast level is separate data and never pre-fills it. It is transcribed from the label, in **4 steps**: Light / Medium / Medium-dark / Dark, plus unset (2026-10-09).
+  - The uneven 4 against the axis's 5 is deliberate: matching counts would invite "set both the same" (`data-model.md`).
   - A gap between the two is information about how this person tastes, not a conflict to remove (`data-model.md` Planned changes).
 
 - Why not 1-point steps: Taste DNA is a weighted average with recency decay, so coarse input averages into fine output over many cups. The precision of the input does not set the precision of the output. Asking "38 or 39?" works against logging a cup in 15 seconds.
@@ -985,14 +996,15 @@ The display of computed values: 1b / 4a / 4b (the profile), 5c (the change after
 ### Component catalog — pending (Step 4, logged 2026-10-06)
 Three parts of 5b are drawn inline in `TastingNoteScreen` for now (display only). They become base components in a later round. Each entry lists what to settle then.
 - **Axis slider** (`component.axis.*`): rail + needle (+ ghost + delta on 5c), with drag. **Specced and built 2026-10-07** (§9 Taste axis slider, `AxisSlider`).
-  - The set needle (accent fill, 2px ink, 12 × 32) is a local constant today; decide whether to promote it to a token.
+  - Superseded 2026-10-08: the needle is now a square 26 handle, tokenised (§9 Taste axis slider, revision).
   - Also settle the rail naming; see the `axis.rail` note in §2.
 - **Flavour chip, multi-select**: three looks, all bordered surfaces that darken on press:
   - selected: `badge.bg.accent` + `border.accent`, `accentStrong` label;
   - unselected: `border.muted`, `secondary` label;
-  - Search opener: `border.addSlot` (2px ink dashed; was `border.track`, drift D-21), `muted` label.
+  - Search opener: `border.addSlot` (2px dashed #6B5D55; was `border.track`, drift D-21), `muted` label.
   - To report then: whether the dashed Search fits the dashed meaning (§8), and whether other screens have a multi-select set to share it with.
-  - Note: at `inset.control` (44 tall) the 5b chips wrap to 3 rows at 390pt where the mock's 39-tall chips take 2 (`gaps.md` 3).
+  - Rows: at 14 horizontal padding (the mock's) the chips stay 44 tall in 2 rows. 5 are shown, selected + unselected, plus Search (2026-10-08; `gaps.md` 3, 15).
+  - Selected stays brown: an entered value (§1 Colour roles). Spec waits on the decisions in `components.md`.
 - **Cup summary row** (5b): `size.thumbnail.summary` thumbnail, name (`label`), one line of meta (`body.sm` muted), and the rating star + `numeral.inline` on the right.
   - To report then: how it differs from `RecordRow` (2a) in information, not just layout, and whether the mocks explain showing the same cup two ways. That decides merging versus a separate component.
 
@@ -1035,7 +1047,16 @@ Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control
 - A two-line reserve was rejected: ja / zh likely fit one line and would carry a permanent empty line. If a translation overflows (it would ellipsize), revisit then. The code says so at the caption.
 
 ### Buttons
-Primary: `size.button.primary` tall, `color.action.bg`, `2px solid` outline, `shadow.primary`, `button.caps`. Secondary: same geometry on `color.surface.ground` with `color.text.primary`. Tertiary: no background, no border, `label.caps`.
+**Two axes, kept apart (decided 2026-10-09; not built yet, `components.md` "Button: variant and size").**
+- **`variant`** (surface and role):
+  - `primary`: `color.action.bg` fill, `2px solid` outline, `shadow.primary`, `button.caps`;
+  - `secondary`: `color.surface.ground`, `2px solid` ink outline, `color.text.primary` label;
+  - `text`: no fill, no frame, ink, **underlined** (§1 Tap affordance).
+  - `quiet` (1.5 `border.muted`, no fill) was proposed and **dropped**: that is §1's look for an *unselected option*.
+- **`size`** (surfaced variants only): `full` (full width: **56 primary, 52 secondary**, so the secondary sits one step under the primary it stacks beneath) · `row` (44) · `compact` (40) · `small` (36, touch area padded to 44 with `hitSlop`, `gaps.md` 19).
+  - 48 (8f, one use) is decided with 8f.
+- **`text` has no size**: its `type` is `caps` (`label.caps`) or `inline` (`meta` as written; the taste axis Clear). This replaces today's `small` prop, freeing `small` for the 36 height.
+- **Code today**: `variant` primary / secondary / text plus a `small` flag on text. Both filled variants render 56 (secondary should be 52: drift D-32).
 
 Trailing icon (base `Button`, 2026-10-05): an optional glyph after the label (5a "Add tasting note →"), `icon.sm`, `gap.row` from the label, coloured like the label: `color.icon.onAction` on primary, `color.icon.default` on secondary, `color.icon.muted` when disabled. 1b's buttons carry a *leading* icon instead; that form has not been built.
 
@@ -1158,3 +1179,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-09 — §1 Words: bag = one bag bought (the unit acted on); beans = the coffee and the shelf. Mismatches → D-31.
 - 2026-10-09 — §9 Taste axis: the Roast axis is perceived roast, five steps, independent of the bag's transcribed roast level.
 - 2026-10-10 — §1 Pressed: perceptibility is the condition above surface and size. Where a darker fill cannot be seen (under 44pt) or does not exist (an ink-filled selected chip in a clearable set), scale is used.
+- 2026-10-10 — Header: 33 screens covered (the 30 of the token pass + 3g, 8n, 8o read directly); `process/` files marked not to be used for values. §9 Buttons rewritten to the variant × size decision. Roast line: bag levels in 4 steps. Bottom sheet: 3b removed, planned uses listed. Stale lines in the pending catalog and `text.inlineAction` brought up to date.
