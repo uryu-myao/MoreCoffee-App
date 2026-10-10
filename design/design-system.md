@@ -70,6 +70,11 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - Why: a control that is invisible but pressable, or one that should be pressable but has gone, both break operability. The collapse is a side effect of scrolling, not a sign that the user has given up on an action: being unable to go back after scrolling is plainly wrong.
 - Precedent: Record coffee's close button does not scale. The same principle covers 5b's back button above the title, which stays where it is while the title shrinks beneath it (§9 Header collapse).
 
+### Correct values in drift point to the spec (added 2026-10-10)
+- **A drift's correct value refers to this document directly** (§9 for a component, §2–§8 for a token).
+- **Never to another screen's part as the example**: that part may itself be off-spec. D-25 ("as Edit") and D-40 ("as Replace") broke exactly this way.
+- When a decision voids an existing drift, it is withdrawn then and there (`drift.md` status).
+
 ### Naming state tokens (added 2026-10-06)
 - **Name a state token for what the state means, not for how it was used on the screen where it was first found.**
 - **Before naming, check every screen that uses the same value.**
@@ -1151,3 +1156,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-10 — **Self-contradictions removed** (Design's review). The taste axis is specified once, in §9 Taste axis slider: two states, the square handle, the solid track. §2 B, §1 Pressed, §2 colours, §5 `size.axis.needle` and §8's dashed rail now point there, and the old parts are marked retiring. A "Superseded — do not draw" list names every earlier version (the solid / dashed provenance rail, 20 / 28 rails, needles, the gold lit, pole ink, reference lines, Clear under the handle). Also fixed: §9 still described pole labels lighting while dragging, a 12pt touch band (5 now) and Clear's 16pt slop (8 / 20 now). §2 C no longer calls the tab bar "floating", and `shadow.floating` is no longer said to have no consumer (D-33).
 - 2026-10-10 — §3: the claim that single-line numerals were "folded to 1.02 — no visual difference" is corrected. They keep 0.82 / 1.0; glyph extents are measured and recorded. The error was reasoning about the line box without the ink. 1b's 2px label-to-numeral gap is drift D-34.
 - 2026-10-10 — §1 Words: "shelf" defined as registered belongings, gear + beans (picked in 5a); words are excluded because they come out of logging rather than being picked.
+- 2026-10-10 — §1: drift's correct values refer to this document directly, never to another screen's part (D-25 / D-40 broke on that).
