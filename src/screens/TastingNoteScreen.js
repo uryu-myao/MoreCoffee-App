@@ -1,5 +1,6 @@
+import * as Haptics from 'expo-haptics';
 import { memo, useCallback, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AxisSlider from '../components/base/AxisSlider';
 import Button from '../components/base/Button';
@@ -107,11 +108,20 @@ function MyWords({ noteRef, setNoteFilled }) {
   );
 }
 
+/**
+ * A locked Search answers a press with the warning haptic (§1 Haptics, the
+ * exception under Selection limit): it opens a sheet, and a press that opens
+ * nothing otherwise gave no sign. Still no visual press feedback.
+ */
+const warnLocked = () => {
+  if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+};
+
 function Chip({ label, on, search, locked, onPress }) {
   return (
     <Pressable
-      onPress={locked ? undefined : onPress}
-      disabled={locked}
+      onPress={locked ? (search ? warnLocked : undefined) : onPress}
+      disabled={locked && !search}
       // Multi-select: each flavour is a checkbox to a screen reader; Search opens.
       accessibilityRole={search ? 'button' : 'checkbox'}
       accessibilityState={search ? { disabled: Boolean(locked) } : { checked: on }}
