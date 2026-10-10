@@ -144,9 +144,9 @@ const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
  * row says "Add a bag" / "Add gear" (placeholder look, text.secondary) and the
  * section drops its required mark: a mark promises "always filled", and an
  * empty shelf cannot keep that promise (design-system.md §1 Required marks).
- * Neither blocks Save. TODO(T-4): the rows open 3c / 3a once they exist.
+ * Neither blocks Save. "Add a bag" opens 3c (minimal); TODO(T-4): "Add gear" → 3a.
  */
-function MadeItFields({ defaults }) {
+function MadeItFields({ defaults, onAddBag }) {
   const { bag, brewer, grinder } = defaults;
   const method = [brewer?.name, grinder?.name].filter(Boolean).join(' · ');
   const filled = Boolean(bag && method);
@@ -156,7 +156,7 @@ function MadeItFields({ defaults }) {
         {bag ? (
           <FieldRow swatch label="Bag" value={bag.name} meta={bagMeta(bag)} />
         ) : (
-          <FieldRow swatch label="Bag" value="Add a bag" placeholder />
+          <FieldRow swatch label="Bag" value="Add a bag" placeholder onPress={onAddBag} />
         )}
         {method ? (
           <FieldRow divided label="Method" value={method} meta={brewer ? 'Your default brewer' : undefined} />
@@ -294,7 +294,7 @@ function useMinuteClock() {
   return now;
 }
 
-export default function RecordCoffeeScreen({ onClose, onAddNote }) {
+export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag }) {
   const { defaults, rating, setRating, mode: maker, setMode: setMaker, save } = useRecordDraft();
   const now = useMinuteClock();
   const Fields = FIELD_SETS[maker];
@@ -347,7 +347,7 @@ export default function RecordCoffeeScreen({ onClose, onAddNote }) {
 
         <ExpandingBlock>
           {/* Keyed by mode: a switch remounts the field set, so nothing carries over. */}
-          <Fields key={maker} defaults={defaults} />
+          <Fields key={maker} defaults={defaults} onAddBag={onAddBag} />
         </ExpandingBlock>
 
         {/* TODO(Step 5): opens the camera / library; inert for now. */}

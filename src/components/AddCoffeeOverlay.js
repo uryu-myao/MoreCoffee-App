@@ -4,6 +4,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, { Easing as REasing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import RecordCoffeeScreen from '../screens/RecordCoffeeScreen';
+import AddBagScreen from '../screens/AddBagScreen';
 import TastingNoteScreen from '../screens/TastingNoteScreen';
 import { color, motion, size } from '../theme/tokens';
 import { GESTURE_LOG, logGesture } from './base/gestureLog';
@@ -48,7 +49,8 @@ const BACK_VELOCITY = 300;
 export default function AddCoffeeOverlay({ visible, onClose }) {
   const { width, height } = useWindowDimensions();
   const [mounted, setMounted] = useState(false);
-  const [noteMounted, setNoteMounted] = useState(false);
+  // The second page: 5b ('note') or 3c minimal ('bag'), both pushed from 5a.
+  const [second, setSecond] = useState(null);
   const [onNote, setOnNote] = useState(false); // step 2 showing: edge swipe enabled
   const translateY = useRef(new Animated.Value(height)).current;
   const pos = useSharedValue(0); // 0 → Log a cup, 1 → Tasting note
@@ -64,7 +66,7 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
   useEffect(() => {
     if (!visible) return;
     setMounted(true);
-    setNoteMounted(false);
+    setSecond(null);
     setOnNote(false);
     pos.value = 0;
     translateY.setValue(height);
@@ -75,7 +77,7 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
   const dismiss = () => {
     slide(height, () => {
       setMounted(false);
-      setNoteMounted(false);
+      setSecond(null);
       setOnNote(false);
       onClose();
     });
@@ -85,11 +87,13 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
     'worklet';
     pos.value = withTiming(to, { duration: motion.expand.duration, easing: stepEasing });
   };
-  const openNote = () => {
-    setNoteMounted(true);
+  const push = (page) => {
+    setSecond(page);
     setOnNote(true);
     toStep(1);
   };
+  const openNote = () => push('note');
+  const openBag = () => push('bag');
   const backToRecord = () => {
     setOnNote(false);
     toStep(0);
@@ -144,12 +148,12 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
           closes (it unmounts with it). Saving dismisses the sheet. */}
       <RecordDraftProvider onSaved={dismiss}>
         <Reanimated.View style={[StyleSheet.absoluteFill, recordStyle]}>
-          <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} />
+          <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} onAddBag={openBag} />
         </Reanimated.View>
-        {noteMounted ? (
+        {second ? (
           <GestureDetector gesture={edgeSwipe}>
             <Reanimated.View style={[StyleSheet.absoluteFill, styles.overlay, noteStyle]}>
-              <TastingNoteScreen onBack={backToRecord} />
+              {second === 'note' ? <TastingNoteScreen onBack={backToRecord} /> : <AddBagScreen onBack={backToRecord} />}
             </Reanimated.View>
           </GestureDetector>
         ) : null}

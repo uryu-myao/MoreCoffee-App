@@ -35,6 +35,36 @@ export async function loadRecordDefaults(db: SQLiteDatabase): Promise<RecordDefa
   };
 }
 
+/** At most this many bags open at once (3c / 3d "2 / 5"); finishing frees a slot. */
+export const OPEN_BAG_LIMIT = 5;
+
+/** Bags not finished yet: what takes the 5 slots. */
+export async function countOpenBags(db: SQLiteDatabase): Promise<number> {
+  const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM bags WHERE finished_at IS NULL');
+  return row?.n ?? 0;
+}
+
+/** What 3c's Bag form hands over (minimal set: name required, the rest optional). */
+export type NewBag = { name: string; roaster: string | null; roastedAt: number | null };
+
+/**
+ * Add a bag and open it now (3c "Open this bag"). Returns the stored row, so
+ * the Record sheet can pre-fill it at once. Refuses past the open-bag limit
+ * (the screen disables the button there too).
+ */
+export async function insertBag(db: SQLiteDatabase, bag: NewBag): Promise<Bag> {
+  if ((await countOpenBags(db)) >= OPEN_BAG_LIMIT) throw new Error(`All ${OPEN_BAG_LIMIT} slots are taken. Finish a bag to free one up.`);
+  const result = await db.runAsync('INSERT INTO bags (name, roaster, roasted_at, opened_at) VALUES (?, ?, ?, ?)', [
+    bag.name,
+    bag.roaster,
+    bag.roastedAt,
+    Date.now(),
+  ]);
+  const row = await db.getFirstAsync<Bag & { notes: string }>('SELECT * FROM bags WHERE id = ?', [result.lastInsertRowId]);
+  if (!row) throw new Error('The bag was not stored.');
+  return { ...row, notes: JSON.parse(row.notes as unknown as string) };
+}
+
 /** What Record coffee hands over on Save. Mode-specific fields are only read for their mode. */
 export type NewCup = {
   rating: number;
