@@ -516,6 +516,8 @@ Each default is the step the most-used value in that axis folds into.
 
 **Vertical gap has four modes.** The 6–7px band is empty and should stay empty: `tight` and `row` are "stuck together" vs "separate", with nothing in between. `row` → `section` is continuous, and all three are real. `gap.axis` is larger than `gap.section` because it belongs to one component, not because enclosure implies more room — **inside an enclosed surface, use `gap.section`** (that is the measured mode: 5 of 15 bordered cards/sheets).
 
+**Serif ink sets its own space (2026-10-10).** Where serif ink fills its box (the 96px count, §3), the space around it follows where the ink sits, not a unit of meaning. So it uses a **primitive directly**, bypassing the semantic layer (e.g. `space.12` between "CUPS TOTAL" and the count, D-34). This is the §3 ink rule applied, not an exception to this section.
+
 **`margin.container` has no default. Choose a primitive explicitly at the point of use.** Its 66 uses spread across 13 values with the mode representing only 20% — a fabricated default would be more dangerous than none.
 
 ### Layout tokens — screen chrome, roughly one use per screen
@@ -537,10 +539,15 @@ Each default is the step the most-used value in that axis folds into.
 
 Fixed element dimensions. **Never subject to the spacing scale** — snapping these breaks interaction. Named by the component that owns them.
 
+**What goes here (2026-10-10)**:
+- **A dimension drawn at the same size in two or more places** (screens or components) is a §5 token.
+- **A value computed from other dimensions** is written in §9 as its formula, e.g. the axis handle = track − 8, or the radio's inner mark = 24 − 2 × 2 − 2 × 4.
+
 | token | value | evidence |
 |---|---|---|
 | `size.tapTarget` | 44 | 26 screens / 79 uses — icon buttons, row controls. The minimum hit area |
 | `size.button.primary` | 56 | 17 screens — full-width primary button height |
+| `size.button.row` | 44 | a button inside a row or card (3c "Use", 3d's Finish bag strip). Added 2026-10-10: §9 Buttons used `row` with no token |
 | `size.button.compact` | 40 | 10 screens — inline buttons ("Add", "Save") |
 | `size.button.small` | 36 | 2 screens ("Mark all read", "Replace") — below threshold, recorded for reference |
 | `size.control.row` | 52 | 12 screens / 58 uses — rating stars, row-level controls |
@@ -550,7 +557,8 @@ Fixed element dimensions. **Never subject to the spacing scale** — snapping th
 | `size.avatar` | 88 | 1 screen (6d) — below threshold |
 | `size.tabBar.height` | 60 | 6 screens / 40 uses |
 | `size.badge.numeral` | 22 | 7 screens / 20 uses — numbered step badges, checkboxes |
-| `size.checkbox` | 24 | 3 screens / 22 uses |
+| `size.checkbox` | 24 | 3 screens / 22 uses; also the radio marker's outer square (§9) |
+| `size.switch` | `{ w: 52, h: 30, knob: 22, inset: 2 }` | 8 uses / 4 screens (8g 8i 8j 8m; 3e is drift D-20). Square knob = h − 2 × border − 2 × inset. **The taste axis handle is derived from this geometry** (§9). Added 2026-10-10 |
 | `size.weekday.column` | 68 | 6 screens |
 | `size.axis.rail` | **34** (20 in the mock; 28 for L3 + H1; 34 from 2026-10-08, size B) | the slider's track height |
 | `size.axis.railWidth` | **260** | the slider's track width, centred in its card (added 2026-10-08 at 240; 260 once the pole labels went to `label.caps`) |
@@ -1000,6 +1008,12 @@ Two variants, both `label.eyebrow` `color.text.muted` with an optional right-sid
 - Not headings, so not `SectionLabel`: FieldRow labels (Beans, Method, Café, Drink, Brand, Package), form field labels (3c, 3e, 6d) and header eyebrows / meta.
 - Status `count` is a neutral right-side count (5b "3 of 5").
 
+### Radio marker (8n; spec 2026-10-10, not built)
+- Square, never round (§1 Shape; drift D-35).
+- **Outer**: `size.checkbox` (24), 2px frame. Unselected: `border.muted` frame on raised. Selected: ink frame.
+- **Inner mark** (selected only): **24 − 2 × 2 − 2 × 4 = 12** square, ink (a chosen option, D-36). Border 2 and gap 4 on each side; written as a formula, not a token.
+- Must read differently from the checkbox (ticked square) at a glance. Design's proposal is awaited (D-35).
+
 ### Star rating (base `StarRating`)
 Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control.row` (52) tap targets spread with space-between. Filled star `icon.fill.xl`, empty star `icon.xl` stroke in `color.border.muted`; optional caption under `divider.soft`; 5d error state per `state.error.*`.
 
@@ -1157,3 +1171,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-10 — §3: the claim that single-line numerals were "folded to 1.02 — no visual difference" is corrected. They keep 0.82 / 1.0; glyph extents are measured and recorded. The error was reasoning about the line box without the ink. 1b's 2px label-to-numeral gap is drift D-34.
 - 2026-10-10 — §1 Words: "shelf" defined as registered belongings, gear + beans (picked in 5a); words are excluded because they come out of logging rather than being picked.
 - 2026-10-10 — §1: drift's correct values refer to this document directly, never to another screen's part (D-25 / D-40 broke on that).
+- 2026-10-10 — §5: the rule for what is a size token (drawn alike in 2+ places; derived values are formulas in §9); `size.switch` and `size.button.row` added. §4: serif-ink spacing uses primitives directly (D-34). §9: Radio marker spec with its inner mark as a formula.

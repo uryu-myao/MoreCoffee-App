@@ -246,7 +246,8 @@ export const opticalMargin = {
 export const size = {
   /** minimum hit area — 26 screens / 79 uses */
   tapTarget: 44,
-  button: { primary: 56, compact: 40, small: 36 },
+  /** row (44): a button inside a row or card, e.g. 3d's Finish bag strip (2026-10-10). */
+  button: { primary: 56, row: 44, compact: 40, small: 36 },
   control: { row: 52 },
   field: { height: 46 },
   /** list: the list row (2a). summary: the one-cup summary row (5b). */
@@ -255,6 +256,11 @@ export const size = {
   tabBar: { height: 60 },
   badge: { numeral: 22 },
   checkbox: 24,
+  /**
+   * The toggle switch (8g 8i 8j 8m; 3e is drift D-20), 2026-10-10. knob = h −
+   * 2·border(2) − 2·inset. The taste axis handle is derived from this geometry.
+   */
+  switch: { w: 52, h: 30, knob: 22, inset: 2 },
   weekday: { column: 68 },
   /**
    * Taste axis slider (2026-10-08, from Uryu's screenshots, size B): a 260 × 34
