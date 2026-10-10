@@ -211,6 +211,63 @@ The columns are today's (`schema.ts`); "planned" means already decided above.
 
 Which of these are V1 is open (report 2026-10-10).
 
+**Audit addendum (2026-10-10)**: the mock file holds 40 boards. The 31 above are the shipped screens; these were outside them:
+
+| screen | input | stored in |
+|---|---|---|
+| **2c Record (one cup)** | none; read-only. Its buttons: back, **edit** (pencil; destination not drawn), share | — |
+| 2c | shows "day 7 when brewed" | derived from the cup's copied `roasted_at` + `logged_at` (supports copying the date) |
+| 2c | shows "My default brewer, **22 clicks**" | `grind_setting`, which has **no input** in 5a; 3e's settings note is free text ("22 clicks for V60, 18 for AeroPress"), so parsing it is fragile. Open |
+| 6b | How adventurous (Safe / Stretch / Surprise), Export CSV, Backup | none; outside the loop |
+| 6c 8b 8k | reminders summary, language, sign-in, account, delete account | none; outside the loop |
+| 1a 8a 9a 9b | welcome / alternative home, no inputs | — |
+
+### V1 migration scope (decided 2026-10-10)
+
+**Test**: is it needed for the capture → Taste DNA loop to run? Not "is the screen in V1".
+
+**In**:
+- a. Cups: the four axes and the flavour tags.
+- b. The cup copies of bag details, `roasted_at`, the 4-step roast level, `anaerobic`, and `other` dropped.
+- c. Bags: photo, roast date, size, and **the finished state with its date**. The 5-slot cap counts open bags; full slots would stop capture.
+- d. **The gear table, whole.** 5a pre-fills the default brewer and 8c's first setup picks gear; without stored gear every cup is typed by hand, and "15 seconds a cup" fails. 3a / 3b / 3e can be built later; the table and 5a's read of it are V1.
+
+**Out**:
+- e. Drafts (5d "Keep as draft"): an exception path, designed once the main path runs. **But `cups.rating` becomes nullable in this migration**, because a draft has no rating; dropping NOT NULL later costs more. Taste DNA already ignores unrated cups (8g).
+- f. Profile (6d), settings (8g 8i 8m), notification read state, recent searches, 8h's merge table: outside the loop, V1.5+.
+- g. Remembered filters / sort (2a 2b 3f 8l): **not stored**, decided. Each launch starts from the defaults. No columns.
+- h. 8j's sending path: outside the loop, but the screen is not built until it is defined (`todo.md`).
+
+### capture → Taste DNA, end to end (checked 2026-10-10, scope a–d)
+
+| step | data | stored in (a–d) |
+|---|---|---|
+| 8c first setup | gear picks (generic: "Pour-over dripper", "Hand grinder") | gear table (d) |
+| 8c | "I mostly drink out" | **nowhere**, see finding 2 |
+| 8c | steps 1 and 3 | **not drawn** ("Setup · 2 of 3"), see finding 3 |
+| 3c add a bag | name, roaster, roast level, roast date, size, photo, opened | `beans` (b, c) |
+| 5a | date / time, rating, mode | `logged_at`, `rating`, `mode` |
+| 5a | Bag pre-filled, with "day 7, drink now" | `bean_id` + copies (b); the day from `roasted_at` |
+| 5a | Method pre-filled "Your default brewer" | the gear table's default (d) → `brew_method` / `grinder` text |
+| 5a | Café / Drink / Product / Bought at / photo | `places` / `drink_type` / `products` / `bought_at_place_id` / `photo_uri` |
+| 5b | four axes, flavour tags, My words | `axis_*` (a), `flavours` (a), `note` |
+| 5b | flavour suggestions (bundled, history, the bag's notes) | code; history from `cups.flavours`; `beans.notes` |
+| Save → 5c | "pushed you brighter", the ghost / delta, "4 of 5 cups" | derived: Taste DNA as of before / after this cup |
+| Taste DNA (1b 4a 4b 6a 8f) | ratings (unrated ignored), recency, axes, matched words, lock-in at 10 | `rating`, `logged_at`, `axis_*`, `note` + the bundled word map |
+| 2c the cup again | everything above, "day 7 when brewed" | as above |
+| 3d → 3f finish | slots | the finished state (c) |
+
+**Result**: with a–d, every value on the path has a column, except these findings:
+1. **Cups should reference their gear as well as copy it.**
+   - 3e says "Edits apply to the 2 cups already logged with it" (option B), and 3b shows "used in N cups". Matching by name text breaks on a rename or two items with one name.
+   - So add `brewer_id` / `grinder_id` references to cups, with the text kept as the copy: the same shape as bags.
+   - This is part of d.
+2. **8c's "I mostly drink out"** has nowhere to go under a–d.
+   - Its likely job is the first cup's default mode (Barista); later cups take the last cup's mode.
+   - Either store one setting for it, or treat the choice as "no gear" and default the first cup to I made it.
+3. **8c's other two steps are not drawn.** They may hold inputs. The design is needed before the migration is final.
+4. 2c's "22 clicks": see the addendum (open).
+
 ### The tasting note has no columns yet (found 2026-10-09; priority)
 5b's input has nowhere to go except "My words", so building 5b first would let a user enter a note that is not kept. Proposal:
 
