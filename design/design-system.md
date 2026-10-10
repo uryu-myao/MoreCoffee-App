@@ -76,9 +76,13 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **If the name and the reality disagree, fix the name, not the comment.**
 - Why: the same mistake was made three times. `axis.rail.readonly / editable` and the interim `unset / set` were both read off one screen. `border.empty.disabled` was named for 5d and is also used on 2a, where nothing can be pressed. A comment that contradicts its name loses to the name.
 
-### Words: bag and beans (added 2026-10-09)
+### Words: bag, beans and shelf (added 2026-10-09; shelf 2026-10-10)
 - **bag = one bag you bought**: the unit you add, open, finish, reopen, edit and delete, that takes a slot, and that a cup is logged from. **beans = the coffee itself** (its name, roaster, origin), and the shelf as a whole ("My beans", like "My gear").
-- So "Bean name" (the coffee's name) and "My beans" (the shelf) are right; anything done to one bag says "bag". The mocks' mismatches are drift D-31.
+- **shelf = everything registered that you own: gear + beans** (decided 2026-10-10). In 5a you *pick* from it: the bag and the method come off the shelf.
+  - **Words are not on the shelf.** They are not picked; they *come out of* logging (8h: "Words appear as chips when you log a cup").
+  - Owned things are registered, then used; words accumulate from use. The directions are opposite, so one word must not cover both.
+  - "From my shelf" (5a), "Blue Bottle · from my shelf" (2c) and "your gear shelf" (8c, a part of the shelf) all fit as they are.
+- So "Bean name" (the coffee's name) and "My beans" (the bags on the shelf) are right; anything done to one bag says "bag". The mocks' mismatches are drift D-31.
 
 ### Colour roles: blue, ink, brown (added 2026-10-07, three roles 2026-10-08)
 - **Blue = this is in force now**: the primary action, the active tab, a switch that is on.
@@ -1146,3 +1150,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-10 — Prepared for Design: references to files Design does not receive (exceptions record, data model, to-do list, RN token object, i18n notes) replaced by inline summaries. §10 rewritten: five true exceptions, located but with values withheld, never to be referenced on a new screen.
 - 2026-10-10 — **Self-contradictions removed** (Design's review). The taste axis is specified once, in §9 Taste axis slider: two states, the square handle, the solid track. §2 B, §1 Pressed, §2 colours, §5 `size.axis.needle` and §8's dashed rail now point there, and the old parts are marked retiring. A "Superseded — do not draw" list names every earlier version (the solid / dashed provenance rail, 20 / 28 rails, needles, the gold lit, pole ink, reference lines, Clear under the handle). Also fixed: §9 still described pole labels lighting while dragging, a 12pt touch band (5 now) and Clear's 16pt slop (8 / 20 now). §2 C no longer calls the tab bar "floating", and `shadow.floating` is no longer said to have no consumer (D-33).
 - 2026-10-10 — §3: the claim that single-line numerals were "folded to 1.02 — no visual difference" is corrected. They keep 0.82 / 1.0; glyph extents are measured and recorded. The error was reasoning about the line box without the ink. 1b's 2px label-to-numeral gap is drift D-34.
+- 2026-10-10 — §1 Words: "shelf" defined as registered belongings, gear + beans (picked in 5a); words are excluded because they come out of logging rather than being picked.

@@ -450,6 +450,43 @@ The user sees the past rewritten.
 
 ---
 
+## 23. Placeholder text has no colour token (added 2026-10-10)
+
+**Found by**: 8o's optional fields use `#A39389` (drift D-38), which is not in the palette.
+
+**What the other inputs use**:
+
+| screen | placeholder | colour |
+|---|---|---|
+| 2a | "Search my cups" | `#5C5049` (`text.secondary`) |
+| 3a | "Search brewers" | `#5C5049` |
+| 3c | "Type or pick a roaster" | `#5C5049` |
+| 5b | My words ("Cooled down it turned into iced tea…") | `text.muted` (`text.note`'s colour) |
+| 8o | "Optional", "Optional — for freshness" | **`#A39389`** (no token) |
+
+- The majority is `text.secondary` (3 of 4 plain fields). 8o's lighter grey stands alone.
+- Also seen: 8j's typed message text is `#3C332E`, not a token either.
+
+**Needs deciding**: one placeholder colour, as part of the text input's empty state (`components.md` #23, "placeholder / empty" undesigned).
+
+---
+
+## 24. Gear cap: 8 or 3 (added 2026-10-10; facts only, not decided)
+
+- **8, a total across categories**:
+  - 3a "3 / 8 Selected" over its Brewer / Grinder / Kettle / Scale tabs, with "5 slots left";
+  - 3b "3 / 8 In my kit", listing a brewer, a grinder and a kettle;
+  - 4a "Manage my gear 3 / 8".
+- **3**:
+  - 8c "This becomes your gear shelf — up to three", "2 of 3 picked". Its picks span categories (a dripper and a grinder), so it is not a per-category cap.
+  - 6a "My gear 2 of 3": the whole shelf row, not per category.
+- **No per-category cap appears anywhere.** So the 3 and the 8 are two totals, not a total and a per-category limit.
+  - 8c's 3 could be a smaller cap for first setup only.
+  - 6a's "of 3" then contradicts 3a / 3b / 4a.
+- **Bags**: 5 open, everywhere: 3c, 3d, 4b, 6a "4 of 5", and 8j's "my five open bags". The mocks give no reason for 5 or for 8. Bags are consumables with a finish / archive cycle; gear is inventory.
+
+---
+
 ## Step 4 device verification — RESOLVED (2026-10-04)
 
 The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.
