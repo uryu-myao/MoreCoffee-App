@@ -35,6 +35,8 @@ Moves and follow-ups that are neither drift (a design value to correct) nor a de
 
 **Target**: the rows open 3c / 3a. Priority: see the 5a stage plan.
 
+**Update 2026-10-10 (stage 2)**: "Add a bag" now opens 3c (minimal). **But 3c is reachable only while no bag is open.** With one open bag, 5a pre-fills it, and the Bag row (a picker, stage 3) does nothing, so **a second bag cannot be added** until 3d's "Add a bag" or the picker exists. The 5-slot limit state is therefore not reachable in the app yet.
+
 ## V1 candidates
 
 - **The bag's printed flavours as the first flavour suggestions** (2026-10-09).

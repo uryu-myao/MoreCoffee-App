@@ -496,6 +496,14 @@ The user sees the past rewritten.
 
 ---
 
+## 25. Gear added from the generic list has generic names (added 2026-10-10)
+
+**What**: 3a (minimal) adds gear from 8c's generic list, so 5a's Method reads e.g. "Pour-over dripper · Hand grinder", not a model ("Hario V60 02 · Comandante C40"). Accepted for stage 2.
+
+**Way out**: none yet. 3e (Edit gear), where a name could be changed, is **not built**. Models arrive with the full 3a or 3e.
+
+---
+
 ## Step 4 device verification — RESOLVED (2026-10-04)
 
 The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.
