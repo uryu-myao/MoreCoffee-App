@@ -12,6 +12,7 @@ import Text from '../components/base/Text';
 import { useRecordDraft } from '../components/RecordDraft';
 import { color, icon, motion, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
+import { daysSince } from '../constants/dates';
 
 /**
  * Record coffee — 5a "Log a cup". All three maker modes. The cup being
@@ -120,8 +121,6 @@ const DEFAULT_DRINK = 'Flat white';
 /** Shown for a field with no row behind it (an empty database). TODO(Step 5): pickers. */
 const NONE = '—';
 
-const DAY_MS = 86400000;
-
 /*
  * Meta lines: only what the stored rows can back. The mock's history- and
  * location-derived lines ("drink now", "250 m away · your 4th visit", "What you
@@ -133,8 +132,7 @@ const DAY_MS = 86400000;
 function bagMeta(bag) {
   if (!bag) return undefined;
   if (bag.roasted_at == null) return bag.roaster ?? undefined;
-  const day = Math.floor((Date.now() - bag.roasted_at) / DAY_MS);
-  return [bag.roaster, `day ${day}`].filter(Boolean).join(' · ');
+  return [bag.roaster, `day ${daysSince(bag.roasted_at)}`].filter(Boolean).join(' · ');
 }
 
 const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);

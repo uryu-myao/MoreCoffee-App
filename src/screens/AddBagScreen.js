@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Keyboard, StyleSheet, View } from 'react-native';
 import BagForm from '../components/BagForm';
+import DateSheet from '../components/DateSheet';
 import Button from '../components/base/Button';
 import IconButton from '../components/base/IconButton';
 import Text from '../components/base/Text';
@@ -23,7 +24,8 @@ import ScreenFrame from './ScreenFrame';
 export default function AddBagScreen({ onBack }) {
   const db = useDatabase();
   const { chooseBag } = useRecordDraft();
-  const [form, setForm] = useState({ name: '', roaster: '' });
+  const [form, setForm] = useState({ name: '', roaster: '', roastedAt: null });
+  const [picking, setPicking] = useState(false);
   const [open, setOpen] = useState(null);
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export default function AddBagScreen({ onBack }) {
 
   const openBag = async () => {
     try {
-      const bag = await insertBag(db, { name, roaster: form.roaster.trim() || null, roastedAt: null });
+      const bag = await insertBag(db, { name, roaster: form.roaster.trim() || null, roastedAt: form.roastedAt });
       chooseBag(bag);
       onBack();
     } catch (error) {
@@ -50,27 +52,48 @@ export default function AddBagScreen({ onBack }) {
   };
 
   return (
-    <ScreenFrame
-      scroll
-      title="Add a bag"
-      leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
-      stat={open != null ? { value: `${open} / ${OPEN_BAG_LIMIT}`, label: 'Bags open' } : undefined}
-      footer={
-        <View style={styles.footer}>
-          <Button label="Open this bag" onPress={openBag} disabled={!name || full || open == null} />
-          {free != null ? (
-            <Text variant="bodySm" color="secondary" style={styles.slots}>
-              {full ? 'No slots free. Finish a bag to free one up.' : `${free} of ${OPEN_BAG_LIMIT} slots free. Finish a bag to free one up.`}
-            </Text>
-          ) : null}
-        </View>
-      }>
-      <BagForm value={form} onChange={setForm} />
-    </ScreenFrame>
+    <View style={styles.screen}>
+      <ScreenFrame
+        scroll
+        title="Add a bag"
+        leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
+        stat={open != null ? { value: `${open} / ${OPEN_BAG_LIMIT}`, label: 'Bags open' } : undefined}
+        footer={
+          <View style={styles.footer}>
+            <Button label="Open this bag" onPress={openBag} disabled={!name || full || open == null} />
+            {free != null ? (
+              <Text variant="bodySm" color="secondary" style={styles.slots}>
+                {full ? 'No slots free. Finish a bag to free one up.' : `${free} of ${OPEN_BAG_LIMIT} slots free. Finish a bag to free one up.`}
+              </Text>
+            ) : null}
+          </View>
+        }>
+        <BagForm
+          value={form}
+          onChange={setForm}
+          datePicking={picking}
+          onPickDate={() => {
+            Keyboard.dismiss();
+            setPicking(true);
+          }}
+        />
+      </ScreenFrame>
+      <DateSheet
+        visible={picking}
+        onClose={() => setPicking(false)}
+        label="Roasted on"
+        value={form.roastedAt}
+        maximum={new Date()}
+        onChange={(roastedAt) => setForm((f) => ({ ...f, roastedAt }))}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   footer: {
     gap: spacing.gap.row,
   },

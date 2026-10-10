@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { formatDay } from '../constants/dates';
 import { resolveTextStyle } from '../theme/fonts';
 import { color, shape, size, spacing, textStyle } from '../theme/tokens';
 import Text from './base/Text';
@@ -18,19 +19,28 @@ import Text from './base/Text';
  * value uses `title`. Entered text is text.primary, placeholders
  * text.secondary (gaps.md 23).
  *
+ * Roasted on is a day, picked in a sheet (DateSheet): the field shows it as
+ * "Apr 1" and opens the sheet; the screen hosts the sheet, since it covers
+ * the whole screen.
+ *
  * Props
- *   value     { name, roaster }
- *   onChange  (next) => void
+ *   value       { name, roaster, roastedAt (ms of a local midnight, or null) }
+ *   onChange    (next) => void
+ *   onPickDate  open the date sheet for Roasted on
+ *   datePicking the sheet is open (the field shows focus)
  */
-export default function BagForm({ value, onChange }) {
+export default function BagForm({ value, onChange, onPickDate, datePicking = false }) {
   return (
     <View style={styles.card}>
       <Field label="Bean name" value={value.name} onChangeText={(name) => onChange({ ...value, name })} autoFocus />
       <Field label="Roaster" value={value.roaster} placeholder="Optional" onChangeText={(roaster) => onChange({ ...value, roaster })} />
-      {/* TODO: a date picker needs a native module (not installed; to be
-          approved). Until then Roasted on stays empty, so freshness has no
-          roast date and 5a shows no day count. */}
-      <Field label="Roasted on" placeholder="Optional — for freshness" editable={false} />
+      <DayField
+        label="Roasted on"
+        value={value.roastedAt}
+        placeholder="Optional — for freshness"
+        onPress={onPickDate}
+        focused={datePicking}
+      />
     </View>
   );
 }
@@ -60,6 +70,27 @@ function Field({ label, value = '', placeholder, onChangeText, editable = true, 
   );
 }
 
+/** A field whose value is picked, not typed: the same line, as a button. */
+function DayField({ label, value, placeholder, onPress, focused }) {
+  const filled = value != null;
+  return (
+    <View style={styles.field}>
+      <Text variant="labelEyebrow" color="muted">
+        {label}
+      </Text>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`${label}, ${filled ? formatDay(value) : 'not set'}`}
+        style={[styles.input, styles.dayField, focused && styles.inputFocused]}>
+        <Text variant="title" color={filled ? 'primary' : 'secondary'}>
+          {filled ? formatDay(value) : placeholder}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   card: {
     borderWidth: shape.borderWidth.box,
@@ -79,6 +110,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: shape.borderWidth.box,
     borderBottomColor: color.border.muted,
     paddingVertical: 0,
+  },
+  dayField: {
+    justifyContent: 'center',
   },
   inputFocused: {
     borderBottomColor: color.border.strong,
