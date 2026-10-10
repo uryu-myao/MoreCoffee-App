@@ -224,7 +224,7 @@ The Switch is not built yet. The taste-axis handle is now derived from it, so th
 - **Inputs**:
   - **Process**: an option set, Washed / Natural / Honey / Anaerobic. `anaerobic` is added to the table.
   - **Origin**: a country, from a bottom sheet with a search field. The bundled country list, with the user's history first.
-    - **That sheet and search field are the flavour tags' Search** (`todo.md` T-2). Build them there first and reuse them here; do not build a second one.
+    - **That sheet and search field are the flavour tags' Search.** Build them there first and reuse them here; do not build a second one.
   - **Region**: free text, with history as suggestions.
 - **Guessing from the bean name**: proposal 2026-10-09, see the report. A guess must read as a guess, and an unconfirmed guess must not be saved as the user's input.
 
@@ -253,7 +253,7 @@ The Switch is not built yet. The taste-axis handle is now derived from it, so th
 ## 8h words: merges live in their own table (policy, 2026-10-10)
 
 - Renaming or merging a word in 8h **never rewrites note text**. Notes stay as the user wrote them (`cups.note`).
-- A separate table holds "this word merges into that one" (and renames). Matching and counting read it. Details are specced with 8h (`data-model.md`).
+- A separate table holds "this word merges into that one" (and renames). Matching and counting read it. Details are specced with 8h.
 
 ## Suggested value row (#35) when there is no guess (2026-10-10)
 

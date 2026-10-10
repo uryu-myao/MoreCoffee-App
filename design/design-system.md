@@ -12,11 +12,11 @@ Reverse-extracted from the shipped screen designs, then revised by decisions rec
   - `8b` `8k`, sign-in / account, held with Welcome.
 - **Out of scope**: `9a` `9b` `8a` (Welcome, designed separately), `1a` (rejected direction).
 - **Updated**: 2026-10-10.
-- **Do not take values from the `process/` files.** They hold the raw values from before the merges, many of them discarded. The values in this file and in `tokens.ts` are the ones in force.
+- **Do not take values from the `process/` files.** They hold the raw values from before the merges, many of them discarded. The values in this file are the ones in force.
 
 **Method**: values were tagged by role (the property they are declared on + the element type they land on), then judged **inside each role** against a ≥3-screen threshold. Merges required two gates — Gate A (two values both qualifying in one role AND ΔE00 ≥ 2.0 are parallel intent, never merged) and Gate B (ΔE00 ≤ 8 non-text / ≤ 5 text, plus a WCAG contrast check that must not drop). Mechanism-bound values (scrim, error state, caret, meters) are promoted regardless of frequency.
 
-Companion documents: `drift.md` (values to correct), `gaps.md` (states never designed), `exceptions.md` (6 true one-offs), `tokens.ts` (React Native object).
+Companion documents: `drift.md` (values to correct), `gaps.md` (states never designed), `components.md` (the component catalog). Implementation-side files (the React Native token object, the data model, the build to-do list, the exceptions record) are not part of this set; what Design needs from them is summarised where it matters.
 
 ---
 
@@ -379,7 +379,7 @@ React Native has no `em` and no unitless line height, so both are converted: `le
 
 `lineHeight: 未找到` means no `line-height` was declared on any use of that style. No value is invented; RN falls back to the platform default.
 
-**15 styles.** The original 14 all have ≥3 uses, and 13 of them have ≥3 screens. `text.inlineAction` is promoted as mechanism-bound (class A). `text.note` (2026-10-06) is promoted from `exceptions.md` E-3 because it now has a clear role: the tasting-note input.
+**15 styles.** The original 14 all have ≥3 uses, and 13 of them have ≥3 screens. `text.inlineAction` is promoted as mechanism-bound (class A). `text.note` (2026-10-06) is promoted from the exceptions list (formerly E-3) because it now has a clear role: the tasting-note input.
 
 ### Serif (Instrument Serif)
 | style | size | weight | lineHeight | replaces | reach |
@@ -544,7 +544,7 @@ Fixed element dimensions. **Never subject to the spacing scale** — snapping th
 | `size.dot.bullet` | 6 | 4 screens / 31 uses — square section bullets |
 | `size.sheet.handle` | `{ w: 56, h: 5 }` | 2 screens — bottom-sheet drag handle |
 
-**`size.tapTarget` (44) and the `44px` root padding on 6a are different things that happen to share a number.** The latter is an exception in `exceptions.md`. Never unify them.
+**`size.tapTarget` (44) and the `44px` root padding on 6a are different things that happen to share a number.** The latter is a one-off exception (§10). Never unify them.
 
 ---
 
@@ -570,7 +570,7 @@ Icons are stroke-based and take `currentColor`. `icon.xl` widens the stroke back
 
 *Correction (2026-10-04)*: fill glyphs have a second job. The tab bar's icons are also fills; their colours live in the component anatomy (`component.tabBar.icon`, §2 C), not in `icon.fill`. The extraction missed them, which is why this section originally said "one job".
 
-Three 16px fill icons in 3b use other colours and are true exceptions (`exceptions.md`).
+Three 16px fill icons in 3b use other colours and are true exceptions (§10).
 
 ---
 
@@ -614,7 +614,7 @@ What they share is "not something the user has settled". They are still two uses
 ## 9. Patterns — screen-level regularities
 
 ### Screen shell
-Every screen is `layout.screen.top` (60) → content → `layout.screen.bottom` (34), with `layout.gutter` (22) as the only horizontal padding. The header block is title + optional right-aligned meta, closed by a `2px solid` bottom border. 6a is the one screen with a shallower top (44) — see `exceptions.md` and OQ-8.
+Every screen is `layout.screen.top` (60) → content → `layout.screen.bottom` (34), with `layout.gutter` (22) as the only horizontal padding. The header block is title + optional right-aligned meta, closed by a `2px solid` bottom border. 6a is the one screen with a shallower top, a one-off exception (§10, OQ-8); use `layout.screen.top`.
 
 **RN implementation note (base `ScreenFrame`, 2026-10-04)**: the source frames measure 60 / 34 from the device edge, so they already include the status bar and home indicator. On device: top = `max(safe-area top, layout.screen.top)` and bottom = `max(safe-area bottom, layout.screen.bottom)`. On notched iPhones the inset wins (e.g. 62 at the top on iPhone 16 Pro). On devices without a notch the design value wins. An optional leading control (the 5a close button) sits above the title at `gap.row`. The source's 10px header gap is an equidistant value the scale already absorbed, so it is not drift.
 
@@ -678,7 +678,7 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 ### Bottom sheet (2b; 3b's action sheet removed by drift D-26)
 Planned uses (2026-10-09 / -10):
 - the confirmation for "Remove from my gear" and "Delete this bag", built like 3b's former action sheet (`gaps.md` 18);
-- the search sheet shared by the flavour tags' Search and the bag's Origin (`todo.md` T-2).
+- the search sheet shared by the flavour tags' Search and the bag's Origin: built once, for the flavour tags first, then reused.
 
 `position: absolute`, pinned bottom, `color.surface.raised`, `2px solid` top border, `padding: 22 22 34`, a `size.sheet.handle` bar centred at the top with `-6` optical margin. Behind it: the page at `opacity: 0.45` plus `color.scrim`.
 
@@ -759,7 +759,7 @@ Every `ScreenFrame` with `scroll`: Records (standard header), and Log a cup and 
   - **Full collapse is only 13**: the title box top stops under the back button (104 + `gap.row`), not at the safe-area top, so only the title's shrink is given back. Scroll range 380.7, so it always completes.
   - "Skippable" fading loses no information: "Save without the note" stays at the foot of the page, and the intro line says untouched axes are left out.
 
-- In the Record sheet (2026-10-07, after the move; `todo.md` T-1):
+- In the Record sheet (2026-10-07, after the move):
   - Tasting note, offset −30 / 0 / 7 / 14 / 21 / 22 / 200: rule 122 / 122 / 115 / 108 / 101 / 101 / 101. The first content line stays 16 under the rule (138 → 117), then 1:1. The control stays centred on the cap band (0.3 → 0.9). −30 = 0 and 21 = 200.
   - Log a cup, offset −30 / 0 / 3 / 6 / 50: rule 122 / 122 / 119 / 116 / 116; meta gone by 6.
   - Frame timing in the sheet (Tasting note): 60 fps, worst frame 18.6 ms, none over 20 ms.
@@ -816,7 +816,7 @@ Swiping horizontally moves between the four tab screens: Home → Records → Tr
 
 **Why it changed**: the source (6a / 8d, and in flow on 1b / 2a / 4a / 4b) draws a 90%-wide floating bar with `shadow.floating`. That spec was drawn against an empty screen. Over real content (a full Records list) the elevation read as noise and worked against the design, so the bar went full width and the shadow came off.
 
-**Superseded**: the 90% width, the 2px box outline, `shadow.floating`, the `space.4` side padding, and the fade band (`state.fade`, `layout.fade.top`). `shadow.floating`, `state.fade` and `layout.fade.top` now have **no consumer**; they are left in `tokens.ts` pending a decision. `HardShadow` itself is still used by the primary `Button`, `StarRating`'s error state, and the FieldRow harness.
+**Superseded**: the 90% width, the 2px box outline, `shadow.floating`, the `space.4` side padding, and the fade band (`state.fade`, `layout.fade.top`). `shadow.floating`, `state.fade` and `layout.fade.top` now have **no consumer**; they are kept as tokens pending a decision. `HardShadow` itself is still used by the primary `Button`, `StarRating`'s error state, and the FieldRow harness.
 
 ### Empty slot (base `EmptySlot`, 2026-10-05)
 The `border.addSlot` slot as a component: always a button, full width. It is the row form from 3a, 3b, 3d, 5a, 5d and 5e.
@@ -843,7 +843,7 @@ The optional "Bought at" row in Record coffee's Packaged mode is composed inline
 - a **weak frame**: `shape.borderWidth.divider` (1.5) in `color.border.muted` on `color.surface.raised`, not the 2px ink card;
 - an **inline glyph**: `bag`, `icon.md`, `color.icon.muted`, with no swatch;
 - the **name** in `label`, truncated with the `name` preset, filling the row;
-- ~~a right-aligned value ("¥180")~~ — dropped 2026-10-05: the data model has no price (`drift.md` D-15, `data-model.md`);
+- ~~a right-aligned value ("¥180")~~ — dropped 2026-10-05: the data model has no price, deliberately (`drift.md` D-15);
 - **no chevron** and no eyebrow label. It is inert; pressed darkens it to `state.pressed.surface` (§1).
 
 Padding is `inset.control` (the source's 13 / 16 folds to it) and the gap is `space.12` (the source's 11 folds to it). It sits under a `SectionLabel` with the `optional` status.
@@ -905,8 +905,8 @@ The input of Taste DNA, on 5b only. **The display of Taste DNA is a different co
 - Superseded table: Strongly {low} / Leaning {low} / Balanced / Leaning {high} / Strongly {high}.
 - **The Roast axis is the cup's perceived roast, not the bag's label (2026-10-09).**
   - It keeps five steps like the other three axes. The bag's roast level is separate data and never pre-fills it. It is transcribed from the label, in **4 steps**: Light / Medium / Medium-dark / Dark, plus unset (2026-10-09).
-  - The uneven 4 against the axis's 5 is deliberate: matching counts would invite "set both the same" (`data-model.md`).
-  - A gap between the two is information about how this person tastes, not a conflict to remove (`data-model.md` Planned changes).
+  - The uneven 4 against the axis's 5 is deliberate: matching counts would invite "set both the same". Do not add medium-light to complete it.
+  - A gap between the two is information about how this person tastes, not a conflict to remove.
 
 - Why not 1-point steps: Taste DNA is a weighted average with recency decay, so coarse input averages into fine output over many cups. The precision of the input does not set the precision of the output. Asking "38 or 39?" works against logging a cup in 15 seconds.
 - 9 steps was not taken.
@@ -1068,16 +1068,11 @@ Disabled (decided 2026-10-04, `gaps.md` 4 — not in the shipped screens): eithe
 
 ## 10. Exceptions
 
-Six true one-offs survive. Full records — verbatim source, context, all candidate distances, re-check trigger — are in `exceptions.md`.
+**There are five true exceptions** (six until 2026-10-06, when the 5b italic was promoted to `text.note`). **All are one-off values awaiting re-check. Do not reference them on a new screen.** They sit on 2b (a skeleton title colour), 3b (three fill icons), 6a (a badge rotation and a root top padding) and 8c (a footer bottom padding). Their values are deliberately not listed here; use the tokens.
 
-1. `#DBCCC3` — skeleton row title inside the 2b sheet
-2. Three 16px fill icons in 3b
-3. `font-style: italic` + serif 20/1.4 — the 5b tasting-note field
-4. `rotate(-4deg)` — the 6a "Home brewer" badge (vs `rotation.sticker` = −3)
-5. Footer bottom padding 38 in 8c (19 other screens use 34)
-6. Root top padding 44 in 6a (18 other screens use 60)
+- 8n, added later, repeats 8c's footer padding, so that one may no longer be a one-off; it is re-checked with the setup flow.
 
-Also standing: `rotation.sticker = -3` (4 screens; RN wants the number, formatted as `'-3deg'` at use).
+Also standing: `rotation.sticker = -3` (4 screens).
 
 ---
 
@@ -1106,13 +1101,13 @@ Also standing: `rotation.sticker = -3` (4 screens; RN wants the number, formatte
 
 ## 12. Changelog
 
-One line per change to this document or `tokens.ts`, with the reason.
+One line per change to this document or to the token values, with the reason.
 
 - 2026-10-04 — §3.1 added: truncation policy (`name` 2 / `meta` 1 / `note` 3 / `none`), landed in the base `Text` component because user-input text had no defined behaviour (`gaps.md` 1).
 - 2026-10-04 — OQ-14 added: CJK fallback renders at regular weight, found while validating §3.1 with ja/zh strings.
 - 2026-10-04 — OQ-6 resolved: hard shadows render as an offset ink View behind the element, because Android `elevation` cannot express blur 0.
 - 2026-10-04 — §9 Buttons: disabled state defined from existing tokens (ground / border.muted / text.muted, no shadow), because the base Button needed one and no screen designs it.
-- 2026-10-04 — Copy: maker chip "Ready-to-drink" → "Packaged" (ja 市販品, zh 市售), because the axis is who made it, not the container. Recorded in `i18n-notes.md`; the three chips now fit one line at 390 / 393pt.
+- 2026-10-04 — Copy: maker chip "Ready-to-drink" → "Packaged" (ja 市販品, zh 市售), because the axis is who made it, not the container. The three chips now fit one line at 390 / 393pt.
 - 2026-10-04 — §3.1 truncation policy confirmed by design; `gaps.md` 1 marked resolved.
 - 2026-10-04 — `drift.md` D-10: the 52 / 50px secondary buttons in 3b, 5a and 1b are drift. Secondary is 56px with `button.caps` per §9, because it shares the primary's geometry.
 - 2026-10-04 — StarRating card padding confirmed as `inset.container` (14/16), per the §9 Card pattern. The 18/16 in 5a / 5d is not an exception.
@@ -1122,8 +1117,8 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-04 — **Token added: `state.pressed.surface` (alias of `surface.muted`) and `state.pressed.action` (`#05639C`), plus the §1 Pressed Hard Rule.** Pressed appears in every tappable component, which clears the rule of two. It darkens the fill rather than lowering opacity, because opacity washes out `HardShadow` and the ink borders on the warm ground. `surface.muted` was chosen over `surface.sunken` because sunken sits only ΔE00 3.16 below ground.
 - 2026-10-04 — §9: IconButton pattern documented and the base component built. The pressed Hard Rule lists it as a target and it did not exist yet; the header close / back button is the variant used across the 3x, 5x, 6d, 7x and 8x screens.
 - 2026-10-04 — `SegmentedControl` chips centre their label (`justifyContent` / `alignItems: center`), because a row stretches every chip to its tallest. A chip with a shorter line box kept its text at the top, with the surplus below — the zh "more padding below" seen in device review. No per-language padding; the PingFang / Hiragino metric gap goes to OQ-14.
-- 2026-10-04 — StarRating pressed fill changed from the 52px square to a 48px disc, 1px below the box centre (§9 Star rating). It is the product's one circle, recorded as `exceptions.md` E-7 rather than a token because it has a single use. The pressed Hard Rule is unchanged.
-- 2026-10-04 — **§1 Shape rewritten; E-7 removed.** The old rule ("no border radius, anywhere") conflated container geometry with press feedback. It now reads: containers are square-cornered, and press feedback follows the shape of the element it sits behind (square for rectangular controls, circle for radial ones). Narrowing the rule removes the need for an exception, so E-7 is deleted from `exceptions.md` and its §1 / §10 pointers are dropped. The StarRating disc and its +1px offset stay in §9 as an implementation note.
+- 2026-10-04 — StarRating pressed fill changed from the 52px square to a 48px disc, 1px below the box centre (§9 Star rating). It is the product's one circle, recorded as exception E-7 rather than a token because it has a single use. The pressed Hard Rule is unchanged.
+- 2026-10-04 — **§1 Shape rewritten; E-7 removed.** The old rule ("no border radius, anywhere") conflated container geometry with press feedback. It now reads: containers are square-cornered, and press feedback follows the shape of the element it sits behind (square for rectangular controls, circle for radial ones). Narrowing the rule removes the need for an exception, so E-7 is deleted from the exceptions record and its §1 / §10 pointers are dropped. The StarRating disc and its +1px offset stay in §9 as an implementation note.
 - 2026-10-04 — Loading state: deliberately not needed, rather than deferred.
 - 2026-10-04 — **Token added: `component.tabBar`** (slot 60 × 40, add slot 68 × 40, icon colours `#9B8F87` inactive / `#C6BBD3` calendar accent, plus aliases). Rebuilding the bottom bar found that the extraction had missed both icon colours, because the source writes them in lowercase hex; they are the only lowercase values on in-scope screens. Both clear the ≥3-screen threshold (6 and 5 screens), so they become tokens instead of being snapped to the nearest existing colour. §2 C, §6 correction, `drift.md` "not drift".
 - 2026-10-04 — `drift.md` D-11: the 6a / 8d fade goes solid at 40% of its wrapper; the shell ships the token's 30px band ending at the bar edge.
@@ -1138,7 +1133,7 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-05 — Record coffee: Barista (5a) and Packaged (5e) field sets built. The 5e "Bought at" row is an inline composition recorded in §9, with a promotion rule so a second occurrence becomes a base component. Mode switches keep the rating and the photo slot, reset the field set, and animate the height with `motion.expand`.
 - 2026-10-05 — Record coffee intro line is now per mode: 5a and 5e verbatim; the Barista line is written to 5e's pattern, pending review. It crossfades with `motion.expand`.
 - 2026-10-05 — Intro copy: Packaged "Bottled cups…" → "Packaged cups…" (D-14: the rename wins over the 5e mock); Barista "Café cups…" → "Cups made for you…", so every line names who made the cup.
-- 2026-10-05 — Data layer (Step 6): schema, migrations and types in `src/data/`, reasoning in `data-model.md`. No price column, so the Bought at row drops ¥180 (`drift.md` D-15).
+- 2026-10-05 — Data layer (Step 6): schema, migrations and types on the implementation side. No price column, so the Bought at row drops ¥180 (`drift.md` D-15).
 - 2026-10-05 — Record coffee writes real cups (Step 6b). Field sets read their values from the database, and meta lines show only what the stored rows can back. The mock's history- and location-derived lines ("drink now", "250 m away · your 4th visit", "What you ordered here last time", "Bought twice in the last month") and "Chilled, unsweetened" wait for the features behind them.
 - 2026-10-05 — Base components added: `Badge` and `RecordRow`, for the Records list (2a). No new tokens. Record coffee now defaults its rating to 0, with Save disabled until a star is tapped (minimum viable validation), and shows the live date / time it will store, formatted by Intl.
 - 2026-10-05 — Records (2a) reads from the database: `RecordRow`s newest first, grouped under month headers. The source line degrades by mode (`drift.md` D-16), the brew-category badge is withheld (`gaps.md` 10), and the empty state is a plain one-line placeholder (`gaps.md` 5).
@@ -1155,9 +1150,9 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-06 — §9 Header eyebrow and stat: every tab carries its mock eyebrow, and Records shows the cup count (2a). Collapse revised: the stat numeral keeps its size and lands on the title baseline; small labels (eyebrow, "Cups", Record coffee's date) fade over the first half instead of scaling.
 - 2026-10-06 — §1 Hard Rule, Header collapse: controls never fade or disable; only information fades. ScreenFrame's standard-header `leading` is now fixed (the title shrinks below it) and its `meta` fades.
 - 2026-10-06 — **Token added: `size.thumbnail.summary` (40). Style added: `text.note`** (Instrument Serif 20 italic / 28), promoted from E-3; 15 styles. `SectionLabel` gains `marked` / `plain` variants and a `count` status.
-- 2026-10-06 — Tasting note (5b) built as a static shell, stood in for Try next for verification (design/todo.md). Axis slider, flavour chip and cup summary row logged as pending components (§9).
+- 2026-10-06 — Tasting note (5b) built as a static shell, stood in for Try next for verification . Axis slider, flavour chip and cup summary row logged as pending components (§9).
 - 2026-10-06 — **Renamed** `axis.rail.readonly / editable` → `derived / entered` (provenance, §2 B) and `border.empty.disabled` → `border.empty.inert`. §8 now lists dashed's two uses separately. §1 Hard Rule added: name state tokens for their meaning, across every screen.
-- 2026-10-07 — Tasting note moved into the Record sheet as step 2 (push from the right, `motion.expand`); Try next is its placeholder again (`todo.md` T-1 done). §9 Compact header revised for both steps: control + title on one row, meta as the right-aligned standard column, the control centred on the measured cap band (no fixed +4). Labels finish fading within the reachable collapse.
+- 2026-10-07 — Tasting note moved into the Record sheet as step 2 (push from the right, `motion.expand`); Try next is its placeholder again (done). §9 Compact header revised for both steps: control + title on one row, meta as the right-aligned standard column, the control centred on the measured cap band (no fixed +4). Labels finish fading within the reachable collapse.
 - 2026-10-07 — Record sheet: swipe right on Tasting note returns to Log a cup. The steps are now a native paging ScrollView, locked on step 1; button and back use the platform scroll animation instead of `motion.expand`.
 - 2026-10-07 — §1 Hard Rules added: **Focus** (one 2px `color.caret` frame outside, `space.2` gap, non-touch focus only), **Tap affordance** (option form = outline / ink + 44 + in a set; roles and states on every pressable; 6a / 8d / 8h / 8f held), **Selection limit** (lock the unselected, accent count, one light impact at the limit). `border.empty` → `border.addSlot` (+ `.inert`); `border.track` is rails only.
 - 2026-10-07 — §1 added: **Colour roles** (blue = in force, ink = chosen; settings checkboxes are chosen) and **Disabled options** (the lock look as every option set's disabled state, two reasons). Tap affordance: 6a / 8d attribute tags are a display form, 8f / 8h word tags are pressable, and height decides. Focus: on iOS delegated to the OS.
@@ -1180,3 +1175,4 @@ One line per change to this document or `tokens.ts`, with the reason.
 - 2026-10-09 — §9 Taste axis: the Roast axis is perceived roast, five steps, independent of the bag's transcribed roast level.
 - 2026-10-10 — §1 Pressed: perceptibility is the condition above surface and size. Where a darker fill cannot be seen (under 44pt) or does not exist (an ink-filled selected chip in a clearable set), scale is used.
 - 2026-10-10 — Header: 33 screens covered (the 30 of the token pass + 3g, 8n, 8o read directly); `process/` files marked not to be used for values. §9 Buttons rewritten to the variant × size decision. Roast line: bag levels in 4 steps. Bottom sheet: 3b removed, planned uses listed. Stale lines in the pending catalog and `text.inlineAction` brought up to date.
+- 2026-10-10 — Prepared for Design: references to files Design does not receive (exceptions record, data model, to-do list, RN token object, i18n notes) replaced by inline summaries. §10 rewritten: five true exceptions, located but with values withheld, never to be referenced on a new screen.

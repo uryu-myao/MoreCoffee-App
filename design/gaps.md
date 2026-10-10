@@ -157,7 +157,7 @@ Plus, globally:
 
 **Note (2026-10-06)**: user-supplied names (café, brand, drink, product) are never `nowrap`. They follow the truncation rule in item 1.
 
-**Update (2026-10-04)**: the maker chip "Ready-to-drink" is renamed **"Packaged"** (ja 市販品, zh 市售) — see `i18n-notes.md`. The three maker chips now fit on one line at 390 / 393pt. Brew-method chips and `Best rated` are unchanged.
+**Update (2026-10-04)**: the maker chip "Ready-to-drink" is renamed **"Packaged"** (ja 市販品, zh 市售) (decided 2026-10-04). The three maker chips now fit on one line at 390 / 393pt. Brew-method chips and `Best rated` are unchanged.
 
 ---
 
@@ -181,7 +181,7 @@ Plus, globally:
 **Read further 2026-10-09: two clocks.**
 - **Today**:
   - `beanFreshness` exists only as tokens; the meter (`components.md` #28) is not built.
-  - `data-model.md` says `opened_at` "drives the freshness meter", so the only date stored is the opening date.
+  - The data model stores only the opening date (`opened_at`, "drives the freshness meter").
 - **What the mocks count from**:
   - "Day 7" fits **the roast date** best. 3g says so outright ("Recounted from the roast date").
   - The meter's shape is degassing: its peak band runs ~day 6–19 of a ~37-day track, and the elapsed fill at day 7 is 19%.
@@ -191,7 +191,7 @@ Plus, globally:
 - **So both dates are needed**:
   - roast date → freshness day, the peak, and the resting state this item lacks;
   - opening date → staleness.
-  - `roasted_at` is missing from the model (`data-model.md` Planned changes).
+  - A roast date is missing from the model; adding it is planned.
 - **With a roast date, a resting state is required**, not optional: a bag roasted today is day 0, before the peak band.
 
 ---
@@ -371,7 +371,7 @@ Plus, globally:
   - and the note 3g shows to say so.
 - In a local-first app the records are the only asset, so this needs the same explicitness as 3e.
 
-**Decided 2026-10-09: cups copy their bag's details when they are logged** (`data-model.md` Planned changes).
+**Decided 2026-10-09: cups copy their bag's details when they are logged** (a planned data-model change).
 - `bean_id` stays a reference, but display and Taste DNA read the cup's own copies. So deleting a bag no longer strips its cups.
 - **Build order: the copy (a migration) lands before the delete feature.** Delete is not built on the reference model.
 
@@ -425,7 +425,7 @@ The photo pair sits beside a 76 thumbnail, so 44 would still fit its height.
 
 ## 21. Taste DNA is recomputed, so its history can move (added 2026-10-10)
 
-**What**: Taste DNA and its shifts are not stored; they are computed from cups as of a date (`data-model.md` Storage audit). That is right for a local-first record. But anything that changes the inputs or the arithmetic changes past results too:
+**What**: Taste DNA and its shifts are not stored; they are computed from cups as of a date (not stored). That is right for a local-first record. But anything that changes the inputs or the arithmetic changes past results too:
 - 5c's "this cup pushed you brighter", 2c's "This cup pushed you brighter", 8f's "Last shift", "shifted 4 days ago".
 
 The user sees the past rewritten.
