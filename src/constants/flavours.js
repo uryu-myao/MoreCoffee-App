@@ -4,20 +4,24 @@
  * One concrete name per flavour-wheel family; mock words first.
  *
  * group (decided 2026-10-10): which suggestions 8n's "How do you take your
- * coffee?" puts first — bright (acidity / origin) for "Black", round (body /
- * sweetness) for "With milk"; neutral words are never reordered. The ordering
- * itself is not built yet (stage 1 shows the list as is).
+ * coffee?" favours — bright (acidity / origin) for "Black", round (body /
+ * sweetness) for "With milk". Favouring puts that group first WITHOUT hiding
+ * the other: the first five keep one or two of the rest (8n = "what you use
+ * more, first", not "hide the rest"). Rule: design/components.md. The 8n
+ * reordering is not built yet; the default order below is.
  */
 export const BUNDLED_FLAVOURS = [
+  // Default order interleaves the groups (decided 2026-10-10), so the first
+  // five shown hold both directions (3 bright, 2 round) instead of five bright.
   { word: 'Jasmine', group: 'bright' },
-  { word: 'Peach', group: 'bright' },
-  { word: 'Grapefruit', group: 'bright' },
-  { word: 'Blackcurrant', group: 'bright' },
-  { word: 'Black tea', group: 'bright' },
   { word: 'Cocoa', group: 'round' },
+  { word: 'Peach', group: 'bright' },
   { word: 'Walnut', group: 'round' },
+  { word: 'Grapefruit', group: 'bright' },
   { word: 'Caramel', group: 'round' },
+  { word: 'Blackcurrant', group: 'bright' },
   { word: 'Cinnamon', group: 'neutral' },
+  { word: 'Black tea', group: 'bright' },
   { word: 'Smoke', group: 'neutral' },
 ];
 

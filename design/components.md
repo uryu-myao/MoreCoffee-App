@@ -260,7 +260,14 @@ The bundled list is the starting point for 5b's flavour tags (never a whitelist;
   - bright (acidity / origin): Jasmine, Peach, Grapefruit, Blackcurrant, Black tea.
   - round (body / sweetness): Cocoa, Walnut, Caramel.
   - neutral (no reordering): Cinnamon, Smoke.
-- **To check when 5b is wired**: with "Black", the first five suggestions would all be bright. Whether that reads well, or the groups should interleave, is looked at then.
+- **Default order: interleaved** (decided 2026-10-10). Found when 5b was wired: in group order the first five were all bright, and with five shown the round and neutral words never appeared.
+  - Order: Jasmine (b), Cocoa (r), Peach (b), Walnut (r), Grapefruit (b), Caramel (r), Blackcurrant (b), Cinnamon (n), Black tea (b), Smoke (n).
+  - So the first five are bright 3 / round 2.
+- **When 8n is set, favour the group without hiding the other.**
+  - "Black" favours bright; "With milk" favours round; "Depends on the day" or unset keeps the default.
+  - **The first five are 3 of the favoured group + 2 of the others**, each group in its default order. Round has only 3 words, so "With milk" shows all three plus 2 bright. Then the rest follow in default order.
+  - Reason: someone who drinks it black still tastes cocoa. 8n means "what you use more, first", not "hide the rest".
+- **Root problem, recorded**: showing 5 hides half of the 10 bundled words. Until Search (T-2) works, a word not shown might as well not exist.
 - Superseded proposal: five to five, if Cinnamon and Smoke had stayed in body / sweetness. If they are "neither", a third, unordered group is needed. Words added by the user from history carry no group; they follow history order.
 
 ## Single-select: can it be cleared? (recorded 2026-10-10)
