@@ -75,6 +75,11 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **5b "Save this cup"** saves everything.
 - **5b "Save without the note"** saves only 5a's part. It is **the one way to drop** the axes, flavour tags and My words, and it is an explicit act.
 - One insert, at whichever Save is pressed. Closing the sheet discards the record; there are no drafts in V1.
+- **5b's second button changes its label (decided 2026-10-10; a new decision, not drift).**
+  - Nothing entered in 5b: "Save without the note", as in the mock.
+  - Any axis, flavour or word entered: **"Discard and save"**.
+  - The verb says input is dropped; "without the note" left open what "the note" covers.
+  - It is a full-width button, so the swap never changes its size, and the label is what VoiceOver reads. It overrides the mock's copy, so Design needs to know.
 - **Correction**: an earlier rule said "5a's Save = no tasting note". It overlooked that 5b can go back to 5a. Under it, axes entered in 5b would have been dropped without a word, the worst kind of behaviour for this product.
 
 ### Required marks keep a promise (added 2026-10-10)
@@ -1189,3 +1194,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-10 — §5: the rule for what is a size token (drawn alike in 2+ places; derived values are formulas in §9); `size.switch` and `size.button.row` added. §4: serif-ink spacing uses primitives directly (D-34). §9: Radio marker spec with its inner mark as a formula.
 - 2026-10-10 — §1: a required mark is the promise "always filled"; a field that cannot be filled (no bag, no gear) shows no mark and does not block Save.
 - 2026-10-10 — §1: three save paths; only 5b's "Save without the note" drops tasting input, explicitly. Corrects the earlier "5a's Save = no note" rule, which would have dropped 5b's input silently.
+- 2026-10-10 — §1 Saving a cup: 5b's second button reads "Discard and save" once anything is entered (a new decision overriding the mock's "Save without the note").

@@ -139,6 +139,10 @@ Plus, globally:
 
 **Parts affected**: every form and every network action. By component: Text input inline error (23), Photo slot failed (34), FieldRow lookup (11); plus the save-failure and offline flows.
 
+**Save failure, as built in stage 1 (2026-10-10)**:
+- An alert, "This cup wasn't saved — Everything you entered is still here", followed by the raw technical error. The sheet stays open with every input kept (checked by forcing an insert failure).
+- **The wording is undesigned**: the technical message is a stand-in so a failure is never silent.
+
 **Measured**: the error system (`state.error.border` / `.surface` / `.shadow` / `.text` / `.dashed`) appears on **5d alone** — missing required fields in the log-a-cup form. There is no network error, no save failure, no offline state, no per-field inline error.
 
 **What happens if left alone**: the vocabulary exists (brown border + brown hard shadow + tinted surface) but its scope is unproven; engineers will apply it to failures it was not designed for, or invent a red that does not exist in the palette.
@@ -468,6 +472,11 @@ The user sees the past rewritten.
 - Also seen: 8j's typed message text is `#3C332E`, not a token either.
 
 **Needs deciding**: one placeholder colour, as part of the text input's empty state (`components.md` #23, "placeholder / empty" undesigned).
+
+**Also undefined: the colour of entered text** (added 2026-10-10).
+- 8j's typed message and 8o's entered bean name use `#3C332E`, not a token.
+- The app's 5b My words uses `text.primary` for now (stage 1).
+- To be decided together with D-38.
 
 ---
 

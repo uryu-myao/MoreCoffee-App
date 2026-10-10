@@ -135,6 +135,8 @@ Not in `schema.ts` yet. They change the structure, so they land as a migration o
 - `anaerobic`.
 
 Do not stack small migrations.
+- **What "one migration" means**: everything already visible lands together. It does not mean nothing may be added later.
+- **Migration 3 is already known**: a "first setup done" flag, added when the first-setup flow (8a / 8n / 8c / 8o) is built (stage 3 or later). Without it, a skipped setup (both settings NULL) cannot be told from one never shown.
 
 ### Storage audit: every input in the 31 screens (2026-10-10)
 
