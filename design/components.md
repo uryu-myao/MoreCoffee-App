@@ -299,10 +299,12 @@ The bundled list is the starting point for 5b's flavour tags (never a whitelist;
 
 **Search sheet layout** (decided 2026-10-10): runs from under the status bar to the keyboard's top; when the keyboard goes, only the bottom edge moves (the top never jumps).
 - **Measured on an SE (375 × 667)**: list starts at 125pt; rows are 53.5pt.
-- **With the keyboard up**: the keyboard is 260pt (216 + 44 QuickType), so the list has 667 − 260 − 12 − 125 = **270pt, 5 rows**. The software keyboard could not be shown here (headless simulator), so this figure is the measured layout plus the standard keyboard height. To confirm on a device.
-- With the keyboard down: about 9.5 rows.
+- **With the keyboard up: about 270pt, 5 rows** (confirmed on a device 2026-10-11).
+- With the keyboard down: about 9.5 rows. Closing the keyboard moves only the bottom edge; **no jump** (confirmed on a device 2026-10-11).
 
 **Word order in the flavour sheet**: words new in this cup first, then history (most used, then most recent), then the bundled words in their order. Matching ignores case, and words starting with the query come first.
+- **5b's five chips use the same order** (decided 2026-10-11): one set of suggestions is never shown in two orders. With no history it is the bundled list's interleaved order.
+- **8n vs history**: 8n's favouring ("Black" → bright first) only reorders the bundled list, so it is the starting order while there is no history. As history grows, history leads and 8n's effect fades. That is intended.
 
 **Add row**: last row; "Add \"Word\"" beside a 24 dashed `border.addSlot` box with a plus. Not drawn in any mock.
 

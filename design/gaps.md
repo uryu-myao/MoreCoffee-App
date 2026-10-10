@@ -255,6 +255,11 @@ Plus, globally:
 
 **Needs designing**: a visible way to give the reason. Not solved now.
 
+**Disabled buttons too (added 2026-10-11)**: §1 now gives a disabled action the warning haptic, but only where the screen shows why. Three buttons are off with no reason on screen, so they stay silent until a reason is designed:
+- **5a "Save this cup" with no rating**. The mocks answer this differently: **5d ("Missing required fields — after tapping Save") keeps Save pressable** and, on a press, shows what is missing ("Tap a star — this is the one thing the app can't guess.", "Two answers are still missing", "Go to first"). The app disables Save instead (stage 1). To decide: build 5d's flow, or keep disabling and show a reason.
+- **5b "Save this cup" / "Save without the note" with no rating**: 5b shows only "–" for the rating; nothing says it is required.
+- **3c "Open this bag" with an empty name**: Bean name carries no required mark; only the other fields' "Optional" hints at it.
+
 ---
 
 ## 13. 5c's movement copy covers 2 of 8 directions, and has no threshold (added 2026-10-07)

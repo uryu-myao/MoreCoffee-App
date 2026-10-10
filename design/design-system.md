@@ -68,6 +68,10 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - **light impact**: a discrete press;
   - **selection**: sweeping across a continuous set of options;
   - **warning** (iOS `UINotificationFeedbackGenerator` `.warning`): touching something that cannot act. First use: 5b's locked Search opener. Light impact already means "pressed" everywhere, so giving it to something that does nothing would read as "it pressed, and nothing happened".
+- **A disabled action gives the warning haptic (decided 2026-10-11)**: buttons and sheet openers. **Only when the screen shows why it cannot be pressed.** If it cannot be shown, design the reason first, then the haptic (`gaps.md` 12).
+  - **Options in a set stay silent** when locked or disabled (a locked tag, 3a's rows): the count beside them explains it, and a warning on every tap would scold.
+  - Applied: 5b's locked Search (the count), 3c "Open this bag" when no slot is free (the line under it), 3a "Save 0 items" (its label).
+  - Not applied, no reason on screen: 5a / 5b Save with no rating, 3c "Open this bag" with no name (`gaps.md` 12).
 
 ### Header collapse (added 2026-10-06)
 - **Controls never fade and are never disabled by the collapse.** Back, close, save and other functional controls stay fully visible and pressable throughout. **Only information fades**: the eyebrow, the date / time, and meta labels.
@@ -211,7 +215,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **Selected options stay live.** Deselecting one unlocks the rest at once.
 - **The count explains it**: at the limit it turns `color.text.accent` ("5 of 5", "3 of 3 picked", "8 / 8 Selected").
 - **A light impact at the moment the limit is reached, once.** "Now locked" reaches the user wherever they are looking. A press on a locked option stays silent.
-  - **Exception, 5b's locked Search opener (2026-10-10)**: a press gives the **warning** haptic. Search opens a sheet rather than choosing an option, and a press that opens nothing gave no sign at all. Whether every locked or disabled option should do the same is open (report 2026-10-10).
+  - **Exception, 5b's locked Search opener (2026-10-10)**: a press gives the **warning** haptic. Search opens a sheet rather than choosing an option, and a press that opens nothing gave no sign at all. Settled 2026-10-11: actions warn, options stay silent (§1 Haptics).
 - Why lock rather than allow the tap and then refuse: an option that looks pressable but will not select is a small failure each time.
 
 ### Disabled options (added 2026-10-07)
@@ -1201,3 +1205,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-10 — §1: three save paths; only 5b's "Save without the note" drops tasting input, explicitly. Corrects the earlier "5a's Save = no note" rule, which would have dropped 5b's input silently.
 - 2026-10-10 — §1 Saving a cup: 5b's second button reads "Discard and save" once anything is entered (a new decision overriding the mock's "Save without the note").
 - 2026-10-10 — §1 Haptics: three kinds (light impact, selection, warning); consult before adding a fourth. Warning's first use: 5b's locked Search opener (an exception to "a locked option stays silent", pending the wider question).
+- 2026-10-11 — §1 Haptics: a disabled action (button, sheet opener) gives the warning haptic, only where the screen shows why; options in a set stay silent.

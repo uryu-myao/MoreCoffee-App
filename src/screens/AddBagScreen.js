@@ -60,7 +60,9 @@ export default function AddBagScreen({ onBack }) {
         stat={open != null ? { value: `${open} / ${OPEN_BAG_LIMIT}`, label: 'Bags open' } : undefined}
         footer={
           <View style={styles.footer}>
-            <Button label="Open this bag" onPress={openBag} disabled={!name || full || open == null} />
+            {/* Full: the line below says why, so a press warns (§1). An empty name
+                has no reason on screen yet (gaps.md 12), so it stays silent. */}
+            <Button label="Open this bag" onPress={openBag} disabled={!name || full || open == null} warnWhenDisabled={full} />
             {free != null ? (
               <Text variant="bodySm" color="secondary" style={styles.slots}>
                 {full ? 'No slots free. Finish a bag to free one up.' : `${free} of ${OPEN_BAG_LIMIT} slots free. Finish a bag to free one up.`}

@@ -12,7 +12,7 @@ Items for Design's next request, gathered as they come. Send together; group B i
 - **3a (minimal), "Add gear"**: 8c's four generic gear as a checkbox list, "N / 8 Selected", "Save N items", "N slots left".
 - **Date sheet (Roasted on)**: iOS spinner in the bottom sheet. The spinner was the only realistic choice: compact (a rounded pill + popover) and inline (a month grid with a round selected day) both bring the OS's round shapes against the square-only rule. Text is set to `text.primary`; the OS still draws a light rounded selection band.
 - **Flavour search sheet**: full height, from under the status bar to the keyboard.
-  - **Constraint, please design within it: on an SE, about 270pt / 5 rows stay above the keyboard** (rows are 53.5pt; first estimate 282pt).
+  - **Constraint, please design within it. Measured on an SE (375 × 667) and confirmed on a device: about 270pt / 5 rows stay above the keyboard; 9.5 rows with it closed; rows are 53.5pt.** (The first estimate was 282pt.) Closing the keyboard moves only the sheet's bottom edge; nothing jumps.
   - The **Add "Word"** row (a dashed box with a plus) is undrawn.
   - "Done" beside the field: 8l says "Cancel", but picks apply as they are made.
   - The placeholder "Search flavors" is ours.

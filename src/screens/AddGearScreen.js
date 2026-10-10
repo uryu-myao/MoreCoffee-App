@@ -62,7 +62,8 @@ export default function AddGearScreen({ onBack }) {
       stat={owned != null ? { value: `${total} / ${GEAR_LIMIT}`, label: 'Selected' } : undefined}
       footer={
         <View style={styles.footer}>
-          <Button label={n === 1 ? 'Save 1 item' : `Save ${n} items`} onPress={save} disabled={n === 0 || owned == null} />
+          {/* "Save 0 items" says why it is off, so a press warns (§1). */}
+          <Button label={n === 1 ? 'Save 1 item' : `Save ${n} items`} onPress={save} disabled={n === 0 || owned == null} warnWhenDisabled={n === 0} />
           {owned != null ? (
             <Text variant="bodySm" color="secondary" style={styles.slots}>
               {left === 1 ? '1 slot left' : `${left} slots left`}

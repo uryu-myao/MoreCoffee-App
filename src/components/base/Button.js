@@ -1,5 +1,6 @@
+import * as Haptics from 'expo-haptics';
 import { useRef } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { color, icon, motion, shadow, shape, size, space, spacing, state } from '../../theme/tokens';
 import Glyph from './Glyph';
 import HardShadow from './HardShadow';
@@ -37,6 +38,10 @@ import Text from './Text';
  *   variant   'primary' | 'secondary' | 'text' (default 'primary')
  *   trailingIcon   optional Glyph name drawn after the label
  *   disabled
+ *   warnWhenDisabled  a press while disabled gives the warning haptic (§1
+ *             Haptics). Only where the screen already shows why the button
+ *             is off (decided 2026-10-11); otherwise leave it false and show
+ *             the reason first. Still no visual press feedback.
  *   onPress
  *   testOnly_pressed   force the pressed look (dev harness)
  */
@@ -76,14 +81,20 @@ function TextButton({ label, small = false, disabled = false, onPress, accessibi
   );
 }
 
+const warnDisabled = () => {
+  if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+};
+
 function FilledButton({
   label,
   variant = 'primary',
   trailingIcon,
   disabled = false,
+  warnWhenDisabled = false,
   onPress,
   testOnly_pressed,
 }) {
+  const warns = disabled && warnWhenDisabled;
   const primary = variant === 'primary' && !disabled;
   const labelColor = disabled ? 'muted' : primary ? color.action.fg : 'primary';
   const iconColor = disabled ? color.icon.muted : primary ? color.icon.onAction : color.icon.default;
@@ -91,8 +102,8 @@ function FilledButton({
   return (
     <HardShadow shadow={primary ? shadow.primary : null}>
       <Pressable
-        onPress={onPress}
-        disabled={disabled}
+        onPress={warns ? warnDisabled : onPress}
+        disabled={disabled && !warns}
         accessibilityRole="button"
         accessibilityState={{ disabled }}
         testOnly_pressed={testOnly_pressed}
