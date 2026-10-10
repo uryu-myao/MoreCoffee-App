@@ -270,6 +270,24 @@ The bundled list is the starting point for 5b's flavour tags (never a whitelist;
 - **Root problem, recorded**: showing 5 hides half of the 10 bundled words. Until Search (T-2) works, a word not shown might as well not exist.
 - Superseded proposal: five to five, if Cinnamon and Smoke had stayed in body / sweetness. If they are "neither", a third, unordered group is needed. Words added by the user from history carry no group; they follow history order.
 
+## Adding a bag and gear before the full screens exist (stage 2, 2026-10-10)
+
+**Naming**: screens are named by where they sit; their content is a component.
+- **3c (minimal)** is the screen: "Add a bag", reached from 5a's "Add a bag" row (later also from 3d). It is 3c because it does 3c's job, in the Record flow.
+- **Bag form** is the component inside it, with two field sets:
+  - **minimal**: Bean name (required), Roaster, Roasted on (optional). This is exactly 8o's set.
+  - **full**: the minimal set plus Roast level, Size, Photo, Origin / Region / Process, and 3c's "Reuse a past bag". These are 3c's and 3g's fields.
+- **8o** (first setup 3/3) hosts the same Bag form, minimal set, later.
+- When the full 3c is built, **this screen becomes it**: same entry points, and the form switches to the full set. No second "add a bag" screen. 8o keeps the minimal set.
+
+**Gear, the same way**:
+- **3a (minimal)** is the screen "Add gear", reached from 5a's "Add gear" row.
+- **Gear pick list** is the component: 8c's generic list (Pour-over dripper, Hand grinder, French press, Espresso machine), each mapping to a name and a category.
+  - One tap, no typing, so it fits the 15-second goal.
+  - The first gear of a category becomes its default, so Method fills at once.
+  - 8c's "I mostly drink out" is a setting, not gear; it stays in first setup.
+- The full 3a (catalogue by category, search, specific models, "Not listed — add your own", cap 8) replaces it later, the same way.
+
 ## Single-select: can it be cleared? (recorded 2026-10-10)
 
 **Today**: `SegmentedControl` cannot clear. Pressing the selected chip is a no-op (and gives no feedback: its ink fill has no darker tier, §1 Pressed). Once chosen, a value cannot return to empty.
