@@ -3,6 +3,12 @@
 Inventory only: what exists, where, how far it is built, and which states are known or missing. **No specs here.** Specs are written component by component, in the order chosen on review.
 
 Source: `MoreCoffee design.dc.html`, the 30 in-scope screens. Compiled 2026-10-07.
+**Screens added since** (read directly, 2026-10-09 / -10):
+- **3g** Edit bag (see "3g Edit bag" below);
+- **8n** First setup 1/3: a single choice with a sub-line per option ("Black · Acidity, origin" / "With milk · Body, sweetness" / "Depends on the day"), the radio-row form of #26;
+- **8o** First setup 3/3: the first bag. Bean name (#23, single line), Roaster and Roasted on (optional); "Start logging" (primary); "I'll add beans later" (a text action).
+
+8c / 8n / 8o share the setup chrome: "Setup · N of 3" + "Skip all", and a 52 × 56 back button beside a flex primary.
 
 **How it was gathered**
 - Every `cursor:pointer` element: **150 in the 30 screens** (the figure used from here on). 191 file-wide; the other 41 sit on out-of-scope screens such as 9a / 9b / 8a / 8b / 8k / 6b / 6c / 2c / 1a.
