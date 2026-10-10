@@ -530,6 +530,10 @@ The user sees the past rewritten.
 
 **Status**: resolved by stage 3's selection panel.
 
+**The same for gear (3a minimal, 2026-10-10)**: 5a's "Add gear" shows only while Method is empty (no default brewer and no default grinder). Pick only a dripper, and a grinder can no longer be added from the Record flow. Same fix: stage 3's gear picker (or 3b).
+
+**Limit counts that are always accent (2026-10-10)**: §1 says the count turns accent at the limit ("8 / 8 Selected"). 3a's and 3c's counts are the header stat, which is accent at every value, so reaching the limit changes nothing there; only the "0 slots left" / "No slots free" line says so. 5b's flavour count ("5 of 5") does turn accent.
+
 ---
 
 ## Step 4 device verification — RESOLVED (2026-10-04)
