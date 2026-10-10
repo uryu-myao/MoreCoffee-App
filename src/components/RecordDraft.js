@@ -21,7 +21,12 @@ import { insertCup, loadRecordDefaults } from '../data/repository';
  * the sheet stays open with everything still entered (nothing is lost).
  *
  * My words is typed often, so its text lives in a ref (noteRef): the field
- * keeps its own state and typing never re-renders either step.
+ * keeps its own state and typing never re-renders either step. Only the
+ * empty ↔ non-empty transition is lifted (noteFilled), for hasTastingInput.
+ *
+ * hasTastingInput: any axis entered, any flavour, or any words. 5b's second
+ * button reads "Discard and save" then, "Save without the note" otherwise
+ * (decided 2026-10-10, design-system.md §1 Saving a cup).
  */
 const RecordDraftContext = createContext(null);
 
@@ -38,6 +43,7 @@ export function RecordDraftProvider({ onSaved, children }) {
   const [axes, setAxes] = useState(EMPTY_AXES);
   const [flavours, setFlavours] = useState([]);
   const noteRef = useRef('');
+  const [noteFilled, setNoteFilled] = useState(false);
   const saving = useRef(false);
 
   useEffect(() => {
@@ -102,9 +108,11 @@ export function RecordDraftProvider({ onSaved, children }) {
     [axes, db, defaults, flavours, mode, onSaved, rating]
   );
 
+  const hasTastingInput = noteFilled || flavours.length > 0 || Object.values(axes).some((v) => v != null);
+
   const value = useMemo(
-    () => ({ defaults, rating, setRating, mode, setMode, axes, setAxis, flavours, toggleFlavour, noteRef, save }),
-    [axes, defaults, flavours, mode, rating, save, setAxis, toggleFlavour]
+    () => ({ defaults, rating, setRating, mode, setMode, axes, setAxis, flavours, toggleFlavour, noteRef, setNoteFilled, hasTastingInput, save }),
+    [axes, defaults, flavours, hasTastingInput, mode, rating, save, setAxis, toggleFlavour]
   );
   return <RecordDraftContext.Provider value={value}>{children}</RecordDraftContext.Provider>;
 }

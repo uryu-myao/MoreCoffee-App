@@ -87,13 +87,15 @@ const AxisRow = memo(function AxisRow({ axis, value, setAxis }) {
  * text.note, the one italic). TODO: the keyboard's effect on the header
  * collapse gets its own round.
  */
-function MyWords({ noteRef }) {
+function MyWords({ noteRef, setNoteFilled }) {
   const [text, setText] = useState(noteRef.current);
   return (
     <TextInput
       value={text}
       onChangeText={(t) => {
         setText(t);
+        // Lift only the empty ↔ non-empty change (for the Discard and save label).
+        if (Boolean(t.trim()) !== Boolean(noteRef.current.trim())) setNoteFilled(Boolean(t.trim()));
         noteRef.current = t;
       }}
       multiline
@@ -137,7 +139,7 @@ function Chip({ label, on, search, locked, onPress }) {
 
 export default function TastingNoteScreen({ onBack }) {
   const insets = useSafeAreaInsets();
-  const { defaults, mode, rating, axes, setAxis, flavours, toggleFlavour, noteRef, save } = useRecordDraft();
+  const { defaults, mode, rating, axes, setAxis, flavours, toggleFlavour, noteRef, setNoteFilled, hasTastingInput, save } = useRecordDraft();
   if (!defaults) return null;
   const cup = cupSummary(defaults, mode);
   const atLimit = flavours.length >= FLAVOUR_LIMIT;
@@ -197,7 +199,7 @@ export default function TastingNoteScreen({ onBack }) {
 
       <View style={styles.section}>
         <SectionLabel variant="plain" label="My words" />
-        <MyWords noteRef={noteRef} />
+        <MyWords noteRef={noteRef} setNoteFilled={setNoteFilled} />
       </View>
 
       {/* 5b's buttons sit on the ground (no footer panel). The mock's 52pt
@@ -207,7 +209,17 @@ export default function TastingNoteScreen({ onBack }) {
             explicit way to drop the axes, flavours and My words (§1). The
             rating is required on both steps. */}
         <Button label="Save this cup" onPress={() => save({ withNote: true })} disabled={rating === 0} />
-        <Button label="Save without the note" variant="secondary" onPress={() => save({ withNote: false })} disabled={rating === 0} />
+        {/* "Discard and save" once anything is entered: the verb says it drops
+            input, where "without the note" left open what it covers (decided
+            2026-10-10; overrides the mock's copy). Full width, so the swap
+            never changes the button's size; the label is also what VoiceOver
+            reads. */}
+        <Button
+          label={hasTastingInput ? 'Discard and save' : 'Save without the note'}
+          variant="secondary"
+          onPress={() => save({ withNote: false })}
+          disabled={rating === 0}
+        />
       </View>
     </ScreenFrame>
   );
