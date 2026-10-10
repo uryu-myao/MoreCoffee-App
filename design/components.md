@@ -254,6 +254,8 @@ The bundled list is the starting point for 5b's flavour tags (never a whitelist;
 | ＊Cinnamon | added | spice | body / sweetness (or neither: spice sits with roast) |
 | ＊Smoke | added | roast | body / sweetness (or neither; alternative "Toast") |
 
+- **C-1 answered (2026-10-10, confirmed)**: 8n orders **only the flavour-tag suggestions**. The order of the four axes is fixed; AxisSlider is not affected.
+- **8n's sub-lines were written by Design**, not taken from a brief: "Acidity, origin" and "Body, sweetness". "Acidity" and "Body" overlap the axis names, which suggested 8n might reorder the axes. Whether to reword them is decided later.
 - Five to five, if Cinnamon and Smoke stay in body / sweetness. If they are "neither", a third, unordered group is needed. Words added by the user from history carry no group; they follow history order.
 
 ## Single-select: can it be cleared? (recorded 2026-10-10)

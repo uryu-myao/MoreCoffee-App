@@ -927,6 +927,7 @@ The input of Taste DNA, on 5b only. **Its display is a different component, Axis
   - the value is the step's name; an empty axis reads "Not entered yet";
   - the first adjustment of an empty axis starts from Balanced;
   - custom action Clear when entered.
+- **Order of the axes is fixed**: Acid ↔ Bitter, Body, Roast, Sweetness. First setup's "How do you take your coffee?" (8n) orders only the flavour suggestions, never the axes (C-1, 2026-10-10).
 - **Device-tuning constants** (in code): `ACTIVE_OFFSET_X` / `FAIL_OFFSET_Y` = 10, `TAP_MAX_DISTANCE` = 8; the edge swipe's `EDGE` / `FAIL_OFFSET_Y` / `BACK_*`.
 
 **Superseded — do not draw** (kept so they are recognised, not reused):
