@@ -67,6 +67,9 @@ export function RecordDraftProvider({ onSaved, children }) {
   /** A bag just added (3c): it becomes the cup's bag at once. */
   const chooseBag = useCallback((bag) => setDefaults((prev) => ({ ...(prev ?? EMPTY_DEFAULTS), bag })), []);
 
+  /** Gear just added (3a): the defaults it leaves fill Method at once. */
+  const chooseGear = useCallback(({ brewer, grinder }) => setDefaults((prev) => ({ ...(prev ?? EMPTY_DEFAULTS), brewer, grinder })), []);
+
   /** Select / deselect a flavour. Reaching the limit gives one light impact (§1 Selection limit). */
   const toggleFlavour = useCallback((word) => {
     setFlavours((prev) => {
@@ -114,8 +117,8 @@ export function RecordDraftProvider({ onSaved, children }) {
   const hasTastingInput = noteFilled || flavours.length > 0 || Object.values(axes).some((v) => v != null);
 
   const value = useMemo(
-    () => ({ defaults, chooseBag, rating, setRating, mode, setMode, axes, setAxis, flavours, toggleFlavour, noteRef, setNoteFilled, hasTastingInput, save }),
-    [axes, defaults, flavours, hasTastingInput, mode, rating, save, setAxis, toggleFlavour, chooseBag]
+    () => ({ defaults, chooseBag, chooseGear, rating, setRating, mode, setMode, axes, setAxis, flavours, toggleFlavour, noteRef, setNoteFilled, hasTastingInput, save }),
+    [axes, defaults, flavours, hasTastingInput, mode, rating, save, setAxis, toggleFlavour, chooseBag, chooseGear]
   );
   return <RecordDraftContext.Provider value={value}>{children}</RecordDraftContext.Provider>;
 }

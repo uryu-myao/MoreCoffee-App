@@ -5,6 +5,7 @@ import Reanimated, { Easing as REasing, useAnimatedStyle, useSharedValue, withTi
 import { scheduleOnRN } from 'react-native-worklets';
 import RecordCoffeeScreen from '../screens/RecordCoffeeScreen';
 import AddBagScreen from '../screens/AddBagScreen';
+import AddGearScreen from '../screens/AddGearScreen';
 import TastingNoteScreen from '../screens/TastingNoteScreen';
 import { color, motion, size } from '../theme/tokens';
 import { GESTURE_LOG, logGesture } from './base/gestureLog';
@@ -49,7 +50,7 @@ const BACK_VELOCITY = 300;
 export default function AddCoffeeOverlay({ visible, onClose }) {
   const { width, height } = useWindowDimensions();
   const [mounted, setMounted] = useState(false);
-  // The second page: 5b ('note') or 3c minimal ('bag'), both pushed from 5a.
+  // The second page: 5b ('note'), 3c minimal ('bag') or 3a minimal ('gear'), all pushed from 5a.
   const [second, setSecond] = useState(null);
   const [onNote, setOnNote] = useState(false); // step 2 showing: edge swipe enabled
   const translateY = useRef(new Animated.Value(height)).current;
@@ -94,6 +95,7 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
   };
   const openNote = () => push('note');
   const openBag = () => push('bag');
+  const openGear = () => push('gear');
   const backToRecord = () => {
     setOnNote(false);
     toStep(0);
@@ -148,12 +150,18 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
           closes (it unmounts with it). Saving dismisses the sheet. */}
       <RecordDraftProvider onSaved={dismiss}>
         <Reanimated.View style={[StyleSheet.absoluteFill, recordStyle]}>
-          <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} onAddBag={openBag} />
+          <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} onAddBag={openBag} onAddGear={openGear} />
         </Reanimated.View>
         {second ? (
           <GestureDetector gesture={edgeSwipe}>
             <Reanimated.View style={[StyleSheet.absoluteFill, styles.overlay, noteStyle]}>
-              {second === 'note' ? <TastingNoteScreen onBack={backToRecord} /> : <AddBagScreen onBack={backToRecord} />}
+              {second === 'note' ? (
+                <TastingNoteScreen onBack={backToRecord} />
+              ) : second === 'bag' ? (
+                <AddBagScreen onBack={backToRecord} />
+              ) : (
+                <AddGearScreen onBack={backToRecord} />
+              )}
             </Reanimated.View>
           </GestureDetector>
         ) : null}

@@ -1,5 +1,5 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
-import type { Bag, CupMode, Gear, Place, Product } from './schema';
+import type { Bag, CupMode, Gear, GearCategory, Place, Product } from './schema';
 
 /**
  * The reference rows Record coffee pre-fills its field sets with. Until the
@@ -63,6 +63,42 @@ export async function insertBag(db: SQLiteDatabase, bag: NewBag): Promise<Bag> {
   const row = await db.getFirstAsync<Bag & { notes: string }>('SELECT * FROM bags WHERE id = ?', [result.lastInsertRowId]);
   if (!row) throw new Error('The bag was not stored.');
   return { ...row, notes: JSON.parse(row.notes as unknown as string) };
+}
+
+/** Gear on the shelf: what takes 3a's 8 slots. */
+export async function countGear(db: SQLiteDatabase): Promise<number> {
+  const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM gear');
+  return row?.n ?? 0;
+}
+
+/**
+ * Add gear (3a minimal). The first gear of a category becomes its default, so
+ * 5a's Method fills at once. One transaction; refuses past `limit`. Returns
+ * the defaults after the insert.
+ */
+export async function insertGear(
+  db: SQLiteDatabase,
+  items: { name: string; category: GearCategory }[],
+  limit: number
+): Promise<{ brewer: Gear | null; grinder: Gear | null }> {
+  await db.withExclusiveTransactionAsync(async (tx) => {
+    const row = await tx.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM gear');
+    if ((row?.n ?? 0) + items.length > limit) throw new Error(`Your shelf holds ${limit} pieces of gear.`);
+    for (const item of items) {
+      const taken = await tx.getFirstAsync('SELECT 1 FROM gear WHERE category = ? AND is_default = 1', [item.category]);
+      await tx.runAsync('INSERT INTO gear (name, category, is_default, added_at) VALUES (?, ?, ?, ?)', [
+        item.name,
+        item.category,
+        taken ? 0 : 1,
+        Date.now(),
+      ]);
+    }
+  });
+  const [brewer, grinder] = await Promise.all([
+    db.getFirstAsync<Gear>("SELECT * FROM gear WHERE category = 'brewer' AND is_default = 1"),
+    db.getFirstAsync<Gear>("SELECT * FROM gear WHERE category = 'grinder' AND is_default = 1"),
+  ]);
+  return { brewer: brewer ?? null, grinder: grinder ?? null };
 }
 
 /** What Record coffee hands over on Save. Mode-specific fields are only read for their mode. */

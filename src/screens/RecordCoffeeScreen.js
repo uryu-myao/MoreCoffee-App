@@ -144,9 +144,9 @@ const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
  * row says "Add a bag" / "Add gear" (placeholder look, text.secondary) and the
  * section drops its required mark: a mark promises "always filled", and an
  * empty shelf cannot keep that promise (design-system.md §1 Required marks).
- * Neither blocks Save. "Add a bag" opens 3c (minimal); TODO(T-4): "Add gear" → 3a.
+ * Neither blocks Save. "Add a bag" opens 3c (minimal), "Add gear" 3a (minimal).
  */
-function MadeItFields({ defaults, onAddBag }) {
+function MadeItFields({ defaults, onAddBag, onAddGear }) {
   const { bag, brewer, grinder } = defaults;
   const method = [brewer?.name, grinder?.name].filter(Boolean).join(' · ');
   const filled = Boolean(bag && method);
@@ -161,7 +161,7 @@ function MadeItFields({ defaults, onAddBag }) {
         {method ? (
           <FieldRow divided label="Method" value={method} meta={brewer ? 'Your default brewer' : undefined} />
         ) : (
-          <FieldRow divided label="Method" value="Add gear" placeholder />
+          <FieldRow divided label="Method" value="Add gear" placeholder onPress={onAddGear} />
         )}
       </View>
     </Section>
@@ -294,7 +294,7 @@ function useMinuteClock() {
   return now;
 }
 
-export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag }) {
+export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAddGear }) {
   const { defaults, rating, setRating, mode: maker, setMode: setMaker, save } = useRecordDraft();
   const now = useMinuteClock();
   const Fields = FIELD_SETS[maker];
@@ -347,7 +347,7 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag }) {
 
         <ExpandingBlock>
           {/* Keyed by mode: a switch remounts the field set, so nothing carries over. */}
-          <Fields key={maker} defaults={defaults} onAddBag={onAddBag} />
+          <Fields key={maker} defaults={defaults} onAddBag={onAddBag} onAddGear={onAddGear} />
         </ExpandingBlock>
 
         {/* TODO(Step 5): opens the camera / library; inert for now. */}
