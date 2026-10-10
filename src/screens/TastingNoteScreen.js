@@ -51,12 +51,13 @@ function cupSummary(defaults, mode) {
 
 /**
  * The flavour chips shown: the selected ones in the order chosen, then
- * unselected bundled words up to FLAVOUR_LIMIT in all (gaps.md 15: 5 shown,
- * plus Search). Stage 1: the bundled list in its own order; history and 8n's
- * ordering come later.
+ * unselected words up to FLAVOUR_LIMIT in all (gaps.md 15: 5 shown, plus
+ * Search), in the search sheet's order (decided 2026-10-11): history first,
+ * then the bundled list. With no history yet that is the bundled list's
+ * interleaved order; the more you log, the more the five are your own words.
  */
-function shownFlavours(selected) {
-  const rest = BUNDLED_FLAVOURS.map((f) => f.word).filter((w) => !selected.includes(w));
+function shownFlavours(selected, history) {
+  const rest = searchItems(history, []).map((i) => i.key).filter((w) => !selected.includes(w));
   return [...selected.map((w) => ({ word: w, on: true })), ...rest.slice(0, Math.max(0, FLAVOUR_LIMIT - selected.length)).map((w) => ({ word: w, on: false }))];
 }
 
@@ -177,8 +178,9 @@ export default function TastingNoteScreen({ onBack }) {
   const { defaults, mode, rating, axes, setAxis, flavours, toggleFlavour, noteRef, setNoteFilled, hasTastingInput, save } = useRecordDraft();
   const [searching, setSearching] = useState(false);
   const [history, setHistory] = useState([]);
+  // Read on open and again whenever the search sheet opens; history only
+  // changes on save, so this is fresh enough.
   useEffect(() => {
-    if (!searching) return;
     let alive = true;
     listFlavourHistory(db).then(
       (rows) => alive && setHistory(rows),
@@ -238,7 +240,7 @@ export default function TastingNoteScreen({ onBack }) {
         <View style={styles.section}>
           <SectionLabel variant="plain" label="Flavors" status={atLimit ? 'limit' : 'count'} statusLabel={`${flavours.length} of ${FLAVOUR_LIMIT}`} />
           <View style={styles.chips}>
-            {shownFlavours(flavours).map((f) => (
+            {shownFlavours(flavours, history).map((f) => (
               <Chip key={f.word} label={f.word} on={f.on} onPress={() => toggleFlavour(f.word)} />
             ))}
             <Chip label="Search" search locked={atLimit} onPress={() => setSearching(true)} />
