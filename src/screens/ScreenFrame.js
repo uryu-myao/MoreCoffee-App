@@ -352,6 +352,10 @@ export default function ScreenFrame({
         contentContainerStyle={styles.scrollContent}
         onScroll={onScroll}
         scrollEventThrottle={16}
+        // A focused field (5b My words) stays above the keyboard; a tap on
+        // another control while typing still lands.
+        automaticallyAdjustKeyboardInsets
+        keyboardShouldPersistTaps="handled"
         onLayout={(e) => {
           sizes.current.layout = e.nativeEvent.layout.height;
           updateRange();
