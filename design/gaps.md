@@ -474,8 +474,8 @@ The user sees the past rewritten.
 **Needs deciding**: one placeholder colour, as part of the text input's empty state (`components.md` #23, "placeholder / empty" undesigned).
 
 **Also undefined: the colour of entered text** (added 2026-10-10).
-- 8j's typed message and 8o's entered bean name use `#3C332E`, not a token.
-- The app's 5b My words uses `text.primary` for now (stage 1).
+- 8j's typed message uses `#3C332E`, not a token.
+- 8o's entered bean name ("Colombia Huila") uses `text.primary` (#273D22), and so does the app's 5b My words for now (stage 1). So `text.primary` already has two uses; 8j is the odd one.
 - To be decided together with D-38.
 
 ---
