@@ -123,6 +123,94 @@ Not in `schema.ts` yet. They change the structure, so they land as a migration o
 
 Do not stack small migrations.
 
+### Storage audit: every input in the 31 screens (2026-10-10)
+
+**Why this audit exists**: the taste axes and the flavour tags were built as screen parts (`AxisSlider`, 5b's chips) while nothing checked where their values would be stored. Parts went from design to code; storage did not follow. So before the one migration, every input is mapped to its column, and gaps are written as **none**.
+
+The columns are today's (`schema.ts`); "planned" means already decided above.
+
+**Cups (Record flow)**
+
+| screen | input | stored in |
+|---|---|---|
+| 5a 5d 5e | rating (stars) | `cups.rating` |
+| 5a 5d 5e | Who made it (mode) | `cups.mode` |
+| 5a | date / time in the header (back-dating) | `cups.logged_at` (no edit UI drawn) |
+| 5a | Bag | `cups.bean_id`; copies planned |
+| 5a | Method ("V60 · Comandante C40") | `cups.brew_method`, `cups.grinder` (text) |
+| 5a 5d | Café | `cups.place_id` → `places` |
+| 5a 5d | Drink | `cups.drink_type` |
+| 5a 5e | Product (brand · name) | `cups.product_id` → `products` |
+| 5a 5e | Package ("Can · 185 ml") | `products.container`, `products.volume_ml` |
+| 5a 5e | Package detail "Chilled, unsweetened" | **none** (display copy, or product attributes; unclear) |
+| 5e | Bought at | `cups.bought_at_place_id` |
+| 5e | price "¥180" | none, **by design** (No price, D-15) |
+| 5a 5d 5e | photo | `cups.photo_uri` |
+| 5b | four axes | **none** → `axis_*` planned |
+| 5b | flavour tags | **none** → `cups.flavours` planned |
+| 5b | My words | `cups.note` |
+| 5d | "Keep as draft" ("held as a draft until you finish") | **none**: a draft has no rating, but `rating` is NOT NULL, and there is no draft table or flag |
+| 8e | "Log a cup with this plan" (28 clicks, 92°, 1:16) | `grind_setting`, `water_temp_c`, `ratio` (V1.5 columns, no UI in V1) |
+
+**Bags (`beans`)**
+
+| screen | input | stored in |
+|---|---|---|
+| 3c 3g | Bean name / Roaster | `name` / `roaster` |
+| 3c 3g | Roast level | `roast_level` (4 steps planned) |
+| 3c 3g | Origin / Region / Process (forms planned) | `origin` / `region` / `process` |
+| 3c 3g | Photo | **none** (planned) |
+| 3c 3g | Roasted on | **none** → `roasted_at` planned |
+| 3c 3g | Size | **none** (planned) |
+| 3c / 3g | "Open this bag" / Opened on | `opened_at` |
+| 3c | "Use" (reuse a past bag) | a new row from an old one |
+| 3d | Finish bag | **none**: no finished state. 3f's "Mar 2 → Mar 21" needs a finish date, and the 5-slot cap counts unfinished bags |
+| 3f | Reopen bag | **none** (clears the finish state) |
+| 3g | Delete this bag | row delete (after the copies, `gaps.md` 18) |
+
+**Gear: no table at all**
+
+| screen | input | stored in |
+|---|---|---|
+| 3a | category tabs, catalogue search, multi-select (cap 8), "Not listed — add your own" | **none** |
+| 3b | the list itself, "Default" badge | **none** ("used in N cups" can be derived from `cups.brew_method` / `grinder` text) |
+| 3e | photo, Name, Category, Maker, Added on, My settings note, My default grinder, Remove | **none** |
+| 5a | "Your default brewer" pre-fill | **none** (needs the default) |
+| 8c | "Pick what you own now" (generic: Pour-over dripper, Hand grinder, …; up to 3) | **none** (becomes the gear shelf) |
+
+**Profile, settings, words, notifications, search**
+
+| screen | input | stored in |
+|---|---|---|
+| 6d | photo, Display name (24), How I brew | **none** |
+| 8g | "Read my words" switch | **none** |
+| 8g | Reset my taste DNA ("cups and notes are never deleted") | **none** (needs a reset point) |
+| 8h | Add word, rename, merge, Clean up | **none** (the merge table, proposal above) |
+| 8i | Morning reminder, time, days; Updates & notices; Brewing tips; Bag going stale | **none** |
+| 8m | App language / Follow my phone | **none** |
+| 7a 7b | read state, Mark all read (and the items themselves, kept 60 days) | **none** |
+| 8l | recent searches | **none** |
+| 8e | "Not for me" (dismiss a suggestion) | **none** |
+| 8e | "Add bag to my beans" | a new `beans` row |
+| 8j | topic, message, screenshot, include version, reply email | sent, not stored; **the sending path is undefined** |
+| 2a 2b 3f 8l | filters, sort, group, search scope | screen state; whether to remember them is undecided |
+
+**Derived, no storage needed**:
+- counts, streak, "Logging since", "used in N cups", slots left, "stale", freshness day, Taste DNA;
+- its shifts ("shifted 4 days ago", 5c's "where it sat before") can be recomputed as of a date from cups, as long as the arithmetic is fixed. If it changes (e.g. "Read my words" is toggled), past shifts move. That is a call for later.
+
+**The migration as now known** (in addition to the planned items above):
+- a finish state on bags;
+- a gear table;
+- profile and settings storage;
+- 8h's merge table;
+- notification read state;
+- recent searches;
+- Try next dismissals;
+- a draft form of a cup.
+
+Which of these are V1 is open (report 2026-10-10).
+
 ### The tasting note has no columns yet (found 2026-10-09; priority)
 5b's input has nowhere to go except "My words", so building 5b first would let a user enter a note that is not kept. Proposal:
 
