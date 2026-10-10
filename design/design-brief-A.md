@@ -86,6 +86,8 @@ Group B is not included yet; its scope is decided after group A.
 - 3c カードの gap 18 → 12、3e の 20 → 12
 - 8e「Log a cup with this plan」の影 4px → 5px
 - 4b の beanFreshness の todayMarker を 3d 方式（専用の濃色）に揃える
+- 8n「Next」の影 4px → 5px（D-33）。8n は戻るボタンが無く、Next が単独で全幅なので `shadow.primary`。8c / 8o は戻るボタンと並ぶ幅可変なので 4px のまま（§7 どおり）
+- 1b「CUPS TOTAL」の下に 10px の余白を足す（D-34）。4a / 4b と同じ 10 + 2。96px の数字は 0.82 の箱いっぱいに字画があるので、箱の端がそのまま字画の端になる。ラベルとの間は実際の余白で取る
 
 ## A-6 フォームの不足項目
 
