@@ -504,6 +504,34 @@ The user sees the past rewritten.
 
 ---
 
+## 26. An empty field cannot be told from a filled one (added 2026-10-10; return at the final polish)
+
+**What**: form fields set every value in `title` (16 / 700), because the idle 16 / 500 has no text style (drift D-44), and a field's placeholder takes the value's style. So "Optional" at 16 / 700 in `text.secondary` looks nearly like an entered value in ink.
+
+**Why it matters**: it is functional, not cosmetic. **The user cannot see whether a field is filled.**
+
+**Status**: deferred by decision (2026-10-10), to be settled at the final polish: a 16 / 500 style, or another placeholder treatment. **Must be returned to.**
+
+---
+
+## 27. Flavour words grow without limit, with no way to prune (added 2026-10-10)
+
+**What**: Search's "Add \"xxx\"" adds a new flavour word without limit. 8h (rename / merge / clean up) is not in V1. So the user has no way to reduce the words that pile up; in half a year, words used once crowd the candidates.
+
+**Now**: no limit (decided). Ordering by use count is expected to sink rarely used words (report 2026-10-10).
+
+**Status**: recorded. 8h, or a limit, later.
+
+---
+
+## 28. Only one bag can be held for now (added 2026-10-10)
+
+**What**: 3c (minimal) is reachable only while no bag is open (T-4). With one bag, 5a pre-fills it and its row (a picker) does nothing yet, so a second bag cannot be added. **In practice a user holds one bag until stage 3's picker (or 3d) lands.**
+
+**Status**: resolved by stage 3's selection panel.
+
+---
+
 ## Step 4 device verification — RESOLVED (2026-10-04)
 
 The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.
