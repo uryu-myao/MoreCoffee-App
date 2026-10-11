@@ -137,6 +137,9 @@ Not in `schema.ts` yet. They change the structure, so they land as a migration o
 Do not stack small migrations.
 - **What "one migration" means**: everything already visible lands together. It does not mean nothing may be added later.
 - **Migration 3 is already known**: a "first setup done" flag, added when the first-setup flow (8a / 8n / 8c / 8o) is built (stage 3 or later). Without it, a skipped setup (both settings NULL) cannot be told from one never shown.
+- **Migration 3, decided 2026-10-11**: three items together: `cups.dna_change` (JSON: Taste DNA before / after this cup, per axis value and slider-record count, for 5c and 8f's shifts), `settings.reset_at` (column only; Reset is V1.5) and the first-setup flag.
+  - Existing cups get their `dna_change` by **replaying them once, in logged order, during the migration**. Each snapshot uses that cup's own logged time as "now", never the clock, so the replay is deterministic.
+  - **Why this is not "recomputing history"**: creating history once where none exists is different from overwriting history that exists. The replay runs only in the migration, once; after that a stored `dna_change` is never rewritten.
 
 ### Storage audit: every input in the 31 screens (2026-10-10)
 

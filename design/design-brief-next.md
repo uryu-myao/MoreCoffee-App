@@ -31,6 +31,13 @@ Items for Design's next request, gathered as they come. Send together; group B i
 - **Intro block**: 5a's opening line now has a surface (`color.surface.raised`, no frame); other explanation lines have none. Should other screens' opening explanations get the same?
 - **D-46's side effect**: the removed square was the example of "Marked". The section labels still carry the mark; you may want another way to show it.
 
+- **Taste DNA copy (decided rules in brief)**:
+  - **1b's "N more cups to lock it in" (D-47)**: lock-in is **10**, counted **per axis**; the profile locks in when every axis with a record has 10. "N more" counts the axis with the fewest records. Try next's 5 is a separate threshold (V2, not shown in V1).
+  - **8f contradicts itself**: the summary says "lightly sweet", the Sweetness axis says "Medium sweet". Which is right?
+  - **8f's summary sentence ("Bright, juicy, lightly sweet")**: from which axes and which words is it built? "juicy" is neither a band name nor a bundled word.
+  - **6a's labels ("Acidity high", "Body light", "Roast light")** differ from the band names (Bright, Light-bodied, Light roast). Match them, or is 6a a summary that may differ?
+  - **6b's Reset line ("Only the profile is rebuilt")**: Reset now means "count from this day"; the profile builds up again from that day, it is not rebuilt from the old cups.
+
 ## Decisions that change mocked parts (2026-10-11)
 - **5a / 5e intro line**: on `color.surface.raised`, no frame, no leading square (drift D-46).
 

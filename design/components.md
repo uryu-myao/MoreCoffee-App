@@ -232,6 +232,11 @@ The Switch is not built yet. The taste-axis handle is now derived from it, so th
 
 ## Bundled flavour list and its groups (proposal, 2026-10-10)
 
+**Two separate mechanisms, not to be confused (recorded 2026-10-11)**:
+- **The group** (bright / round / neutral) only orders suggestions for 8n's "How do you take your coffee?". Neutral = takes no part in that ordering.
+- **The word → axis table** (`taste-dna.md`) is how a word shapes Taste DNA.
+- They are independent: a neutral word may have an axis entry (Smoke → Roast), and a word may have no entry at all.
+
 The bundled list is the starting point for 5b's flavour tags (never a whitelist; new words go into history).
 - **The list (proposed 2026-10-08, not yet confirmed)**: one concrete name per flavour-wheel family. Mock words first; ＊ = added to cover a missing family.
 - **No group attribute exists yet.** 8n ("How do you take your coffee?") needs one to order the suggestions.
