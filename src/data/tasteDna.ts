@@ -9,6 +9,8 @@
  *   - a slider record contributes its value at weight w;
  *   - a bundled flavour word contributes its table value at w × strength;
  *   - an axis nobody noted has no value (never 50: untouched = unknown).
+ *   - words are capped per axis at wordShareCap of the axis's total weight,
+ *     by scaling every word on that axis by one factor (see DNA_TUNING).
  * Lock-in counts slider records only: an axis is locked at `lockIn`; the
  * profile is locked when every axis with a slider record is (option B).
  */
@@ -28,6 +30,17 @@ export const DNA_TUNING = {
   halfLifeDays: 90,
   /** Slider records an axis needs to lock in (flavour words never count). */
   lockIn: 10,
+  /**
+   * Words may make up at most this share of an axis's total weight. Why
+   * (taste-dna.md): one word is weak, but words are picked on nearly every
+   * cup while sliders are moved only when noticed. Without a cap, an axis
+   * with few slider records is decided by words alone. Do not remove it
+   * because the number looks arbitrary; the asymmetry is the reason.
+   * Applied by scaling all words on the axis by one factor, so their relative
+   * strengths (Grapefruit 0.4 : Jasmine 0.2) never change. With no slider
+   * record on an axis, words alone give it no value.
+   */
+  wordShareCap: 1 / 3,
   /**
    * The ten bundled words (and only those). A word is a weak record: a value
    * on the slider's step grid (Acid ↔ Bitter: 0 = acid) at a strength of at
@@ -86,9 +99,9 @@ export type Dna = {
 const wordsOf = (cup: DnaCup) => cup.flavours.flatMap((w) => DNA_TUNING.words[w.toLowerCase()] ?? []);
 
 export function computeDna(cups: readonly DnaCup[], asOf: number, resetAt: number | null = null): Dna {
-  const sum = Object.fromEntries(AXES.map((a) => [a, { wv: 0, sliderW: 0, wordW: 0, n: 0 }])) as Record<
+  const sum = Object.fromEntries(AXES.map((a) => [a, { sliderWV: 0, wordWV: 0, sliderW: 0, wordW: 0, n: 0 }])) as Record<
     AxisKey,
-    { wv: number; sliderW: number; wordW: number; n: number }
+    { sliderWV: number; wordWV: number; sliderW: number; wordW: number; n: number }
   >;
   let counted = 0;
   for (const cup of cups) {
@@ -99,13 +112,13 @@ export function computeDna(cups: readonly DnaCup[], asOf: number, resetAt: numbe
     for (const a of AXES) {
       const v = cup.axes[a];
       if (v == null) continue;
-      sum[a].wv += w * v;
+      sum[a].sliderWV += w * v;
       sum[a].sliderW += w;
       sum[a].n += 1;
       used = true;
     }
     for (const { axis, at, strength } of wordsOf(cup)) {
-      sum[axis].wv += w * strength * at;
+      sum[axis].wordWV += w * strength * at;
       sum[axis].wordW += w * strength;
       used = true;
     }
@@ -115,8 +128,14 @@ export function computeDna(cups: readonly DnaCup[], asOf: number, resetAt: numbe
   const axes = Object.fromEntries(
     AXES.map((a) => {
       const s = sum[a];
-      const total = s.sliderW + s.wordW;
-      return [a, { value: total > 0 ? s.wv / total : null, n: s.n, sliderWeight: s.sliderW, wordWeight: s.wordW }];
+      // Cap: words ≤ cap × (sliders + words) ⇔ words ≤ sliders × cap / (1 − cap).
+      // One factor for every word on the axis keeps their ratios.
+      const cap = DNA_TUNING.wordShareCap;
+      const allowed = (s.sliderW * cap) / (1 - cap);
+      const k = s.wordW > allowed ? allowed / s.wordW : 1;
+      const wordW = s.wordW * k;
+      const total = s.sliderW + wordW;
+      return [a, { value: total > 0 ? (s.sliderWV + k * s.wordWV) / total : null, n: s.n, sliderWeight: s.sliderW, wordWeight: wordW }];
     })
   ) as Record<AxisKey, AxisDna>;
 

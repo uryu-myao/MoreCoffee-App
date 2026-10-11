@@ -26,6 +26,9 @@ First read from the screens (2026-10-11), then decided by Uryu the same day. The
      | Caramel | sweetness → 75 (0.4) |
      | Cinnamon | none: spice is not sweetness, and not one-way enough for Roast |
      | Smoke | roast → 100 (0.4) |
+   - **Words are capped at 1/3 of each axis's total weight** (decided 2026-10-11; `DNA_TUNING.wordShareCap`).
+     - **Why — read this before changing it.** One word is weak, but words are picked on nearly every cup, while a slider is moved only when something was noticed. Because of this asymmetry, without a cap an axis with few slider records ends up decided by words alone. In a 30-cup test, Sweetness had 6 slider records and the words made up 51% of it, moving its band from Medium sweet to Sweet: the display showed the algorithm, not the drinker's perception. The reason is the asymmetry, not the number.
+     - **How**: when an axis's words exceed the cap, every word on that axis is scaled by one factor, so their relative strengths (Grapefruit 0.4 : Jasmine 0.2) never change. With no slider record on an axis, words alone give it no value.
    - **These numbers are starting values.** If the profile disagrees with how real use feels, adjust this table first. The 90-day half-life and the rating weights are the same kind of number. All three live in one place in code (`DNA_TUNING`, `src/data/tasteDna.ts`); never scatter them.
 7. **Reset**: a stored `reset_at`; only cups after it count. Cups are never deleted; Records keeps all of them. The column comes with the migration; the feature is V1.5 (no settings screen in V1).
 8. **Band names**: the five slider steps, edges at 12.5 / 37.5 / 62.5 / 87.5 (0–12.5 Very bright, … 87.5–100 Very bitter), so input steps and display bands match.
