@@ -16,7 +16,7 @@ import { useDatabase } from '../data/DatabaseProvider';
 import { listGear, listOpenBags } from '../data/repository';
 import { color, icon, motion, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
-import { daysSince } from '../constants/dates';
+import { daysSince, partOfDay } from '../constants/dates';
 
 /**
  * Record coffee — 5a "Log a cup". All three maker modes. The cup being
@@ -60,7 +60,7 @@ const INTRO = {
  * subject dropped, sentence case, never "Your"; rises monotonically. 4 is 5a's
  * "Would order again" with the verb made mode-neutral.
  */
-const RATING_COPY = {
+export const RATING_COPY = {
   1: 'Not for me',
   2: 'Not again',
   3: 'Does the job',
@@ -265,19 +265,6 @@ function ExpandingBlock({ children }) {
 const dateFormat = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 
-/**
- * Part of day, as 5a / 5e word it ("Morning", "Afternoon"). Intl has no
- * equivalent of these words (its dayPeriod gives "in the morning"), so this is
- * copy. TODO(i18n): translate with the other strings; the hour boundaries are
- * an assumption, not from a mock.
- */
-function partOfDay(date) {
-  const h = date.getHours();
-  if (h >= 5 && h < 12) return 'Morning';
-  if (h >= 12 && h < 17) return 'Afternoon';
-  if (h >= 17 && h < 22) return 'Evening';
-  return 'Night';
-}
 
 /** Re-renders on each minute boundary, so the header never shows a stale minute. */
 function useMinuteClock() {

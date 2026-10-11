@@ -17,9 +17,9 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 3a Add gear | yes | **partial (minimal)** | 8c's generic list. Not: catalogue, search, models, "Not listed" |
 | Bag / gear picker (no mock) | yes | **done** | from 5a |
 | 1b / 4a / 4b Home | yes | **partial** | Taste DNA card only. Not: cups total, this week, recently sipped, My gear / My beans |
-| 2a Records | yes | **partial** | grouped list, count. Rows don't open 2c; no sort (2b), no search (8l) |
+| 2a Records | yes | **partial** | grouped list, count; rows open 2c. No sort (2b), no search (8l) |
 | 2b Sort sheet | V1? | not started | |
-| 2c Record (one cup) | V1? | not started | the place to see a cup's note and its 5c change again |
+| 2c Record (one cup) | **yes** (decided 2026-10-11) | **done, read only** | edit (pencil) waits for Design; share, photo, "22 clicks" / "My default brewer" not shown |
 | 3b My gear / 3e Edit gear | V1? | not started | the only way to rename generic gear (`gaps.md` 25) |
 | 3d My beans / 3g Edit bag / 3f Finished bags | V1? | not started | "Finish bag" frees the 5 slots; without it a user stalls at 5 open bags |
 | 6a / 6b / 6c Profile | V1? | not started (placeholder) | 6a is 8f's entry point |

@@ -1,5 +1,5 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
-import type { Bag, CupMode, Gear, GearCategory, Place, Product } from './schema';
+import type { Bag, CupMode, Gear, GearCategory, Place, Product, Row } from './schema';
 import { changeOf, computeDna, dnaCupFromRow, type Dna } from './tasteDna';
 
 /**
@@ -73,6 +73,27 @@ export async function loadTasteDna(db: SQLiteDatabase): Promise<Dna> {
     'SELECT rating, logged_at, axis_acidity, axis_body, axis_roast, axis_sweetness, flavours FROM cups ORDER BY logged_at, id'
   );
   return computeDna(rows.map(dnaCupFromRow), Date.now(), settings?.reset_at ?? null);
+}
+
+/** One cup as 2c shows it: every stored field, with its place / product names. */
+export type CupRecord = Row<'cups'> & {
+  place_name: string | null;
+  product_brand: string | null;
+  product_name: string | null;
+  bought_at_name: string | null;
+};
+
+export async function getCup(db: SQLiteDatabase, id: number): Promise<CupRecord | null> {
+  const row = await db.getFirstAsync<CupRecord & { flavours: string }>(
+    `SELECT c.*, p.name AS place_name, pr.brand AS product_brand, pr.name AS product_name, bp.name AS bought_at_name
+       FROM cups c
+       LEFT JOIN places p ON p.id = c.place_id
+       LEFT JOIN products pr ON pr.id = c.product_id
+       LEFT JOIN places bp ON bp.id = c.bought_at_place_id
+      WHERE c.id = ?`,
+    [id]
+  );
+  return row ? { ...row, flavours: JSON.parse(row.flavours as unknown as string) } : null;
 }
 
 /** Open bags (not finished), newest opened first: the bag picker's rows. */

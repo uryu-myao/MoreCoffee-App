@@ -20,3 +20,20 @@ export const formatDay = (ms) => {
   const d = new Date(ms);
   return (d.getFullYear() === new Date().getFullYear() ? short : withYear).format(d);
 };
+
+/**
+ * Part of day, as 5a / 5e / 2c word it ("Morning", "Afternoon"). Intl has no
+ * equivalent of these words (its dayPeriod gives "in the morning"), so this is
+ * copy. TODO(i18n): translate with the other strings; the hour boundaries are
+ * an assumption, not from a mock.
+ */
+export function partOfDay(date) {
+  const h = date.getHours();
+  if (h >= 5 && h < 12) return 'Morning';
+  if (h >= 12 && h < 17) return 'Afternoon';
+  if (h >= 17 && h < 22) return 'Evening';
+  return 'Night';
+}
+
+/** Whole calendar days from the day `fromMs` falls on to the day `toMs` falls on. */
+export const daysBetween = (fromMs, toMs) => Math.round((startOfDay(new Date(toMs)) - startOfDay(new Date(fromMs))) / DAY_MS);

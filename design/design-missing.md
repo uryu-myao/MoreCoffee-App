@@ -6,10 +6,11 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
 
 1. **Cup edit** (2c's pencil)
    - **Editable**: the bag, the gear, the date and time, My words; Barista / Packaged fields (café, drink, product, where bought).
-   - **Shown but not editable**: the rating, the four axes, the flavours (they are Taste DNA's input; editing them would rewrite history the user has already seen). They need a look that says "not editable": does §1's disabled look fit, or is another treatment needed?
+   - **Shown but not editable**: the rating, the four axes, the flavours (Taste DNA's input; editing them would rewrite history the user has already seen). They need a look that says "not editable": does §1's disabled look fit, or is another treatment needed?
+   - **Date limits**: not in the future; not before the bag's roast date (when it has one).
+   - **"Delete this cup" (decided, in V1)**: on this screen only, never from the list. Confirmed in a **bottom sheet** (this design has no dialogs). The words say what is lost — this cup and its axes, flavours and My words — and that it cannot be undone.
    - Reuse 5a / 5b, or a screen of its own?
    - Leaving with unsaved changes (`gaps.md` 20) applies here too.
-   - Possibly "Delete this cup", with confirmation / undo (`gaps.md` 18, 34): not decided yet.
 2. **2c for Barista and Packaged cups**: 2c is drawn for I made it only (bag + method). What replaces "What I logged" for a café cup (café, drink) and a packaged one (product, where bought)?
 3. **Bag / gear picker** (built): a bottom sheet with §9's square radio rows; Method has "Brewer" / "Grinder" eyebrows under the sheet's "Method"; "Add a bag" / "Add gear" last.
 4. **Flavour search sheet** (built), with a hard constraint: **on an SE, about 270pt / 5 rows stay above the keyboard** (measured, device-confirmed; rows 53.5pt; 9.5 rows with the keyboard closed). Also undrawn: the "Add \"Word\"" row; "Done" in place of 8l's "Cancel".

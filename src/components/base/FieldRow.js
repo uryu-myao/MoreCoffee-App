@@ -21,6 +21,7 @@ import Text from './Text';
  *   placeholder  the value is an invitation, not a value ("Add a bag" when the
  *             shelf is empty): `text.secondary`, the placeholder colour of
  *             the plain fields (gaps.md 23, until D-38 settles it)
+ *   readOnly  a record, not a field (2c "What I logged"): no press, no chevron
  *   onPress
  *   testOnly_pressed   force the pressed look (dev harness)
  *
@@ -36,6 +37,7 @@ export default function FieldRow({
   error = false,
   placeholder = false,
   onPress,
+  readOnly = false,
   testOnly_pressed,
 }) {
   const hasSwatch = swatch || Boolean(iconName);
@@ -44,7 +46,8 @@ export default function FieldRow({
   return (
     <Pressable
       onPress={onPress}
-      accessibilityRole="button"
+      disabled={readOnly}
+      accessibilityRole={readOnly ? 'text' : 'button'}
       accessibilityLabel={[label, value, meta].filter(Boolean).join(', ')}
       testOnly_pressed={testOnly_pressed}
       style={({ pressed }) => [styles.row, divided && styles.divided, pressed && styles.pressed]}>
@@ -74,7 +77,7 @@ export default function FieldRow({
         ) : null}
       </View>
 
-      <Glyph name="chevronRight" token={icon.md} color={ink} />
+      {readOnly ? null : <Glyph name="chevronRight" token={icon.md} color={ink} />}
     </Pressable>
   );
 }

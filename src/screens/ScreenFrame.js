@@ -49,6 +49,8 @@ const COLLAPSE = {
  *
  * Props
  *   title     screen title (display.lg)
+ *   userTitle the title is user data (2c's bean name): `name` truncation,
+ *             2 lines (§3.1). Fixed screen titles never truncate.
  *   eyebrow   optional small label above the title (label.eyebrow, accent):
  *             "The archive" (2a), "MoreCoffee" (1b). Fades out on collapse.
  *   leading   optional control above the title (5b's back button). A control
@@ -85,6 +87,7 @@ export default function ScreenFrame({
   compact = false,
   footer,
   footerTone,
+  userTitle = false,
   scrollRef,
   children,
 }) {
@@ -236,6 +239,7 @@ export default function ScreenFrame({
   const titleText = (
     <Text
       variant="displayLg"
+      truncate={userTitle ? 'name' : 'none'}
       accessibilityRole="header"
       onTextLayout={compact ? onCompactTitleText : onBaseline('baseline')}>
       {title}

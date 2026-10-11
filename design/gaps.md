@@ -593,7 +593,7 @@ The user sees the past rewritten.
 
 **What**: rating, axes and flavours are not editable (they are Taste DNA's input; `taste-dna.md`), and there is no way to delete a cup in V1 or in the mocks. A mistake in them stays in Taste DNA for good (Reset is V1.5 and drops every cup before it, not one).
 
-**Recommendation (2026-10-11 report)**: a "Delete this cup" on the cup edit screen, with gaps 18's protection (confirm / undo). Deleting is safe for the arithmetic: the profile is computed on read, and other cups' stored changes stay as they were (history is not rewritten). To decide.
+**Decided 2026-10-11: "Delete this cup" is in V1.** On the cup edit screen only (never from the list), confirmed in a bottom sheet (no dialogs in this design) whose words say what is lost — the cup and its axes, flavours and My words — and that it cannot be undone. The cup's `dna_change` goes with it; other cups' history is untouched. Safe for the arithmetic: the profile is computed on read.
 
 ---
 

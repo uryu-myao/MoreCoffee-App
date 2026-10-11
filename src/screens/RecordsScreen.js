@@ -4,15 +4,17 @@ import RecordRow from '../components/base/RecordRow';
 import Text from '../components/base/Text';
 import { useDatabase } from '../data/DatabaseProvider';
 import { listCups, onCupsChanged } from '../data/repository';
+import { cupTitle } from '../constants/cups';
 import { layout, spacing } from '../theme/tokens';
+import CupRecordScreen from './CupRecordScreen';
 import ScreenFrame from './ScreenFrame';
 
 /**
  * Records — 2a, the list of logged cups, newest first, grouped by month.
  * Reads from the database and refreshes whenever a cup is saved.
  *
- * Not built here: search, the category chips, the 2b sort panel, and tapping
- * through to a cup (no detail screen yet).
+ * A row opens the cup (2c, CupRecordScreen) in place of the list; Back returns
+ * to it. Not built here: search, the category chips, the 2b sort panel.
  *
  * Row content follows the data model, degrading by mode (drift.md D-16):
  *   title   made_it → bean name · barista → drink · packaged → product name
@@ -26,24 +28,10 @@ const MODE_BADGE = {
   packaged: { label: 'Packaged', tone: 'neutral' },
 };
 
-const NONE = '—';
 
 const countFormat = new Intl.NumberFormat();
 const dayFormat = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
 const monthFormat = new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' });
-
-const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
-
-function toRow(cup) {
-  if (cup.mode === 'made_it') {
-    return {
-      title: cup.bean_name ?? NONE,
-      source: [cup.bean_roaster, cup.bean_process && capitalise(cup.bean_process)].filter(Boolean).join(' · ') || undefined,
-    };
-  }
-  if (cup.mode === 'barista') return { title: cup.drink_type ?? NONE, source: cup.place_name ?? undefined };
-  return { title: cup.product_name ?? NONE, source: cup.product_brand ?? undefined };
-}
 
 /** Consecutive cups grouped under their month, keeping the newest-first order. */
 function groupByMonth(cups) {
@@ -61,6 +49,7 @@ function groupByMonth(cups) {
 export default function RecordsScreen() {
   const db = useDatabase();
   const [cups, setCups] = useState(null);
+  const [openId, setOpenId] = useState(null);
 
   const load = useCallback(() => {
     listCups(db).then(setCups, (error) => {
@@ -74,6 +63,8 @@ export default function RecordsScreen() {
     load();
     return onCupsChanged(load);
   }, [load]);
+
+  if (openId != null) return <CupRecordScreen id={openId} onBack={() => setOpenId(null)} />;
 
   return (
     <ScreenFrame
@@ -103,7 +94,7 @@ export default function RecordsScreen() {
                   </Text>
                 </View>
                 {group.cups.map((cup) => {
-                  const { title, source } = toRow(cup);
+                  const { title, source } = cupTitle(cup);
                   return (
                     <RecordRow
                       key={cup.id}
@@ -113,6 +104,7 @@ export default function RecordsScreen() {
                       note={cup.note ?? undefined}
                       rating={cup.rating}
                       date={dayFormat.format(new Date(cup.logged_at))}
+                      onPress={() => setOpenId(cup.id)}
                     />
                   );
                 })}

@@ -999,8 +999,8 @@ The display of computed values: 1b / 4a / 4b (the profile), 5c (the change after
 | gradient | **none** | — |
 
 - **Two tones (2026-10-11)**, by §1 Colour roles:
-  - **computed** (1b / 4a / 4b / 8f, and 5c, whose before / after are the profile): fill `border.medium`, marker `text.muted` — the table above.
-  - **entered** (2c "Where it sat": the values entered for that one cup): fill `color.icon.accent` (#9E5202, the entered slider handle's fill; 4.04:1 on the track), marker `color.border.accent` (#8A4602, the selected flavour chip's frame; 5.0:1 on the track, 6.95:1 on a card). Same 4pt shape, so it is still plainly not operable; an inoperable slider was rejected because its shape invites a drag.
+  - **computed** (1b / 4a / 4b / 8f, and **5c**, whose before / after are the profile: both computed, so both neutral; decided 2026-10-11): fill `border.medium`, marker `text.muted` — the table above. 5c's movement reads weakly by design (the fill only helps); the line "Moved N points toward ‹pole›" carries it. Check on a device; do not fix it with colour first.
+  - **entered — 2c only** ("Where it sat": the values entered for that one cup): fill `color.icon.accent` (#9E5202, the entered slider handle's fill; 4.04:1 on the track), marker `color.border.accent` (#8A4602, the selected flavour chip's frame; 5.0:1 on the track, 6.95:1 on a card). Same 4pt shape, so it is still plainly not operable; an inoperable slider was rejected because its shape invites a drag.
 - **Fill from the middle (B)**: the axis is bipolar, so "22 toward bitter" is the true reading, not "72% bitter". At exactly 50 there is no fill, and the marker alone at the centre reads as "balanced".
 - **The marker carries the value; the fill only helps.** Measured: the fill is **1.67:1** against the track, under the 3:1 needed for a meaningful graphic. The marker is **4.45:1** on the track and 6.19:1 on a card. A fill-only readout would also show nothing at 50.
 - **No ticks**: on a 4pt bar they are barely visible and add noise; the fill's origin at 50 is the reference.

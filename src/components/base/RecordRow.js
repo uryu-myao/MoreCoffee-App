@@ -1,5 +1,5 @@
-import { StyleSheet, View } from 'react-native';
-import { color, icon, shape, size, space, spacing } from '../../theme/tokens';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { color, icon, shape, size, space, spacing, state } from '../../theme/tokens';
 import Badge from './Badge';
 import Glyph from './Glyph';
 import Text from './Text';
@@ -10,8 +10,9 @@ import Text from './Text';
  * The right column has a fixed role — rating and date align down the whole
  * list because they live in their own column, not at the end of a text run.
  *
- * Informational: no onPress, no chevron. Tapping through to a detail screen
- * is not built yet.
+ * With onPress (2a → 2c, 2026-10-11) the whole row is pressable, so it ends
+ * in a chevron (§1 Tap affordance: a whole row → chevron) and its surface
+ * darkens while pressed. 2a's mock has no chevron: drift D-49.
  *
  * Props
  *   title    user data — `name` truncation (2 lines)
@@ -20,10 +21,17 @@ import Text from './Text';
  *   note     optional tasting note — `note` truncation (3 lines)
  *   rating   1–5, shown as the serif numeral beside a rating star
  *   date     preformatted date label
+ *   onPress  opens the cup (2c)
  */
-export default function RecordRow({ title, badges = [], source, note, rating, date }) {
+export default function RecordRow({ title, badges = [], source, note, rating, date, onPress }) {
   return (
-    <View style={styles.row} accessible accessibilityLabel={[title, ...badges.map((b) => b.label), source, `${rating} of 5`, date].filter(Boolean).join(', ')}>
+    <Pressable
+      onPress={onPress}
+      disabled={!onPress}
+      accessibilityRole={onPress ? 'button' : undefined}
+      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      accessible
+      accessibilityLabel={[title, ...badges.map((b) => b.label), source, `${rating} of 5`, date].filter(Boolean).join(', ')}>
       {/* TODO(photos): show photo_uri here once photos can be added. */}
       <View style={styles.thumb} />
 
@@ -59,11 +67,22 @@ export default function RecordRow({ title, badges = [], source, note, rating, da
           {date}
         </Text>
       </View>
-    </View>
+      {onPress ? (
+        <View style={styles.chevron}>
+          <Glyph name="chevronRight" token={icon.md} color={color.icon.default} />
+        </View>
+      ) : null}
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
+  pressed: {
+    backgroundColor: state.pressed.surface,
+  },
+  chevron: {
+    alignSelf: 'center',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
