@@ -434,7 +434,9 @@ The photo pair sits beside a 76 thumbnail, so 44 would still fit its height.
 
 ---
 
-## 21. Taste DNA is recomputed, so its history can move (added 2026-10-10)
+## 21. Taste DNA is recomputed, so its history can move (added 2026-10-10) — CLOSED 2026-10-11
+
+**Closed by decision**: the profile is computed on read, but 5c's change and 8f's shifts are **stored at save time** and never recomputed (`taste-dna.md`).
 
 **What**: Taste DNA and its shifts are not stored; they are computed from cups as of a date (not stored). That is right for a local-first record. But anything that changes the inputs or the arithmetic changes past results too:
 - 5c's "this cup pushed you brighter", 2c's "This cup pushed you brighter", 8f's "Last shift", "shifted 4 days ago".
@@ -562,6 +564,14 @@ The user sees the past rewritten.
 **In V1**: no "Keep as draft"; the reminder's second line promises no draft (copy from Design, with the conditions in `design-brief-next.md`). Closing without saving: `gaps.md` 20.
 
 **When drafts arrive (V1.5)**: put 5d back to its own words and add "Keep as draft". `cups.rating` was made nullable for this.
+
+---
+
+## 31. My words do not shape Taste DNA in V1 (added 2026-10-11)
+
+**What**: only the ten bundled flavour words have a word → axis entry. My words (free text) and words users add are not matched in V1: matching free text needs normalising, synonyms and negation ("not too bitter"). "Read my words" (8g) does not exist in V1, which is the same as it being off.
+
+**Copy to adjust when 8g is built**: 8g's "Your words are matched, not read — 'juicy' maps to acidity and sweetness" and 7a's "Taste DNA now reads your notes" describe more than V1 does. Even 8g's example word, "juicy", is not a bundled word, so it has no entry.
 
 ---
 

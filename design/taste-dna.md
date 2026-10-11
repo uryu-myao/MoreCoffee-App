@@ -1,6 +1,21 @@
-# Taste DNA — what the mocks say (draft, 2026-10-11)
+# Taste DNA — rules
 
-Read from the screens before any arithmetic is written. **Nothing here is decided.** Each item is either read from a screen or marked **open**. The open items are Uryu's to decide.
+First read from the screens (2026-10-11), then decided by Uryu the same day. The decisions come first; the reading follows as the record of where they came from.
+
+## Decided (2026-10-11)
+
+1. **Rating weight** (confidence, never direction): 5★ 3.0 · 4★ 2.0 · 3★ 1.0 · 2★ 0.5 · 1★ 0.25. Unrated cups are ignored. Low ratings still count: an axis records what was perceived, not what was liked. No half stars; 8g's "4.5" only illustrates that weighting exists.
+2. **Recency**: exponential decay, **half-life 90 days**, kept as one constant (30 days → 0.79; 8 months → 0.16). 8g's "roughly double" is an explanation, not the spec. The profile is today's taste.
+3. **Per axis, only cups that noted it**: an untouched axis is "don't know", never 50.
+4. **Lock-in, counted per axis**: an axis locks in at **10 records**. How the profile's single state is derived from the four is pending (report 2026-10-11).
+5. **Recompute**: the profile is computed on read (never stored). **5c's change and 8f's shifts are stored at save time** and never recomputed, so editing a cup or changing the decay does not rewrite history. `gaps.md` 21 closed.
+6. **Words → axes: the ten bundled flavour words only.** My words do not shape the profile in V1 ("Read my words" does not exist, i.e. off; `gaps.md` 31). User-added words have no entry. The table: pending (report 2026-10-11).
+7. **Reset**: a stored `reset_at`; only cups after it count. Cups are never deleted; Records keeps all of them. The column comes with the migration; the feature is V1.5 (no settings screen in V1).
+8. **Band names**: the five slider steps, edges at 12.5 / 37.5 / 62.5 / 87.5 (0–12.5 Very bright, … 87.5–100 Very bitter), so input steps and display bands match.
+9. **The bag's roast level does not feed the Roast axis**: it is the roaster's claim, the axis is the drinker's perception.
+10. **Thresholds**: 5 cups = Try next (V2, not shown in V1); 10 = lock-in (D-47).
+
+## What the screens say (2026-10-11)
 
 ## Read from the screens
 
