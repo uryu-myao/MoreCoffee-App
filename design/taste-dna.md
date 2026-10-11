@@ -105,3 +105,10 @@ A shift is an axis crossing into another named band. This needs a history of the
 | 8 | **Bands and names** | 8f's names per axis | Where "Bright" / "Medium sweet" start (band edges on 0–100) |
 
 The roast axis could also take the bag's roast level (4 steps, data-model), but no screen says so. Left out unless decided.
+
+## Editing a cup (decided 2026-10-11)
+
+- **Editable**: the bag, the gear, the date and time, My words; Barista / Packaged fields (café, drink, product, where bought).
+- **Not editable**: the rating, the four axes, the flavours (Taste DNA's input).
+- **Why**: making rating / axes / flavours editable would require replaying every `dna_change` after that cup. The replay is technically possible (migration 3 does it), but a "Moved 6 points brighter" the user has already seen would later become another number. Taste DNA is arithmetic on your own records, and the records are not rewritten afterwards. So the inputs are not editable.
+- **A known mismatch, not a bug**: the sum of every cup's stored change does not equal today's profile. The profile is computed on read (with today's decay); each `dna_change` is a snapshot at its save. No screen shows both side by side. **Do not "fix" the sums.**

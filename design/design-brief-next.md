@@ -1,5 +1,11 @@
 # Design brief — next round (collecting; not sent yet)
 
+**Design's hand-made work**: every icon, and the placeholder images. (Everything else is built from `design-system.md`.)
+
+**`texture.rule` is retired** (2026-10-11): it drew the old display axis's rail lines, which AxisReadout replaced. Do not use it on new screens; existing boards still show it on 1b / 4a / 4b / 2c / 5c.
+
+Screens and states V1 needs that no mock draws: `design-missing.md` (sent with this brief).
+
 Items for Design's next request, gathered as they come. Send together; group B items only as implementation reaches them.
 
 ## Decisions that override the mocks

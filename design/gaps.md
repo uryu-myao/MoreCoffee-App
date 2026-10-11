@@ -575,6 +575,28 @@ The user sees the past rewritten.
 
 ---
 
+## 32. 2c's share button is not shown (added 2026-10-11)
+
+**What**: 2c's header has a share button (an arrow out of a tray), but no mock says what it shares: text, an image, a file. Not shown in V1 (decided 2026-10-11).
+
+---
+
+## 33. 2c's method line drops "22 clicks" and "My default brewer" (added 2026-10-11)
+
+**What**: 2c's Method meta reads "My default brewer, 22 clicks". Neither is shown in V1:
+- **"22 clicks"** is the grind setting (`cups.grind_setting`, V1.5): there is no input, so it is always empty. **Return here when V1.5 adds the grind input.**
+- **"My default brewer"**: whether the brewer was the default *when the cup was logged* is not stored. Judging it by today's default would not be history.
+
+---
+
+## 34. A wrong rating, axis or flavour cannot be removed (added 2026-10-11)
+
+**What**: rating, axes and flavours are not editable (they are Taste DNA's input; `taste-dna.md`), and there is no way to delete a cup in V1 or in the mocks. A mistake in them stays in Taste DNA for good (Reset is V1.5 and drops every cup before it, not one).
+
+**Recommendation (2026-10-11 report)**: a "Delete this cup" on the cup edit screen, with gaps 18's protection (confirm / undo). Deleting is safe for the arithmetic: the profile is computed on read, and other cups' stored changes stay as they were (history is not rewritten). To decide.
+
+---
+
 ## Step 4 device verification — RESOLVED (2026-10-04)
 
 The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.

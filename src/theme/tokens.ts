@@ -124,9 +124,9 @@ export const state = {
 } as const;
 
 /**
- * Two textures, one color, different geometry.
- * RN has no background-image: rebuild with react-native-svg <Pattern>. See OQ-2.
- * `base` is passed at use time (texture.rule sits on both raised and ground).
+ * The page texture. RN has no background-image: rebuilt with react-native-svg
+ * <Pattern> (DotTexture). texture.rule, the old display axis's rail lines,
+ * was removed 2026-10-11 with that axis.
  */
 export const texture = {
   dot: {
@@ -135,13 +135,6 @@ export const texture = {
     tileWidth: 7,
     tileHeight: 7,
     css: 'radial-gradient(#E4D6CC 1px, transparent 1px) / 7px 7px',
-  },
-  rule: {
-    color: '#E4D6CC',
-    lineWidth: 1.5,
-    spacingPercent: 25,
-    angleDeg: 90,
-    css: 'repeating-linear-gradient(90deg, #E4D6CC 0 1.5px, transparent 1.5px 25%)',
   },
 } as const;
 

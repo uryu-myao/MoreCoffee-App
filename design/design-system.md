@@ -341,7 +341,7 @@ Colour was unified to `#E4D6CC`; the two textures differ in **geometry, not colo
 | token | value | geometry (verbatim) | coverage |
 |---|---|---|---|
 | `texture.dot` | `#E4D6CC` | `radial-gradient(<color> 1px, transparent 1px)`, `background-size: 7px 7px`, default repeat | 16 screens |
-| `texture.rule` | `#E4D6CC` | `repeating-linear-gradient(90deg, <color> 0 1.5px, transparent 1.5px 25%)` | 6 screens / 18 uses |
+| ~~`texture.rule`~~ | — | **removed 2026-10-11**: its only uses were the old display axis's rails (1b / 4a / 4b / 2c / 5c), which AxisReadout replaced (no ticks). Do not use on new screens | — |
 
 **Implemented (2026-10-05)**: `texture.dot` is the base `DotTexture`, a single react-native-svg `<Pattern>` with the 1px dot centred in its 7 × 7 tile. CSS `radial-gradient` centres by default; the token values are used as-is. `ScreenFrame` mounts it **fixed behind everything**, outside any ScrollView, so every screen inherits it, it never scrolls, and it never re-renders on scroll (it takes no props and is memoised). Opaque surfaces (cards, chips, field groups, the bottom bar, thumbnails) cover it, so dots show only on the page background. Verified on device: animated scroll of the Records list held 60 fps on the JS thread (worst frame 17.9 ms, simulator). Text crossing a dot: `text.muted` 5.46 → 4.45, `text.accent` 4.96 → 4.04, on 6.4% of the page (dot vs ground 1.23:1). `texture.rule` (the axis rails) is still unimplemented.
 
@@ -998,6 +998,9 @@ The display of computed values: 1b / 4a / 4b (the profile), 5c (the change after
 | ticks | **none** | — |
 | gradient | **none** | — |
 
+- **Two tones (2026-10-11)**, by §1 Colour roles:
+  - **computed** (1b / 4a / 4b / 8f, and 5c, whose before / after are the profile): fill `border.medium`, marker `text.muted` — the table above.
+  - **entered** (2c "Where it sat": the values entered for that one cup): fill `color.icon.accent` (#9E5202, the entered slider handle's fill; 4.04:1 on the track), marker `color.border.accent` (#8A4602, the selected flavour chip's frame; 5.0:1 on the track, 6.95:1 on a card). Same 4pt shape, so it is still plainly not operable; an inoperable slider was rejected because its shape invites a drag.
 - **Fill from the middle (B)**: the axis is bipolar, so "22 toward bitter" is the true reading, not "72% bitter". At exactly 50 there is no fill, and the marker alone at the centre reads as "balanced".
 - **The marker carries the value; the fill only helps.** Measured: the fill is **1.67:1** against the track, under the 3:1 needed for a meaningful graphic. The marker is **4.45:1** on the track and 6.19:1 on a card. A fill-only readout would also show nothing at 50.
 - **No ticks**: on a 4pt bar they are barely visible and add noise; the fill's origin at 50 is the reference.
@@ -1207,3 +1210,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-10 — §1 Haptics: three kinds (light impact, selection, warning); consult before adding a fourth. Warning's first use: 5b's locked Search opener (an exception to "a locked option stays silent", pending the wider question).
 - 2026-10-11 — §1 Haptics: a disabled action (button, sheet opener) gives the warning haptic, only where the screen shows why; options in a set stay silent.
 - 2026-10-11 — AxisReadout built (Home's Taste DNA card). The old display axis removed: `axis.rail.derived`, `axis.needle`, `dashed.track`, AxisSlider's `derived` mode and its dev pages. `axis.ghost` / `axis.delta` removed as well (5c uses AxisReadout's own ghost / delta).
+- 2026-10-11 — AxisReadout gets an **entered** tone (2c: icon.accent fill, border.accent marker) beside **computed**. `texture.rule` removed (only the old display axis used it).
