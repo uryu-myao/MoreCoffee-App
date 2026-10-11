@@ -191,6 +191,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - **Never brown.** Brown marks a value the user entered; used on an action, the mark fades. Brown now carries only entered values.
   - Destructive actions (Discard, Remove photo, …) get no look of their own for now. They are protected by confirmation or undo, not by colour (`gaps.md` 18); whether to add a warning colour, which the product has none of, is a separate decision (`components.md` #3).
 - **Detail — a text-only action is underlined. Colour alone never tells pressable from not pressable (2026-10-09).** The means is the one `text.inlineAction` already defines (an inline text action = underline); size, weight and case follow the context. First use: the taste axis Clear. Twelve text-only actions in the mocks rely on colour alone (2b, 5d, 6d, 7b, 8c, 8e, 8f, 8h, 8l). They are not changed yet (report 2026-10-09).
+- **Scope of the next rule (2026-10-11)**: it is the rule for parts that are options themselves (chips, tags, segmented options). In a **single-select row that carries a marker** (the radio list), the **marker** shows selection (§9 Radio marker); the row itself needs no fill.
 - **An outline with no fill never means "selected" (checked 2026-10-09).**
   - In all 30 screens every selected option is **filled with ink**.
   - 12 are fill + a 2px ink frame: 3a and 8m checked boxes, 3e's switch (D-20), 6d "Home brewer", 8i's five weekdays, 8j "An idea", 8l "Words".
@@ -211,6 +212,14 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - A switch's shape (track + knob) explains itself; it only needs its role.
 - The weekday selector (8i) takes the option form, so 39 → 44.
 - `cursor:pointer` is a web hover cue; native apps have no cursor. On web, `Pressable` sets it itself.
+
+### Values that cannot be edited are displayed, not disabled (added 2026-10-11)
+- When an entered value must not be edited (the cup edit screen's rating, axes and flavours), **show it read-only, do not disable it**: 2c's display — the entered (brown) AxisReadout, flavour Badges with no frame, stars that do not press.
+- **Disabled is only for options in a set** (§1 Disabled options, Selection limit): something that could be chosen but cannot now.
+
+### OS-drawn controls (added 2026-10-11)
+- Controls the OS draws (the date spinner, the keyboard) are **outside the rules for typeface, weight and corner radius**: the spinner is SF Pro with a rounded selection band. We set only what the API allows (text colour `text.primary`).
+- **Consult before using any other OS control.**
 
 ### Selection limit (added 2026-10-07)
 - **Applies to every capped multi-select**: 3a (8), 5b (5), 8c (3). The selection logic is shared. An uncapped set (8i's weekdays) runs through the same logic with no limit: it never locks and **shows no count** (never "∞ of ∞").
@@ -722,7 +731,7 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 |---|---|---|
 | I made it | bean name | roaster · process |
 | Barista | drink | café |
-| Packaged | product name | brand |
+| Packaged | product name | brand — **empty at this stage** (brand is not entered; 2026-10-11). How a list row looks with line 2 empty: Design (`design-missing.md` 6) |
 
 - Why this direction: line 1 is the two-line heading slot. Putting a MapKit café name there (the longest and least predictable string) would put the most fragile text in the most prominent place. As line 2 it falls under the one-line rule below. A proposal to swap Barista / Packaged (source first) was withdrawn on review.
 - I made it's line 2 stays "roaster · process". Changing it to the brew method waits for a brew-method input (`gaps.md` 10): without one the line would be empty.
@@ -741,6 +750,11 @@ Planned uses (2026-10-09 / -10):
 - the search sheet shared by the flavour tags' Search and the bag's Origin: built once, for the flavour tags first, then reused.
 
 `position: absolute`, pinned bottom, `color.surface.raised`, `2px solid` top border, `padding: 22 22 34`, a `size.sheet.handle` bar centred at the top with `-6` optical margin. Behind it: the page at `opacity: 0.45` plus `color.scrim`.
+
+**Variants (built 2026-10-10 / -11, base `BottomSheet`)**:
+- **wrapping** (picker, date): height follows the content, at most up to `insets.top + space.12`; taller content scrolls inside.
+- **full** (search): from `insets.top + space.12` to the keyboard's top, following the keyboard frame by frame. **The bottom padding eases from 34 (the home indicator's room) to `gap.section` (12) while the keyboard is up**, since the keyboard covers the indicator. When the keyboard goes, only the bottom edge moves; the top never jumps.
+- Measured on an SE (375 × 667), search sheet: sheet top 32; the search field row ends and the list starts at 125 (handle, field 46, gaps); first row 52 + the 2px frame, each next row 53.5 (with its divider); the "Add \"Word\"" row is a row like the others (52 / 53.5). With the standard keyboard (216 + 44 predictive bar = 260) the list has 667 − 260 − 12 − 125 = **270pt: 5 full rows** (the 5th ends at 393 of 395). The keyboard could not be shown on the headless simulator; 270pt / 5 rows was confirmed on a device.
 
 ### Header eyebrow and stat (2026-10-06)
 **Eyebrow**: every tab has a small label above its title, from its mock verbatim, in `label.eyebrow` `color.text.accent`, directly above the title (no gap, as in the mocks).
@@ -898,7 +912,7 @@ The List row pattern above as a component (source 2a): a `size.thumbnail.list` p
 - **§3.2 adjustment**: `numeral.inline` renders on its natural 28.6 box on iOS, 6.8 below the baseline, against the spec's 22px box with 3.5 below. The right column therefore stacks rating and date with **0** gap, not the source's 4. That puts the date 6.8 under the digits, against 7.5 in the source; with 4 it would be 10.8. `lineHeight` is untouched.
 - Informational: no press, no chevron. The detail screen does not exist yet. Photos show once they can be added (TODO).
 
-### Bought at row (inline composition in Record coffee, 5e — not a base component)
+### Bought at row (inline composition in Record coffee, 5e — not a base component) — **[not at this stage]** (2026-10-11: Packaged records the product name only; the row is display-only until it returns)
 The optional "Bought at" row in Record coffee's Packaged mode is composed inline in the screen from `Glyph` + `Text`. It is not built from `FieldRow`, because its anatomy differs:
 - a **weak frame**: `shape.borderWidth.divider` (1.5) in `color.border.muted` on `color.surface.raised`, not the 2px ink card;
 - an **inline glyph**: `bag`, `icon.md`, `color.icon.muted`, with no swatch;
@@ -912,7 +926,7 @@ Padding is `inset.control` (the source's 13 / 16 folds to it) and the gap is `sp
 
 **Mode switching (Record coffee, 2026-10-05)**: the rating persists across a switch (it is about the cup, not who made it). The conditional field set resets: it is keyed by mode and remounts. The photo slot persists. The conditional block's height animates with `motion.expand` (Animated, `Easing.bezier` on the token's control points), which is 5a's own mechanism, so the photo slot and footer slide rather than jump. LayoutAnimation was not used because it cannot take the token's bezier.
 
-**Intro line per mode (2026-10-05)**: the line under the header changes with the mode. I made it is 5a verbatim ("Marked fields are required — all of them start pre-filled.") and Packaged is 5e with one word changed ("Packaged cups skip brewing and café — two fields left."; the mock says "Bottled", see `drift.md` D-14). No mock has a Barista line, because 5d replaces it with the error summary. Barista's line was **written to 5e's pattern** (what the mode skips, then how many fields are left): "Cups made for you skip beans and brewing — two fields left." Every line names the cup by who made it, matching the "Who made it?" field, not by its vessel or where it came from ("Café cups" was rejected on review). The line **crossfades** with `motion.expand` (same duration and bezier as the field block), the outgoing line laid over the incoming one, inside the same height-animating wrapper. All three fit on one line at 390pt, so the block does not change height. A longer translation would ease rather than jump.
+**Intro line per mode (2026-10-05)**: the line under the header changes with the mode. I made it is 5a verbatim ("Marked fields are required — all of them start pre-filled.") and Packaged is 5e with one word changed ("Packaged cups skip brewing and café — two fields left."; the mock says "Bottled", see `drift.md` D-14). No mock has a Barista line, because 5d replaces it with the error summary. Barista's line was **written to 5e's pattern** (what the mode skips, then how many fields are left): "Cups made for you skip beans and brewing — two fields left." Every line names the cup by who made it, matching the "Who made it?" field, not by its vessel or where it came from ("Café cups" was rejected on review). The line **crossfades** with `motion.expand` (same duration and bezier as the field block), the outgoing line laid over the incoming one, inside the same height-animating wrapper. At 390pt I made it's and Packaged's lines fit one line; Barista's wraps to two since the intro became a block with padding (2026-10-11), and the block eases to the new height. (A bug cut it to one line instead: ExpandingBlock measured its content against the animated height; fixed 2026-10-11.)
 
 ### Taste axis slider (base `AxisSlider`) — the one place this component is specified (current as of 2026-10-09)
 The input of Taste DNA, on 5b only. **Its display is a different component, AxisReadout** (next section). The two look different, so what can be operated is clear at a glance. A value the user entered must never be confused with one that came out of their records (§1 Colour roles: entered = brown, computed = neutral). Token sizes: §5 `size.axis.*`.
@@ -1217,3 +1231,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-11 — AxisReadout built (Home's Taste DNA card). The old display axis removed: `axis.rail.derived`, `axis.needle`, `dashed.track`, AxisSlider's `derived` mode and its dev pages. `axis.ghost` / `axis.delta` removed as well (5c uses AxisReadout's own ghost / delta).
 - 2026-10-11 — AxisReadout gets an **entered** tone (2c: icon.accent fill, border.accent marker) beside **computed**. `texture.rule` removed (only the old display axis used it).
 - 2026-10-11 — Header: this file is the one source (the repo copy); "sealed 2026-09-20" dates the extraction only. §2 Texture: `texture.rule` gone from the table and notes. §1 Required marks: every mode; Save is never disabled; how it combines with §9 SectionLabel `marked`. §9 Radio marker built; the 12 formula spelled out.
+- 2026-10-11 — §1: values that cannot be edited are displayed (2c's read-only look), not disabled; OS-drawn controls are outside the type / weight / radius rules (consult before adding one); the outline-without-fill rule is for option parts, a radio row's marker shows selection. §9: List row's Packaged line 2 empty at this stage; Bought at [not at this stage]; Bottom sheet variants (wrapping / full) with the keyboard's effect on the bottom padding and SE measurements.
