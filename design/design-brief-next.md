@@ -30,6 +30,10 @@ Items for Design's next request, gathered as they come. Send together; group B i
   - The sticker badge has no 1.5px border (a Badge never has one).
 
 ## Copy we need from Design (not written by us)
+- **5c, an axis's first value**: when a cup gives an axis its first value, there is no "before", so "Moved N points toward …" cannot be written. It is the axis's first record: a start, not a movement. Please write that line.
+- **5c's summary sentence** ("This cup pushed you brighter and lighter."): it needs comparatives per axis and direction (8 cases; Body and Roast both start "light"). Not shown until written. The per-axis lines use "Moved N points toward ‹pole›" (decided 2026-10-11).
+- **5c when nothing moved** (no axis noted, or only words without a table entry): 5c still shows; we put a PROVISIONAL line.
+
 - **5a's intro line on an empty shelf** (`gaps.md` 28): with no bag and no gear the line says "all of them start pre-filled" while Bag and Method read "Add a bag" / "Add gear". Please write the empty-shelf form.
 
 - **5d's reminder card, second line**: it must not promise a draft. Conditions: say why the cup can't be saved yet; while on this screen, what was entered stays; it is not kept as a draft; closing loses it. (V1 has no drafts; see `gaps.md` 30.)

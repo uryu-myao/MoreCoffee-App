@@ -437,13 +437,6 @@ export const component = {
     },
     rail: { height: size.axis.rail, width: size.axis.railWidth, inset: size.axis.inset, dot: size.axis.dot },
     grip: axisGrip,
-    /**
-     * The old display axis's 5c parts, kept until 5c is decided (2026-10-11).
-     * Unused. §9's AxisReadout draws 5c's ghost and delta from other tokens
-     * (border.muted under border.medium, a 2 × 14 border.muted marker).
-     */
-    ghost:  { w: 10, h: 10, borderColor: color.border.medium },
-    delta:  { height: 2, background: color.border.medium },
   },
   /**
    * Bottom tab bar, carried by the floating bar (design-system.md §9).
