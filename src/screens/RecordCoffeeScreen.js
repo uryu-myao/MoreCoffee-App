@@ -10,7 +10,7 @@ import SegmentedControl from '../components/base/SegmentedControl';
 import StarRating from '../components/base/StarRating';
 import Text from '../components/base/Text';
 import { useRecordDraft } from '../components/RecordDraft';
-import { color, icon, motion, shape, size, space, spacing, state } from '../theme/tokens';
+import { color, icon, motion, shape, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 import { daysSince } from '../constants/dates';
 
@@ -327,8 +327,10 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
       }>
       <View style={styles.sections}>
         <ExpandingBlock>
+          {/* The intro line (decided 2026-10-11): on surface.raised, no frame,
+              no leading square (5a's mock draws a 6pt accent square and no
+              background). */}
           <View style={styles.hint}>
-            <View style={styles.bullet} />
             <IntroText text={INTRO[maker]} />
           </View>
         </ExpandingBlock>
@@ -372,12 +374,9 @@ const styles = StyleSheet.create({
   hint: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.gap.row,
-  },
-  bullet: {
-    width: size.dot.bullet,
-    height: size.dot.bullet,
-    backgroundColor: color.marker.required,
+    backgroundColor: color.surface.raised,
+    paddingVertical: spacing.inset.control.v,
+    paddingHorizontal: spacing.inset.control.h,
   },
   introText: {
     // Full row width, so the outgoing line never re-wraps to the new one's width.

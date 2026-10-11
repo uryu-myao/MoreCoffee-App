@@ -17,6 +17,12 @@ Items for Design's next request, gathered as they come. Send together; group B i
   - "Done" beside the field: 8l says "Cancel", but picks apply as they are made.
   - The placeholder "Search flavors" is ours.
 
+## Copy we need from Design (not written by us)
+- **5a's intro line on an empty shelf** (`gaps.md` 28): with no bag and no gear the line says "all of them start pre-filled" while Bag and Method read "Add a bag" / "Add gear". Please write the empty-shelf form.
+
+## Decisions that change mocked parts (2026-10-11)
+- **5a / 5e intro line**: on `color.surface.raised`, no frame, no leading square (drift D-46).
+
 ## Drift not yet sent
 - D-7 to D-16 (never part of group A): see `drift.md`.
 - D-43: 3g's caption still points at 3d's removed "Edit" → "From 3d → tap a card".
