@@ -12,7 +12,11 @@
  *   - words are capped per axis at wordShareCap of the axis's total weight,
  *     by scaling every word on that axis by one factor (see DNA_TUNING).
  * Lock-in counts slider records only: an axis is locked at `lockIn`; the
- * profile is locked when every axis with a slider record is (option B).
+ * profile is locked when every axis with a slider record is (option B), and
+ * once locked it stays locked (decided 2026-10-11): a first note on a new axis
+ * does not un-lock it. Worked out on read by walking the counted cups in
+ * logged order, so no stored flag; deleting cups can undo a lock, since the
+ * walk then never reaches it.
  */
 
 export const AXES = ['acidity', 'body', 'roast', 'sweetness'] as const;
@@ -142,8 +146,23 @@ export function computeDna(cups: readonly DnaCup[], asOf: number, resetAt: numbe
   const noted = AXES.map((a) => axes[a].n).filter((n) => n > 0);
   const fewest = noted.length ? Math.min(...noted) : null;
   const anything = AXES.some((a) => axes[a].value != null);
-  const state = !anything ? 'none' : fewest != null && fewest >= DNA_TUNING.lockIn ? 'locked' : 'early';
+  const state = !anything ? 'none' : everLocked(cups, asOf, resetAt) ? 'locked' : 'early';
   return { axes, state, fewest, cups: counted };
+}
+
+/** Whether, at any point in logged order, every noted axis had `lockIn` slider records. */
+function everLocked(cups: readonly DnaCup[], asOf: number, resetAt: number | null): boolean {
+  const counts = Object.fromEntries(AXES.map((a) => [a, 0])) as Record<AxisKey, number>;
+  const ordered = cups
+    .filter((c) => c.rating && DNA_TUNING.ratingWeight[c.rating] && c.logged_at <= asOf && (resetAt == null || c.logged_at >= resetAt))
+    .slice()
+    .sort((a, b) => a.logged_at - b.logged_at);
+  for (const cup of ordered) {
+    for (const a of AXES) if (cup.axes[a] != null) counts[a] += 1;
+    const noted = AXES.filter((a) => counts[a] > 0);
+    if (noted.length && noted.every((a) => counts[a] >= DNA_TUNING.lockIn)) return true;
+  }
+  return false;
 }
 
 /** Band on the slider's five steps (edges 12.5 / 37.5 / 62.5 / 87.5): 0–4. */

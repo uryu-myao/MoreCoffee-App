@@ -11,9 +11,11 @@ import RadioList from './RadioList';
  * need no search, and the rows carry more (thumbnail, roaster, day N).
  * No mock draws it; built from BottomSheet + RadioList.
  *
- * Header: the field's label (label.eyebrow, muted) and "Done" on the right,
- * as DateSheet. Each section is one RadioList with an optional eyebrow
- * (Method: Brewer / Grinder). A pick applies at once; with `closeOnPick` (one
+ * Header: the field's label as the sheet's title (display.sm; decided
+ * 2026-10-11 — as an eyebrow it stacked over Method's "Brewer" / "Grinder"
+ * eyebrows, two eyebrows in a row) and "Done" on the right.
+ * Each section is one RadioList with an optional eyebrow (Method: Brewer /
+ * Grinder). A pick applies at once; with `closeOnPick` (one
  * section) it also closes. The list scrolls when taller than the sheet.
  *
  * Props
@@ -26,7 +28,7 @@ export default function PickerSheet({ visible, onClose, label, sections, closeOn
   return (
     <BottomSheet visible={visible} onClose={onClose}>
       <View style={styles.header}>
-        <Text variant="labelEyebrow" color="muted">
+        <Text variant="displaySm" color="primary">
           {label}
         </Text>
         <Button variant="text" label="Done" onPress={onClose} />

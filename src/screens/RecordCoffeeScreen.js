@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import Button from '../components/base/Button';
-import EmptySlot from '../components/base/EmptySlot';
 import FieldRow from '../components/base/FieldRow';
 import Glyph from '../components/base/Glyph';
 import HardShadow from '../components/base/HardShadow';
@@ -438,8 +437,9 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
             <Fields key={maker} defaults={defaults} onAddBag={onAddBag} onAddGear={onAddGear} onPick={openPicker} />
           </ExpandingBlock>
 
-          {/* TODO(Step 5): opens the camera / library; inert for now. */}
-          <EmptySlot icon="camera" label="Add a photo" tag="Optional" />
+          {/* "Add a photo" is not shown at this stage (decided 2026-10-11):
+              there is no camera, and a dashed add slot that does nothing breaks
+              §1 Tap affordance. It returns with photos (5a's mock). */}
         </View>
       </ScreenFrame>
       <PickerSheet
