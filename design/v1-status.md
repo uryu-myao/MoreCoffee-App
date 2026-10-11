@@ -16,7 +16,7 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 |---|---|---|---|
 | 5a Log a cup | yes | **done (I made it)** | I made it fully; 5d's state; pickers. Packaged: minimal input in scope. Barista: not now (selectable, records no café / drink) |
 | 5b Tasting note | yes | **done** | axes, flavours + Search sheet, My words, three Save paths |
-| 5c Saved — what the cup changed | yes | **not started** | next; `dna_change` already stored |
+| 5c Saved — what the cup changed | yes | **done** | over the steps after a save; moved axes from the stored `dna_change`; summary sentence and Try next parts not shown; first-value / nothing-moved lines provisional |
 | 5d Missing required fields | yes | **done (rating only)** | copy provisional (Design); café out of scope |
 | 5e Packaged | **yes (minimal)** | partial | in scope as one row: the product name, free text + history (design-missing.md 15). No brand, container or store |
 | 3c Add a bag | yes | **partial (minimal)** | name, roaster, roast date. Not: roast level, size, photo, origin / region / process, "Reuse a past bag" |
