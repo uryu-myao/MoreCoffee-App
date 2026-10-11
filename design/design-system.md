@@ -11,7 +11,8 @@ Reverse-extracted from the shipped screen designs, then revised by decisions rec
   - `6b` `6c`, the same screen as `6a` scrolled;
   - `8b` `8k`, sign-in / account, held with Welcome.
 - **Out of scope**: `9a` `9b` `8a` (Welcome, designed separately), `1a` (rejected direction).
-- **Updated**: 2026-10-10.
+- **Updated**: 2026-10-11 (see §12).
+- **This file is the one source.** It lives at `design/design-system.md` in the app repo; Design receives it from there, never from an earlier upload. "Sealed 2026-09-20" above dates the token *extraction*, not this file.
 - **Do not take values from the `process/` files.** They hold the raw values from before the merges, many of them discarded. The values in this file are the ones in force.
 
 **Method**: values were tagged by role (the property they are declared on + the element type they land on), then judged **inside each role** against a ≥3-screen threshold. Merges required two gates — Gate A (two values both qualifying in one role AND ΔE00 ≥ 2.0 are parallel intent, never merged) and Gate B (ΔE00 ≤ 8 non-text / ≤ 5 text, plus a WCAG contrast check that must not drop). Mechanism-bound values (scrim, error state, caret, meters) are promoted regardless of frequency.
@@ -96,7 +97,12 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - With no bag, Bag is not marked and shows "Add a bag". With no gear, Method is not marked and shows "Add gear".
   - Neither blocks saving. Only the rating gates Save.
 - The mark is not fixed per field: it follows whether the field can be filled. With one bag or more, Bag is marked again and pre-filled with the latest open bag.
+- **The same for every mode (2026-10-11)**: Barista's café and drink and Packaged's product cannot be filled at this stage, so "Café details" and "Product" show no mark and no "Pre-filled" while empty. Nothing is pre-filled from rows the user never chose.
+- Saving: no field blocks it except the rating, and even the rating does not disable Save — a press shows 5d's state (2026-10-11).
 - Why: a mark on an empty field breaks the promise. It would do so on the very first screen a new user sees (someone who skipped 8o).
+- **Two rules, both in force** (with §9 Section heading):
+  - **§9 `SectionLabel` `marked`**: the square bullet marks a section of an input form (5a / 5d / 5e only); `plain` everywhere else.
+  - **This rule**: inside the form, a section whose field cannot be filled is drawn `plain` — no bullet, no status — until it can be. So the bullet on 5a means both "a form section" and "always filled"; where the second cannot hold, the bullet goes.
 
 ### Correct values in drift point to the spec (added 2026-10-10)
 - **A drift's correct value refers to this document directly** (§9 for a component, §2–§8 for a token).
@@ -335,17 +341,15 @@ Not in the shipped screens. Promoted because the pressed state appears in every 
 | `state.pressed.action` | `#05639C` | the `color.action.bg` fill | No existing fill token is a darker action blue. Reuses the value of `color.text.link` as a separate role (fill vs link text), the same precedent as `border.subtle` / `texture` sharing `#E4D6CC`. ΔE00 9.19 below `#067BC2`; white label contrast rises from 4.55 to 6.42:1 |
 | `state.pressed.scale` | `0.88` | surface-less elements (bare glyphs) | Added 2026-10-06. ~0.95 is imperceptible on a 20–24px line or fill glyph; 0.88 reads clearly (a 20px glyph becomes 17.6). Visual only: the touch area never scales |
 
-### Texture — same value, two geometries
-Colour was unified to `#E4D6CC`; the two textures differ in **geometry, not colour**. Two tokens sharing one value is intentional, so that texture density can be tuned without touching the border role.
+### Texture
+One texture since 2026-10-11 (`texture.rule` was removed with the old display axis, its only user; do not use it on new screens). `texture.dot` shares `#E4D6CC` with `color.border.subtle` on purpose, so texture density can be tuned without touching the border role.
 
 | token | value | geometry (verbatim) | coverage |
 |---|---|---|---|
 | `texture.dot` | `#E4D6CC` | `radial-gradient(<color> 1px, transparent 1px)`, `background-size: 7px 7px`, default repeat | 16 screens |
-| ~~`texture.rule`~~ | — | **removed 2026-10-11**: its only uses were the old display axis's rails (1b / 4a / 4b / 2c / 5c), which AxisReadout replaced (no ticks). Do not use on new screens | — |
 
-**Implemented (2026-10-05)**: `texture.dot` is the base `DotTexture`, a single react-native-svg `<Pattern>` with the 1px dot centred in its 7 × 7 tile. CSS `radial-gradient` centres by default; the token values are used as-is. `ScreenFrame` mounts it **fixed behind everything**, outside any ScrollView, so every screen inherits it, it never scrolls, and it never re-renders on scroll (it takes no props and is memoised). Opaque surfaces (cards, chips, field groups, the bottom bar, thumbnails) cover it, so dots show only on the page background. Verified on device: animated scroll of the Records list held 60 fps on the JS thread (worst frame 17.9 ms, simulator). Text crossing a dot: `text.muted` 5.46 → 4.45, `text.accent` 4.96 → 4.04, on 6.4% of the page (dot vs ground 1.23:1). `texture.rule` (the axis rails) is still unimplemented.
+**Implemented (2026-10-05)**: `texture.dot` is the base `DotTexture`, a single react-native-svg `<Pattern>` with the 1px dot centred in its 7 × 7 tile. CSS `radial-gradient` centres by default; the token values are used as-is. `ScreenFrame` mounts it **fixed behind everything**, outside any ScrollView, so every screen inherits it, it never scrolls, and it never re-renders on scroll (it takes no props and is memoised). Opaque surfaces (cards, chips, field groups, the bottom bar, thumbnails) cover it, so dots show only on the page background. Verified on device: animated scroll of the Records list held 60 fps on the JS thread (worst frame 17.9 ms, simulator). Text crossing a dot: `text.muted` 5.46 → 4.45, `text.accent` 4.96 → 4.04, on 6.4% of the page (dot vs ground 1.23:1).
 
-`texture.rule` sits on **two different bases** (`#FFFCFA` 3 uses, `#F4EDEA` 15 uses) — the base is a parameter passed at use time, not baked into the token.
 
 ### Mechanism-bound (class A)
 Promoted regardless of frequency: a low count here means "only a few screens show this state", not "this state is unimportant.
@@ -1040,11 +1044,12 @@ Two variants, both `label.eyebrow` `color.text.muted` with an optional right-sid
 - Not headings, so not `SectionLabel`: FieldRow labels (Beans, Method, Café, Drink, Brand, Package), form field labels (3c, 3e, 6d) and header eyebrows / meta.
 - Status `count` is a neutral right-side count (5b "3 of 5").
 
-### Radio marker (8n; spec 2026-10-10, not built)
+### Radio marker (8n; spec 2026-10-10, built 2026-10-11 in `RadioList`, the bag / gear picker)
 - Square, never round (§1 Shape; drift D-35).
 - **Outer**: `size.checkbox` (24), 2px frame. Unselected: `border.muted` frame on raised. Selected: ink frame.
 - **Inner mark** (selected only): **24 − 2 × 2 − 2 × 4 = 12** square, ink (a chosen option, D-36). Border 2 and gap 4 on each side; written as a formula, not a token.
 - Must read differently from the checkbox (ticked square) at a glance. Design's proposal is awaited (D-35).
+- The 12 is 24 − 2 × 2 (frame) − 2 × 4 (gap); 24 − 2 × 2 alone would be 20, the frame's inside.
 
 ### Star rating (base `StarRating`)
 Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control.row` (52) tap targets spread with space-between. Filled star `icon.fill.xl`, empty star `icon.xl` stroke in `color.border.muted`; optional caption under `divider.soft`; 5d error state per `state.error.*`.
@@ -1102,7 +1107,7 @@ Also standing: `rotation.sticker = -3` (4 screens).
 ## 11. Open Questions
 
 1. **`texture.dot` colour, pending a visual check.** `#E3D4CA` was merged into `#E4D6CC` at ΔE00 ≈ 0.6 (below the perceptual threshold, so treated as parallel drift). But a 1px dot is a tiny mark, and there is a chance the darker value was chosen so the dot stays visible. A real optical compensation would not differ by only 1 unit, hence the drift call. **Re-check by eye once it is rendered with `<Pattern>` in RN; if the dots look washed out, give `texture.dot` its own darker value.** *Rendered 2026-10-05: in the simulator the dots read clearly, not washed out, so no change for now. The final call should be made on a physical device, including at low brightness.*
-2. ~~**Texture implementation is undecided.**~~ **Resolved for `texture.dot` (2026-10-05)**: SVG `<Pattern>` in `DotTexture`, fixed behind `ScreenFrame` (§2 Texture). `texture.rule` is still open. RN has no `background-image` and no CSS gradients. Both textures must be rebuilt with react-native-svg `<Pattern>` (already a project dependency), which is why the tokens carry geometry rather than only colour.
+2. ~~**Texture implementation is undecided.**~~ **Resolved for `texture.dot` (2026-10-05)**: SVG `<Pattern>` in `DotTexture`, fixed behind `ScreenFrame` (§2 Texture). `texture.rule` was removed 2026-10-11 (no longer needed). RN has no `background-image` and no CSS gradients. Both textures must be rebuilt with react-native-svg `<Pattern>` (already a project dependency), which is why the tokens carry geometry rather than only colour.
 3. **`beanFreshness.peakBand` changes colour by state and we cannot tell whether that is intent.** Interpretation (a): a window that has passed drops its saturation and yields attention to `elapsed`. Interpretation (b): drift — the band's colour was changed along with the state. The drinking window is a property of the bag, not of the state, which is what makes (b) plausible. **Decided by the third state (resting / too fresh): if peakBand is mint again there, (a); if it stays beige, (b).** Until then the state-dependent definition stands; do not unify or split.
 4. **`beanFreshness` has no third state.** The peak band starts at 17% of the track, so days 0–4 (degassing) have no defined state. Logically a "resting" / "too fresh" state should exist. Not invented here.
 5. **`state.archived` cannot be implemented as-is.** RN style has no `filter` (newer RN has experimental support; availability in this project is unverified). Four options, none eliminated: (a) keep separately desaturated colour values, (b) process on the image side, (c) react-native-svg `feColorMatrix`, (d) a translucent overlay.
@@ -1211,3 +1216,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-11 — §1 Haptics: a disabled action (button, sheet opener) gives the warning haptic, only where the screen shows why; options in a set stay silent.
 - 2026-10-11 — AxisReadout built (Home's Taste DNA card). The old display axis removed: `axis.rail.derived`, `axis.needle`, `dashed.track`, AxisSlider's `derived` mode and its dev pages. `axis.ghost` / `axis.delta` removed as well (5c uses AxisReadout's own ghost / delta).
 - 2026-10-11 — AxisReadout gets an **entered** tone (2c: icon.accent fill, border.accent marker) beside **computed**. `texture.rule` removed (only the old display axis used it).
+- 2026-10-11 — Header: this file is the one source (the repo copy); "sealed 2026-09-20" dates the extraction only. §2 Texture: `texture.rule` gone from the table and notes. §1 Required marks: every mode; Save is never disabled; how it combines with §9 SectionLabel `marked`. §9 Radio marker built; the 12 formula spelled out.
