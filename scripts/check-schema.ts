@@ -3,11 +3,20 @@
 // runs the dev seed and probes the constraints. Run: npm run check:schema
 import { DatabaseSync } from 'node:sqlite';
 import { seedStatements } from '../src/data/dev/seed.ts';
-import { MIGRATIONS_TABLE, migrations } from '../src/data/migrations.ts';
+import { MIGRATIONS_TABLE, migrations, type MigrationDb } from '../src/data/migrations.ts';
+import { changeOf, dnaCupFromRow, type DnaCup } from '../src/data/tasteDna.ts';
 import { schema } from '../src/data/schema.ts';
 
 const problems: string[] = [];
 const fail = (msg: string) => problems.push(msg);
+
+/** node:sqlite behind the backfill interface (synchronous underneath). */
+const asMigrationDb = (d: DatabaseSync): MigrationDb => ({
+  all: async <T,>(sql: string, params: (string | number | null)[] = []) => d.prepare(sql).all(...params) as T[],
+  run: async (sql: string, params: (string | number | null)[] = []) => {
+    d.prepare(sql).run(...params);
+  },
+});
 
 const db = new DatabaseSync(':memory:');
 db.exec('PRAGMA foreign_keys = ON');
@@ -17,6 +26,7 @@ if (versions.some((v, i) => v !== i + 1)) fail(`migration versions must be 1..n 
 for (const m of migrations) {
   db.exec('BEGIN');
   for (const sql of m.statements) db.exec(sql);
+  if (m.backfill) await m.backfill(asMigrationDb(db));
   db.prepare('INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)').run(m.version, m.name, Date.now());
   db.exec('COMMIT');
 }
@@ -114,16 +124,17 @@ if (!row.created_at || row.logged_at !== row.created_at) fail('a minimal cup (ra
   const old = new DatabaseSync(':memory:');
   old.exec('PRAGMA foreign_keys = ON');
   old.exec(MIGRATIONS_TABLE);
-  const run = (m: (typeof migrations)[number]) => {
+  const run = async (m: (typeof migrations)[number]) => {
     old.exec('BEGIN');
     for (const sql of m.statements) old.exec(sql);
+    if (m.backfill) await m.backfill(asMigrationDb(old));
     old.exec('COMMIT');
   };
-  run(migrations[0]);
+  await run(migrations[0]);
   old.exec(`INSERT INTO beans (id, name, roaster, origin, process, roast_level) VALUES (7, 'Kenya AA', 'Glitch', 'Kenya', 'other', 'medium-light')`);
   old.exec(`INSERT INTO beans (id, name, process, roast_level) VALUES (8, 'Brazil Cerrado', 'natural', 'dark')`);
   old.exec(`INSERT INTO cups (id, rating, mode, bean_id, grinder) VALUES (1, 4, 'made_it', 7, 'C40'), (2, 3, 'made_it', 8, NULL)`);
-  for (const m of migrations.slice(1)) run(m);
+  for (const m of migrations.slice(1)) await run(m);
   const b7 = old.prepare('SELECT process, roast_level FROM bags WHERE id = 7').get() as { process: string | null; roast_level: string | null };
   if (b7.process !== null || b7.roast_level !== null) fail(`upgrade: 'other' / 'medium-light' should become NULL, got ${b7.process} / ${b7.roast_level}`);
   const c1 = old.prepare('SELECT bag_id, bean_name, bean_roaster, bean_origin, grinder, flavours, logged_at FROM cups WHERE id = 1').get() as Record<string, unknown>;
@@ -140,6 +151,57 @@ if (!row.created_at || row.logged_at !== row.created_at) fail('a minimal cup (ra
   old.prepare('INSERT INTO cups (rating, mode) VALUES (5, ?)').run('barista');
   const fresh = old.prepare('SELECT created_at, logged_at FROM cups ORDER BY id DESC LIMIT 1').get() as { created_at: number; logged_at: number };
   if (fresh.logged_at !== fresh.created_at) fail('upgrade: logged_at no longer defaults to created_at');
+}
+
+// Migration 3's replay: a version-2 database with cups, then migration 3.
+// Each cup's dna_change must equal changeOf() at its own logged time, the
+// replay must give the same bytes twice (deterministic: no clock), and an
+// existing user is marked past setup.
+{
+  const DAY = 86400000;
+  const v2 = async () => {
+    const d = new DatabaseSync(':memory:');
+    d.exec('PRAGMA foreign_keys = ON');
+    d.exec(MIGRATIONS_TABLE);
+    for (const m of migrations.slice(0, 2)) {
+      d.exec('BEGIN');
+      for (const sql of m.statements) d.exec(sql);
+      d.exec('COMMIT');
+    }
+    const t0 = 1760000000000;
+    d.exec(`INSERT INTO cups (id, rating, mode, logged_at, created_at, axis_acidity, axis_body, flavours) VALUES
+      (1, 4, 'made_it', ${t0}, ${t0}, 25, NULL, '["Peach"]'),
+      (2, NULL, 'made_it', ${t0 + DAY}, ${t0 + DAY}, 0, NULL, '[]'),
+      (3, 2, 'made_it', ${t0 + 40 * DAY}, ${t0 + 40 * DAY}, 75, 50, '["Smoke","Juicy"]'),
+      (4, 5, 'barista', ${t0 + 40 * DAY}, ${t0 + 40 * DAY}, NULL, NULL, '[]')`);
+    d.exec('BEGIN');
+    for (const sql of migrations[2].statements) d.exec(sql);
+    await migrations[2].backfill!(asMigrationDb(d));
+    d.exec('COMMIT');
+    return d;
+  };
+  const a = await v2();
+  const b = await v2();
+  const rows = a.prepare('SELECT id, rating, logged_at, axis_acidity, axis_body, axis_roast, axis_sweetness, flavours, dna_change FROM cups ORDER BY logged_at, id').all() as any[];
+  const again = b.prepare('SELECT dna_change FROM cups ORDER BY logged_at, id').all() as { dna_change: string }[];
+  const earlier: DnaCup[] = [];
+  rows.forEach((row, i) => {
+    const cup = dnaCupFromRow(row);
+    const want = JSON.stringify(changeOf(earlier, cup));
+    if (row.dna_change !== want) fail(`replay: cup ${row.id} dna_change ${row.dna_change} ≠ ${want}`);
+    if (again[i].dna_change !== row.dna_change) fail(`replay: not deterministic for cup ${row.id}`);
+    earlier.push(cup);
+  });
+  const first = JSON.parse(rows[0].dna_change);
+  if (first.before.acidity.value !== null || first.after.acidity.n !== 1) fail(`replay: cup 1 should start from nothing, got ${rows[0].dna_change}`);
+  const unrated = JSON.parse(rows[1].dna_change);
+  if (JSON.stringify(unrated.before) !== JSON.stringify(unrated.after)) fail('replay: an unrated cup must not move the profile');
+  const setup = a.prepare('SELECT setup_done FROM settings').get() as { setup_done: number };
+  if (setup.setup_done !== 1) fail('migration 3: an existing user should be marked past setup');
+}
+{
+  const fresh = db.prepare('SELECT setup_done, reset_at FROM settings').get() as { setup_done: number; reset_at: number | null };
+  if (fresh.setup_done !== 0 || fresh.reset_at !== null) fail(`migration 3: a fresh install should have setup_done 0, reset_at NULL; got ${JSON.stringify(fresh)}`);
 }
 
 if (problems.length) {

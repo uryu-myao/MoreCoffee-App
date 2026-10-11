@@ -1,5 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type { Bag, CupMode, Gear, GearCategory, Place, Product } from './schema';
+import { changeOf, computeDna, dnaCupFromRow, type Dna } from './tasteDna';
 
 /**
  * The reference rows Record coffee pre-fills its field sets with. Until the
@@ -63,6 +64,15 @@ export async function insertBag(db: SQLiteDatabase, bag: NewBag): Promise<Bag> {
   const row = await db.getFirstAsync<Bag & { notes: string }>('SELECT * FROM bags WHERE id = ?', [result.lastInsertRowId]);
   if (!row) throw new Error('The bag was not stored.');
   return { ...row, notes: JSON.parse(row.notes as unknown as string) };
+}
+
+/** Taste DNA now, from every counted cup (computed on read, never stored). */
+export async function loadTasteDna(db: SQLiteDatabase): Promise<Dna> {
+  const settings = await db.getFirstAsync<{ reset_at: number | null }>('SELECT reset_at FROM settings');
+  const rows = await db.getAllAsync<Parameters<typeof dnaCupFromRow>[0]>(
+    'SELECT rating, logged_at, axis_acidity, axis_body, axis_roast, axis_sweetness, flavours FROM cups ORDER BY logged_at, id'
+  );
+  return computeDna(rows.map(dnaCupFromRow), Date.now(), settings?.reset_at ?? null);
 }
 
 /** Open bags (not finished), newest opened first: the bag picker's rows. */
@@ -163,38 +173,54 @@ export async function insertCup(db: SQLiteDatabase, cup: NewCup): Promise<number
   const barista = cup.mode === 'barista';
   const packaged = cup.mode === 'packaged';
   const bagId = madeIt ? cup.bagId : null;
-  const result = await db.runAsync(
-    `INSERT INTO cups (rating, mode, note, flavours, axis_acidity, axis_body, axis_roast, axis_sweetness,
-                       bag_id, bean_name, bean_roaster, bean_origin, bean_region, bean_process, bean_roast_level, bean_roasted_at,
-                       brewer_id, brew_method, grinder_id, grinder,
-                       place_id, drink_type, product_id, bought_at_place_id)
-     SELECT ?, ?, ?, ?, ?, ?, ?, ?,
-            b.id, b.name, b.roaster, b.origin, b.region, b.process, b.roast_level, b.roasted_at,
-            ?, ?, ?, ?,
-            ?, ?, ?, ?
-       FROM (SELECT 1) LEFT JOIN bags b ON b.id = ?`,
-    [
-      cup.rating,
-      cup.mode,
-      cup.note ?? null,
-      JSON.stringify(cup.flavours ?? []),
-      cup.axes?.acidity ?? null,
-      cup.axes?.body ?? null,
-      cup.axes?.roast ?? null,
-      cup.axes?.sweetness ?? null,
-      madeIt ? cup.brewerId : null,
-      madeIt ? cup.brewMethod : null,
-      madeIt ? cup.grinderId : null,
-      madeIt ? cup.grinder : null,
-      barista ? cup.placeId : null,
-      barista ? cup.drinkType : null,
-      packaged ? cup.productId : null,
-      packaged ? cup.boughtAtPlaceId : null,
-      bagId,
-    ]
-  );
+  let id = 0;
+  await db.withExclusiveTransactionAsync(async (tx) => {
+    const result = await tx.runAsync(
+      `INSERT INTO cups (rating, mode, note, flavours, axis_acidity, axis_body, axis_roast, axis_sweetness,
+                         bag_id, bean_name, bean_roaster, bean_origin, bean_region, bean_process, bean_roast_level, bean_roasted_at,
+                         brewer_id, brew_method, grinder_id, grinder,
+                         place_id, drink_type, product_id, bought_at_place_id)
+       SELECT ?, ?, ?, ?, ?, ?, ?, ?,
+              b.id, b.name, b.roaster, b.origin, b.region, b.process, b.roast_level, b.roasted_at,
+              ?, ?, ?, ?,
+              ?, ?, ?, ?
+         FROM (SELECT 1) LEFT JOIN bags b ON b.id = ?`,
+      [
+        cup.rating,
+        cup.mode,
+        cup.note ?? null,
+        JSON.stringify(cup.flavours ?? []),
+        cup.axes?.acidity ?? null,
+        cup.axes?.body ?? null,
+        cup.axes?.roast ?? null,
+        cup.axes?.sweetness ?? null,
+        madeIt ? cup.brewerId : null,
+        madeIt ? cup.brewMethod : null,
+        madeIt ? cup.grinderId : null,
+        madeIt ? cup.grinder : null,
+        barista ? cup.placeId : null,
+        barista ? cup.drinkType : null,
+        packaged ? cup.productId : null,
+        packaged ? cup.boughtAtPlaceId : null,
+        bagId,
+      ]
+    );
+    id = result.lastInsertRowId;
+    // Taste DNA before / after this cup, as of its own logged time, stored now
+    // and never recomputed (taste-dna.md item 5). The same arithmetic as
+    // migration 3's replay: the cups logged before it, then with it.
+    const DNA_COLS = 'id, rating, logged_at, axis_acidity, axis_body, axis_roast, axis_sweetness, flavours';
+    const self = await tx.getFirstAsync<Parameters<typeof dnaCupFromRow>[0]>(`SELECT ${DNA_COLS} FROM cups WHERE id = ?`, [id]);
+    const settings = await tx.getFirstAsync<{ reset_at: number | null }>('SELECT reset_at FROM settings');
+    const earlier = await tx.getAllAsync<Parameters<typeof dnaCupFromRow>[0]>(
+      `SELECT ${DNA_COLS} FROM cups WHERE logged_at < ? OR (logged_at = ? AND id < ?) ORDER BY logged_at, id`,
+      [self!.logged_at, self!.logged_at, id]
+    );
+    const change = changeOf(earlier.map(dnaCupFromRow), dnaCupFromRow(self!), settings?.reset_at ?? null);
+    await tx.runAsync('UPDATE cups SET dna_change = ? WHERE id = ?', [JSON.stringify(change), id]);
+  });
   notifyCupsChanged();
-  return result.lastInsertRowId;
+  return id;
 }
 
 /* ── Change signal ─────────────────────────────────────────────────────────

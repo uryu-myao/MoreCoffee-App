@@ -4,7 +4,7 @@ import { MIGRATIONS_TABLE, migrations } from './migrations';
 
 export const DATABASE_NAME = 'morecoffee.db';
 
-type Executor = Pick<SQLite.SQLiteDatabase, 'execAsync' | 'runAsync'>;
+type Executor = Pick<SQLite.SQLiteDatabase, 'execAsync' | 'runAsync' | 'getAllAsync'>;
 
 /**
  * Run `task` in a transaction. Native uses an exclusive transaction (its own
@@ -40,6 +40,14 @@ export async function openDatabase(): Promise<SQLite.SQLiteDatabase> {
     if (migration.version <= current) continue;
     await inTransaction(db, async (tx) => {
       for (const sql of migration.statements) await tx.execAsync(sql);
+      if (migration.backfill) {
+        await migration.backfill({
+          all: (sql, params = []) => tx.getAllAsync(sql, params),
+          run: async (sql, params = []) => {
+            await tx.runAsync(sql, params);
+          },
+        });
+      }
       await tx.runAsync('INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)', [
         migration.version,
         migration.name,

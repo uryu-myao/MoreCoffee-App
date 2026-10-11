@@ -10,7 +10,23 @@ First read from the screens (2026-10-11), then decided by Uryu the same day. The
 4. **Lock-in, counted per axis**: an axis locks in at **10 slider records** (flavour words never count toward it). The screens show one state for the whole profile, next to "My taste DNA" (1b, 5c, 6a, 8f); it is **Locked in when every axis with at least one record has 10 or more** (option B). Axes with no record are left out of the judgement. 1b's "N more" counts the axis with the fewest records (copy: Design, D-47).
    - 8f's "From N cups": cups after `reset_at`, rated, with at least one axis noted or one word from the table.
 5. **Recompute**: the profile is computed on read (never stored). **5c's change and 8f's shifts are stored at save time** (`cups.dna_change`, migration 3) and never recomputed, so editing a cup or changing the decay does not rewrite history. `gaps.md` 21 closed. Existing cups: replayed once in the migration (`data-model.md`).
-6. **Words → axes: the ten bundled flavour words only.** My words do not shape the profile in V1 ("Read my words" does not exist, i.e. off; `gaps.md` 31). User-added words have no entry. A word is a weak record: an observation at a step value, strength at most 0.4 of one slider record, and it never counts toward lock-in. The table: revised 2026-10-11 (Smoke drops the bitter side), pending approval.
+6. **Words → axes: the ten bundled flavour words only.** My words do not shape the profile in V1 ("Read my words" does not exist, i.e. off; `gaps.md` 31). User-added words have no entry. A word is a weak record: an observation at a step value, strength at most 0.4 of one slider record, and it never counts toward lock-in.
+   - **Criterion**: when the word comes up, the axis leans predictably, **one way**. Not "they often appear together". The strength follows how sure the association is. (Smoke → bitter fails: dark roasts can be un-bitter.)
+   - **The table (final, 2026-10-11)**; Acid ↔ Bitter: 0 = acid:
+
+     | Word | Effect (value, strength) |
+     |---|---|
+     | Jasmine | acidity → 25 (0.2): floral is near-only in light, bright coffees, but it is aroma, so weaker than Grapefruit |
+     | Peach | acidity → 25 (0.3); sweetness → 75 (0.3) |
+     | Grapefruit | acidity → 0 (0.4) |
+     | Blackcurrant | acidity → 25 (0.3); sweetness → 75 (0.2) |
+     | Black tea | body → 25 (0.3): "tea-like" means a light mouthfeel |
+     | Cocoa | roast → 75 (0.3): the "chocolate sweetness" is caramelisation, which Caramel carries |
+     | Walnut | roast → 75 (0.2) |
+     | Caramel | sweetness → 75 (0.4) |
+     | Cinnamon | none: spice is not sweetness, and not one-way enough for Roast |
+     | Smoke | roast → 100 (0.4) |
+   - **These numbers are starting values.** If the profile disagrees with how real use feels, adjust this table first. The 90-day half-life and the rating weights are the same kind of number. All three live in one place in code (`DNA_TUNING`, `src/data/tasteDna.ts`); never scatter them.
 7. **Reset**: a stored `reset_at`; only cups after it count. Cups are never deleted; Records keeps all of them. The column comes with the migration; the feature is V1.5 (no settings screen in V1).
 8. **Band names**: the five slider steps, edges at 12.5 / 37.5 / 62.5 / 87.5 (0–12.5 Very bright, … 87.5–100 Very bitter), so input steps and display bands match.
 9. **The bag's roast level does not feed the Roast axis**: it is the roaster's claim, the axis is the drinker's perception.

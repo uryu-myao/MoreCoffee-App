@@ -93,6 +93,12 @@ export const schema = {
     // mode = packaged
     product_id: { type: 'INTEGER', nullable: true, references: 'products' },
     bought_at_place_id: { type: 'INTEGER', nullable: true, references: 'places' },
+    /**
+     * Taste DNA before / after this cup, as of its logged time (tasteDna.ts
+     * DnaChange), stored at save and never recomputed. 5c and 8f's shifts read
+     * it. Cups from before migration 3 were replayed once.
+     */
+    dna_change: { type: 'TEXT', nullable: true },
 
     /*
      * NO PRICE COLUMN — deliberate. A hand-entered price is always partial, and
@@ -178,6 +184,10 @@ export const schema = {
     id: { type: 'INTEGER', nullable: false, pk: true },
     drinks_out: { type: 'INTEGER', nullable: true },
     coffee_style: { type: 'TEXT', nullable: true, values: ['black', 'with_milk', 'depends'] },
+    /** Reset my taste DNA (V1.5): only cups logged from this time count. */
+    reset_at: { type: 'INTEGER', nullable: true },
+    /** 0 / 1: the first setup (8a / 8n / 8c / 8o) was finished or skipped. */
+    setup_done: { type: 'INTEGER', nullable: false },
   },
 } as const satisfies Record<string, Record<string, ColumnDef>>;
 

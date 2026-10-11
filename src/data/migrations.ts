@@ -11,12 +11,23 @@
  *
  * Driver-agnostic on purpose (plain SQL strings): migrate.ts runs these with
  * expo-sqlite on device; scripts/check-schema.ts runs them with node:sqlite.
+ * A migration may add a `backfill` step for what SQL alone cannot compute; it
+ * runs after the statements, in the same transaction, through MigrationDb.
  */
+
+import { changeOf, dnaCupFromRow, type DnaCup } from './tasteDna.ts';
+
+/** What a backfill step may do, whichever driver runs it. */
+export type MigrationDb = {
+  all<T>(sql: string, params?: (string | number | null)[]): Promise<T[]>;
+  run(sql: string, params?: (string | number | null)[]): Promise<void>;
+};
 
 export type Migration = {
   readonly version: number;
   readonly name: string;
   readonly statements: readonly string[];
+  readonly backfill?: (db: MigrationDb) => Promise<void>;
 };
 
 /** Epoch milliseconds, portable across SQLite versions. */
@@ -202,6 +213,40 @@ export const migrations: readonly Migration[] = [
       )`,
       `INSERT INTO settings (id) VALUES (1)`,
     ],
+  },
+  {
+    /*
+     * Taste DNA history and two settings (design/data-model.md "Migration 3",
+     * decided 2026-10-11), batched as everything visible at the time:
+     *   - cups.dna_change: the profile before / after this cup, stored at save
+     *     and never recomputed (5c, 8f's shifts; taste-dna.md item 5)
+     *   - settings.reset_at: Reset counts cups from this time (V1.5; column only)
+     *   - settings.setup_done: the first setup was finished or skipped (the
+     *     flow is stage 3+). Set to 1 where cups or bags already exist: an
+     *     existing user is past setup.
+     * Backfill: existing cups are replayed once, in logged order, each at its
+     * own logged time (no clock), so the result is deterministic. Creating
+     * history where none exists, once, is not overwriting history.
+     */
+    version: 3,
+    name: 'taste DNA history, reset date, first-setup flag',
+    statements: [
+      `ALTER TABLE cups ADD COLUMN dna_change TEXT CHECK (dna_change IS NULL OR json_valid(dna_change))`,
+      `ALTER TABLE settings ADD COLUMN reset_at INTEGER`,
+      `ALTER TABLE settings ADD COLUMN setup_done INTEGER NOT NULL DEFAULT 0 CHECK (setup_done IN (0, 1))`,
+      `UPDATE settings SET setup_done = 1 WHERE EXISTS (SELECT 1 FROM cups) OR EXISTS (SELECT 1 FROM bags)`,
+    ],
+    backfill: async (db) => {
+      const rows = await db.all<Parameters<typeof dnaCupFromRow>[0] & { id: number }>(
+        'SELECT id, rating, logged_at, axis_acidity, axis_body, axis_roast, axis_sweetness, flavours FROM cups ORDER BY logged_at, id'
+      );
+      const earlier: DnaCup[] = [];
+      for (const row of rows) {
+        const cup = dnaCupFromRow(row);
+        await db.run('UPDATE cups SET dna_change = ? WHERE id = ?', [JSON.stringify(changeOf(earlier, cup)), row.id]);
+        earlier.push(cup);
+      }
+    },
   },
 ];
 

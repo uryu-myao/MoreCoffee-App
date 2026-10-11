@@ -140,6 +140,7 @@ Do not stack small migrations.
 - **Migration 3, decided 2026-10-11**: three items together: `cups.dna_change` (JSON: Taste DNA before / after this cup, per axis value and slider-record count, for 5c and 8f's shifts), `settings.reset_at` (column only; Reset is V1.5) and the first-setup flag.
   - Existing cups get their `dna_change` by **replaying them once, in logged order, during the migration**. Each snapshot uses that cup's own logged time as "now", never the clock, so the replay is deterministic.
   - **Why this is not "recomputing history"**: creating history once where none exists is different from overwriting history that exists. The replay runs only in the migration, once; after that a stored `dna_change` is never rewritten.
+  - **Landed 2026-10-11** (`src/data/migrations.ts` version 3). `npm run check:schema` replays a version-2 database twice and requires identical `dna_change` bytes and equality with `changeOf()` per cup.
 
 ### Storage audit: every input in the 31 screens (2026-10-10)
 
