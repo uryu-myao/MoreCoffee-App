@@ -531,7 +531,9 @@ The user sees the past rewritten.
 
 ---
 
-## 28. Only one bag can be held for now (added 2026-10-10)
+## 28. Only one bag can be held for now (added 2026-10-10) — RESOLVED 2026-10-11 by the picker
+
+**Resolved**: 5a's Bag and Method rows now open the picker (open bags; brewers and grinders), each with "Add a bag" / "Add gear" at the end. A second bag, a grinder after a dripper, and a non-default brewer for one cup all work. Still open below: the stat counts and the empty-shelf intro line.
 
 **What**: 3c (minimal) is reachable only while no bag is open (T-4). With one bag, 5a pre-fills it and its row (a picker) does nothing yet, so a second bag cannot be added. **In practice a user holds one bag until stage 3's picker (or 3d) lands.**
 

@@ -71,11 +71,14 @@ export function RecordDraftProvider({ onSaved, children }) {
 
   const setAxis = useCallback((key, value) => setAxes((prev) => ({ ...prev, [key]: value })), []);
 
-  /** A bag just added (3c): it becomes the cup's bag at once. */
+  /** This cup's bag: one just added (3c), or picked (the bag picker). */
   const chooseBag = useCallback((bag) => setDefaults((prev) => ({ ...(prev ?? EMPTY_DEFAULTS), bag })), []);
 
-  /** Gear just added (3a): the defaults it leaves fill Method at once. */
-  const chooseGear = useCallback(({ brewer, grinder }) => setDefaults((prev) => ({ ...(prev ?? EMPTY_DEFAULTS), brewer, grinder })), []);
+  /**
+   * This cup's gear: { brewer?, grinder? }. From 3a (the defaults it leaves)
+   * or the Method picker (this cup only; the shelf's defaults stay).
+   */
+  const chooseGear = useCallback((gear) => setDefaults((prev) => ({ ...(prev ?? EMPTY_DEFAULTS), ...gear })), []);
 
   /** Select / deselect a flavour. Reaching the limit gives one light impact (§1 Selection limit). */
   const toggleFlavour = useCallback((word) => {

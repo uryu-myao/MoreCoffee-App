@@ -310,6 +310,15 @@ The bundled list is the starting point for 5b's flavour tags (never a whitelist;
 
 **Date sheet**: iOS spinner in the BottomSheet, text in `text.primary`, `maximumDate` today; a picked day is stored as its local midnight. Compact and inline both bring OS round shapes (a pill; a round selected day). The spinner's selection band is still a light rounded bar from the OS.
 
+## Picker sheet (built 2026-10-11, stage 3)
+
+- **PickerSheet** = BottomSheet + one RadioList per section. Header: the field's label and "Done". Content wraps up to the sheet's top line, then scrolls.
+- **RadioList**: the single-select sibling of CheckboxList, with §9's square radio marker (outer 24 / 2px; selected = ink frame + 12 inner ink square). Optional 46 thumbnail and meta line; optional add row.
+- **Bag** (5a's Bag row): open bags, newest opened first; thumbnail + name + "roaster · day N"; "Add a bag" last (opens 3c). A pick closes the sheet.
+- **Method** (5a's Method row): "Brewer" and "Grinder" sections, defaults first and marked "Default"; "Add gear" last (opens 3a). Picks apply to **this cup only**; the shelf's defaults stay. Done closes.
+- Not in scope: Finish bag, 3d (decided 2026-10-11).
+- No mock draws a picker. To show Design.
+
 ## 5d in V1: missing rating only (recorded 2026-10-11)
 
 **Scope**: 5d's mock is drawn in Barista mode and treats the café as required. V1's 5d covers **the rating only**. I made it has no café, and Barista's café becomes required (or not) when that branch is built, with MapKit. A difference of scope, not drift: a café-less cup still saves.

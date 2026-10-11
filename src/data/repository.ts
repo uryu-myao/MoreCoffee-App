@@ -65,6 +65,17 @@ export async function insertBag(db: SQLiteDatabase, bag: NewBag): Promise<Bag> {
   return { ...row, notes: JSON.parse(row.notes as unknown as string) };
 }
 
+/** Open bags (not finished), newest opened first: the bag picker's rows. */
+export async function listOpenBags(db: SQLiteDatabase): Promise<Bag[]> {
+  const rows = await db.getAllAsync<Bag & { notes: string }>('SELECT * FROM bags WHERE finished_at IS NULL ORDER BY opened_at DESC, id DESC');
+  return rows.map((row) => ({ ...row, notes: JSON.parse(row.notes as unknown as string) }));
+}
+
+/** Gear of one category, defaults first, then oldest added: the Method picker's rows. */
+export async function listGear(db: SQLiteDatabase, category: GearCategory): Promise<Gear[]> {
+  return db.getAllAsync<Gear>('SELECT * FROM gear WHERE category = ? ORDER BY is_default DESC, added_at, id', [category]);
+}
+
 /** Gear on the shelf: what takes 3a's 8 slots. */
 export async function countGear(db: SQLiteDatabase): Promise<number> {
   const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM gear');

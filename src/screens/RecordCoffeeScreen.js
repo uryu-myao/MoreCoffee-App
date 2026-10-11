@@ -10,7 +10,10 @@ import SectionLabel from '../components/base/SectionLabel';
 import SegmentedControl from '../components/base/SegmentedControl';
 import StarRating from '../components/base/StarRating';
 import Text from '../components/base/Text';
+import PickerSheet from '../components/PickerSheet';
 import { useRecordDraft } from '../components/RecordDraft';
+import { useDatabase } from '../data/DatabaseProvider';
+import { listGear, listOpenBags } from '../data/repository';
 import { color, icon, motion, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 import { daysSince } from '../constants/dates';
@@ -145,7 +148,7 @@ const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
  * empty shelf cannot keep that promise (design-system.md §1 Required marks).
  * Neither blocks Save. "Add a bag" opens 3c (minimal), "Add gear" 3a (minimal).
  */
-function MadeItFields({ defaults, onAddBag, onAddGear }) {
+function MadeItFields({ defaults, onAddBag, onAddGear, onPick }) {
   const { bag, brewer, grinder } = defaults;
   const method = [brewer?.name, grinder?.name].filter(Boolean).join(' · ');
   const filled = Boolean(bag && method);
@@ -153,12 +156,12 @@ function MadeItFields({ defaults, onAddBag, onAddGear }) {
     <Section label="From my shelf" status={filled ? 'prefilled' : undefined} plain={!filled}>
       <View style={styles.card}>
         {bag ? (
-          <FieldRow swatch label="Bag" value={bag.name} meta={bagMeta(bag)} />
+          <FieldRow swatch label="Bag" value={bag.name} meta={bagMeta(bag)} onPress={() => onPick('bag')} />
         ) : (
           <FieldRow swatch label="Bag" value="Add a bag" placeholder onPress={onAddBag} />
         )}
         {method ? (
-          <FieldRow divided label="Method" value={method} meta={brewer ? 'Your default brewer' : undefined} />
+          <FieldRow divided label="Method" value={method} meta={brewer?.is_default ? 'Your default brewer' : undefined} onPress={() => onPick('gear')} />
         ) : (
           <FieldRow divided label="Method" value="Add gear" placeholder onPress={onAddGear} />
         )}
@@ -353,7 +356,24 @@ function MissingLine({ onGoToFirst }) {
 const GO_TO_FIRST_SLOP = { top: space[16], bottom: space[16], left: space[8], right: space[8] };
 
 export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAddGear }) {
-  const { defaults, rating, setRating, mode: maker, setMode: setMaker, missing, save } = useRecordDraft();
+  const { defaults, chooseBag, chooseGear, rating, setRating, mode: maker, setMode: setMaker, missing, save } = useRecordDraft();
+  const db = useDatabase();
+  // Stage 3's picker (decided 2026-10-11): the Bag / Method rows open the
+  // shelf's open bags / gear for this cup. 'bag' | 'gear' | null.
+  const [picking, setPicking] = useState(null);
+  const [shelf, setShelf] = useState({ bags: [], brewers: [], grinders: [] });
+  const openPicker = useCallback(
+    async (kind) => {
+      try {
+        const [bags, brewers, grinders] = await Promise.all([listOpenBags(db), listGear(db, 'brewer'), listGear(db, 'grinder')]);
+        setShelf({ bags, brewers, grinders });
+        setPicking(kind);
+      } catch (error) {
+        console.error('[record] could not read the shelf', error);
+      }
+    },
+    [db]
+  );
   const now = useMinuteClock();
   const Fields = FIELD_SETS[maker];
   const scrollRef = useRef(null);
@@ -369,71 +389,122 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
   if (!defaults) return null;
 
   return (
-    <ScreenFrame
-      scroll
-      compact
-      scrollRef={scrollRef}
-      footerTone={missing ? 'error' : undefined}
-      title="Log a cup"
-      leading={<IconButton icon="close" accessibilityLabel="Close" onPress={onClose} />}
-      meta={
-        <View style={styles.when}>
-          <Text variant="labelCaps" color="muted">
-            {dateFormat.format(now)}
-          </Text>
-          <Text variant="labelCaps" color="accent" style={styles.whenTime}>
-            {`${timeFormat.format(now)} · ${partOfDay(now)}`}
-          </Text>
-        </View>
-      }
-      footer={
-        <>
-          {missing ? <MissingLine onGoToFirst={goToFirst} /> : null}
-          {/* Always pressable: with no rating it shows 5d instead (§1, 2026-10-11). */}
-          <Button label="Save this cup" onPress={() => save({ withNote: true })} />
-          {/* Opens the tasting note (5b), step 2 of 2 in this sheet. */}
-          <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" onPress={onAddNote} />
-        </>
-      }>
-      <View style={styles.sections}>
-        {/* 5d's card sits outside the expanding block, whose clip would cut
-            its 4pt hard shadow. */}
-        {missing ? (
-          <MissingCard />
-        ) : (
+    <View style={styles.screen}>
+      <ScreenFrame
+        scroll
+        compact
+        scrollRef={scrollRef}
+        footerTone={missing ? 'error' : undefined}
+        title="Log a cup"
+        leading={<IconButton icon="close" accessibilityLabel="Close" onPress={onClose} />}
+        meta={
+          <View style={styles.when}>
+            <Text variant="labelCaps" color="muted">
+              {dateFormat.format(now)}
+            </Text>
+            <Text variant="labelCaps" color="accent" style={styles.whenTime}>
+              {`${timeFormat.format(now)} · ${partOfDay(now)}`}
+            </Text>
+          </View>
+        }
+        footer={
+          <>
+            {missing ? <MissingLine onGoToFirst={goToFirst} /> : null}
+            {/* Always pressable: with no rating it shows 5d instead (§1, 2026-10-11). */}
+            <Button label="Save this cup" onPress={() => save({ withNote: true })} />
+            {/* Opens the tasting note (5b), step 2 of 2 in this sheet. */}
+            <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" onPress={onAddNote} />
+          </>
+        }>
+        <View style={styles.sections}>
+          {/* 5d's card sits outside the expanding block, whose clip would cut
+              its 4pt hard shadow. */}
+          {missing ? (
+            <MissingCard />
+          ) : (
+            <ExpandingBlock>
+              {/* The intro line (decided 2026-10-11): on surface.raised, no frame,
+                  no leading square (5a's mock draws a 6pt accent square and no
+                  background). */}
+              <View style={styles.hint}>
+                <IntroText text={INTRO[maker]} />
+              </View>
+            </ExpandingBlock>
+          )}
+
+          {/* SET only once a star is tapped. The caption line is reserved while
+              unrated, so the first tap does not grow the card. */}
+          <Section label="How was it?" status={rating > 0 ? 'set' : missing ? 'required' : undefined}>
+            <StarRating value={rating} onChange={setRating} caption={RATING_COPY[rating] ?? ''} error={missing ? STAR_HINT : undefined} />
+          </Section>
+
+          <Section label="Who made it?" status="set">
+            <SegmentedControl options={MAKERS} value={maker} onChange={setMaker} />
+          </Section>
+
           <ExpandingBlock>
-            {/* The intro line (decided 2026-10-11): on surface.raised, no frame,
-                no leading square (5a's mock draws a 6pt accent square and no
-                background). */}
-            <View style={styles.hint}>
-              <IntroText text={INTRO[maker]} />
-            </View>
+            {/* Keyed by mode: a switch remounts the field set, so nothing carries over. */}
+            <Fields key={maker} defaults={defaults} onAddBag={onAddBag} onAddGear={onAddGear} onPick={openPicker} />
           </ExpandingBlock>
-        )}
 
-        {/* SET only once a star is tapped. The caption line is reserved while
-            unrated, so the first tap does not grow the card. */}
-        <Section label="How was it?" status={rating > 0 ? 'set' : missing ? 'required' : undefined}>
-          <StarRating value={rating} onChange={setRating} caption={RATING_COPY[rating] ?? ''} error={missing ? STAR_HINT : undefined} />
-        </Section>
-
-        <Section label="Who made it?" status="set">
-          <SegmentedControl options={MAKERS} value={maker} onChange={setMaker} />
-        </Section>
-
-        <ExpandingBlock>
-          {/* Keyed by mode: a switch remounts the field set, so nothing carries over. */}
-          <Fields key={maker} defaults={defaults} onAddBag={onAddBag} onAddGear={onAddGear} />
-        </ExpandingBlock>
-
-        {/* TODO(Step 5): opens the camera / library; inert for now. */}
-        <EmptySlot icon="camera" label="Add a photo" tag="Optional" />
-      </View>
-    </ScreenFrame>
+          {/* TODO(Step 5): opens the camera / library; inert for now. */}
+          <EmptySlot icon="camera" label="Add a photo" tag="Optional" />
+        </View>
+      </ScreenFrame>
+      <PickerSheet
+        visible={picking === 'bag'}
+        onClose={() => setPicking(null)}
+        label="Bag"
+        closeOnPick
+        sections={[
+          {
+            items: shelf.bags.map((b) => ({ key: b.id, label: b.name, meta: bagMeta(b), swatch: true })),
+            selected: defaults.bag?.id ?? null,
+            onPick: (id) => chooseBag(shelf.bags.find((b) => b.id === id)),
+            add: {
+              label: 'Add a bag',
+              onPress: () => {
+                setPicking(null);
+                onAddBag();
+              },
+            },
+          },
+        ]}
+      />
+      <PickerSheet
+        visible={picking === 'gear'}
+        onClose={() => setPicking(null)}
+        label="Method"
+        sections={[
+          {
+            label: 'Brewer',
+            items: shelf.brewers.map((g) => ({ key: g.id, label: g.name, meta: g.is_default ? 'Default' : undefined })),
+            selected: defaults.brewer?.id ?? null,
+            onPick: (id) => chooseGear({ brewer: shelf.brewers.find((g) => g.id === id) }),
+          },
+          {
+            label: 'Grinder',
+            items: shelf.grinders.map((g) => ({ key: g.id, label: g.name, meta: g.is_default ? 'Default' : undefined })),
+            selected: defaults.grinder?.id ?? null,
+            onPick: (id) => chooseGear({ grinder: shelf.grinders.find((g) => g.id === id) }),
+            add: {
+              label: 'Add gear',
+              onPress: () => {
+                setPicking(null);
+                onAddGear();
+              },
+            },
+          },
+        ]}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   // 5a: date over time, right-aligned at the header's right.
   when: {
     alignItems: 'flex-end',

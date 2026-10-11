@@ -23,6 +23,9 @@ import { color, layout, motion, opticalMargin, shape, size, space, spacing } fro
  * edge moves with it: the top stays put, so nothing jumps. The bottom padding
  * eases from 34 (home indicator) to gap.section while the keyboard is up.
  *
+ * Otherwise the sheet wraps its content, up to the same top line (content that
+ * is taller scrolls inside it).
+ *
  * The handle is drawn as in 2b but does not drag (no mock shows dragging).
  * Tapping the dimmed page closes the sheet.
  *
@@ -75,7 +78,9 @@ export default function BottomSheet({ visible, onClose, full = false, children }
         </Pressable>
       </Animated.View>
       <Animated.View style={[styles.slide, full && { top: insets.top + space[12] }, slide]} pointerEvents="box-none">
-        <Reanimated.View style={[styles.sheet, full && styles.sheetFull, followKeyboard]} accessibilityViewIsModal>
+        <Reanimated.View
+          style={[styles.sheet, full ? styles.sheetFull : { maxHeight: height - insets.top - space[12] }, followKeyboard]}
+          accessibilityViewIsModal>
           <View style={styles.handle} />
           {children}
         </Reanimated.View>
