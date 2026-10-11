@@ -96,7 +96,10 @@ function IntroText({ text }) {
   return (
     <View style={styles.introText}>
       <Animated.View style={{ opacity: fade }}>
-        <Text variant="meta" color="muted">
+        {/* Keyed by the copy: a new line gets a new text node. Updating the
+            node in place kept the old line's one-line height, so a longer
+            line was clipped instead of wrapping (found 2026-10-11). */}
+        <Text key={shown.current} variant="meta" color="muted">
           {shown.current}
         </Text>
       </Animated.View>
@@ -120,8 +123,6 @@ function Section({ label, status, plain, children }) {
   );
 }
 
-/** The mock's drink: there is no drink table in V1 (Barista is a later stage). */
-const DEFAULT_DRINK = 'Flat white';
 
 /** Shown for a field with no row behind it (an empty database). TODO(Step 5): pickers. */
 const NONE = '—';
@@ -171,12 +172,19 @@ function MadeItFields({ defaults, onAddBag, onAddGear, onPick }) {
   );
 }
 
+/**
+ * Barista (not at this stage): selectable, but nothing to enter yet — the
+ * café and drink stay empty ("—") and are saved empty. No required mark and no
+ * "Pre-filled": nothing here can be filled (§1 Required marks).
+ */
 function BaristaFields({ defaults }) {
+  const filled = Boolean(defaults.cafe);
   return (
-    <Section label="Café details" status="prefilled">
+    <Section label="Café details" status={filled ? 'prefilled' : undefined} plain={!filled}>
       <View style={styles.card}>
-        <FieldRow icon="pin" label="Café" value={defaults.cafe?.name ?? NONE} />
-        <FieldRow divided label="Drink" value={DEFAULT_DRINK} />
+        {/* readOnly: no picker yet, so no chevron (§1 Tap affordance). */}
+        <FieldRow readOnly icon="pin" label="Café" value={defaults.cafe?.name ?? NONE} />
+        <FieldRow readOnly divided label="Drink" value={NONE} />
       </View>
     </Section>
   );
@@ -190,10 +198,12 @@ function PackagedFields({ defaults }) {
     : NONE;
   return (
     <View style={styles.fieldSets}>
-      <Section label="Product" status="prefilled">
+      {/* No mark and no "Pre-filled" while there is no product (§1 Required
+          marks); the product-name input comes with Design (design-missing.md 6). */}
+      <Section label="Product" status={product ? 'prefilled' : undefined} plain={!product}>
         <View style={styles.card}>
-          <FieldRow icon="can" label="Brand" value={brand} />
-          <FieldRow divided label="Package" value={pack} />
+          <FieldRow readOnly icon="can" label="Brand" value={brand} />
+          <FieldRow readOnly divided label="Package" value={pack} />
         </View>
       </Section>
       <Section label="Bought at" status="optional">
@@ -202,15 +212,13 @@ function PackagedFields({ defaults }) {
             dropped — there is no price in the data model (drift.md D-15).
             A second occurrence promotes it to a base component. */}
         <View style={styles.weakFrame}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`Bought at ${store?.name ?? NONE}`}
-            style={({ pressed }) => [styles.inlineRow, pressed && styles.inlineRowPressed]}>
+          {/* Display only until there is a store picker: no press feedback. */}
+          <View accessible accessibilityLabel={`Bought at ${store?.name ?? NONE}`} style={styles.inlineRow}>
             <Glyph name="bag" token={icon.md} color={color.icon.muted} />
             <Text variant="label" truncate="name" style={styles.inlineName}>
               {store?.name ?? NONE}
             </Text>
-          </Pressable>
+          </View>
         </View>
       </Section>
     </View>
@@ -250,9 +258,15 @@ function ExpandingBlock({ children }) {
 
   useEffect(() => () => height.stopAnimation(), [height]);
 
+  // Once measured, the content is laid out absolutely (top / left / right),
+  // so it is measured free of the clip's animated height. In the flow it was
+  // measured against that height, and a longer line (Barista's intro) was cut
+  // to the previous line's single line instead of wrapping (found 2026-10-11).
   return (
     <Animated.View style={[styles.clip, measured && { height }]}>
-      <View onLayout={onContentLayout}>{children}</View>
+      <View onLayout={onContentLayout} style={measured && styles.clipContent}>
+        {children}
+      </View>
     </Animated.View>
   );
 }
@@ -519,15 +533,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hint: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    // A column since the leading square went (D-46): in a row the text took
+    // the row's measured width and was clipped instead of wrapping.
     backgroundColor: color.surface.raised,
     paddingVertical: spacing.inset.control.v,
     paddingHorizontal: spacing.inset.control.h,
   },
   introText: {
-    // Full row width, so the outgoing line never re-wraps to the new one's width.
-    flex: 1,
+    // Full width, so the outgoing line never re-wraps to the new one's width.
+    width: '100%',
   },
   introPrevious: {
     position: 'absolute',
@@ -546,6 +560,12 @@ const styles = StyleSheet.create({
   clip: {
     overflow: 'hidden',
   },
+  clipContent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
   weakFrame: {
     borderWidth: shape.borderWidth.divider,
     borderColor: color.border.muted,
@@ -557,9 +577,6 @@ const styles = StyleSheet.create({
     gap: space[12],
     paddingVertical: spacing.inset.control.v,
     paddingHorizontal: spacing.inset.control.h,
-  },
-  inlineRowPressed: {
-    backgroundColor: state.pressed.surface,
   },
   inlineName: {
     flex: 1,

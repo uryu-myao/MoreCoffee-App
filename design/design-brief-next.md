@@ -1,5 +1,11 @@
 # Design brief — next round (collecting; not sent yet)
 
+**About this round's scope**: it is what Uryu needs to log his own coffee every day, **not a version for other people**. Items marked **[not at this stage]** in `design-missing.md` are not "not needed", only not needed at this stage.
+
+**Hard constraint, read before designing the search sheet's content: on an SE, about 270pt / 5 rows stay above the keyboard** (measured, device-confirmed).
+
+**Already built without a mock — please check them against the system**: the bag / gear picker, the flavour search sheet, the date sheet.
+
 **Design's hand-made work**: every icon, and the placeholder images. (Everything else is built from `design-system.md`.)
 
 **`texture.rule` is retired** (2026-10-11): it drew the old display axis's rail lines, which AxisReadout replaced. Do not use it on new screens; existing boards still show it on 1b / 4a / 4b / 2c / 5c.

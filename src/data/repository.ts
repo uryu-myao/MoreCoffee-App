@@ -18,14 +18,19 @@ export type RecordDefaults = {
 };
 
 export async function loadRecordDefaults(db: SQLiteDatabase): Promise<RecordDefaults> {
-  const [bag, brewer, grinder, cafe, product, store] = await Promise.all([
+  // Café, product and store are NOT pre-filled (2026-10-11): no V1 screen lets
+  // the user choose or create one, so "the newest row" could only ever be the
+  // dev seed's, and a cup would record a café / product nobody picked. A
+  // record must be a fact. They come back with their pickers (Packaged's
+  // product name: design-missing.md 6; Barista: not at this stage).
+  const [bag, brewer, grinder] = await Promise.all([
     db.getFirstAsync<Bag & { notes: string }>('SELECT * FROM bags WHERE finished_at IS NULL ORDER BY opened_at DESC, id DESC LIMIT 1'),
     db.getFirstAsync<Gear>("SELECT * FROM gear WHERE category = 'brewer' AND is_default = 1"),
     db.getFirstAsync<Gear>("SELECT * FROM gear WHERE category = 'grinder' AND is_default = 1"),
-    db.getFirstAsync<Place>("SELECT * FROM places WHERE kind = 'cafe' ORDER BY id DESC LIMIT 1"),
-    db.getFirstAsync<Product>('SELECT * FROM products ORDER BY id DESC LIMIT 1'),
-    db.getFirstAsync<Place>("SELECT * FROM places WHERE kind = 'store' ORDER BY id DESC LIMIT 1"),
   ]);
+  const cafe: Place | null = null;
+  const product: Product | null = null;
+  const store: Place | null = null;
   return {
     bag: bag ? { ...bag, notes: JSON.parse(bag.notes as unknown as string) } : null,
     brewer: brewer ?? null,

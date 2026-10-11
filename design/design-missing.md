@@ -33,13 +33,15 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
 
 ## Copy
 
-10. **[this round] 5a's intro line on an empty shelf** (it says "all of them start pre-filled" when nothing is).
+10. **[this round] 5a's intro lines that are no longer true**:
+    - I made it on an empty shelf: it says "all of them start pre-filled" when nothing is;
+    - Packaged and Barista: "— two fields left." while those fields cannot be filled yet (Packaged until its product-name row; Barista not at this stage).
 11. **[this round] 5d** (rating only in V1):
     - the reminder's second line, **promising no draft** (V1 has none): say why it can't be saved; input stays while on the screen; closing loses it;
     - the title for **one** missing item: don't count, don't repeat the star card's "Tap a star — this is the one thing the app can't guess.";
     - the footer line for one missing item (the mock: "Rating and café are still empty.").
 12. **[this round] 5c**:
-    - an axis's **first** value: a start, not a movement;
+    - an axis's **first** value: a start, not a movement. The provisional line "First note on Light roast / Dark roast." names the **axis** (both poles), not a **direction**: a first record has no direction. The line must say "this axis has begun", without pointing either way;
     - the **summary sentence** ("This cup pushed you brighter and lighter."): 8 comparatives (Body and Roast both start "light"); not shown until written;
     - **nothing moved**.
 13. **[this round] 1b's "N more cups to lock it in"** (D-47): lock-in is 10, counted per axis; N counts the least-noted axis. Try next's 5 is separate (V2).

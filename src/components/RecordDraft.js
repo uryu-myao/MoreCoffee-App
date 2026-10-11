@@ -35,8 +35,6 @@ const RecordDraftContext = createContext(null);
 
 const EMPTY_DEFAULTS = { bag: null, brewer: null, grinder: null, cafe: null, product: null, store: null };
 const EMPTY_AXES = { acidity: null, body: null, roast: null, sweetness: null };
-/** The mock's drink: there is no drink table in V1 (Barista is a later stage). */
-const DEFAULT_DRINK = 'Flat white';
 
 export function RecordDraftProvider({ onSaved, children }) {
   const db = useDatabase();
@@ -110,7 +108,9 @@ export function RecordDraftProvider({ onSaved, children }) {
           grinderId: defaults.grinder?.id ?? null,
           grinder: defaults.grinder?.name ?? null,
           placeId: defaults.cafe?.id ?? null,
-          drinkType: DEFAULT_DRINK,
+          // Never a fixed drink: a cup records only what was entered
+          // (2026-10-11; "Flat white" was written for every Barista cup).
+          drinkType: null,
           productId: defaults.product?.id ?? null,
           boughtAtPlaceId: defaults.store?.id ?? null,
           ...(withNote ? { axes, flavours, note: note || null } : {}),

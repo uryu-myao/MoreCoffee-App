@@ -44,7 +44,8 @@ function cupSummary(defaults, mode) {
     const method = defaults.brewer?.name;
     return { name: defaults.bag?.name ?? 'No bag', meta: [MODE_LABEL.made_it, method, timeFormat.format(new Date())].filter(Boolean).join(' · ') };
   }
-  if (mode === 'barista') return { name: 'Flat white', meta: [MODE_LABEL.barista, defaults.cafe?.name, timeFormat.format(new Date())].filter(Boolean).join(' · ') };
+  // No fixed drink (2026-10-11): Barista records none until it has an input.
+  if (mode === 'barista') return { name: 'No drink', meta: [MODE_LABEL.barista, defaults.cafe?.name, timeFormat.format(new Date())].filter(Boolean).join(' · ') };
   const product = defaults.product ? [defaults.product.brand, defaults.product.name].filter(Boolean).join(' · ') : 'No product';
   return { name: product, meta: [MODE_LABEL.packaged, timeFormat.format(new Date())].join(' · ') };
 }
