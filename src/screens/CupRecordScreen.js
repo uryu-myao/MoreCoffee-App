@@ -8,8 +8,9 @@ import IconButton from '../components/base/IconButton';
 import SectionLabel from '../components/base/SectionLabel';
 import Text from '../components/base/Text';
 import DnaChangeLines from '../components/DnaChangeLines';
+import { whenLine } from '../components/WhenMeta';
 import { MODE_LABEL, NONE, cupTitle } from '../constants/cups';
-import { daysBetween, partOfDay } from '../constants/dates';
+import { daysBetween } from '../constants/dates';
 import { FLAVOUR_LIMIT } from '../constants/flavours';
 import { TASTE_AXES } from '../constants/tasteAxes';
 import { useDatabase } from '../data/DatabaseProvider';
@@ -22,10 +23,12 @@ import ScreenFrame from './ScreenFrame';
  * 2c — one cup, read only (in V1, decided 2026-10-11). Opened from a 2a row;
  * 5c's "See this record" will open it too.
  *
- * Header: Back, the date line ("Wed, Apr 8 · 08:20 · Morning", the eyebrow),
- * the cup's name as the title, the mode as a Badge (selected tone, as 2c's
- * ink tag). The mock's subtitle and stars sit under its header rule here,
- * the first lines of the body (ScreenFrame has no slot above the rule).
+ * Header: ScreenFrame's compact header, as 5a (2026-10-11, on device: the
+ * stacked Back + title made the header too tall): Back and the cup's name on
+ * one row, 2 lines at most (user data). No meta column: with 5a's date / time
+ * column beside it, even "Ethiopia Guji" wrapped to two lines. The body opens
+ * with the date line (2c's "Wed, Apr 8 · 08:20 · Morning", accent) and the
+ * mode Badge on one row, then the roaster line and the stars.
  *
  * Not shown in V1 (decided 2026-10-11):
  *   - the pencil (cup edit, waiting for Design: design-missing.md 1)
@@ -37,14 +40,6 @@ import ScreenFrame from './ScreenFrame';
  * "Where it sat" draws this cup's own values: AxisReadout's entered (brown)
  * tone — the only place it is used (§9).
  */
-const dateFormat = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-
-function whenLine(ms) {
-  const d = new Date(ms);
-  return `${dateFormat.format(d)} · ${timeFormat.format(d)} · ${partOfDay(d)}`;
-}
-
 /** "Blue Bottle · day 7 when brewed": day only with a roast date, never negative. */
 function subtitle(cup) {
   if (cup.mode !== 'made_it') return cupTitle(cup).source;
@@ -124,13 +119,18 @@ export default function CupRecordScreen({ id, onBack }) {
   return (
     <ScreenFrame
       scroll
+      compact
       userTitle
       title={cupTitle(cup).title}
-      eyebrow={whenLine(cup.logged_at)}
-      leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
-      meta={<Badge label={MODE_LABEL[cup.mode]} tone="selected" placement="standalone" />}>
+      leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}>
       <View style={styles.body}>
         <View style={styles.lead}>
+          <View style={styles.whenRow}>
+            <Text variant="labelEyebrow" color="accent" style={styles.when}>
+              {whenLine(new Date(cup.logged_at))}
+            </Text>
+            <Badge label={MODE_LABEL[cup.mode]} tone="selected" placement="standalone" />
+          </View>
           {sub ? (
             <Text variant="body" color="muted" truncate="meta">
               {sub}
@@ -227,6 +227,15 @@ const styles = StyleSheet.create({
     gap: space[20],
     // Room under the last block so the bottom bar never covers it (as 2a).
     paddingBottom: layout.empty.block,
+  },
+  whenRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.gap.section,
+  },
+  when: {
+    flex: 1,
   },
   lead: {
     gap: spacing.gap.row,

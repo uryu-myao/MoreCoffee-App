@@ -12,11 +12,12 @@ import StarRating from '../components/base/StarRating';
 import Text from '../components/base/Text';
 import PickerSheet from '../components/PickerSheet';
 import { useRecordDraft } from '../components/RecordDraft';
+import WhenMeta from '../components/WhenMeta';
 import { useDatabase } from '../data/DatabaseProvider';
 import { listGear, listOpenBags } from '../data/repository';
 import { color, icon, motion, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
-import { daysSince, partOfDay } from '../constants/dates';
+import { daysSince } from '../constants/dates';
 
 /**
  * Record coffee — 5a "Log a cup". All three maker modes. The cup being
@@ -262,8 +263,6 @@ function ExpandingBlock({ children }) {
  * and logged_at with it). Formatted by Intl in the device locale — ja / zh
  * order these differently — in 5a's shape: "Wed, Apr 8" / "08:20 · Morning".
  */
-const dateFormat = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 
 
 /** Re-renders on each minute boundary, so the header never shows a stale minute. */
@@ -384,16 +383,7 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
         footerTone={missing ? 'error' : undefined}
         title="Log a cup"
         leading={<IconButton icon="close" accessibilityLabel="Close" onPress={onClose} />}
-        meta={
-          <View style={styles.when}>
-            <Text variant="labelCaps" color="muted">
-              {dateFormat.format(now)}
-            </Text>
-            <Text variant="labelCaps" color="accent" style={styles.whenTime}>
-              {`${timeFormat.format(now)} · ${partOfDay(now)}`}
-            </Text>
-          </View>
-        }
+        meta={<WhenMeta at={now} />}
         footer={
           <>
             {missing ? <MissingLine onGoToFirst={goToFirst} /> : null}
@@ -493,12 +483,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   // 5a: date over time, right-aligned at the header's right.
-  when: {
-    alignItems: 'flex-end',
-  },
-  whenTime: {
-    marginTop: spacing.gap.tight,
-  },
   sections: {
     gap: spacing.gap.section,
   },

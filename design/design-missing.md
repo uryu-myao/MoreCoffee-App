@@ -8,7 +8,7 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
    - **Editable**: the bag, the gear, the date and time, My words; Barista / Packaged fields (café, drink, product, where bought).
    - **Shown but not editable**: the rating, the four axes, the flavours (Taste DNA's input; editing them would rewrite history the user has already seen). They need a look that says "not editable": does §1's disabled look fit, or is another treatment needed?
    - **Date limits**: not in the future; not before the bag's roast date (when it has one).
-   - **"Delete this cup" (decided, in V1)**: on this screen only, never from the list. Confirmed in a **bottom sheet** (this design has no dialogs). The words say what is lost — this cup and its axes, flavours and My words — and that it cannot be undone.
+   - **"Delete this cup" (decided, in V1)**: on this screen only, never from the list. Confirmed in a **bottom sheet** (this design has no dialogs). The words say what is lost — this cup and its axes, flavours and My words — and that it cannot be undone. They also say ahead that **Taste DNA is recalculated without this cup** (its values will change; no notice afterwards).
    - Reuse 5a / 5b, or a screen of its own?
    - Leaving with unsaved changes (`gaps.md` 20) applies here too.
 2. **2c for Barista and Packaged cups**: 2c is drawn for I made it only (bag + method). What replaces "What I logged" for a café cup (café, drink) and a packaged one (product, where bought)?
