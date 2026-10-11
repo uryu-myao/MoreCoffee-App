@@ -167,6 +167,8 @@ Plus, globally:
 
 ## 8. `beanFreshness` has no state for a freshly opened bag
 
+**At this stage (decided 2026-10-12)**: no freshness meter. 4b / 3d show the text "Day N" only, counted from the roast date like 5a's "day N", and nothing when the bag has no roast date. The meter returns when its rules are settled (base date, peak window, the resting state).
+
 **Parts affected**: the bean freshness meter on 3d and 4b.
 
 **Measured**: the peak band starts at 17% of the track, so days 0–4 (degassing) fall outside both defined states. Only `drinkNow` and `pastPeak` have colours.
@@ -354,6 +356,8 @@ Plus, globally:
 **Status**: recorded, not designed. The button itself becomes secondary (drift D-25).
 
 **Settled 2026-10-09 (item 18)**: 3f's "Reopen bag" is the recovery; no confirmation or immediate undo is added.
+
+**At this stage (2026-10-12)**: 3f is not built, so **a finished bag cannot be reopened**. Accepted for own use: a slip costs one of five slots; the cups and notes stay. Return here with 3f.
 
 ---
 
