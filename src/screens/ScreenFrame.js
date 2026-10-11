@@ -66,9 +66,10 @@ const COLLAPSE = {
  *             scrolls (title shrinks, rule rises; §9 Header collapse)
  *   footer    optional node in the footer panel at the end of the page; it sits at
  *             the bottom when the content is short and follows it when it is long
- *   compact   Record flow header (Log a cup, Tasting note; revised 2026-10-07):
+ *   compact   Record flow header (Log a cup, Tasting note, 3c, 3a, 2c; revised 2026-10-07):
  *             the leading control and the title on one row at the left, centred
  *             on the title's cap band; meta as the standard right-aligned column.
+ *             A stat may take the meta's place (3c / 3a), fading with it.
  *             On collapse the row rises to the safe-area top and the title
  *             scales; the control moves with it (never fades); the meta fades
  *   scrollRef     optional ref to the ScrollView (scroll variants), e.g. 5d's
@@ -266,7 +267,22 @@ export default function ScreenFrame({
           {titleText}
         </Animated.View>
       </View>
-      {meta ? (
+      {stat ? (
+        // Compact + stat (3c / 3a, 2026-10-11): the stat takes meta's right
+        // column — numeral over label, its foot 20 above the rule as meta's —
+        // and on collapse fades with it (no settling on the title's baseline:
+        // the compact title scales from its own row).
+        <Animated.View style={[styles.meta, anim && { opacity: anim.fade, transform: [{ translateY: anim.up }] }]}>
+          <Text variant="displaySm" color="accent">
+            {stat.value}
+          </Text>
+          <View style={styles.statLabel}>
+            <Text variant="labelEyebrow" color="muted">
+              {stat.label}
+            </Text>
+          </View>
+        </Animated.View>
+      ) : meta ? (
         <Animated.View style={[styles.meta, anim && { opacity: anim.fade, transform: [{ translateY: anim.up }] }]}>
           {meta}
         </Animated.View>

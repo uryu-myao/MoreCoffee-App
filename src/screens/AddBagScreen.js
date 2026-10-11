@@ -62,6 +62,7 @@ export default function AddBagScreen({ onBack }) {
     <View style={styles.screen}>
       <ScreenFrame
         scroll
+        compact
         title="Add a bag"
         leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
         stat={open != null ? { value: `${open} / ${OPEN_BAG_LIMIT}`, label: 'Bags open' } : undefined}

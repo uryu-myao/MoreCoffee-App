@@ -57,6 +57,7 @@ export default function AddGearScreen({ onBack }) {
   return (
     <ScreenFrame
       scroll
+      compact
       title="Add gear"
       leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
       stat={owned != null ? { value: `${total} / ${GEAR_LIMIT}`, label: 'Selected' } : undefined}
