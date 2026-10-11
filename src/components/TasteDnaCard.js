@@ -31,6 +31,16 @@ const PROVISIONAL_LINE = {
   locked: (cups) => `From ${cups} ${cups === 1 ? 'cup' : 'cups'}.`, // PROVISIONAL: 8f's "From 147 cups"
 };
 
+/** The profile's state as 1b's tilted sticker (none: nothing). Shared with 5c. */
+export function DnaStateBadge({ state }) {
+  if (state === 'none') return null;
+  return (
+    <View style={styles.sticker}>
+      <Badge label={state === 'locked' ? 'Locked in' : 'Early signs'} tone={state === 'locked' ? 'selected' : 'accent'} placement="standalone" />
+    </View>
+  );
+}
+
 export default function TasteDnaCard({ dna }) {
   const line =
     dna.state === 'none'
@@ -44,11 +54,7 @@ export default function TasteDnaCard({ dna }) {
         <Text variant="displaySm" color="accent" style={styles.title}>
           My taste DNA
         </Text>
-        {dna.state === 'none' ? null : (
-          <View style={styles.sticker}>
-            <Badge label={dna.state === 'locked' ? 'Locked in' : 'Early signs'} tone={dna.state === 'locked' ? 'selected' : 'accent'} placement="standalone" />
-          </View>
-        )}
+        <DnaStateBadge state={dna.state} />
       </View>
       <Text variant="body" color="muted">
         {line}

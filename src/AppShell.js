@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, View, useWindowDimensions } from 'react-native';
 import AddCoffeeOverlay from './components/AddCoffeeOverlay';
+import { requestOpenCup } from './navigation';
 import DotTexture from './components/base/DotTexture';
 import FooterNav from './components/FooterNav';
 import { TABS } from './constants/navigation';
@@ -113,7 +114,15 @@ export default function AppShell() {
         </ScrollChromeContext.Provider>
       </ScreenBackdropContext.Provider>
       <FooterNav activeTab={activeTab} position={position} hidden={footerHidden} onTabPress={selectTab} onAddPress={() => setShowAddCoffee(true)} />
-      <AddCoffeeOverlay visible={showAddCoffee} onClose={() => setShowAddCoffee(false)} />
+      <AddCoffeeOverlay
+        visible={showAddCoffee}
+        onClose={() => setShowAddCoffee(false)}
+        // 5c's buttons: Home, or the saved cup's record (2c) in Records.
+        onNavigate={({ tab, cupId }) => {
+          selectTab(tab);
+          if (cupId != null) requestOpenCup(cupId);
+        }}
+      />
     </View>
   );
 }

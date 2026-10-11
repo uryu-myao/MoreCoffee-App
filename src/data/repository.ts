@@ -284,6 +284,16 @@ export async function countCups(db: SQLiteDatabase): Promise<number> {
   return row?.n ?? 0;
 }
 
+/** Which cup this is, counting from the first logged (5c's "Cup 4"). */
+export async function cupOrdinal(db: SQLiteDatabase, id: number): Promise<number> {
+  const row = await db.getFirstAsync<{ n: number }>(
+    `SELECT COUNT(*) AS n FROM cups c, (SELECT logged_at, id FROM cups WHERE id = ?) t
+      WHERE c.logged_at < t.logged_at OR (c.logged_at = t.logged_at AND c.id <= t.id)`,
+    [id]
+  );
+  return row?.n ?? 0;
+}
+
 /** Every cup, newest first (by when it was drunk, then by insertion). */
 export async function listCups(db: SQLiteDatabase): Promise<CupListItem[]> {
   return db.getAllAsync<CupListItem>(

@@ -101,7 +101,7 @@ export function RecordDraftProvider({ onSaved, children }) {
       saving.current = true;
       const note = noteRef.current.trim();
       try {
-        await insertCup(db, {
+        const id = await insertCup(db, {
           rating,
           mode,
           bagId: defaults.bag?.id ?? null,
@@ -115,7 +115,7 @@ export function RecordDraftProvider({ onSaved, children }) {
           boughtAtPlaceId: defaults.store?.id ?? null,
           ...(withNote ? { axes, flavours, note: note || null } : {}),
         });
-        onSaved();
+        onSaved(id);
         return 'saved';
       } catch (error) {
         // Never drop a cup silently: say so, and keep the sheet open with

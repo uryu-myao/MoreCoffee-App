@@ -5,6 +5,7 @@ import Text from '../components/base/Text';
 import { useDatabase } from '../data/DatabaseProvider';
 import { listCups, onCupsChanged } from '../data/repository';
 import { cupTitle } from '../constants/cups';
+import { onOpenCupRequest } from '../navigation';
 import { layout, spacing } from '../theme/tokens';
 import CupRecordScreen from './CupRecordScreen';
 import ScreenFrame from './ScreenFrame';
@@ -63,6 +64,9 @@ export default function RecordsScreen() {
     load();
     return onCupsChanged(load);
   }, [load]);
+
+  // 5c's "See this record" opens the cup here.
+  useEffect(() => onOpenCupRequest(setOpenId), []);
 
   if (openId != null) return <CupRecordScreen id={openId} onBack={() => setOpenId(null)} />;
 

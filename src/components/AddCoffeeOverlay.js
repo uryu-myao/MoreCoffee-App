@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, useWindowDimensions } from 'react-native';
+import { Animated, Easing, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, { Easing as REasing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import RecordCoffeeScreen from '../screens/RecordCoffeeScreen';
 import AddBagScreen from '../screens/AddBagScreen';
+import SavedScreen from '../screens/SavedScreen';
 import AddGearScreen from '../screens/AddGearScreen';
 import TastingNoteScreen from '../screens/TastingNoteScreen';
 import { color, motion, size } from '../theme/tokens';
@@ -47,11 +48,13 @@ const BACK_VELOCITY = 300;
  * and goes back past 25% or on a flick. Step 1 stays mounted, so its rating
  * and fields survive; it is never swiped to step 2.
  */
-export default function AddCoffeeOverlay({ visible, onClose }) {
+export default function AddCoffeeOverlay({ visible, onClose, onNavigate }) {
   const { width, height } = useWindowDimensions();
   const [mounted, setMounted] = useState(false);
   // The second page: 5b ('note'), 3c minimal ('bag') or 3a minimal ('gear'), all pushed from 5a.
   const [second, setSecond] = useState(null);
+  // 5c: the id of the cup just saved; 5c shows over the steps until the sheet closes.
+  const [savedId, setSavedId] = useState(null);
   const [onNote, setOnNote] = useState(false); // step 2 showing: edge swipe enabled
   const translateY = useRef(new Animated.Value(height)).current;
   const pos = useSharedValue(0); // 0 → Log a cup, 1 → Tasting note
@@ -79,9 +82,14 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
     slide(height, () => {
       setMounted(false);
       setSecond(null);
+      setSavedId(null);
       setOnNote(false);
       onClose();
     });
+  };
+  const leaveTo = (target) => {
+    dismiss();
+    onNavigate?.(target);
   };
 
   const toStep = (to) => {
@@ -147,8 +155,8 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
           : undefined
       }>
       {/* The cup being recorded, shared by both steps; discarded when the sheet
-          closes (it unmounts with it). Saving dismisses the sheet. */}
-      <RecordDraftProvider onSaved={dismiss}>
+          closes (it unmounts with it). Saving shows 5c over the steps. */}
+      <RecordDraftProvider onSaved={setSavedId}>
         <Reanimated.View style={[StyleSheet.absoluteFill, recordStyle]}>
           <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} onAddBag={openBag} onAddGear={openGear} />
         </Reanimated.View>
@@ -164,6 +172,15 @@ export default function AddCoffeeOverlay({ visible, onClose }) {
               )}
             </Reanimated.View>
           </GestureDetector>
+        ) : null}
+        {savedId != null ? (
+          <View style={[StyleSheet.absoluteFill, styles.overlay]}>
+            <SavedScreen
+              id={savedId}
+              onHome={() => leaveTo({ tab: 'home' })}
+              onSeeRecord={() => leaveTo({ tab: 'records', cupId: savedId })}
+            />
+          </View>
         ) : null}
       </RecordDraftProvider>
     </Animated.View>
