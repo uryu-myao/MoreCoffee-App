@@ -23,12 +23,26 @@ import Text from './base/Text';
  * An axis with nothing noted shows its empty track and "Not noted" (5b's
  * word for an untouched axis), never a value of 50.
  *
- * TODO(copy, PROVISIONAL): the line under the title (Design: D-47).
+ * The line under the title:
+ *   early   Design's copy (2026-10-11, D-47): the least-noted axes and the
+ *           notes they still need — "Body needs 3 more notes to lock in.",
+ *           "Body and Roast need 3 more notes each.", "1 more note". Notes,
+ *           not cups: a cup that skips an axis does not count for it.
+ *   TODO(copy, PROVISIONAL): none and locked have no copy from Design yet.
  */
-const PROVISIONAL_LINE = {
-  none: 'Note what you taste on a cup to start it.', // PROVISIONAL
-  early: (n) => `${n} more ${n === 1 ? 'cup' : 'cups'} to lock it in.`, // PROVISIONAL: counts the least-noted axis (D-47)
-  locked: (cups) => `From ${cups} ${cups === 1 ? 'cup' : 'cups'}.`, // PROVISIONAL: 8f's "From 147 cups"
+const listNames = (names) => (names.length === 1 ? names[0] : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`);
+const notes = (n) => `${n} more ${n === 1 ? 'note' : 'notes'}`;
+
+function earlyLine(dna) {
+  const short = TASTE_AXES.filter((a) => dna.axes[a.key].n > 0 && dna.axes[a.key].n === dna.fewest).map((a) => a.name);
+  const n = DNA_TUNING.lockIn - dna.fewest;
+  return short.length === 1 ? `${short[0]} needs ${notes(n)} to lock in.` : `${listNames(short)} need ${notes(n)} each.`;
+}
+
+const LINE = {
+  none: () => 'Note what you taste on a cup to start it.', // PROVISIONAL
+  early: earlyLine,
+  locked: (dna) => `From ${dna.cups} ${dna.cups === 1 ? 'cup' : 'cups'}.`, // PROVISIONAL: 8f's "From 147 cups"
 };
 
 /** The profile's state as 1b's tilted sticker (none: nothing). Shared with 5c. */
@@ -42,12 +56,7 @@ export function DnaStateBadge({ state }) {
 }
 
 export default function TasteDnaCard({ dna }) {
-  const line =
-    dna.state === 'none'
-      ? PROVISIONAL_LINE.none
-      : dna.state === 'early'
-        ? PROVISIONAL_LINE.early(DNA_TUNING.lockIn - dna.fewest)
-        : PROVISIONAL_LINE.locked(dna.cups);
+  const line = LINE[dna.state](dna);
   return (
     <View style={styles.card}>
       <View style={styles.head}>

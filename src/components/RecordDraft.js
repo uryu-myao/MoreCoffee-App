@@ -120,8 +120,16 @@ export function RecordDraftProvider({ onSaved, children }) {
       } catch (error) {
         // Never drop a cup silently: say so, and keep the sheet open with
         // everything still entered so the user can try again.
+        // Copy: Design, 2026-10-11 (design-missing.md 14). The technical error
+        // goes to the log only. "Cancel" is iOS's own dismiss, not Design's
+        // copy: without it a lasting failure would trap the user in retries.
+        // Retrying any number of times, and closing (which loses the input,
+        // no drafts): gaps.md 30.
         console.error('[record] save failed', error);
-        Alert.alert("This cup wasn't saved", `Everything you entered is still here. ${String(error?.message ?? error)}`);
+        Alert.alert("Couldn't save this cup", "Your phone couldn't store it. Everything you entered is still here — try again.", [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Try again', isPreferred: true, onPress: () => saveRef.current?.({ withNote }) },
+        ]);
         return 'failed';
       } finally {
         saving.current = false;
@@ -129,6 +137,9 @@ export function RecordDraftProvider({ onSaved, children }) {
     },
     [axes, db, defaults, flavours, mode, onSaved, rating]
   );
+
+  const saveRef = useRef(null);
+  saveRef.current = save;
 
   const hasTastingInput = noteFilled || flavours.length > 0 || Object.values(axes).some((v) => v != null);
 

@@ -48,6 +48,9 @@ const expandEasing = Easing.bezier(...motion.expand.controlPoints);
  * rename wins over the mock). No mock has a Barista line (5d replaces it with
  * the error summary), so it is written to 5e's pattern.
  */
+/** I made it with an empty shelf (no bag or no gear): Design, 2026-10-11. */
+const INTRO_EMPTY_SHELF = 'Marked fields are required. Add a bag and your gear once — after that they start pre-filled.';
+
 const INTRO = {
   made_it: 'Marked fields are required — all of them start pre-filled.',
   barista: 'Cups made for you skip beans and brewing — two fields left.',
@@ -300,14 +303,13 @@ function useMinuteClock() {
  * Rating only — the mock's café is out of scope. No "Keep as draft" (no
  * drafts in V1, gaps.md 30).
  *
- * TODO(copy, PROVISIONAL): every string below is a stand-in until Design
- * writes them (design-brief-next.md): the reminder must not promise a draft
- * and, with one thing missing, must neither count nor repeat the star card.
+ * Copy: Design, 2026-10-11 (design-missing.md 11) — promises no draft, does
+ * not count, does not repeat the star card's line.
  */
 const MISSING_COPY = {
-  title: "This cup can't be saved yet", // PROVISIONAL
-  body: 'What you entered stays while this screen is open. Closing it loses it.', // PROVISIONAL
-  footer: 'The rating is still empty.', // PROVISIONAL
+  title: 'Still needs a rating',
+  body: "A cup can't be saved without one. What you've entered stays while you're here; closing loses it.",
+  footer: 'No rating yet.',
 };
 /** 5d's line under the stars (verbatim). */
 const STAR_HINT = "Tap a star — this is the one thing the app can't guess.";
@@ -417,7 +419,9 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
                   no leading square (5a's mock draws a 6pt accent square and no
                   background). */}
               <View style={styles.hint}>
-                <IntroText text={INTRO[maker]} />
+                <IntroText
+                text={maker === 'made_it' && !(defaults.bag && (defaults.brewer || defaults.grinder)) ? INTRO_EMPTY_SHELF : INTRO[maker]}
+              />
               </View>
             </ExpandingBlock>
           )}

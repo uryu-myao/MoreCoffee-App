@@ -3,7 +3,7 @@ import { Animated, Easing, StyleSheet, View } from 'react-native';
 import AxisReadout from '../components/base/AxisReadout';
 import Button from '../components/base/Button';
 import Text from '../components/base/Text';
-import { changeLines } from '../components/DnaChangeLines';
+import { NOTHING_MOVED, changeLines, changeSummary } from '../components/DnaChangeLines';
 import { DnaStateBadge } from '../components/TasteDnaCard';
 import { TASTE_AXES } from '../constants/tasteAxes';
 import { useDatabase } from '../data/DatabaseProvider';
@@ -22,17 +22,16 @@ import ScreenFrame from './ScreenFrame';
  * before, the value after; both neutral, decided 2026-10-11) with its line
  * under it. Read from the cup's stored dna_change, never recomputed.
  *   - only axes that moved (rounding to >= 1 point) or got their first value,
- *     largest first (DnaChangeLines); nothing moved: one PROVISIONAL line
+ *     largest first (DnaChangeLines); nothing moved: Design's line
  *   - "Where it sat before": the legend for the ghost, when there is one
- *   - the summary sentence ("This cup pushed you brighter and lighter.") is
- *     not shown until Design writes it (design-missing.md 12)
+ *   - the summary sentence, under the title: "This cup pushed you ‹phrases›."
+ *     (moved axes only; Design's phrase table, design-missing.md 12)
  *   - Try next's "4 of 5 cups" and "One more cup and Try next opens up" are
  *     V2: not shown
  * Buttons: "Back to home" (primary) and "See this record" (secondary → 2c).
  */
 const expandEasing = Easing.bezier(...motion.expand.controlPoints);
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-const NOTHING = "This cup didn't move your taste DNA."; // PROVISIONAL (design-missing.md 12)
 
 export default function SavedScreen({ id, onHome, onSeeRecord }) {
   const db = useDatabase();
@@ -54,6 +53,7 @@ export default function SavedScreen({ id, onHome, onSeeRecord }) {
   const change = data?.cup?.dna_change ? JSON.parse(data.cup.dna_change) : null;
   const lines = changeLines(change);
   const anyBefore = lines.some((l) => change.before[l.key]?.value != null);
+  const summary = changeSummary(lines);
 
   return (
     <Animated.View style={[styles.fill, { opacity: fade }]}>
@@ -75,6 +75,11 @@ export default function SavedScreen({ id, onHome, onSeeRecord }) {
               </Text>
               <DnaStateBadge state={data.dna.state} />
             </View>
+            {summary ? (
+              <Text variant="body" color="muted">
+                {summary}
+              </Text>
+            ) : null}
             {anyBefore ? (
               <View style={styles.legend}>
                 <View style={styles.legendMark} />
@@ -111,7 +116,7 @@ export default function SavedScreen({ id, onHome, onSeeRecord }) {
               </View>
             ) : (
               <Text variant="body" color="muted">
-                {NOTHING}
+                {NOTHING_MOVED}
               </Text>
             )}
           </View>
