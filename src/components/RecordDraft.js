@@ -150,6 +150,11 @@ export function RecordDraftProvider({ onSaved, children }) {
   return <RecordDraftContext.Provider value={value}>{children}</RecordDraftContext.Provider>;
 }
 
+/** The draft when inside the Record sheet, else null (3c / 3a also open from Home). */
+export function useRecordDraftIfAny() {
+  return useContext(RecordDraftContext);
+}
+
 export function useRecordDraft() {
   const draft = useContext(RecordDraftContext);
   if (!draft) throw new Error('useRecordDraft must be used inside RecordDraftProvider (AddCoffeeOverlay)');

@@ -5,7 +5,7 @@ import DateSheet from '../components/DateSheet';
 import Button from '../components/base/Button';
 import IconButton from '../components/base/IconButton';
 import Text from '../components/base/Text';
-import { useRecordDraft } from '../components/RecordDraft';
+import { useRecordDraftIfAny } from '../components/RecordDraft';
 import { useDatabase } from '../data/DatabaseProvider';
 import { OPEN_BAG_LIMIT, countOpenBags, insertBag } from '../data/repository';
 import { spacing } from '../theme/tokens';
@@ -23,7 +23,8 @@ import ScreenFrame from './ScreenFrame';
  */
 export default function AddBagScreen({ onBack }) {
   const db = useDatabase();
-  const { chooseBag } = useRecordDraft();
+  // In the Record sheet the new bag becomes the cup's bag; from 3d it just joins the shelf.
+  const chooseBag = useRecordDraftIfAny()?.chooseBag;
   const [form, setForm] = useState({ name: '', roaster: '', roastedAt: null });
   const [picking, setPicking] = useState(false);
   // 5d's way (decided 2026-10-11): the button stays pressable; pressed with no
@@ -50,7 +51,7 @@ export default function AddBagScreen({ onBack }) {
     }
     try {
       const bag = await insertBag(db, { name, roaster: form.roaster.trim() || null, roastedAt: form.roastedAt });
-      chooseBag(bag);
+      chooseBag?.(bag);
       onBack();
     } catch (error) {
       console.error('[bag] could not add', error);

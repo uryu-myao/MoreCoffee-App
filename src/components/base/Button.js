@@ -38,6 +38,8 @@ import Text from './Text';
  *   variant   'primary' | 'secondary' | 'text' (default 'primary')
  *   trailingIcon   optional Glyph name drawn after the label
  *   disabled
+ *   size      'full' (default, 56) | 'row' (44, size.button.row: an action
+ *             inside a card's strip, 3d "Finish bag"; label.caps). §9 Buttons.
  *   warnWhenDisabled  a press while disabled gives the warning haptic (§1
  *             Haptics). Only where the screen already shows why the button
  *             is off (decided 2026-10-11); otherwise leave it false and show
@@ -91,9 +93,11 @@ function FilledButton({
   trailingIcon,
   disabled = false,
   warnWhenDisabled = false,
+  size: buttonSize = 'full',
   onPress,
   testOnly_pressed,
 }) {
+  const row = buttonSize === 'row';
   const warns = disabled && warnWhenDisabled;
   const primary = variant === 'primary' && !disabled;
   const labelColor = disabled ? 'muted' : primary ? color.action.fg : 'primary';
@@ -109,13 +113,14 @@ function FilledButton({
         testOnly_pressed={testOnly_pressed}
         style={({ pressed }) => [
           styles.base,
+          row && styles.row,
           primary && styles.primary,
           variant === 'secondary' && styles.secondary,
           disabled && styles.disabled,
           pressed && !disabled && (primary ? styles.primaryPressed : styles.secondaryPressed),
         ]}>
         <View style={styles.content}>
-          <Text variant="buttonCaps" color={labelColor} style={styles.label}>
+          <Text variant={row ? 'labelCaps' : 'buttonCaps'} color={labelColor} style={styles.label}>
             {label}
           </Text>
           {trailingIcon ? <Glyph name={trailingIcon} token={icon.sm} color={iconColor} /> : null}
@@ -137,6 +142,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.inset.control.h,
+  },
+  row: {
+    height: size.button.row,
   },
   primary: {
     backgroundColor: color.action.bg,

@@ -68,6 +68,7 @@ export async function insertBag(db: SQLiteDatabase, bag: NewBag): Promise<Bag> {
   ]);
   const row = await db.getFirstAsync<Bag & { notes: string }>('SELECT * FROM bags WHERE id = ?', [result.lastInsertRowId]);
   if (!row) throw new Error('The bag was not stored.');
+  notifyShelfChanged();
   return { ...row, notes: JSON.parse(row.notes as unknown as string) };
 }
 
@@ -107,6 +108,20 @@ export async function listOpenBags(db: SQLiteDatabase): Promise<Bag[]> {
   return rows.map((row) => ({ ...row, notes: JSON.parse(row.notes as unknown as string) }));
 }
 
+/** Finish a bag (3d): it leaves the open bags and frees its slot; its cups keep their copies. */
+export async function finishBag(db: SQLiteDatabase, id: number): Promise<void> {
+  await db.runAsync('UPDATE bags SET finished_at = ? WHERE id = ? AND finished_at IS NULL', [Date.now(), id]);
+  notifyShelfChanged();
+}
+
+/** Every piece of gear with the cups logged with it (4a: "Brewer · 2 cups"); defaults first. */
+export async function listGearWithUse(db: SQLiteDatabase): Promise<(Gear & { cups: number })[]> {
+  return db.getAllAsync<Gear & { cups: number }>(
+    `SELECT g.*, (SELECT COUNT(*) FROM cups c WHERE c.brewer_id = g.id OR c.grinder_id = g.id) AS cups
+       FROM gear g ORDER BY g.is_default DESC, g.added_at, g.id`
+  );
+}
+
 /** Gear of one category, defaults first, then oldest added: the Method picker's rows. */
 export async function listGear(db: SQLiteDatabase, category: GearCategory): Promise<Gear[]> {
   return db.getAllAsync<Gear>('SELECT * FROM gear WHERE category = ? ORDER BY is_default DESC, added_at, id', [category]);
@@ -141,6 +156,7 @@ export async function insertGear(
       ]);
     }
   });
+  notifyShelfChanged();
   const [brewer, grinder] = await Promise.all([
     db.getFirstAsync<Gear>("SELECT * FROM gear WHERE category = 'brewer' AND is_default = 1"),
     db.getFirstAsync<Gear>("SELECT * FROM gear WHERE category = 'grinder' AND is_default = 1"),
@@ -265,6 +281,20 @@ export function onCupsChanged(listener: Listener): () => void {
 
 function notifyCupsChanged() {
   cupListeners.forEach((listener) => listener());
+}
+
+/** The shelf (bags, gear) changed: Home's My beans / My gear and 3d refresh. */
+const shelfListeners = new Set<Listener>();
+
+export function onShelfChanged(listener: Listener): () => void {
+  shelfListeners.add(listener);
+  return () => {
+    shelfListeners.delete(listener);
+  };
+}
+
+function notifyShelfChanged() {
+  shelfListeners.forEach((listener) => listener());
 }
 
 /** A cup with the names it points at, for the Records list (2a). The bean names are the cup's own copies. */

@@ -4,7 +4,7 @@ import Button from '../components/base/Button';
 import IconButton from '../components/base/IconButton';
 import Text from '../components/base/Text';
 import CheckboxList from '../components/CheckboxList';
-import { useRecordDraft } from '../components/RecordDraft';
+import { useRecordDraftIfAny } from '../components/RecordDraft';
 import { GEAR_LIMIT, GEAR_TYPES } from '../constants/gear';
 import { useDatabase } from '../data/DatabaseProvider';
 import { countGear, insertGear } from '../data/repository';
@@ -26,7 +26,8 @@ import ScreenFrame from './ScreenFrame';
  */
 export default function AddGearScreen({ onBack }) {
   const db = useDatabase();
-  const { chooseGear } = useRecordDraft();
+  // In the Record sheet the new defaults fill Method; from Home they just join the shelf.
+  const chooseGear = useRecordDraftIfAny()?.chooseGear;
   const [owned, setOwned] = useState(null);
   const [selected, setSelected] = useState([]);
 
@@ -45,7 +46,8 @@ export default function AddGearScreen({ onBack }) {
   const save = async () => {
     try {
       const items = GEAR_TYPES.filter((g) => selected.includes(g.name)).map(({ name, category }) => ({ name, category }));
-      chooseGear(await insertGear(db, items, GEAR_LIMIT));
+      const defaults = await insertGear(db, items, GEAR_LIMIT);
+      chooseGear?.(defaults);
       onBack();
     } catch (error) {
       console.error('[gear] could not add', error);
