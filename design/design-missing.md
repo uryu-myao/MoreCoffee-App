@@ -57,9 +57,15 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
 14. **[this round] Save failure** (today a plain alert with the technical error). What it cannot promise yet — a retry, and that closing loses the input — belongs with `gaps.md` 30 (no drafts).
 15. **[this round] 3c's Bean name error** (built with 5d's vocabulary: "Bean name · required", error-coloured label and underline). Within the existing error set, or new?
 
-## Copy: Design's proposals (report of 2026-10-11)
+## Copy: Design's proposals (report of 2026-10-11) — adopted, in the app
 
-- **Adopted**: items 10, 11, 12 (incl. "Starts at ‹step name›" for a first value and the direction-word table), 14, 15.
-- **Item 13: adopted with the lock-in change above** (once locked, it stays).
-- **A move that rounds to 0 points counts as "nothing moved"**; no separate wording (such as "held") is made for it.
-- The proposed text is in Design's report. **It is not in this repo yet**; it is applied when the report's text is added here.
+- **10 (5a, empty shelf)**: "Marked fields are required. Add a bag and your gear once — after that they start pre-filled."
+- **11 (5d, rating only)**: title "Still needs a rating"; second line "A cup can't be saved without one. What you've entered stays while you're here; closing loses it."; footer "No rating yet."
+- **12 (5c / 2c)**:
+  - first value: "Starts at ‹step name›" (a position, not a direction);
+  - summary: "This cup pushed you ‹phrases›." — moved axes only, joined with "and" (3–4: commas, then "and"). Phrases: Acid ↔ Bitter brighter / more bitter; Body lighter-bodied / fuller-bodied; Roast toward lighter roasts / toward darker roasts; Sweetness less sweet / sweeter;
+  - nothing moved: "Your Taste DNA stays where it was — nothing on this cup moves it." **A move that rounds to 0 points is "nothing moved"**; no separate wording (such as "held").
+- **13 (1b)**: "Body needs 3 more notes to lock in." / "Body and Roast need 3 more notes each." / "1 more note". Notes, not cups: a cup that skips an axis does not count for it. **Locked in, once reached, stays; it can return to early signs only if deleting cups means the condition was never met.** The delete confirmation says Taste DNA is recalculated, so it is announced.
+- **14 (save failure)**: "Couldn't save this cup" / "Your phone couldn't store it. Everything you entered is still here — try again." / "Try again" (primary). Open points (retry any number of times; closing after a failure loses the input): `gaps.md` 30. Today an iOS alert, with iOS's own Cancel beside "Try again" so a lasting failure does not trap the user.
+- **15 (3c's Bean name error)**: within the existing set — label and underline in `state.error.text` / `state.error.border`, the field's own 2px underline in colour only. New is where it applies: the first text input with an error (§9).
+- **Still provisional (no copy yet)**: the Taste DNA card's lines for "nothing noted" and "Locked in" (item 9 and 8f's "From N cups").

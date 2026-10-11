@@ -565,6 +565,10 @@ The user sees the past rewritten.
 
 **When drafts arrive (V1.5)**: put 5d back to its own words and add "Keep as draft". `cups.rating` was made nullable for this.
 
+**Save failure, from Design's report (2026-10-11)**: two points the copy cannot settle without drafts:
+- can a failed save be retried any number of times? (Today: yes, "Try again" retries each time; iOS's Cancel ends it.)
+- what happens when the sheet is closed after a failure? The input is lost — no drafts.
+
 ---
 
 ## 31. My words do not shape Taste DNA in V1 (added 2026-10-11)

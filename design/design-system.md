@@ -1043,6 +1043,10 @@ Three parts of 5b are drawn inline in `TastingNoteScreen` for now (display only)
 - **Cup summary row** (5b): `size.thumbnail.summary` thumbnail, name (`label`), one line of meta (`body.sm` muted), and the rating star + `numeral.inline` on the right.
   - To report then: how it differs from `RecordRow` (2a) in information, not just layout, and whether the mocks explain showing the same cup two ways. That decides merging versus a separate component.
 
+### Text input error (3c's Bean name; 2026-10-11, confirmed by Design)
+- Pressed "Open this bag" with no name: the field's label reads "Bean name · required" in `state.error.text`, and its own 2px underline turns `state.error.border`. No new values: the field's underline, colour only.
+- New is only where it applies: 5d puts errors on FieldRows and the rating card; this is the first underlined text input with one. Typing a name clears it.
+
 ### Section heading (base `SectionLabel`, variants 2026-10-06)
 Two variants, both `label.eyebrow` `color.text.muted` with an optional right-side status:
 - **`marked`** has the `size.dot.bullet` square. Read from its distribution, the square marks **a section of an input form** (it appears only where the user is filling something in). It is used only on the Record coffee form (5a, 5d, 5e): How was it?, Who made it?, From my shelf, Café details, Product, Bought at.
@@ -1232,3 +1236,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-11 — AxisReadout gets an **entered** tone (2c: icon.accent fill, border.accent marker) beside **computed**. `texture.rule` removed (only the old display axis used it).
 - 2026-10-11 — Header: this file is the one source (the repo copy); "sealed 2026-09-20" dates the extraction only. §2 Texture: `texture.rule` gone from the table and notes. §1 Required marks: every mode; Save is never disabled; how it combines with §9 SectionLabel `marked`. §9 Radio marker built; the 12 formula spelled out.
 - 2026-10-11 — §1: values that cannot be edited are displayed (2c's read-only look), not disabled; OS-drawn controls are outside the type / weight / radius rules (consult before adding one); the outline-without-fill rule is for option parts, a radio row's marker shows selection. §9: List row's Packaged line 2 empty at this stage; Bought at [not at this stage]; Bottom sheet variants (wrapping / full) with the keyboard's effect on the bottom padding and SE measurements.
+- 2026-10-12 — §9 Text input error (3c's Bean name), confirmed by Design as within the error set.
