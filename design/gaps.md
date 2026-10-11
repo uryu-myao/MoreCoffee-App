@@ -430,6 +430,8 @@ The photo pair sits beside a 76 thumbnail, so 44 would still fit its height.
 
 **Status**: recorded, not designed. One answer for all forms, likely built from 6d's pattern.
 
+**5a too (added 2026-10-11)**: with no drafts in V1, closing the Record sheet drops everything entered, including after 5d has said a rating is missing. Whether closing should warn is the same question. Recorded only; not built now.
+
 ---
 
 ## 21. Taste DNA is recomputed, so its history can move (added 2026-10-10)
@@ -548,6 +550,16 @@ The user sees the past rewritten.
 **What**: 3a's "N / 8 Selected" and 3c's "N / 5 Bags open" are the header stat, which is `color.text.accent` at every value. Reaching the limit changes nothing, so §1 Selection limit's "the count explains it" does not work on these two screens. Only the line under the button ("0 slots left", "No slots free…") says so.
 
 **To decide at the final polish**: change the rule, or give these two counts another resting colour.
+
+---
+
+## 30. 5d cannot keep its promise without drafts (added 2026-10-11)
+
+**What**: 5d says "Nothing is lost — this cup is held as a draft until you finish." and offers "Keep as draft". V1 has no drafts, so V1's 5d is weaker than the mock: **close the sheet without a rating, and what was entered is gone.**
+
+**In V1**: no "Keep as draft"; the reminder's second line promises no draft (copy from Design, with the conditions in `design-brief-next.md`). Closing without saving: `gaps.md` 20.
+
+**When drafts arrive (V1.5)**: put 5d back to its own words and add "Keep as draft". `cups.rating` was made nullable for this.
 
 ---
 

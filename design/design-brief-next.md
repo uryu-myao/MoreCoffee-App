@@ -20,6 +20,14 @@ Items for Design's next request, gathered as they come. Send together; group B i
 ## Copy we need from Design (not written by us)
 - **5a's intro line on an empty shelf** (`gaps.md` 28): with no bag and no gear the line says "all of them start pre-filled" while Bag and Method read "Add a bag" / "Add gear". Please write the empty-shelf form.
 
+- **5d's reminder card, second line**: it must not promise a draft. Conditions: say why the cup can't be saved yet; while on this screen, what was entered stays; it is not kept as a draft; closing loses it. (V1 has no drafts; see `gaps.md` 30.)
+- **5d with one thing missing**: in V1's I made it, only the rating can be missing. The rating is "the one thing the app can't guess", and the star card already says "Tap a star — this is the one thing the app can't guess." Please write the reminder card's title and the footer line ("Rating and café are still empty." in the mock) for one missing item, **without counting** ("One answer is…" reads oddly) and **without repeating the star card's line**.
+
+## Please check
+- **3c's Bean name error**: pressed with no name, the field takes 5d's vocabulary (label "Bean name · required" and the underline in the error colour). No mock draws an inline input error. Is this within the existing error set, or did we invent something?
+- **Intro block**: 5a's opening line now has a surface (`color.surface.raised`, no frame); other explanation lines have none. Should other screens' opening explanations get the same?
+- **D-46's side effect**: the removed square was the example of "Marked". The section labels still carry the mark; you may want another way to show it.
+
 ## Decisions that change mocked parts (2026-10-11)
 - **5a / 5e intro line**: on `color.surface.raised`, no frame, no leading square (drift D-46).
 

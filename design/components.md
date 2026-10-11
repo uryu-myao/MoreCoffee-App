@@ -310,6 +310,24 @@ The bundled list is the starting point for 5b's flavour tags (never a whitelist;
 
 **Date sheet**: iOS spinner in the BottomSheet, text in `text.primary`, `maximumDate` today; a picked day is stored as its local midnight. Compact and inline both bring OS round shapes (a pill; a round selected day). The spinner's selection band is still a light rounded bar from the OS.
 
+## 5d in V1: missing rating only (recorded 2026-10-11)
+
+**Scope**: 5d's mock is drawn in Barista mode and treats the café as required. V1's 5d covers **the rating only**. I made it has no café, and Barista's café becomes required (or not) when that branch is built, with MapKit. A difference of scope, not drift: a café-less cup still saves.
+
+**How it works**: Save stays pressable. Pressed with no rating, 5a switches to 5d's state (no screen change):
+- the intro block is replaced by the reminder card;
+- "How was it?" shows Required in the error colour, and the star card takes 5d's error state with "Tap a star — this is the one thing the app can't guess.";
+- the footer gets the count line with "Go to first", above Save. **No "Keep as draft"** (no drafts, `gaps.md` 30).
+- 5b's two Save buttons with no rating go back to 5a in this state (an automatic "Go to first"); 5b's input stays.
+- Rating a star ends the state.
+- The reminder's text and the one-missing forms are **provisional** until Design writes them.
+
+**3c's Bean name, the same way**: "Open this bag" stays pressable; pressed with no name, the field shows 5d's vocabulary (label "Bean name · required" and the underline in the error colour). There is no inline text-input error in the mocks (`gaps.md` 6), so Design is to check it.
+
+## Intro block (recorded 2026-10-11)
+
+5a's opening line is an **intro block with a surface** (`color.surface.raised`, no frame; D-46). Every other explanation line in the mocks sits directly on its surface, with no background of its own. **The difference is intended: only a screen's opening explanation has a surface.** Whether other screens' opening explanations should follow is for Design (not changed now).
+
 ## Single-select: can it be cleared? (recorded 2026-10-10)
 
 **Today**: `SegmentedControl` cannot clear. Pressing the selected chip is a no-op (and gives no feedback: its ink fill has no darker tier, §1 Pressed). Once chosen, a value cannot return to empty.
