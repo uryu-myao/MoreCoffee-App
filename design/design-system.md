@@ -382,7 +382,7 @@ The marker is intentionally one step darker than the fill it sits on — it is a
 - the display is §9 **Taste axis readout** (1b 4a 4b 5c 8f);
 - sizes are §5 `size.axis.*`.
 
-The token set still holds the old display axis's parts: `axis.rail.derived`, `axis.needle` (12 × 30), `axis.ghost` and `axis.delta`. **They are removed when AxisReadout is built. Do not draw with them.** The principle they carried (what you put in must never look like what came out of it) is now held by two different components and by colour (§1: entered = brown, computed = neutral).
+The old display axis's parts `axis.rail.derived`, `axis.needle` (12 × 30) and `dashed.track` were **removed 2026-10-11**, once AxisReadout was built. `axis.ghost` and `axis.delta` stay, unused, until 5c is decided. **Do not draw with them.** The principle they carried (what you put in must never look like what came out of it) is now held by two different components and by colour (§1: entered = brown, computed = neutral).
 
 **C. `tabBar`** — the bottom tab bar's slots and icon colours. Its layout (full width on the bottom edge, 60 row, no shadow) is specified once, in §9 Bottom bar. Four tab slots and one wider add slot, centred in the bar. Appears on 1b, 2a, 4a, 4b, 6a and 8d. *Added 2026-10-04.* The original extraction missed its two raw icon colours, which are written as lowercase hex in the source; they are the only lowercase hex values on the in-scope screens.
 
@@ -594,7 +594,7 @@ Fixed element dimensions. **Never subject to the spacing scale** — snapping th
 | `size.axis.inset` | **2** | handle ↔ frame, the Switch's padding (2026-10-08) |
 | `size.axis.handle` | `{ w: 26, h: 26 }` | the square handle = track − 2 × border − 2 × inset (2026-10-08; was 16 × 40); stops 56.5pt apart |
 | `size.axis.dot` | **6** | the stop dots (2026-10-08) |
-| `size.axis.needle` | `{ w: 12, h: 30 }` | **retiring**: the old display axis only; removed when AxisReadout is built. Do not use |
+| ~~`size.axis.needle`~~ | — | **removed 2026-10-11** with the old display axis |
 | `size.meter.track` | 4 | 2 screens — `beanFreshness` height |
 | `size.marker.line` | `{ w: 2, h: 14 }` | marker / caret line width |
 | `size.dot.bullet` | 6 | 4 screens / 31 uses — square section bullets |
@@ -987,7 +987,7 @@ The input of Taste DNA, on 5b only. **Its display is a different component, Axis
 - Clear centred under the handle;
 - the "Strongly / Leaning" step names.
 
-### Taste axis readout (AxisReadout — spec 2026-10-07, to be built)
+### Taste axis readout (AxisReadout — spec 2026-10-07, built 2026-10-11)
 The display of computed values: 1b / 4a / 4b (the profile), 5c (the change after a save), and 8f's four bars (D-22, 2026-10-08). It is **not operable** and belongs to the read-only bar family of `beanFreshness`. No new visual language.
 
 | part | value | from beanFreshness |
@@ -1007,7 +1007,7 @@ The display of computed values: 1b / 4a / 4b (the profile), 5c (the change after
   - The ghost is a `border.muted` 2 × 14 marker at the previous value.
   - Moving away from 50, the extra current fill is the movement; moving toward 50, the exposed lighter fill is.
   - It reads weakly, so the copy under the axis carries the movement ("Moved 6 points brighter"; `gaps.md` 13).
-- When built, `axis.rail.derived`, `axis.needle.derived`, `dashed.track` and the `derived` mode of `AxisSlider` go, in one token clean-up.
+- Built 2026-10-11: `axis.rail.derived`, `axis.needle.derived`, `dashed.track` and the `derived` mode of `AxisSlider` are removed, with their dev pages. `axis.ghost` / `axis.delta` wait for the 5c decision; §9's ghost and delta above use other tokens. **Value null** (nothing noted on that axis): the track alone (`components.md`).
 
 ### Component catalog — pending (Step 4, logged 2026-10-06)
 Three parts of 5b are drawn inline in `TastingNoteScreen` for now (display only). They become base components in a later round. Each entry lists what to settle then.
@@ -1206,3 +1206,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-10 — §1 Saving a cup: 5b's second button reads "Discard and save" once anything is entered (a new decision overriding the mock's "Save without the note").
 - 2026-10-10 — §1 Haptics: three kinds (light impact, selection, warning); consult before adding a fourth. Warning's first use: 5b's locked Search opener (an exception to "a locked option stays silent", pending the wider question).
 - 2026-10-11 — §1 Haptics: a disabled action (button, sheet opener) gives the warning haptic, only where the screen shows why; options in a set stay silent.
+- 2026-10-11 — AxisReadout built (Home's Taste DNA card). The old display axis removed: `axis.rail.derived`, `axis.needle`, `dashed.track`, AxisSlider's `derived` mode and its dev pages. `axis.ghost` / `axis.delta` kept, unused, until 5c is decided.

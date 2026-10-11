@@ -268,9 +268,8 @@ export const size = {
    * "Switch and the axis handle"): border 2 + inset 2 on each side, so
    * handle = rail − 8. Stops are (260 − 2·2 − 2·2 − 26) / 4 = 56.5pt apart and
    * stop 0 sits 17 in from the track's outer edge. dot: the 5 stop marks.
-   * needle (12 × 30) is the display axis's, until AxisReadout replaces it.
    */
-  axis: { rail: 34, railWidth: 260, inset: 2, handle: { w: 26, h: 26 }, dot: 6, needle: { w: 12, h: 30 } },
+  axis: { rail: 34, railWidth: 260, inset: 2, handle: { w: 26, h: 26 }, dot: 6 },
   meter: { track: 4 },
   marker: { line: { w: 2, h: 14 } },
   dot: { bullet: 6 },
@@ -347,8 +346,6 @@ export const dashed = {
   addSlotInert:  { width: 2, style: 'dashed', color: color.border.muted },
   /** secondary line inside a card */
   dividerSoft:   { width: 1.5, style: 'dashed', color: color.border.soft },
-  /** the axis rail of a value the user did not enter (axis.rail.derived) — rails only, since 2026-10-07 */
-  track:         { width: 1.5, style: 'dashed', color: color.border.muted },
 } as const;
 
 /**
@@ -387,13 +384,9 @@ const axisRail = {
    * Superseded: the 1.5 border.muted frame on ground with 3 reference lines.
    */
   track: { width: shape.borderWidth.box, style: 'solid', color: color.text.secondary, background: color.surface.raised, dot: color.border.subtle },
-  /** computed or historical (1b 4a 4b 5c) — to be replaced by AxisReadout, then removed */
-  derived: { ...dashed.track, background: color.surface.ground, texture: texture.rule },
 } as const;
 
 const axisNeedle = {
-  /** a computed / historical value */
-  derived: { ...size.axis.needle, background: color.surface.muted, borderColor: color.border.medium, borderWidth: shape.borderWidth.divider },
   /**
    * Nothing entered: a muted square resting at Balanced. Its position — 50 —
    * is a PLACEHOLDER, NOT A VALUE: never save it, never read it as "the default
@@ -427,36 +420,29 @@ export const component = {
     height: size.meter.track,
   },
   /**
-   * Taste axis slider: rail + needle (+ ghost + delta), 20px tall, bipolar,
-   * NO fill.
+   * Taste axis slider (5b, the input): one solid rail and a square handle.
+   * state: ONE axis state decides rail and handle together, so a wrong pairing
+   * cannot be built. The rail is the same in every state; the handle carries
+   * it: empty (muted) or entered (accent).
    *
-   * The rail shows where the value came from — not whether it can be edited,
-   * and not whether there is one:
-   *   entered  ink solid: a value the user decided, themselves, for this cup
-   *   empty    ink dashed: no value yet, one to be entered (operable)
-   *   derived  muted dashed: computed profile (1b, 4a, 4b) or history (5c);
-   *            never operable
-   * This carries a core promise: Taste DNA is arithmetic on your own records,
-   * not a guess, and the UI must always let you tell what you put in from what
-   * came out of it. So the rail is provenance, not decoration: never unify the
-   * states. (The dashed-vs-solid rule now lives in §8; the slider uses one solid rail.)
-   *
-   * state: ONE axis state decides rail and needle together, so a wrong pairing
-   * cannot be built. The slider's rail is the same in every state (2026-10-07);
-   * the handle carries the state: empty (muted) or entered (accent). derived belongs to the display axis, to be replaced by
-   * AxisReadout.
+   * A computed value is never drawn with the slider: that is AxisReadout
+   * (2026-10-11; the old dashed display axis is removed). Taste DNA is
+   * arithmetic on your own records, so what you put in must never look like
+   * what came out of it.
    */
   axis: {
     state: {
-      derived: { rail: axisRail.derived, needle: axisNeedle.derived },
       empty:   { rail: axisRail.track, needle: axisNeedle.empty },
       entered: { rail: axisRail.track, needle: axisNeedle.entered },
     },
     rail: { height: size.axis.rail, width: size.axis.railWidth, inset: size.axis.inset, dot: size.axis.dot },
     grip: axisGrip,
-    /** previous value */
+    /**
+     * The old display axis's 5c parts, kept until 5c is decided (2026-10-11).
+     * Unused. §9's AxisReadout draws 5c's ghost and delta from other tokens
+     * (border.muted under border.medium, a 2 × 14 border.muted marker).
+     */
     ghost:  { w: 10, h: 10, borderColor: color.border.medium },
-    /** movement since the last value */
     delta:  { height: 2, background: color.border.medium },
   },
   /**

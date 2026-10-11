@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Text from '../components/base/Text';
 import { color, layout, shape, spacing } from '../theme/tokens';
 import AxisSliderPage from './pages/AxisSliderPage';
-import ReadoutExperimentPage from './pages/ReadoutExperimentPage';
 import ButtonPage from './pages/ButtonPage';
 import EmptySlotPage from './pages/EmptySlotPage';
 import FieldRowPage from './pages/FieldRowPage';
@@ -21,7 +20,6 @@ import TokenSheet from './TokenSheet';
  * Register new pages here as components land.
  */
 const PAGES = [
-  { key: 'readoutX', title: 'Readout X', Page: ReadoutExperimentPage },
   { key: 'tokens', title: 'Tokens', Page: TokenSheet },
   { key: 'text', title: 'Text', Page: TextPage },
   { key: 'sectionLabel', title: 'SectionLabel', Page: SectionLabelPage },

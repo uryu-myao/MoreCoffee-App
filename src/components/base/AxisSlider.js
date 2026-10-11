@@ -4,7 +4,7 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { component, motion, size, spacing, state, textStyle, texture } from '../../theme/tokens';
+import { component, motion, size, spacing, state, textStyle } from '../../theme/tokens';
 import Button from './Button';
 import { GESTURE_LOG, logGesture } from './gestureLog';
 import Text from './Text';
@@ -36,10 +36,8 @@ import Text from './Text';
  *
  * Props
  *   from, to    pole labels (low pole on the left)
- *   steps       the five step names, low to high (operable axes)
- *   value       0–100 or null (empty; operable axes only)
- *   derived     display axis (1b 4a 4b 5c) — temporary, until AxisReadout
- *   previous, caption   derived only (5c)
+ *   steps       the five step names, low to high
+ *   value       0–100 or null (empty)
  *   onChange    (value | null) => void — on release, on tap, on Clear
  */
 
@@ -88,7 +86,7 @@ const selectionHaptic = () => {
   if (Platform.OS !== 'web') Haptics.selectionAsync();
 };
 
-function Rail({ part, derived }) {
+function Rail({ part }) {
   const innerH = RAIL_H - 2 * part.width;
   return (
     <View
@@ -96,21 +94,12 @@ function Rail({ part, derived }) {
         StyleSheet.absoluteFill,
         { borderWidth: part.width, borderStyle: part.style, borderColor: part.color, backgroundColor: part.background },
       ]}>
-      {derived ? (
-        // The old display axis: reference lines at the inner stops.
-        <View style={[styles.track, { left: 0, right: 0 }]} pointerEvents="none">
-          {[1, 2, 3].map((i) => (
-            <View key={i} style={[styles.ruleLine, { left: `${(i / LAST) * 100}%` }]} />
-          ))}
-        </View>
-      ) : (
-        // A dot at every stop; the handle covers the one it sits on.
-        <View style={[styles.track, { left: TRACK_INSET, right: TRACK_INSET }]} pointerEvents="none">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <View key={i} style={[styles.dot, { left: `${(i / LAST) * 100}%`, top: (innerH - DOT) / 2, backgroundColor: part.dot }]} />
-          ))}
-        </View>
-      )}
+      {/* A dot at every stop; the handle covers the one it sits on. */}
+      <View style={[styles.track, { left: TRACK_INSET, right: TRACK_INSET }]} pointerEvents="none">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <View key={i} style={[styles.dot, { left: `${(i / LAST) * 100}%`, top: (innerH - DOT) / 2, backgroundColor: part.dot }]} />
+        ))}
+      </View>
     </View>
   );
 }
@@ -146,9 +135,8 @@ function Pole({ label, align }) {
   );
 }
 
-function AxisSlider({ from, to, steps, value = null, derived = false, previous, caption, onChange }) {
-  const operable = !derived;
-  const isEntered = operable && value != null;
+function AxisSlider({ from, to, steps, value = null, onChange }) {
+  const isEntered = value != null;
   const committedStep = value == null ? MIDDLE : valueToStep(value);
   const who = `axis:${from}`;
 
@@ -188,7 +176,6 @@ function AxisSlider({ from, to, steps, value = null, derived = false, previous, 
   };
 
   const pan = Gesture.Pan()
-    .enabled(operable)
     .activeOffsetX([-ACTIVE_OFFSET_X, ACTIVE_OFFSET_X])
     .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
 
@@ -220,7 +207,6 @@ function AxisSlider({ from, to, steps, value = null, derived = false, previous, 
     });
 
   const tap = Gesture.Tap()
-    .enabled(operable)
     .maxDistance(TAP_MAX_DISTANCE)
 
     .onBegin(() => {
@@ -252,8 +238,7 @@ function AxisSlider({ from, to, steps, value = null, derived = false, previous, 
   }));
 
   // ── Screen reader: one step per swipe, the value read as the step's name ──
-  const a11y = operable
-    ? {
+  const a11y = {
         accessible: true,
         accessibilityRole: 'adjustable',
         accessibilityLabel: `${from} to ${to}`,
@@ -266,46 +251,30 @@ function AxisSlider({ from, to, steps, value = null, derived = false, previous, 
           if (e.nativeEvent.actionName === 'decrement') onChange?.(stepToValue(Math.max(0, base - 1)));
           if (e.nativeEvent.actionName === 'clear') onChange?.(null);
         },
-      }
-    : { accessible: true, accessibilityLabel: `${from} to ${to}`, accessibilityValue: { text: `${value} points` } };
+      };
 
-  const railPart = derived ? STATE.derived.rail : STATE.empty.rail;
+  const railPart = STATE.empty.rail;
   const rail = (
     <View style={styles.rail}>
-      <Rail part={railPart} derived={derived} />
-      {derived && previous != null ? <GhostAndDelta from={previous} to={value} /> : null}
+      <Rail part={railPart} />
       <View
         // The handle's layer sits INSIDE the 2px frame, like the dots' layer (a
         // child of the framed view). It used to start at the frame's outer edge,
         // which put the handle 2pt high and up to 1pt off the dots (2026-10-09).
-        style={[styles.track, derived ? styles.trackDerived : styles.trackOperable]}
+        style={[styles.track, styles.trackOperable]}
         pointerEvents="none"
         onLayout={(e) => {
           trackW.value = e.nativeEvent.layout.width;
         }}>
-        {derived ? (
-          <Needle part={STATE.derived.needle} railWidth={railPart.width} style={{ left: `${value}%` }} />
-        ) : (
-          <>
-            <Needle part={STATE.empty.needle} railWidth={railPart.width} style={move} />
-            <Animated.View style={[StyleSheet.absoluteFill, enteredStyle]} pointerEvents="none">
-              <Needle part={STATE.entered.needle} railWidth={railPart.width} style={move} />
-            </Animated.View>
-          </>
-        )}
+        <Needle part={STATE.empty.needle} railWidth={railPart.width} style={move} />
+        <Animated.View style={[StyleSheet.absoluteFill, enteredStyle]} pointerEvents="none">
+          <Needle part={STATE.entered.needle} railWidth={railPart.width} style={move} />
+        </Animated.View>
       </View>
     </View>
   );
 
-  const slot = derived ? (
-    caption ? (
-      <View style={styles.slot}>
-        <Text variant="meta" color="muted">
-          {caption}
-        </Text>
-      </View>
-    ) : null
-  ) : (
+  const slot = (
     <View style={styles.slot}>
       {isEntered ? (
         <Animated.View style={clearStyle}>
@@ -320,30 +289,26 @@ function AxisSlider({ from, to, steps, value = null, derived = false, previous, 
   );
 
   return (
-    <View style={[styles.axis, operable && styles.axisSized]} {...a11y}>
+    <View style={[styles.axis, styles.axisSized]} {...a11y}>
       <View style={styles.poles}>
         <Pole label={from} />
         <Pole label={to} align="right" />
       </View>
-      {operable ? (
-        <GestureDetector gesture={gesture}>
-          <View
-            style={styles.hitArea}
-            onLayout={
-              GESTURE_LOG
-                ? (e) => {
-                    e.target?.measureInWindow?.((x, y, w, h) =>
-                      logGesture(who, 'hit area', `window x ${x.toFixed(1)}–${(x + w).toFixed(1)}, y ${y.toFixed(1)}–${(y + h).toFixed(1)}`)
-                    );
-                  }
-                : undefined
-            }>
-            {rail}
-          </View>
-        </GestureDetector>
-      ) : (
-        rail
-      )}
+      <GestureDetector gesture={gesture}>
+        <View
+          style={styles.hitArea}
+          onLayout={
+            GESTURE_LOG
+              ? (e) => {
+                  e.target?.measureInWindow?.((x, y, w, h) =>
+                    logGesture(who, 'hit area', `window x ${x.toFixed(1)}–${(x + w).toFixed(1)}, y ${y.toFixed(1)}–${(y + h).toFixed(1)}`)
+                  );
+                }
+              : undefined
+          }>
+          {rail}
+        </View>
+      </GestureDetector>
       {slot}
     </View>
   );
@@ -351,33 +316,6 @@ function AxisSlider({ from, to, steps, value = null, derived = false, previous, 
 
 export default memo(AxisSlider);
 
-/** 5c: a ghost at the earlier value and a delta bar to the current one. (Until AxisReadout.) */
-function GhostAndDelta({ from, to }) {
-  const lo = Math.min(from, to);
-  const hi = Math.max(from, to);
-  const { ghost, delta } = component.axis;
-  return (
-    <>
-      <View
-        pointerEvents="none"
-        style={{ position: 'absolute', left: `${lo}%`, width: `${hi - lo}%`, top: (RAIL_H - delta.height) / 2, height: delta.height, backgroundColor: delta.background }}
-      />
-      <View
-        pointerEvents="none"
-        style={{
-          position: 'absolute',
-          left: `${from}%`,
-          marginLeft: -ghost.w / 2,
-          top: (RAIL_H - ghost.h) / 2,
-          width: ghost.w,
-          height: ghost.h,
-          borderWidth: STATE.derived.rail.width,
-          borderColor: ghost.borderColor,
-        }}
-      />
-    </>
-  );
-}
 
 const styles = StyleSheet.create({
   axis: {},
@@ -411,18 +349,6 @@ const styles = StyleSheet.create({
     right: STOP0,
     top: BORDER,
     bottom: BORDER,
-  },
-  trackDerived: {
-    left: 0,
-    right: 0,
-  },
-  ruleLine: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    marginLeft: -texture.rule.lineWidth / 2,
-    width: texture.rule.lineWidth,
-    backgroundColor: texture.rule.color,
   },
   needle: {
     position: 'absolute',

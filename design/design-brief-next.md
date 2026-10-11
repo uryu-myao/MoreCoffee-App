@@ -21,7 +21,11 @@ Items for Design's next request, gathered as they come. Send together; group B i
 - **Bag / Method picker** (no mock): a bottom sheet with §9's square radio rows; Method has "Brewer" / "Grinder" eyebrows under the sheet's own "Method" eyebrow; "Add a bag" / "Add gear" as the last row.
 
 - **Taste DNA card (1b / 4a / 4b)**, built with AxisReadout. Please look at:
-  - **An axis with nothing noted**: we draw the empty track and "Not noted", and always keep all four axes. A new user sees four empty axes. Every mock shows four values, so nothing guides this. Keep four, or show only the axes with records?
+  - **An axis with nothing noted — please decide; we propose nothing.** Conditions:
+    - A new user, after one cup, has values on only 1–2 of the 4 axes. That is the first Taste DNA they see.
+    - Today all four axes are shown; an axis with no value is an empty track with "Not noted" under it.
+    - Four are always shown because a changing number of axes changes the card's height.
+    - How should three empty axes in a row look?
   - **No cups noted at all**: no badge, and a provisional line ("Note what you taste on a cup to start it.").
   - The sticker badge has no 1.5px border (a Badge never has one).
 

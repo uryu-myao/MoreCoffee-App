@@ -7,7 +7,7 @@ import { HarnessCase, HarnessGroup, HarnessPage } from '../harness';
 /**
  * AxisSlider states (five steps, one track; the square handle carries the state),
  * plus the dashed borders left in the product — border.addSlot (#6B5D55) and
- * .inert — and the old derived display axis, until AxisReadout replaces it.
+ * .inert.
  */
 const [, BODY, , SWEET] = TASTE_AXES;
 
@@ -23,15 +23,6 @@ export default function AxisSliderPage() {
         </HarnessCase>
         <HarnessCase label="entered — accent square, Clear; touch scales it">
           <AxisSlider from={BODY.from} to={BODY.to} steps={BODY.steps} value={entered} onChange={setEntered} />
-        </HarnessCase>
-      </HarnessGroup>
-
-      <HarnessGroup title="derived (display only)">
-        <HarnessCase label="1b — muted 1.5px dashed, no touch band">
-          <AxisSlider derived from="Acid" to="Bitter" value={58} />
-        </HarnessCase>
-        <HarnessCase label="5c — ghost + delta + movement line">
-          <AxisSlider derived from="Acid" to="Bitter" value={38} previous={44} caption="Moved 6 points brighter" />
         </HarnessCase>
       </HarnessGroup>
 
