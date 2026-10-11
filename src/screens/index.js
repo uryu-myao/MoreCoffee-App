@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useDatabase } from '../data/DatabaseProvider';
 import { countCups, onCupsChanged } from '../data/repository';
+import HomeTabScreen from './HomeTabScreen';
 import PlaceholderScreen from './PlaceholderScreen';
 import RecordsScreen from './RecordsScreen';
 
 // Tabs show a placeholder until their screen is rebuilt from the mock.
-// Records (2a) is rebuilt. The retired screens — HomeScreen, CoffeeListScreen, SearchScreen,
+// Records (2a) is rebuilt; Home (1b) has its Taste DNA card. The retired screens — HomeScreen, CoffeeListScreen, SearchScreen,
 // ProfileScreen, NoticeListScreen, NoticeDetailScreen, AddCoffeeScreen — stay
 // on disk, unreferenced and out of the bundle, as the record of what the old
 // screens did.
@@ -36,7 +37,7 @@ function TryNextPlaceholder() {
 }
 
 export const SCREEN_COMPONENTS = {
-  home: placeholder('Home', 'MoreCoffee'),
+  home: HomeTabScreen,
   records: RecordsScreen,
   tryNext: TryNextPlaceholder,
   profile: placeholder('Profile', 'Morecoffee'),

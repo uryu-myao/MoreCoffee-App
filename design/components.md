@@ -324,6 +324,17 @@ The bundled list is the starting point for 5b's flavour tags (never a whitelist;
 - Not in scope: Finish bag, 3d (decided 2026-10-11).
 - No mock draws a picker. To show Design.
 
+## Taste DNA card and AxisReadout (built 2026-10-11)
+
+- **AxisReadout** (§9), built to the spec: 4pt `surface.muted` track, `border.medium` fill from 50 to the value, 2 × 14 `text.muted` marker at the value; no ticks.
+  - **No value** (nothing noted on that axis): the track alone, no fill, no marker. No mock draws this: every mock shows four values, even 1a / 1b at 3 cups.
+- **TasteDnaCard** (Home; the same card on 1b / 4a / 4b): Card pattern; "My taste DNA" (`display.sm`, accent); the state as a tilted sticker Badge (`rotation.sticker`): Early signs = accent tone, Locked in = selected tone, none = no badge. One line under the title; the four axes as pole labels over AxisReadout. An axis with no value adds "Not noted" under it (5b's word).
+  - The mock's 1.5px border on the sticker is left out (a Badge has no border).
+  - The mock's footer "3 of 5 cups" (Try next, V2) is not shown.
+  - The line under the title is **provisional** (D-47): early "N more cups to lock it in." (N from the least-noted axis), locked "From N cups.", none "Note what you taste on a cup to start it."
+- **All four axes are always shown**, with or without a value: the mocks always draw four, and an axis that disappears and reappears would move the card. Design to confirm (see the brief).
+- Home shows only this card for now; the rest of 1b is not rebuilt.
+
 ## 5d in V1: missing rating only (recorded 2026-10-11)
 
 **Scope**: 5d's mock is drawn in Barista mode and treats the café as required. V1's 5d covers **the rating only**. I made it has no café, and Barista's café becomes required (or not) when that branch is built, with MapKit. A difference of scope, not drift: a café-less cup still saves.

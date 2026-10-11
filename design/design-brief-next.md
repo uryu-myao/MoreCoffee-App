@@ -20,6 +20,11 @@ Items for Design's next request, gathered as they come. Send together; group B i
 ## Stage 3 screens to look at
 - **Bag / Method picker** (no mock): a bottom sheet with §9's square radio rows; Method has "Brewer" / "Grinder" eyebrows under the sheet's own "Method" eyebrow; "Add a bag" / "Add gear" as the last row.
 
+- **Taste DNA card (1b / 4a / 4b)**, built with AxisReadout. Please look at:
+  - **An axis with nothing noted**: we draw the empty track and "Not noted", and always keep all four axes. A new user sees four empty axes. Every mock shows four values, so nothing guides this. Keep four, or show only the axes with records?
+  - **No cups noted at all**: no badge, and a provisional line ("Note what you taste on a cup to start it.").
+  - The sticker badge has no 1.5px border (a Badge never has one).
+
 ## Copy we need from Design (not written by us)
 - **5a's intro line on an empty shelf** (`gaps.md` 28): with no bag and no gear the line says "all of them start pre-filled" while Bag and Method read "Add a bag" / "Add gear". Please write the empty-shelf form.
 
