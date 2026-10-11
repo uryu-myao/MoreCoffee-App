@@ -26,6 +26,9 @@ export default function AddBagScreen({ onBack }) {
   const { chooseBag } = useRecordDraft();
   const [form, setForm] = useState({ name: '', roaster: '', roastedAt: null });
   const [picking, setPicking] = useState(false);
+  // 5d's way (decided 2026-10-11): the button stays pressable; pressed with no
+  // name, the field says it is required. Typing a name ends it.
+  const [nameMissing, setNameMissing] = useState(false);
   const [open, setOpen] = useState(null);
 
   useEffect(() => {
@@ -41,6 +44,10 @@ export default function AddBagScreen({ onBack }) {
   const name = form.name.trim();
 
   const openBag = async () => {
+    if (!name) {
+      setNameMissing(true);
+      return;
+    }
     try {
       const bag = await insertBag(db, { name, roaster: form.roaster.trim() || null, roastedAt: form.roastedAt });
       chooseBag(bag);
@@ -60,9 +67,9 @@ export default function AddBagScreen({ onBack }) {
         stat={open != null ? { value: `${open} / ${OPEN_BAG_LIMIT}`, label: 'Bags open' } : undefined}
         footer={
           <View style={styles.footer}>
-            {/* Full: the line below says why, so a press warns (§1). An empty name
-                has no reason on screen yet (gaps.md 12), so it stays silent. */}
-            <Button label="Open this bag" onPress={openBag} disabled={!name || full || open == null} warnWhenDisabled={full} />
+            {/* Full: the line below says why, so a press warns (§1). An empty
+                name is not a disabled state: the press shows the field's error. */}
+            <Button label="Open this bag" onPress={openBag} disabled={full || open == null} warnWhenDisabled={full} />
             {free != null ? (
               <Text variant="bodySm" color="secondary" style={styles.slots}>
                 {full ? 'No slots free. Finish a bag to free one up.' : `${free} of ${OPEN_BAG_LIMIT} slots free. Finish a bag to free one up.`}
@@ -72,7 +79,11 @@ export default function AddBagScreen({ onBack }) {
         }>
         <BagForm
           value={form}
-          onChange={setForm}
+          onChange={(next) => {
+            if (next.name.trim()) setNameMissing(false);
+            setForm(next);
+          }}
+          nameMissing={nameMissing}
           datePicking={picking}
           onPickDate={() => {
             Keyboard.dismiss();

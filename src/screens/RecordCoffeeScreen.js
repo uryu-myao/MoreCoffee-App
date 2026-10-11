@@ -1,16 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import Button from '../components/base/Button';
 import EmptySlot from '../components/base/EmptySlot';
 import FieldRow from '../components/base/FieldRow';
 import Glyph from '../components/base/Glyph';
+import HardShadow from '../components/base/HardShadow';
 import IconButton from '../components/base/IconButton';
 import SectionLabel from '../components/base/SectionLabel';
 import SegmentedControl from '../components/base/SegmentedControl';
 import StarRating from '../components/base/StarRating';
 import Text from '../components/base/Text';
 import { useRecordDraft } from '../components/RecordDraft';
-import { color, icon, motion, shape, space, spacing, state } from '../theme/tokens';
+import { color, icon, motion, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 import { daysSince } from '../constants/dates';
 
@@ -292,10 +293,76 @@ function useMinuteClock() {
   return now;
 }
 
+/**
+ * 5d in V1 (design/components.md "5d in V1"): Save pressed with no rating.
+ * Rating only — the mock's café is out of scope. No "Keep as draft" (no
+ * drafts in V1, gaps.md 30).
+ *
+ * TODO(copy, PROVISIONAL): every string below is a stand-in until Design
+ * writes them (design-brief-next.md): the reminder must not promise a draft
+ * and, with one thing missing, must neither count nor repeat the star card.
+ */
+const MISSING_COPY = {
+  title: "This cup can't be saved yet", // PROVISIONAL
+  body: 'What you entered stays while this screen is open. Closing it loses it.', // PROVISIONAL
+  footer: 'The rating is still empty.', // PROVISIONAL
+};
+/** 5d's line under the stars (verbatim). */
+const STAR_HINT = "Tap a star — this is the one thing the app can't guess.";
+
+/** 5d's reminder card, in place of the intro block: the error set (§2 state.error). */
+function MissingCard() {
+  return (
+    <HardShadow shadow={state.error.shadow}>
+      <View style={styles.missingCard} accessibilityRole="alert">
+        <Glyph name="alert" token={icon.md} color={state.error.text} />
+        <View style={styles.missingText}>
+          <Text variant="label" color={state.error.text}>
+            {MISSING_COPY.title}
+          </Text>
+          <Text variant="bodySm" color="secondary">
+            {MISSING_COPY.body}
+          </Text>
+        </View>
+      </View>
+    </HardShadow>
+  );
+}
+
+/** 5d's footer line: the count square, what is missing, "Go to first". */
+function MissingLine({ onGoToFirst }) {
+  return (
+    <View style={styles.missingLine}>
+      <View style={styles.missingCount}>
+        <Text variant="labelCaps" color={color.surface.raised}>
+          1
+        </Text>
+      </View>
+      <Text variant="meta" color={state.error.text} style={styles.missingLineText}>
+        {MISSING_COPY.footer}
+      </Text>
+      <Pressable onPress={onGoToFirst} accessibilityRole="button" hitSlop={GO_TO_FIRST_SLOP}>
+        <Text variant="inlineAction" color="link">
+          Go to first
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+// inlineAction's ~13pt line padded out to the 44pt tap target.
+const GO_TO_FIRST_SLOP = { top: space[16], bottom: space[16], left: space[8], right: space[8] };
+
 export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAddGear }) {
-  const { defaults, rating, setRating, mode: maker, setMode: setMaker, save } = useRecordDraft();
+  const { defaults, rating, setRating, mode: maker, setMode: setMaker, missing, save } = useRecordDraft();
   const now = useMinuteClock();
   const Fields = FIELD_SETS[maker];
+  const scrollRef = useRef(null);
+  // 5d: whenever the state starts (Save here, or a bounce back from 5b), bring
+  // the rating into view — the automatic "Go to first".
+  const goToFirst = useCallback(() => scrollRef.current?.scrollTo({ y: 0, animated: true }), []);
+  useEffect(() => {
+    if (missing) goToFirst();
+  }, [missing, goToFirst]);
 
   // The defaults are a local read (milliseconds); render once they are in, so
   // the field sets never flash empty values while the sheet slides up.
@@ -305,6 +372,8 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
     <ScreenFrame
       scroll
       compact
+      scrollRef={scrollRef}
+      footerTone={missing ? 'error' : undefined}
       title="Log a cup"
       leading={<IconButton icon="close" accessibilityLabel="Close" onPress={onClose} />}
       meta={
@@ -319,26 +388,33 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
       }
       footer={
         <>
-          {/* Minimum viable validation: the full 5d error state comes later. */}
-          <Button label="Save this cup" onPress={() => save({ withNote: true })} disabled={rating === 0} />
+          {missing ? <MissingLine onGoToFirst={goToFirst} /> : null}
+          {/* Always pressable: with no rating it shows 5d instead (§1, 2026-10-11). */}
+          <Button label="Save this cup" onPress={() => save({ withNote: true })} />
           {/* Opens the tasting note (5b), step 2 of 2 in this sheet. */}
           <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" onPress={onAddNote} />
         </>
       }>
       <View style={styles.sections}>
-        <ExpandingBlock>
-          {/* The intro line (decided 2026-10-11): on surface.raised, no frame,
-              no leading square (5a's mock draws a 6pt accent square and no
-              background). */}
-          <View style={styles.hint}>
-            <IntroText text={INTRO[maker]} />
-          </View>
-        </ExpandingBlock>
+        {/* 5d's card sits outside the expanding block, whose clip would cut
+            its 4pt hard shadow. */}
+        {missing ? (
+          <MissingCard />
+        ) : (
+          <ExpandingBlock>
+            {/* The intro line (decided 2026-10-11): on surface.raised, no frame,
+                no leading square (5a's mock draws a 6pt accent square and no
+                background). */}
+            <View style={styles.hint}>
+              <IntroText text={INTRO[maker]} />
+            </View>
+          </ExpandingBlock>
+        )}
 
         {/* SET only once a star is tapped. The caption line is reserved while
             unrated, so the first tap does not grow the card. */}
-        <Section label="How was it?" status={rating > 0 ? 'set' : undefined}>
-          <StarRating value={rating} onChange={setRating} caption={RATING_COPY[rating] ?? ''} />
+        <Section label="How was it?" status={rating > 0 ? 'set' : missing ? 'required' : undefined}>
+          <StarRating value={rating} onChange={setRating} caption={RATING_COPY[rating] ?? ''} error={missing ? STAR_HINT : undefined} />
         </Section>
 
         <Section label="Who made it?" status="set">
@@ -370,6 +446,35 @@ const styles = StyleSheet.create({
   },
   fieldSets: {
     gap: spacing.gap.section,
+  },
+  missingCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: space[12],
+    borderWidth: shape.borderWidth.box,
+    borderColor: state.error.border,
+    backgroundColor: state.error.surface,
+    paddingVertical: spacing.inset.control.v,
+    paddingHorizontal: spacing.inset.control.h,
+  },
+  missingText: {
+    flex: 1,
+    gap: spacing.gap.tight,
+  },
+  missingLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.gap.row,
+  },
+  missingCount: {
+    width: size.badge.numeral,
+    height: size.badge.numeral,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: state.error.border,
+  },
+  missingLineText: {
+    flex: 1,
   },
   hint: {
     flexDirection: 'row',

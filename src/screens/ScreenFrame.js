@@ -3,7 +3,7 @@ import { Animated, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DotTexture from '../components/base/DotTexture';
 import Text from '../components/base/Text';
-import { color, layout, shape, space, spacing, textStyle } from '../theme/tokens';
+import { color, layout, shape, space, spacing, state, textStyle } from '../theme/tokens';
 
 /**
  * Whether ScreenFrame draws its own backdrop (ground + dot texture). AppShell's
@@ -69,6 +69,10 @@ const COLLAPSE = {
  *             on the title's cap band; meta as the standard right-aligned column.
  *             On collapse the row rises to the safe-area top and the title
  *             scales; the control moves with it (never fades); the meta fades
+ *   scrollRef     optional ref to the ScrollView (scroll variants), e.g. 5d's
+ *                 "Go to first"
+ *   footerTone    'error': the footer panel's top rule takes state.error.border
+ *                 (5d)
  *   children  screen body
  */
 export default function ScreenFrame({
@@ -80,6 +84,8 @@ export default function ScreenFrame({
   scroll = false,
   compact = false,
   footer,
+  footerTone,
+  scrollRef,
   children,
 }) {
   const insets = useSafeAreaInsets();
@@ -315,7 +321,7 @@ export default function ScreenFrame({
     <>
       <View style={[styles.body, footer && styles.bodyAboveFooter]}>{children}</View>
       {footer ? (
-        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, layout.screen.bottom) }]}>
+        <View style={[styles.footer, footerTone === 'error' && styles.footerError, { paddingBottom: Math.max(insets.bottom, layout.screen.bottom) }]}>
           {footer}
         </View>
       ) : null}
@@ -348,6 +354,7 @@ export default function ScreenFrame({
       {header}
       <Animated.View style={[styles.rule, anim && { transform: [{ translateY: anim.up }] }]} />
       <Animated.ScrollView
+        ref={scrollRef}
         style={[styles.scroller, anim && { marginBottom: -distance, transform: [{ translateY: anim.up }] }]}
         contentContainerStyle={styles.scrollContent}
         onScroll={onScroll}
@@ -466,5 +473,8 @@ const styles = StyleSheet.create({
     backgroundColor: color.surface.raised,
     borderTopWidth: shape.borderWidth.box,
     borderTopColor: color.border.strong,
+  },
+  footerError: {
+    borderTopColor: state.error.border,
   },
 });

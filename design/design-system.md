@@ -71,7 +71,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **A disabled action gives the warning haptic (decided 2026-10-11)**: buttons and sheet openers. **Only when the screen shows why it cannot be pressed.** If it cannot be shown, design the reason first, then the haptic (`gaps.md` 12).
   - **Options in a set stay silent** when locked or disabled (a locked tag, 3a's rows): the count beside them explains it, and a warning on every tap would scold.
   - Applied: 5b's locked Search (the count), 3c "Open this bag" when no slot is free (the line under it), 3a "Save 0 items" (its label).
-  - Not applied, no reason on screen: 5a / 5b Save with no rating, 3c "Open this bag" with no name (`gaps.md` 12).
+  - Not disabled any more (2026-10-11): 5a / 5b Save with no rating and 3c "Open this bag" with no name follow 5d instead: pressable, and the press shows what is missing (`design/components.md` "5d in V1").
 
 ### Header collapse (added 2026-10-06)
 - **Controls never fade and are never disabled by the collapse.** Back, close, save and other functional controls stay fully visible and pressable throughout. **Only information fades**: the eyebrow, the date / time, and meta labels.

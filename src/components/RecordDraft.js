@@ -17,8 +17,11 @@ import { insertCup, loadRecordDefaults } from '../data/repository';
  *   5b Save this cup            everything
  *   5b Save without the note    5a's part only — the one, explicit way to
  *                               drop the axes, flavour tags and My words
- * The rating is required on both steps. A failed save is shown plainly and
- * the sheet stays open with everything still entered (nothing is lost).
+ * The rating is required on both steps. Save stays pressable (5d, decided
+ * 2026-10-11): with no rating, save() saves nothing, sets `missing` and
+ * returns 'missing'; 5a then shows 5d's state, and 5b goes back to 5a. Rating
+ * a star ends it. A failed save is shown plainly and the sheet stays open
+ * with everything still entered (nothing is lost).
  *
  * My words is typed often, so its text lives in a ref (noteRef): the field
  * keeps its own state and typing never re-renders either step. Only the
@@ -44,6 +47,10 @@ export function RecordDraftProvider({ onSaved, children }) {
   const [flavours, setFlavours] = useState([]);
   const noteRef = useRef('');
   const [noteFilled, setNoteFilled] = useState(false);
+  const [missing, setMissing] = useState(false);
+  useEffect(() => {
+    if (rating > 0) setMissing(false);
+  }, [rating]);
   const saving = useRef(false);
 
   useEffect(() => {
@@ -83,7 +90,11 @@ export function RecordDraftProvider({ onSaved, children }) {
 
   const save = useCallback(
     async ({ withNote }) => {
-      if (rating === 0 || saving.current || !defaults) return;
+      if (rating === 0) {
+        setMissing(true);
+        return 'missing';
+      }
+      if (saving.current || !defaults) return undefined;
       saving.current = true;
       const note = noteRef.current.trim();
       try {
@@ -102,11 +113,13 @@ export function RecordDraftProvider({ onSaved, children }) {
           ...(withNote ? { axes, flavours, note: note || null } : {}),
         });
         onSaved();
+        return 'saved';
       } catch (error) {
         // Never drop a cup silently: say so, and keep the sheet open with
         // everything still entered so the user can try again.
         console.error('[record] save failed', error);
         Alert.alert("This cup wasn't saved", `Everything you entered is still here. ${String(error?.message ?? error)}`);
+        return 'failed';
       } finally {
         saving.current = false;
       }
@@ -117,8 +130,8 @@ export function RecordDraftProvider({ onSaved, children }) {
   const hasTastingInput = noteFilled || flavours.length > 0 || Object.values(axes).some((v) => v != null);
 
   const value = useMemo(
-    () => ({ defaults, chooseBag, chooseGear, rating, setRating, mode, setMode, axes, setAxis, flavours, toggleFlavour, noteRef, setNoteFilled, hasTastingInput, save }),
-    [axes, defaults, flavours, hasTastingInput, mode, rating, save, setAxis, toggleFlavour, chooseBag, chooseGear]
+    () => ({ defaults, chooseBag, chooseGear, rating, setRating, mode, setMode, axes, setAxis, flavours, toggleFlavour, noteRef, setNoteFilled, hasTastingInput, missing, save }),
+    [axes, defaults, flavours, hasTastingInput, missing, mode, rating, save, setAxis, toggleFlavour, chooseBag, chooseGear]
   );
   return <RecordDraftContext.Provider value={value}>{children}</RecordDraftContext.Provider>;
 }

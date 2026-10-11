@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { formatDay } from '../constants/dates';
 import { resolveTextStyle } from '../theme/fonts';
-import { color, shape, size, spacing, textStyle } from '../theme/tokens';
+import { color, shape, size, spacing, state, textStyle } from '../theme/tokens';
 import Text from './base/Text';
 
 /**
@@ -28,11 +28,15 @@ import Text from './base/Text';
  *   onChange    (next) => void
  *   onPickDate  open the date sheet for Roasted on
  *   datePicking the sheet is open (the field shows focus)
+ *   nameMissing "Open this bag" was pressed with no name: Bean name takes 5d's
+ *             error vocabulary — the label reads "Bean name · required" and
+ *             it and the underline take the error colour (no mock draws an
+ *             inline input error, gaps.md 6; for Design to check)
  */
-export default function BagForm({ value, onChange, onPickDate, datePicking = false }) {
+export default function BagForm({ value, onChange, onPickDate, datePicking = false, nameMissing = false }) {
   return (
     <View style={styles.card}>
-      <Field label="Bean name" value={value.name} onChangeText={(name) => onChange({ ...value, name })} autoFocus />
+      <Field label="Bean name" value={value.name} onChangeText={(name) => onChange({ ...value, name })} autoFocus error={nameMissing} />
       <Field label="Roaster" value={value.roaster} placeholder="Optional" onChangeText={(roaster) => onChange({ ...value, roaster })} />
       <DayField
         label="Roasted on"
@@ -45,12 +49,12 @@ export default function BagForm({ value, onChange, onPickDate, datePicking = fal
   );
 }
 
-function Field({ label, value = '', placeholder, onChangeText, editable = true, autoFocus = false }) {
+function Field({ label, value = '', placeholder, onChangeText, editable = true, autoFocus = false, error = false }) {
   const [focused, setFocused] = useState(false);
   return (
     <View style={styles.field}>
-      <Text variant="labelEyebrow" color="muted">
-        {label}
+      <Text variant="labelEyebrow" color={error ? state.error.text : 'muted'}>
+        {error ? `${label} · required` : label}
       </Text>
       <TextInput
         value={value}
@@ -64,7 +68,7 @@ function Field({ label, value = '', placeholder, onChangeText, editable = true, 
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         accessibilityLabel={label}
-        style={[styles.input, focused && styles.inputFocused]}
+        style={[styles.input, focused && styles.inputFocused, error && styles.inputError]}
       />
     </View>
   );
@@ -116,5 +120,8 @@ const styles = StyleSheet.create({
   },
   inputFocused: {
     borderBottomColor: color.border.strong,
+  },
+  inputError: {
+    borderBottomColor: state.error.border,
   },
 });

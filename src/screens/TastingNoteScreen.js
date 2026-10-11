@@ -191,6 +191,9 @@ export default function TastingNoteScreen({ onBack }) {
     };
   }, [db, searching]);
   if (!defaults) return null;
+  const saveOrGoBack = async (options) => {
+    if ((await save(options)) === 'missing') onBack();
+  };
   const cup = cupSummary(defaults, mode);
   const atLimit = flavours.length >= FLAVOUR_LIMIT;
   return (
@@ -258,7 +261,9 @@ export default function TastingNoteScreen({ onBack }) {
           {/* Save this cup saves everything; Save without the note is the one,
               explicit way to drop the axes, flavours and My words (§1). The
               rating is required on both steps. */}
-          <Button label="Save this cup" onPress={() => save({ withNote: true })} disabled={rating === 0} />
+          {/* No rating: back to 5a in 5d's state (an automatic "Go to first",
+              decided 2026-10-11); everything entered here stays in the draft. */}
+          <Button label="Save this cup" onPress={() => saveOrGoBack({ withNote: true })} />
           {/* "Discard and save" once anything is entered: the verb says it drops
               input, where "without the note" left open what it covers (decided
               2026-10-10; overrides the mock's copy). Full width, so the swap
@@ -267,8 +272,7 @@ export default function TastingNoteScreen({ onBack }) {
           <Button
             label={hasTastingInput ? 'Discard and save' : 'Save without the note'}
             variant="secondary"
-            onPress={() => save({ withNote: false })}
-            disabled={rating === 0}
+            onPress={() => saveOrGoBack({ withNote: false })}
           />
         </View>
       </ScreenFrame>
