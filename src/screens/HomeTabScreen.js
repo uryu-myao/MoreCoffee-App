@@ -10,7 +10,8 @@ import { MODE_BADGE, cupTitle } from '../constants/cups';
 import { partOfDay } from '../constants/dates';
 import { useDatabase } from '../data/DatabaseProvider';
 import { countCups, cupTimesSince, listCups, loadTasteDna, onCupsChanged } from '../data/repository';
-import { requestOpenCup, requestShell } from '../navigation';
+import { onTabReset, requestOpenCup, requestShell } from '../navigation';
+import PushedScreen from '../components/PushedScreen';
 import { layout, space, spacing } from '../theme/tokens';
 import AddBagScreen from './AddBagScreen';
 import AddGearScreen from './AddGearScreen';
@@ -30,8 +31,9 @@ import ScreenFrame from './ScreenFrame';
  *   - My gear / My beans
  * Not shown: Try next's box (V2), the line under the counts (no rule yet).
  *
- * Screens opened from Home replace it in the tab, as 2c does in Records:
- * 3d (Manage my beans), 3c (Add a bag) and 3a (Add gear). Back returns.
+ * Screens opened from Home are pushed over it (PushedScreen, as 2c over
+ * Records): 3d (Manage my beans), 3c (Add a bag) and 3a (Add gear). Back, a
+ * swipe from the left edge or the Home icon returns.
  * Everything is read on open and again whenever a cup is saved.
  */
 const GREETING = { Morning: 'Good morning', Afternoon: 'Good afternoon', Evening: 'Good evening', Night: 'Good evening' };
@@ -57,51 +59,75 @@ export default function HomeTabScreen() {
     return onCupsChanged(load);
   }, [db]);
 
-  const top = stack[stack.length - 1];
-  if (top === 'beans') return <MyBeansScreen onBack={back} onAddBag={() => push('addBag')} />;
-  // After adding a bag from Home, land on My beans (2026-10-12).
-  if (top === 'addBag') return <AddBagScreen onBack={back} onAdded={() => setStack(['beans'])} />;
-  if (top === 'addGear') return <AddGearScreen onBack={back} />;
+  // The Home icon pressed while a screen is pushed returns to Home (as Records).
+  useEffect(() => onTabReset((tab) => tab === 'home' && setStack([])), []);
+
+  /** One pushed screen; goBack slides it out (PushedScreen), then it is popped. */
+  const renderPage = (page, goBack) => {
+    if (page === 'beans') return <MyBeansScreen onBack={goBack} onAddBag={() => push('addBag')} />;
+    if (page === 'addGear') return <AddGearScreen onBack={goBack} />;
+    // After adding a bag, land on My beans (2026-10-12): put My beans under
+    // this screen if it is not there yet, then slide this one out.
+    return (
+      <AddBagScreen
+        onBack={goBack}
+        onAdded={() => {
+          setStack((s) => (s.includes('beans') ? s : ['beans', ...s]));
+          goBack();
+        }}
+      />
+    );
+  };
 
   const greeting = GREETING[partOfDay(new Date(data?.now ?? Date.now()))];
   return (
-    <ScreenFrame scroll title={greeting} eyebrow="MoreCoffee">
-      {data ? (
-        <View style={styles.body}>
-          <HomeStats total={data.total} cupTimes={data.week} now={data.now} />
-          <Button label="Record a coffee" onPress={() => requestShell({ record: true })} />
-          <TasteDnaCard dna={data.dna} />
-          {data.recent.length ? (
-            <View>
-              <View style={styles.recentHead}>
-                <Text variant="displaySm" color="primary">
-                  Recently sipped
-                </Text>
-                <Button size="row" label="See all" trailingIcon="arrowRight" onPress={() => requestShell({ tab: 'records' })} />
+    <View style={styles.screen}>
+      <ScreenFrame scroll title={greeting} eyebrow="MoreCoffee">
+        {data ? (
+          <View style={styles.body}>
+            <HomeStats total={data.total} cupTimes={data.week} now={data.now} />
+            <Button label="Record a coffee" onPress={() => requestShell({ record: true })} />
+            <TasteDnaCard dna={data.dna} />
+            {data.recent.length ? (
+              <View>
+                <View style={styles.recentHead}>
+                  <Text variant="displaySm" color="primary">
+                    Recently sipped
+                  </Text>
+                  <Button size="row" label="See all" trailingIcon="arrowRight" onPress={() => requestShell({ tab: 'records' })} />
+                </View>
+                {data.recent.map((cup) => (
+                  <RecordRow
+                    key={cup.id}
+                    title={cupTitle(cup).title}
+                    badges={[MODE_BADGE[cup.mode]]}
+                    rating={cup.rating}
+                    date={dayFormat.format(new Date(cup.logged_at))}
+                    onPress={() => {
+                      requestShell({ tab: 'records' });
+                      requestOpenCup(cup.id);
+                    }}
+                  />
+                ))}
               </View>
-              {data.recent.map((cup) => (
-                <RecordRow
-                  key={cup.id}
-                  title={cupTitle(cup).title}
-                  badges={[MODE_BADGE[cup.mode]]}
-                  rating={cup.rating}
-                  date={dayFormat.format(new Date(cup.logged_at))}
-                  onPress={() => {
-                    requestShell({ tab: 'records' });
-                    requestOpenCup(cup.id);
-                  }}
-                />
-              ))}
-            </View>
-          ) : null}
-          <ShelfBlock onManageBeans={() => push('beans')} onAddBag={() => push('addBag')} onAddGear={() => push('addGear')} />
-        </View>
-      ) : null}
-    </ScreenFrame>
+            ) : null}
+            <ShelfBlock onManageBeans={() => push('beans')} onAddBag={() => push('addBag')} onAddGear={() => push('addGear')} />
+          </View>
+        ) : null}
+      </ScreenFrame>
+      {stack.map((page) => (
+        <PushedScreen key={page} onBack={back}>
+          {(goBack) => renderPage(page, goBack)}
+        </PushedScreen>
+      ))}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   body: {
     // 1b's blocks sit 20 apart (each section's padding-bottom).
     gap: space[20],
