@@ -155,10 +155,11 @@ export const textStyle = {
   numeralHero:   { fontFamily: 'Instrument Serif', fontSize: 96, fontWeight: '400', lineHeight: 79 },
   numeralInline: { fontFamily: 'Instrument Serif', fontSize: 22, fontWeight: '400', lineHeight: 22 },
   /**
-   * The tasting-note input (5b "My words"): the product's only italic. Pair
-   * with color.text.muted. Promoted from exceptions.md E-3 (2026-10-06).
+   * My words (5b's input, 2c's display). Upright since 2026-10-12: the app
+   * uses no italics (Uryu, on device). Promoted from exceptions.md E-3
+   * (2026-10-06).
    */
-  note:          { fontFamily: 'Instrument Serif', fontSize: 20, fontWeight: '400', fontStyle: 'italic', lineHeight: 28 },
+  note:          { fontFamily: 'Instrument Serif', fontSize: 20, fontWeight: '400', lineHeight: 28 },
 
   /** lineHeight UNDECLARED in source */
   title:         { fontFamily: 'Archivo', fontSize: 16, fontWeight: '700' },

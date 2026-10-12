@@ -90,7 +90,7 @@ const AxisRow = memo(function AxisRow({ axis, value, setAxis }) {
 /**
  * My words. The text stays in this field's own state and is mirrored into the
  * draft's ref, so typing re-renders this field only (design-system.md §3:
- * text.note, the one italic). TODO: the keyboard's effect on the header
+ * text.note, upright: no italics in the app). TODO: the keyboard's effect on the header
  * collapse gets its own round.
  */
 function MyWords({ noteRef, setNoteFilled }) {

@@ -3,7 +3,7 @@ import {
   Archivo_600SemiBold,
   Archivo_700Bold,
 } from '@expo-google-fonts/archivo';
-import { InstrumentSerif_400Regular, InstrumentSerif_400Regular_Italic } from '@expo-google-fonts/instrument-serif';
+import { InstrumentSerif_400Regular } from '@expo-google-fonts/instrument-serif';
 import { Platform } from 'react-native';
 
 /**
@@ -19,7 +19,6 @@ export const fontAssets = {
   Archivo_600SemiBold,
   Archivo_700Bold,
   InstrumentSerif_400Regular,
-  InstrumentSerif_400Regular_Italic,
 };
 
 const FACES = {
@@ -30,8 +29,7 @@ const FACES = {
   },
   'Instrument Serif': {
     400: 'InstrumentSerif_400Regular',
-    // text.note only — the product's one italic.
-    '400italic': 'InstrumentSerif_400Regular_Italic',
+    // No italic face: the app uses no italics (2026-10-12).
   },
 };
 
@@ -45,8 +43,6 @@ const NATURAL_LINE_EM = {
   Archivo_600SemiBold: 1.088,
   Archivo_700Bold: 1.088,
   InstrumentSerif_400Regular: 1.3,
-  // Same hhea metrics as the roman (990 / −310 / 0 at 1000 upm).
-  InstrumentSerif_400Regular_Italic: 1.3,
 };
 
 /**

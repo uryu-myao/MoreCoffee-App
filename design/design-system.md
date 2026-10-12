@@ -36,7 +36,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **Two families only**: `Archivo` (sans) and `Instrument Serif` (serif).
 - **Three weights only: 500 / 600 / 700. Regular (400) does not exist in this design — 0 occurrences across 30 screens. The lightest weight is 500. Do not use 400 on new screens.** Body copy is set at 500 deliberately.
 - **Instrument Serif is used for exactly three things**: screen titles (`display.lg`, `display.sm`), statistics and numerals (`numeral.hero` for the cup count, `numeral.inline` for ratings, times like "08:00", temperatures like "92°"), and the tasting-note input field (the single italic exception). **It is never used for** body copy, labels, buttons, chips/badges, list-row titles, form labels or navigation — all of those are Archivo.
-- **`font-style: italic` appears once** in the whole product (the 5b tasting-note field). Do not use italics on new screens.
+- **No italics anywhere in the app** (decided 2026-10-12, on device). The mocks' one italic, 5b's My words, is set upright (`text.note`). Do not use italics.
 
 ### Spacing
 - The scale is **9 steps: 2 · 4 · 6 · 8 · 12 · 14 · 16 · 20 · 28**.
@@ -431,7 +431,7 @@ React Native has no `em` and no unitless line height, so both are converted: `le
 | `display.sm` | 30 | 400 | 31 | 30/1, 30/0.9, 30/1.1, 32/1, 31/1, 28/1, 27/1.1 | 14 screens / 25 uses |
 | `numeral.hero` | 96 | 400 | 79 | 96/0.82 | 3 screens / 3 uses |
 | `numeral.inline` | 22 | 400 | 22 | 22/1, 26/1, 24/1, 21/1, 19 | 10 screens / 33 uses |
-| `text.note` | 20 **italic** | 400 | 28 | 20/1.4 italic (formerly E-3) | 1 screen / 1 use: the 5b "My words" input. Colour `color.text.muted`. The only italic; do not use italics elsewhere. Its `min-height: 84` stays local to the field |
+| `text.note` | 20 (**upright** since 2026-10-12) | 400 | 28 | 20/1.4 italic in the mock (formerly E-3) | My words: 5b's input, 2c's display. **No italics in the app** (§1 Type). Its `min-height: 84` stays local to the field |
 
 The seven stray display sizes (27/31/33/34/36/38/42) collapse into two steps. The display styles fold to ~1.02. **The numerals keep their authored line heights**: `numeral.hero` 0.82 (79 at 96), `numeral.inline` 1.0.
 
@@ -1247,3 +1247,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-12 — Design round 2: AxisReadout's empty axis shows "Not noted yet" (10b) and the Taste DNA card keeps four axes and a fixed height (A over B, with the reason). Unchecked checkboxes are `border.muted`, not ink (the contradiction in §1 removed). §9 Empty slot gets its in-list form; §8 lists it. §9 Bottom sheet: the list frame stays whole; sheet titles in `display.sm`.
 - 2026-10-12 — §9 Bottom bar: `size.tabBar.height` 60 → 48 (decided on device); icons centred in the row, the home-indicator inset kept below.
 - 2026-10-12 — `color.text.placeholder` (#9B8F87) added for every placeholder and add slot label (decided on device; D-38 settled).
+- 2026-10-12 — §1 Type: no italics in the app; `text.note` (My words) is upright, and the italic face is no longer loaded.
