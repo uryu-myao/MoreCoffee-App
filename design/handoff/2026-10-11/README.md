@@ -9,7 +9,7 @@
 3. `../../design-brief-next.md` — notes for this round (scope, hand-made work, texture.rule retired).
 4. `icons.md` — every glyph the built screens use.
 5. SE (375 × 667) screenshots of the three sheets built without a mock: `se-search-sheet.png`, `se-picker-method.png`, `se-date-sheet.png`.
-   - **The search sheet with the keyboard up will follow** (taken on a device). The simulator here runs headless and cannot raise the software keyboard.
+   - With the keyboard up: `se-keyboard2.png` (the list: **5 rows**, Grapefruit the 5th, fully above the keyboard) and `se-keyboard1.png` (a query with no match: the "Add \"Word\"" row alone).
 
 ## The search sheet on an SE — measured, not estimated
 - **270pt is the list area only**: from the list's top (below the search field and Done) to 12pt above the keyboard. The search field (46) and Done are **not** inside it.
