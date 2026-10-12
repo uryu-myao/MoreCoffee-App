@@ -607,6 +607,14 @@ The user sees the past rewritten.
 
 ---
 
+## 35. 2c's 210pt photo area is not shown (added 2026-10-12)
+
+**What**: the photo placeholder (Design 10a) is on every thumbnail, but **not** in 2c's photo area. A list thumbnail is small and keeps the row's shape; 2c's area is a quarter of the screen, and the same drawing on every cup would take the largest space while saying nothing.
+
+**Return**: show it when the camera arrives.
+
+---
+
 ## Step 4 device verification — RESOLVED (2026-10-04)
 
 The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.

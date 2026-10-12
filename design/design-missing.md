@@ -37,8 +37,8 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
 
 7. **[drawn 2026-10-12 (10a), built] Photo placeholder**, one visual for 2c's 210pt photo area and the small thumbnails (2a, the picker, 5a's Bag row). There is no camera in V1, so this is what every cup and bag looks like. Square corners. (Design's hand-made work.)
    - **Photo slots are not shown at this stage** (decided 2026-10-11): 5a's "Add a photo" and 3c's 76px slot are gone, since nothing can be added. The placeholder is still needed: it is how "no photo" looks wherever a thumbnail is.
-8. **[this round] Taste DNA card, axes with no value**: after a first cup, a new user has values on 1–2 of 4 axes. Today all four are shown, an empty one as a bare track with "Not noted" (four kept so the card's height never changes). How should three empty axes look? We propose nothing.
-9. **[this round] Taste DNA card with nothing noted**: no badge, a provisional line.
+8. **[drawn 2026-10-12, 10b chosen (option A), built] Taste DNA card, axes with no value**: after a first cup, a new user has values on 1–2 of 4 axes. Today all four are shown, an empty one as a bare track with "Not noted" (four kept so the card's height never changes). How should three empty axes look? We propose nothing.
+9. **[drawn 2026-10-12, 10c, built] Taste DNA card with nothing noted**: no badge, a provisional line.
 
 ## Copy
 
@@ -67,7 +67,7 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
   - first value: "Starts at ‹step name›" (a position, not a direction);
   - summary: "This cup pushed you ‹phrases›." — moved axes only, joined with "and" (3–4: commas, then "and"). Phrases: Acid ↔ Bitter brighter / more bitter; Body lighter-bodied / fuller-bodied; Roast toward lighter roasts / toward darker roasts; Sweetness less sweet / sweeter;
   - nothing moved: "Your Taste DNA stays where it was — nothing on this cup moves it." **A move that rounds to 0 points is "nothing moved"**; no separate wording (such as "held").
-- **13 (1b)**: "Body needs 3 more notes to lock in." / "Body and Roast need 3 more notes each." / "1 more note". Notes, not cups: a cup that skips an axis does not count for it. **Locked in, once reached, stays; it can return to early signs only if deleting cups means the condition was never met.** The delete confirmation says Taste DNA is recalculated, so it is announced.
+- **13 (1b)**: "Body needs 3 more notes to lock in." / **"Body and Roast need 3 more notes each to lock in."** (corrected 2026-10-12: "to lock in" also when tied, as your 10b / 10c draw it — "each" alone does not say what the count is for) / "1 more note". Notes, not cups: a cup that skips an axis does not count for it. **Locked in, once reached, stays; it can return to early signs only if deleting cups means the condition was never met.** The delete confirmation says Taste DNA is recalculated, so it is announced.
 - **14 (save failure)**: "Couldn't save this cup" / "Your phone couldn't store it. Everything you entered is still here — try again." / "Try again" (primary). Open points (retry any number of times; closing after a failure loses the input): `gaps.md` 30. Today an iOS alert, with iOS's own Cancel beside "Try again" so a lasting failure does not trap the user.
 - **15 (3c's Bean name error)**: within the existing set — label and underline in `state.error.text` / `state.error.border`, the field's own 2px underline in colour only. New is where it applies: the first text input with an error (§9).
 - **Still provisional (no copy yet)**: the Taste DNA card's lines for "nothing noted" and "Locked in" (item 9 and 8f's "From N cups").

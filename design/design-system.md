@@ -197,7 +197,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - 12 are fill + a 2px ink frame: 3a and 8m checked boxes, 3e's switch (D-20), 6d "Home brewer", 8i's five weekdays, 8j "An idea", 8l "Words".
   - The segmented options are an ink fill with no frame: 2a "All", 2b "Month", 3a "Brewer", 3c "Light", 3e "Grinder", 3f "Newest", 3g "Light" (added 2026-10-09), 5d "Barista", 5e "Ready-to-drink".
   - Not options: 3b / 4a "Default" and 8d "This week" are 9px badges.
-  - A 2px ink outline on the card colour is a pressable control or a frame: icon buttons, My gear / My beans, unchecked checkboxes, switch knobs.
+  - A 2px ink outline on the card colour is a pressable control or a frame: icon buttons, My gear / My beans, switch knobs. (**Unchecked checkboxes are not ink** — corrected 2026-10-12: they are a 2px `border.muted` box, as built and as the line on unselected options above says.)
   - Keep it that way. The one exception, 8f's "juicy 9", is drift D-23.
 - **A label that cannot be pressed looks like a Badge**: tinted fill, no `border.muted` outline, badge sizes.
 - **Except one display form, the attribute tag** (6a "Acidity high", 8d "Blackcurrant"): a 1.5 `border.muted` outline on no fill, padding 7/9, 11px label. It is consistent across both screens (5 uses, identical values) and never pressable on its own. On 6a it sits inside the pressable Taste DNA card, which is the target (→ 8f); on 8d it describes a suggestion and leads nowhere.
@@ -670,7 +670,7 @@ What they share is "not something the user has settled". They are still two uses
 
 | token | value | meaning | reach |
 |---|---|---|---|
-| `border.addSlot` | `2px dashed` #6B5D55 (`icon.muted`'s value; ink until 2026-10-07, lightened two steps on review: ΔE00 32.6 from `.inert`, 5.46:1 on ground, 6.19:1 on raised) | an entry for adding something, and pressable — the empty slots ("Add a photo", "Add gear", "Add beans") and 5b's "Search" opener. Renamed 2026-10-07 from `border.empty`: "an entry you can add through" is closer to what it is than "empty" | 10 uses / 10 screens + 5b |
+| `border.addSlot` | `2px dashed` #6B5D55 (`icon.muted`'s value; ink until 2026-10-07, lightened two steps on review: ΔE00 32.6 from `.inert`, 5.46:1 on ground, 6.19:1 on raised) | an entry for adding something, and pressable — the empty slots ("Add a photo", "Add gear", "Add beans"), 5b's "Search" opener, and **the 24 box of an in-list add row** (§9 Empty slot, in-list form). | Renamed 2026-10-07 from `border.empty`: "an entry you can add through" is closer to what it is than "empty" | 10 uses / 10 screens + 5b |
 | `border.addSlot.inert` | `2px dashed` `color.border.muted` | an empty slot that cannot be pressed now (5d's blocked add button), or is not a thing to press at all (2a's empty list frame). Renamed 2026-10-06 from `border.empty.disabled` (misnamed the 2a frame), then 2026-10-07 to `addSlot.inert` with its parent | 2 uses |
 | `divider.soft` | `1.5px dashed` `color.border.soft` | a secondary line inside a card, separating meta or a closing remark from the body | 24 uses |
 | `border.track` | `1.5px dashed` `color.border.muted` | **retiring** with `axis.rail.derived` (see above). The axis rail of a value the user did not enter, only. Since 2026-10-07 it no longer covers the search placeholder, which moved to `border.addSlot` (drift D-21) | 14 uses |
@@ -754,6 +754,8 @@ Planned uses (2026-10-09 / -10):
 **Variants (built 2026-10-10 / -11, base `BottomSheet`)**:
 - **wrapping** (picker, date): height follows the content, at most up to `insets.top + space.12`; taller content scrolls inside.
 - **full** (search): from `insets.top + space.12` to the keyboard's top, following the keyboard frame by frame. **The bottom padding eases from 34 (the home indicator's room) to `gap.section` (12) while the keyboard is up**, since the keyboard covers the indicator. When the keyboard goes, only the bottom edge moves; the top never jumps.
+- **The list's 2px frame stays whole (2026-10-12)**: in the full variant the frame is drawn around the list's area and only its inside scrolls, so the outline is never cut by the sheet's edge or the keyboard (§1: 2px is the box's outline). That the content moves says it scrolls.
+- **Sheet titles**: a sheet with a title (picker, date) sets it in `display.sm`, with "Done" opposite. Sections inside take `label.eyebrow`.
 - Measured on an SE (375 × 667), search sheet: sheet top 32; the search field row ends and the list starts at 125 (handle, field 46, gaps); first row 52 + the 2px frame, each next row 53.5 (with its divider); the "Add \"Word\"" row is a row like the others (52 / 53.5). With the standard keyboard (216 + 44 predictive bar = 260) the list has 667 − 260 − 12 − 125 = **270pt: 5 full rows** (the 5th ends at 393 of 395). The keyboard could not be shown on the headless simulator; 270pt / 5 rows was confirmed on a device.
 
 ### Header eyebrow and stat (2026-10-06)
@@ -893,6 +895,8 @@ Swiping horizontally moves between the four tab screens: Home → Records → Tr
 **Superseded**: the 90% width, the 2px box outline, `shadow.floating`, the `space.4` side padding, and the fade band (`state.fade`, `layout.fade.top`). `state.fade` and `layout.fade.top` now have **no consumer**; `shadow.floating` keeps its §7 role for width-flexible primaries (the setup flow's 8c / 8o, `drift.md` D-33); they are kept as tokens pending a decision. `HardShadow` itself is still used by the primary `Button`, `StarRating`'s error state, and the FieldRow harness.
 
 ### Empty slot (base `EmptySlot`, 2026-10-05)
+**In-list form (2026-10-12)**: inside a list (the pickers' "Add a bag" / "Add gear", the search sheet's "Add \"Word\""), the add entry is **a row like the list's others** — the same height and padding — with a 24 `border.addSlot` dashed box holding a plus (`icon.xs`, ink) where the row's marker or checkbox sits, and the label in `title` (sentence case). It keeps dashed's one meaning, an add entry, at the size of the list's markers. It locks with the list at a cap (`border.addSlot.inert`, label `text.muted`). The standalone form (below) is for an entry on its own surface (5a's photo slot, 3d's "Add a bag").
+
 The `border.addSlot` slot as a component: always a button, full width. It is the row form from 3a, 3b, 3d, 5a, 5d and 5e.
 - **Anatomy**: `dashed.addSlot` frame (2px dashed ink) on a transparent ground, `inset.control` padding, then glyph → label → optional trailing tag, `space.12` apart. The glyph is `icon.md` by default (5a's camera); 3b's plus is `icon.sm`. The label is `label.caps` in ink. The tag is `label.caps` in `color.text.muted`, pushed to the right edge.
 - **Source fit**: 3x pads 14 / 16 (`inset.control` exactly); 5x pads 16, folded to it. The 10–11px glyph-label gap folds to `space.12`. The tag is `label.caps` on 3b and 3d; 5a, 5d and 5e set it at 11/600 (`drift.md` D-12).
@@ -1028,7 +1032,9 @@ The display of computed values: 1b / 4a / 4b (the profile), 5c (the change after
   - The ghost is a `border.muted` 2 × 14 marker at the previous value.
   - Moving away from 50, the extra current fill is the movement; moving toward 50, the exposed lighter fill is.
   - It reads weakly, so the copy under the axis carries the movement ("Moved 6 points brighter"; `gaps.md` 13).
-- Built 2026-10-11: `axis.rail.derived`, `axis.needle.derived`, `dashed.track` and the `derived` mode of `AxisSlider` are removed, with their dev pages. `axis.ghost` / `axis.delta` removed too (decided 2026-10-11): §9's ghost and delta above use other tokens. **Value null** (nothing noted on that axis): the track alone (`components.md`).
+- Built 2026-10-11: `axis.rail.derived`, `axis.needle.derived`, `dashed.track` and the `derived` mode of `AxisSlider` are removed, with their dev pages. `axis.ghost` / `axis.delta` removed too (decided 2026-10-11): §9's ghost and delta above use other tokens. **Value null**: see below.
+- **Value null** (nothing noted on that axis; Design 10b, decided 2026-10-12): the bare track with **"Not noted yet" centred on it**, on a `surface.raised` patch padded `space.8` each side, so the gap reads as "no value", never "balanced". Every readout sits in a 17pt slot (`meta`'s line height) with the track centred, so filled and empty rows are the same height.
+- **The Taste DNA card always shows all four axes; its height does not change with what has been noted.** Home is re-read every time it is shown, and a card that grew with each newly noted axis would move everything below it. **Option B was rejected for this** (only noted axes, with one line naming the rest; Design 10d / 10e): it is shorter at first, but it grows up to three times. Do not switch to it because empty axes "say nothing" — keeping them is what keeps the page still.
 
 ### Component catalog — pending (Step 4, logged 2026-10-06)
 Three parts of 5b are drawn inline in `TastingNoteScreen` for now (display only). They become base components in a later round. Each entry lists what to settle then.
@@ -1237,3 +1243,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-11 — Header: this file is the one source (the repo copy); "sealed 2026-09-20" dates the extraction only. §2 Texture: `texture.rule` gone from the table and notes. §1 Required marks: every mode; Save is never disabled; how it combines with §9 SectionLabel `marked`. §9 Radio marker built; the 12 formula spelled out.
 - 2026-10-11 — §1: values that cannot be edited are displayed (2c's read-only look), not disabled; OS-drawn controls are outside the type / weight / radius rules (consult before adding one); the outline-without-fill rule is for option parts, a radio row's marker shows selection. §9: List row's Packaged line 2 empty at this stage; Bought at [not at this stage]; Bottom sheet variants (wrapping / full) with the keyboard's effect on the bottom padding and SE measurements.
 - 2026-10-12 — §9 Text input error (3c's Bean name), confirmed by Design as within the error set.
+- 2026-10-12 — Design round 2: AxisReadout's empty axis shows "Not noted yet" (10b) and the Taste DNA card keeps four axes and a fixed height (A over B, with the reason). Unchecked checkboxes are `border.muted`, not ink (the contradiction in §1 removed). §9 Empty slot gets its in-list form; §8 lists it. §9 Bottom sheet: the list frame stays whole; sheet titles in `display.sm`.
