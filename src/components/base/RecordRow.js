@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { color, icon, shape, size, space, spacing, state } from '../../theme/tokens';
 import Badge from './Badge';
 import Glyph from './Glyph';
+import PhotoPlaceholder from './PhotoPlaceholder';
 import Text from './Text';
 
 /**
@@ -33,7 +34,7 @@ export default function RecordRow({ title, badges = [], source, note, rating, da
       accessible
       accessibilityLabel={[title, ...badges.map((b) => b.label), source, `${rating} of 5`, date].filter(Boolean).join(', ')}>
       {/* TODO(photos): show photo_uri here once photos can be added. */}
-      <View style={styles.thumb} />
+      <PhotoPlaceholder size={size.thumbnail.list} />
 
       <View style={styles.content}>
         <Text variant="title" truncate="name">
@@ -90,13 +91,6 @@ const styles = StyleSheet.create({
     paddingVertical: space[16],
     borderTopWidth: shape.borderWidth.divider,
     borderTopColor: color.divider.hairlineStrong,
-  },
-  thumb: {
-    width: size.thumbnail.list,
-    height: size.thumbnail.list,
-    backgroundColor: color.surface.muted,
-    borderWidth: shape.borderWidth.divider,
-    borderColor: color.border.muted,
   },
   content: {
     flex: 1,

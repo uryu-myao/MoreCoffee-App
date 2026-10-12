@@ -7,6 +7,7 @@ import { color, icon, shape, size, space, spacing, state } from '../theme/tokens
 import Badge from './base/Badge';
 import EmptySlot from './base/EmptySlot';
 import Glyph from './base/Glyph';
+import PhotoPlaceholder from './base/PhotoPlaceholder';
 import Text from './base/Text';
 
 /**
@@ -84,7 +85,7 @@ function Beans({ bags, onManage, onAdd }) {
     <>
       {bags.map((bag, i) => (
         <View key={bag.id} style={[styles.row, i > 0 && styles.divided]}>
-          <View style={styles.thumb} />
+          <PhotoPlaceholder size={size.field.height} />
           <View style={styles.text}>
             <Text variant="label" truncate="name">
               {bag.name}
@@ -114,7 +115,7 @@ function Gear({ gear, onAdd }) {
     const line = used ? `${CATEGORY[g.category]} · ${g.cups ? `${g.cups} ${g.cups === 1 ? 'cup' : 'cups'}` : 'not used yet'}` : CATEGORY[g.category];
     return (
       <View key={g.id} style={[styles.row, i > 0 && styles.divided]}>
-        <View style={styles.thumb} />
+        <PhotoPlaceholder size={size.field.height} />
         <View style={styles.text}>
           <View style={styles.nameRow}>
             <Text variant="label" truncate="name" style={styles.name}>
@@ -195,13 +196,6 @@ const styles = StyleSheet.create({
   divided: {
     borderTopWidth: shape.borderWidth.divider,
     borderTopColor: color.divider.hairline,
-  },
-  thumb: {
-    width: size.field.height,
-    height: size.field.height,
-    backgroundColor: color.surface.muted,
-    borderWidth: shape.borderWidth.divider,
-    borderColor: color.border.muted,
   },
   text: {
     flex: 1,

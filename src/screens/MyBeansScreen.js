@@ -5,6 +5,7 @@ import Button from '../components/base/Button';
 import DashedRule from '../components/base/DashedRule';
 import EmptySlot from '../components/base/EmptySlot';
 import IconButton from '../components/base/IconButton';
+import PhotoPlaceholder from '../components/base/PhotoPlaceholder';
 import Text from '../components/base/Text';
 import { daysSince, formatDay } from '../constants/dates';
 import { useDatabase } from '../data/DatabaseProvider';
@@ -65,7 +66,7 @@ export default function MyBeansScreen({ onBack, onAddBag }) {
           return (
             <View key={bag.id} style={styles.card}>
               <View style={styles.top}>
-                <View style={styles.thumb} />
+                <PhotoPlaceholder size={size.field.height} />
                 <View style={styles.text}>
                   <View style={styles.nameRow}>
                     <Text variant="title" truncate="name" style={styles.name}>
@@ -111,13 +112,6 @@ const styles = StyleSheet.create({
   top: {
     flexDirection: 'row',
     gap: space[12],
-  },
-  thumb: {
-    width: size.field.height,
-    height: size.field.height,
-    backgroundColor: color.surface.muted,
-    borderWidth: shape.borderWidth.divider,
-    borderColor: color.border.muted,
   },
   text: {
     flex: 1,

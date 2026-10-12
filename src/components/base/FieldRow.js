@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { color, icon, shape, size, space, spacing, state } from '../../theme/tokens';
 import Glyph from './Glyph';
+import PhotoPlaceholder from './PhotoPlaceholder';
 import Text from './Text';
 
 /**
@@ -51,7 +52,9 @@ export default function FieldRow({
       accessibilityLabel={[label, value, meta].filter(Boolean).join(', ')}
       testOnly_pressed={testOnly_pressed}
       style={({ pressed }) => [styles.row, divided && styles.divided, pressed && styles.pressed]}>
-      {hasSwatch ? (
+      {/* A plain swatch is a photo slot with no photo: the placeholder (10a). */}
+      {hasSwatch && !error && !iconName ? <PhotoPlaceholder size={size.field.height} /> : null}
+      {hasSwatch && (error || iconName) ? (
         <View style={[styles.swatch, error && styles.swatchError]}>
           {error ? (
             <Glyph name="plus" token={icon.md} color={color.icon.accent} />

@@ -35,7 +35,7 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
 
 ## States
 
-7. **[this round] Photo placeholder**, one visual for 2c's 210pt photo area and the small thumbnails (2a, the picker, 5a's Bag row). There is no camera in V1, so this is what every cup and bag looks like. Square corners. (Design's hand-made work.)
+7. **[drawn 2026-10-12 (10a), built] Photo placeholder**, one visual for 2c's 210pt photo area and the small thumbnails (2a, the picker, 5a's Bag row). There is no camera in V1, so this is what every cup and bag looks like. Square corners. (Design's hand-made work.)
    - **Photo slots are not shown at this stage** (decided 2026-10-11): 5a's "Add a photo" and 3c's 76px slot are gone, since nothing can be added. The placeholder is still needed: it is how "no photo" looks wherever a thumbnail is.
 8. **[this round] Taste DNA card, axes with no value**: after a first cup, a new user has values on 1–2 of 4 axes. Today all four are shown, an empty one as a bare track with "Not noted" (four kept so the card's height never changes). How should three empty axes look? We propose nothing.
 9. **[this round] Taste DNA card with nothing noted**: no badge, a provisional line.

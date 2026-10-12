@@ -6,6 +6,7 @@ import AxisSlider from '../components/base/AxisSlider';
 import Button from '../components/base/Button';
 import Glyph from '../components/base/Glyph';
 import IconButton from '../components/base/IconButton';
+import PhotoPlaceholder from '../components/base/PhotoPlaceholder';
 import SectionLabel from '../components/base/SectionLabel';
 import Text from '../components/base/Text';
 import { useRecordDraft } from '../components/RecordDraft';
@@ -216,7 +217,7 @@ export default function TastingNoteScreen({ onBack }) {
         }>
         {/* The cup being noted (5b's summary row; a component later). */}
         <View style={styles.summary}>
-          <View style={styles.summaryThumb} />
+          <PhotoPlaceholder size={size.thumbnail.summary} />
           <View style={styles.summaryText}>
             <Text variant="label" truncate="name">
               {cup.name}
@@ -309,13 +310,6 @@ const styles = StyleSheet.create({
     paddingBottom: space[14],
     borderBottomWidth: shape.borderWidth.divider,
     borderBottomColor: color.divider.hairlineStrong,
-  },
-  summaryThumb: {
-    width: size.thumbnail.summary,
-    height: size.thumbnail.summary,
-    backgroundColor: color.surface.muted,
-    borderWidth: shape.borderWidth.divider,
-    borderColor: color.border.muted,
   },
   summaryText: {
     flex: 1,

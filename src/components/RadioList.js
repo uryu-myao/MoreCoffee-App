@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { color, dashed, icon, shape, size, space, spacing, state } from '../theme/tokens';
 import Glyph from './base/Glyph';
+import PhotoPlaceholder from './base/PhotoPlaceholder';
 import Text from './base/Text';
 
 /**
@@ -12,7 +13,7 @@ import Text from './base/Text';
  * selected — and, when selected, an inner ink square of
  * 24 − 2 × 2 − 2 × 4 = 12 (border 2, gap 4 a side). It reads differently from
  * the checkbox's tick.
- * Row: the marker, an optional 46 thumbnail (FieldRow's swatch), the name
+ * Row: the marker, an optional 46 photo placeholder (10a), the name
  * (title; ink when selected, text.secondary otherwise, as CheckboxList) and
  * an optional meta line (meta, text.muted). The row is the pressable.
  *
@@ -42,7 +43,7 @@ export default function RadioList({ items, selected, onPick, add }) {
             accessibilityLabel={item.meta ? `${item.label}, ${item.meta}` : item.label}
             style={({ pressed }) => [styles.row, i > 0 && styles.divided, pressed && styles.pressed]}>
             <View style={[styles.marker, on && styles.markerOn]}>{on ? <View style={styles.mark} /> : null}</View>
-            {item.swatch ? <View style={styles.swatch} /> : null}
+            {item.swatch ? <PhotoPlaceholder size={size.field.height} /> : null}
             <View style={styles.text}>
               <Text variant="title" color={on ? 'primary' : 'secondary'} truncate="name">
                 {item.label}
@@ -114,13 +115,6 @@ const styles = StyleSheet.create({
   addBox: {
     borderStyle: dashed.addSlot.style,
     borderColor: dashed.addSlot.color,
-  },
-  swatch: {
-    width: size.field.height,
-    height: size.field.height,
-    backgroundColor: color.surface.muted,
-    borderWidth: shape.borderWidth.divider,
-    borderColor: color.border.muted,
   },
   text: {
     flex: 1,

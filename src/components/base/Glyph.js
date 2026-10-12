@@ -23,6 +23,12 @@ const SHAPES = {
   ],
   arrowRight: [<Path key="a" d="M5 12h14" />, <Path key="b" d="M13 6l6 6-6 6" />],
   bag: [<Path key="a" d="M4 9h16l-1 11H5z" />, <Path key="b" d="M9 9V6a3 3 0 0 1 6 0v3" />],
+  // 10a's placeholder cup (Design 2026-10-12), verbatim.
+  cup: [
+    <Path key="a" d="M4 8h12.5v4a6.25 6.25 0 0 1-12.5 0z" />,
+    <Path key="b" d="M16.5 9.5h1.25a2.5 2.5 0 0 1 0 5H16" />,
+    <Path key="c" d="M3 20.5h15" />,
+  ],
   star: [<Path key="p" d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />],
 };
 
@@ -36,15 +42,19 @@ export const GLYPH_NAMES = Object.keys(SHAPES);
  *   color    stroke colour for stroke glyphs (ignored when filled)
  *   filled   render as a fill glyph using token.color
  */
+/** Glyphs drawn with square caps and mitred joins (10a: the placeholder cup matches the zero-radius shapes). */
+const SQUARE = new Set(['cup']);
+
 export default function Glyph({ name, token, color, filled = false }) {
+  const square = SQUARE.has(name);
   const paint = filled
     ? { fill: token.color, stroke: 'none' }
     : {
         fill: 'none',
         stroke: color,
         strokeWidth: token.strokeWidth,
-        strokeLinecap: 'round',
-        strokeLinejoin: 'round',
+        strokeLinecap: square ? 'square' : 'round',
+        strokeLinejoin: square ? 'miter' : 'round',
       };
 
   return (
