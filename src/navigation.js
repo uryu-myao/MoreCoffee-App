@@ -26,3 +26,18 @@ export function onShellRequest(listener) {
   shellListeners.add(listener);
   return () => shellListeners.delete(listener);
 }
+
+/**
+ * A tab's icon pressed while that tab is already showing: the tab returns to
+ * its root (iOS's convention) — Records closes an open cup.
+ */
+const tabResetListeners = new Set();
+
+export function requestTabReset(tab) {
+  tabResetListeners.forEach((l) => l(tab));
+}
+
+export function onTabReset(listener) {
+  tabResetListeners.add(listener);
+  return () => tabResetListeners.delete(listener);
+}

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, View, useWindowDimensions } from 'react-native';
 import AddCoffeeOverlay from './components/AddCoffeeOverlay';
-import { onShellRequest, requestOpenCup } from './navigation';
+import { onShellRequest, requestOpenCup, requestTabReset } from './navigation';
 import DotTexture from './components/base/DotTexture';
 import FooterNav from './components/FooterNav';
 import { TABS } from './constants/navigation';
@@ -70,6 +70,8 @@ export default function AppShell() {
 
   // A footer tap switches instantly: no slide through the pages in between.
   const selectTab = (key) => {
+    // Pressing the tab that is already showing returns it to its root.
+    if (key === activeRef.current) requestTabReset(key);
     setFooterHidden(false);
     setActiveTab(key);
     pager.current?.scrollTo({ x: PAGES.indexOf(key) * width, animated: false });

@@ -8,7 +8,8 @@ import AddBagScreen from '../screens/AddBagScreen';
 import SavedScreen from '../screens/SavedScreen';
 import AddGearScreen from '../screens/AddGearScreen';
 import TastingNoteScreen from '../screens/TastingNoteScreen';
-import { color, motion, size } from '../theme/tokens';
+import { ACTIVE_OFFSET_X, BACK_DISTANCE, BACK_VELOCITY, EDGE, FAIL_OFFSET_Y } from '../constants/edgeSwipe';
+import { color, motion } from '../theme/tokens';
 import { GESTURE_LOG, logGesture } from './base/gestureLog';
 import { RecordDraftProvider } from './RecordDraft';
 
@@ -19,22 +20,8 @@ const stepEasing = REasing.bezier(...motion.expand.controlPoints);
  * Swipe back starts only from a strip at the left screen edge — iOS's own
  * edge-swipe convention. Device logs (2026-10-08) showed a full-width
  * swipe-back pager taking touches meant for the taste axes; confined to the
- * strip, no touch on the card can move the sheet.
- *
- * Tuned from the next device log: at 22pt the strip was too hard to hit
- * (swipes starting at x 27–51 never began), and of the swipes that did begin,
- * most FAILED on a little vertical drift (failOffsetY ±10) or ended short of
- * 35%. Now:
- *   EDGE           size.tapTarget (44): one tap target wide. The taste axes'
- *                  touch bands start ~65pt in (77pt on a 430pt phone).
- *   FAIL_OFFSET_Y  ±30: a thumb swipe drifts; horizontal 10 still decides first.
- *   BACK_*         25% of the width, or a 300pt/s flick.
+ * strip, no touch on the card can move the sheet. Tuning: constants/edgeSwipe.js.
  */
-const EDGE = size.tapTarget;
-const ACTIVE_OFFSET_X = 10;
-const FAIL_OFFSET_Y = 30;
-const BACK_DISTANCE = 0.25;
-const BACK_VELOCITY = 300;
 
 /**
  * The Record sheet, presented over the tabs as a full-screen sheet that slides
