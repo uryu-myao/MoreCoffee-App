@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Animated, Easing, Keyboard, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, { Easing as REasing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -14,6 +14,8 @@ import { GESTURE_LOG, logGesture } from './base/gestureLog';
 import { RecordDraftProvider } from './RecordDraft';
 
 const easing = Easing.bezier(...motion.expand.controlPoints);
+/** A plain function, so the edge swipe's worklet can schedule it (it cannot capture Keyboard itself). */
+const dismissKeyboard = () => Keyboard.dismiss();
 const stepEasing = REasing.bezier(...motion.expand.controlPoints);
 
 /**
@@ -91,7 +93,11 @@ export default function AddCoffeeOverlay({ visible, onClose, onNavigate }) {
   const openNote = () => push('note');
   const openBag = () => push('bag');
   const openGear = () => push('gear');
+  // Going back to Log a cup takes the keyboard with it: 3c focuses Bean name
+  // on open and stays mounted under 5a after Back (found on device,
+  // 2026-10-12: the keyboard stayed up over 5a). The edge swipe does the same.
   const backToRecord = () => {
+    Keyboard.dismiss();
     setOnNote(false);
     toStep(0);
   };
@@ -106,6 +112,7 @@ export default function AddCoffeeOverlay({ visible, onClose, onNavigate }) {
       if (GESTURE_LOG) scheduleOnRN(log, 'BEGAN', `x=${e.absoluteX.toFixed(1)}`);
     })
     .onStart(() => {
+      scheduleOnRN(dismissKeyboard);
       if (GESTURE_LOG) scheduleOnRN(log, 'ACTIVE');
     })
     .onUpdate((e) => {
