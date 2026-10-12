@@ -18,3 +18,8 @@ An I made it cup may have no bag; it records how it was brewed. We now title it 
 - **On 2c the name appears twice**: as the title, and again in "What I logged → Method". And the Bag row then reads "—". Should the Bag row be hidden for such a cup, or is the repetition fine?
 - A cup with neither bag nor gear keeps "—". Is there a better word?
 - Barista / Packaged keep "—" (no inputs at this stage); a separate question.
+
+## Round 3 follow-up (2026-10-13): 12a / 12b built as drawn
+- 2a rows: "Hario V60 02 / No bag · Comandante C40", "Comandante C40 / No bag", "Morning cup / No bag or gear noted" (daypart of the cup's time). 2c: the Bag row hidden, "No bag noted" / "No bag or gear noted" under the title, Method kept. 5b's summary uses the same title. 1b's rows show the title only, as before.
+- **One case not drawn**: a cup with **neither bag nor gear** on 2c. With the Bag row hidden, "What I logged" holds only Method, which reads "—" — the look 12a avoids. Hide the whole "What I logged" block (the line under the title already says "No bag or gear noted"), or something else? Left as is, with a TODO, until you answer.
+- Barista / Packaged: still "—"; the time-of-day title is noted as the candidate for one rule, to decide when those modes get inputs.
