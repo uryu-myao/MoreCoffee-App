@@ -251,7 +251,9 @@ Plus, globally:
 
 ---
 
-## 12. A disabled option has no visible reason — unless the limit caused it (added 2026-10-07)
+## 12. A disabled option has no visible reason — unless the limit caused it (added 2026-10-07) — CLOSED 2026-10-12 by rule
+
+**Closed**: §1 now requires every disabled option to show its reason — a row in its own meta line, chips and tags through the set's count — and forbids a disabled option whose reason can't be shown. Markers also differ (unselected 2px ink, disabled `border.muted`).
 
 **Parts affected**: every option set (§1 Disabled options).
 

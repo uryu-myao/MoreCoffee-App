@@ -22,8 +22,11 @@ import Text from './base/Text';
  * box with a plus, then the label.
  *
  * Props
- *   items     [{ key, label, meta?, swatch?, badge? }] — badge: an inline
- *             Badge after the name ("Default", selected tone, as 4a)
+ *   items     [{ key, label, meta?, swatch?, badge?, disabled?, disabledHint? }]
+ *             badge: an inline Badge after the name ("Default", as 4a).
+ *             disabled: §1's disabled look (marker border.muted, label
+ *             text.muted), no press; its meta line must say why (§1: a
+ *             disabled option shows its reason), disabledHint for VoiceOver.
  *   selected  key or null
  *   onPick    (key) => void
  *   add       optional { label, onPress }
@@ -36,19 +39,22 @@ export default function RadioList({ items, selected, onPick, add }) {
     <View style={styles.frame} accessibilityRole="radiogroup">
       {items.map((item, i) => {
         const on = item.key === selected;
+        const off = Boolean(item.disabled);
         return (
           <Pressable
             key={item.key}
             onPress={() => onPick(item.key)}
+            disabled={off}
             accessibilityRole="radio"
-            accessibilityState={{ checked: on }}
+            accessibilityState={{ checked: on, disabled: off }}
+            accessibilityHint={off ? item.disabledHint : undefined}
             accessibilityLabel={item.meta ? `${item.label}, ${item.meta}` : item.label}
             style={({ pressed }) => [styles.row, i > 0 && styles.divided, pressed && styles.pressed]}>
-            <View style={[styles.marker, on && styles.markerOn]}>{on ? <View style={styles.mark} /> : null}</View>
+            <View style={[styles.marker, off && styles.markerOff]}>{on ? <View style={styles.mark} /> : null}</View>
             {item.swatch ? <PhotoPlaceholder size={size.field.height} /> : null}
             <View style={styles.text}>
               <View style={styles.nameRow}>
-                <Text variant="title" color={on ? 'primary' : 'secondary'} truncate="name">
+                <Text variant="title" color={on ? 'primary' : off ? 'muted' : 'secondary'} truncate="name">
                   {item.label}
                 </Text>
                 {item.badge ? <Badge label={item.badge} tone="selected" /> : null}
@@ -100,17 +106,18 @@ const styles = StyleSheet.create({
   pressed: {
     backgroundColor: state.pressed.surface,
   },
+  // Unselected: a 2px ink frame; disabled: border.muted (decided 2026-10-12).
   marker: {
     width: size.checkbox,
     height: size.checkbox,
     borderWidth: shape.borderWidth.box,
-    borderColor: color.border.muted,
+    borderColor: color.border.strong,
     backgroundColor: color.surface.raised,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  markerOn: {
-    borderColor: color.border.strong,
+  markerOff: {
+    borderColor: color.border.muted,
   },
   mark: {
     width: MARK,

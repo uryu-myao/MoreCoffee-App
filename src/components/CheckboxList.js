@@ -10,9 +10,9 @@ import Text from './base/Text';
  *
  * Row (8c): a 24 checkbox, the name (title) and an optional hint (meta,
  * text.muted). Checked = ink box with a ground tick and the name in ink (a
- * chosen option is ink, §1; 8c's blue was drift D-19). Unchecked = border.muted
+ * chosen option is ink, §1; 8c's blue was drift D-19). Unchecked = 2px ink
  * box on raised, name text.secondary. At the cap, unchecked rows lock (§1
- * Disabled options: name text.muted, box border.muted). 8c's row tint
+ * Disabled options: name text.muted, box border.muted); the count says why. 8c's row tint
  * #FFF8F1 was absorbed into surface.raised, so a checked row has no tint.
  * The row is the pressable (≥ 44pt), so its pressed look is the surface.
  *
@@ -46,7 +46,7 @@ export default function CheckboxList({ items, selected, locked = false, onToggle
             accessibilityState={{ checked: on, disabled: off }}
             accessibilityLabel={item.hint ? `${item.label ?? item.name}, ${item.hint}` : item.label ?? item.name}
             style={({ pressed }) => [styles.row, i > 0 && styles.divided, pressed && styles.pressed]}>
-            <View style={[styles.box, on && styles.boxOn]}>
+            <View style={[styles.box, on && styles.boxOn, off && styles.boxOff]}>
               {on ? <Glyph name="check" token={icon.xs} color={color.text.onInverse} /> : null}
             </View>
             <Text variant="title" color={on ? 'primary' : off ? 'muted' : 'secondary'} style={styles.name} truncate="name">
@@ -100,18 +100,23 @@ const styles = StyleSheet.create({
   pressed: {
     backgroundColor: state.pressed.surface,
   },
+  // Unchecked: a 2px ink box (decided 2026-10-12; 3a's mock). Locked:
+  // border.muted, so the marker differs as well as the label (§1 Disabled
+  // options). An unfilled frame never means "selected" (§1).
   box: {
     width: size.checkbox,
     height: size.checkbox,
     borderWidth: shape.borderWidth.box,
-    borderColor: color.border.muted,
+    borderColor: color.border.strong,
     backgroundColor: color.surface.raised,
     alignItems: 'center',
     justifyContent: 'center',
   },
   boxOn: {
-    borderColor: color.border.strong,
     backgroundColor: color.surface.inverse,
+  },
+  boxOff: {
+    borderColor: color.border.muted,
   },
   addBox: {
     borderStyle: dashed.addSlot.style,

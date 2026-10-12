@@ -179,7 +179,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 
 ### Tap affordance (added 2026-10-07)
 - **A pressable option looks like an option**:
-  - an outline (1.5 `border.muted`) when unselected; when selected, the fill of its colour role (Colour roles above): ink for a choice, brown (accent tint + accent border) for an entered value such as 5b's flavour tags;
+  - an outline (1.5 `border.muted`) when unselected — **for chips and tags, the parts that are options themselves**; a checkbox or radio **marker** is a 2px ink frame when unselected (Disabled options below); when selected, the fill of its colour role (Colour roles above): ink for a choice, brown (accent tint + accent border) for an entered value such as 5b's flavour tags;
   - **44pt tall** (`inset.control`);
   - **always in a set**: two or more options, with a selected member or a count.
 - **Three means say "pressable", none of them colour (2026-10-09):**
@@ -197,7 +197,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
   - 12 are fill + a 2px ink frame: 3a and 8m checked boxes, 3e's switch (D-20), 6d "Home brewer", 8i's five weekdays, 8j "An idea", 8l "Words".
   - The segmented options are an ink fill with no frame: 2a "All", 2b "Month", 3a "Brewer", 3c "Light", 3e "Grinder", 3f "Newest", 3g "Light" (added 2026-10-09), 5d "Barista", 5e "Ready-to-drink".
   - Not options: 3b / 4a "Default" and 8d "This week" are 9px badges.
-  - A 2px ink outline on the card colour is a pressable control or a frame: icon buttons, My gear / My beans, switch knobs. (**Unchecked checkboxes are not ink** — corrected 2026-10-12: they are a 2px `border.muted` box, as built and as the line on unselected options above says.)
+  - A 2px ink outline on the card colour is a pressable control or a frame: icon buttons, My gear / My beans, switch knobs, **unchecked checkboxes and unselected radio markers** (decided 2026-10-12, as 3a draws them; 8c's `border.muted` box is the disabled look, not the unchecked one).
   - Keep it that way. The one exception, 8f's "juicy 9", is drift D-23.
 - **A label that cannot be pressed looks like a Badge**: tinted fill, no `border.muted` outline, badge sizes.
 - **Except one display form, the attribute tag** (6a "Acidity high", 8d "Blackcurrant"): a 1.5 `border.muted` outline on no fill, padding 7/9, 11px label. It is consistent across both screens (5 uses, identical values) and never pressable on its own. On 6a it sits inside the pressable Taste DNA card, which is the target (→ 8f); on 8d it describes a suggestion and leads nowhere.
@@ -241,7 +241,13 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **Applies to**: single-select chips, flavour chips, checkbox lists, checkboxes, the weekday selector. The selection limit uses this same look; it was defined there first and is reused, not duplicated.
 - **The look is the same, but there are two reasons**:
   1. **The limit is reached** (deselecting another brings it back). The count explains it.
-  2. **This option itself cannot be chosen now.** Nothing on screen explains it, so the screen reader must state the reason. A visible way to explain it is still missing (`gaps.md` 12).
+  2. **This option itself cannot be chosen now.** Its own meta line says why (11c: "roasted Apr 12, after this cup"), and the screen reader states the same.
+- **Markers differ too (decided 2026-10-12)**: an unselected checkbox or radio marker is a **2px ink frame, unfilled**; a disabled one is a **2px `border.muted` frame**, with the label in `text.muted`. So a disabled row differs in its marker and its label, not the label alone. An unfilled ink frame is not read as selected (the rule below: an outline with no fill never means selected).
+- **A disabled option always shows on screen why it can't be chosen (decided 2026-10-12)**:
+  - **a row** → its own meta line states the reason (11c);
+  - **chips and tags** → the set's count explains it (Selection limit);
+  - **never build a disabled option whose reason cannot be shown.**
+  This closes `gaps.md` 12 as a rule; no screen has to solve it on its own.
 
 ### Animation systems (added 2026-10-07)
 - **Existing scroll-linked animation stays on Animated** (native driver): the header collapse, the bottom bar's hide / reveal, the tab pager's indicator, press scale, the sheet slide.
@@ -1251,3 +1257,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-12 — `color.text.placeholder` (#9B8F87) added for every placeholder and add slot label (decided on device; D-38 settled).
 - 2026-10-12 — §1 Type: no italics in the app; `text.note` (My words) is upright, and the italic face is no longer loaded.
 - 2026-10-12 — §9 Bottom bar: no hide on scroll; below the row, the home-indicator inset less `space.14`.
+- 2026-10-12 — §1 Disabled options: unselected markers are a 2px ink frame, disabled ones `border.muted` + `text.muted` label; a disabled option always shows its reason (a row's meta, a set's count). The two §1 lines on unchecked boxes now agree. `gaps.md` 12 closed by rule.
