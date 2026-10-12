@@ -329,6 +329,8 @@ export type CupListItem = {
   bean_name: string | null;
   bean_roaster: string | null;
   bean_process: Bag['process'];
+  brew_method: string | null;
+  grinder: string | null;
   place_name: string | null;
   product_brand: string | null;
   product_name: string | null;
@@ -360,7 +362,7 @@ export async function cupOrdinal(db: SQLiteDatabase, id: number): Promise<number
 export async function listCups(db: SQLiteDatabase): Promise<CupListItem[]> {
   return db.getAllAsync<CupListItem>(
     `SELECT c.id, c.logged_at, c.rating, c.mode, c.note, c.drink_type,
-            c.bean_name, c.bean_roaster, c.bean_process,
+            c.bean_name, c.bean_roaster, c.bean_process, c.brew_method, c.grinder,
             p.name AS place_name,
             pr.brand AS product_brand, pr.name AS product_name
        FROM cups c

@@ -15,11 +15,16 @@ export const MODE_BADGE = {
 
 const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
 
-/** title and source line (2a's row; 2c's heading falls back the same way). */
+/**
+ * title and source line (2a's row, 2c's heading, 1b's recent rows).
+ * I made it with no bag (a legitimate cup) falls back to what it was brewed
+ * with (decided 2026-10-12): bean name → brewer → grinder → "—". Barista /
+ * Packaged stay "—" until they have inputs.
+ */
 export function cupTitle(cup) {
   if (cup.mode === 'made_it') {
     return {
-      title: cup.bean_name ?? NONE,
+      title: cup.bean_name ?? cup.brew_method ?? cup.grinder ?? NONE,
       source: [cup.bean_roaster, cup.bean_process && capitalise(cup.bean_process)].filter(Boolean).join(' · ') || undefined,
     };
   }

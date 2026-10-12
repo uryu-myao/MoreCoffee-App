@@ -43,7 +43,8 @@ const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute:
 function cupSummary(defaults, mode) {
   if (mode === 'made_it') {
     const method = defaults.brewer?.name;
-    return { name: defaults.bag?.name ?? 'No bag', meta: [MODE_LABEL.made_it, method, timeFormat.format(new Date())].filter(Boolean).join(' · ') };
+    // As cupTitle: no bag → the brewer, then the grinder (2026-10-12).
+    return { name: defaults.bag?.name ?? defaults.brewer?.name ?? defaults.grinder?.name ?? 'No bag', meta: [MODE_LABEL.made_it, method, timeFormat.format(new Date())].filter(Boolean).join(' · ') };
   }
   // No fixed drink (2026-10-11): Barista records none until it has an input.
   if (mode === 'barista') return { name: 'No drink', meta: [MODE_LABEL.barista, defaults.cafe?.name, timeFormat.format(new Date())].filter(Boolean).join(' · ') };
