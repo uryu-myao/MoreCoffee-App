@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, View, useWindowDimensions } from 'react-native';
 import AddCoffeeOverlay from './components/AddCoffeeOverlay';
-import { requestOpenCup } from './navigation';
+import { onShellRequest, requestOpenCup } from './navigation';
 import DotTexture from './components/base/DotTexture';
 import FooterNav from './components/FooterNav';
 import { TABS } from './constants/navigation';
@@ -74,6 +74,17 @@ export default function AppShell() {
     setActiveTab(key);
     pager.current?.scrollTo({ x: PAGES.indexOf(key) * width, animated: false });
   };
+
+  // Screens ask for a tab or the Record sheet (navigation.js).
+  useEffect(
+    () =>
+      onShellRequest(({ tab, record }) => {
+        if (tab) selectTab(tab);
+        if (record) setShowAddCoffee(true);
+      }),
+    // selectTab reads the latest width through its closure; re-subscribe with it.
+    [width]
+  );
 
   // Keep the current page if the width changes.
   const activeRef = useRef(activeTab);

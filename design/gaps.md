@@ -212,6 +212,8 @@ Plus, globally:
 
 **Needs designing**: whether the underline renders, and in which colour.
 
+**Built 2026-10-12 from 1b's export**: the export draws today's underline in ink (2px), so the strip does: today's letter in ink and an ink underline under its date.
+
 
 ---
 

@@ -66,6 +66,8 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20.
 | D-49 | Active (code; rule) | 2a | Record rows | no chevron | **a chevron at the row's end** now that a row opens 2c | §1 Tap affordance: a whole pressable row ends in a chevron. Recorded 2026-10-11 |
 | D-50 | Active (code; rule) | 2c | Flavour tags | brown chips with a 1.5px frame (the look of 5b's pressable chips) | **Badges** (accent fill, no frame), display only | §1 Tap affordance: a display-only tag must not look like a pressable option. Recorded 2026-10-11 |
 | D-51 | Active (code; no token) | 4a 4b 3d | Shelf thumbnails | 44 (4a / 4b), 56 (3d) | **46** (`size.field.height`, FieldRow's swatch) | Neither 44 nor 56 has a size token; a thumbnail token needs approval (§5: drawn alike in 2+ places). Recorded 2026-10-12 |
+| D-52 | Active (code; no style) | 1b 4a 4b | "This week" count and the strip's dates | count 44px serif; dates 13 / 700 (a day with a cup) and 13 / 500 | count `displayLg` (40); dates `meta` (12 / 600), a cup day told by accent colour only | No text style for 44 serif or 13px; new styles need approval. Recorded 2026-10-12 |
+| D-53 | Active (code; rule) | 1b | Recently sipped rows | 58 thumbnail, a brew-category badge ("Filter") + the mode badge | **2a's RecordRow** (66 thumbnail, mode badge only; a chevron, as rows open 2c) | One list row component; brew category has no column (`gaps.md` 10). Recorded 2026-10-12 |
 
 ## Not drift — recorded so they are not "fixed" by mistake
 

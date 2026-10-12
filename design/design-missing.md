@@ -54,6 +54,8 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
     - the **summary sentence** ("This cup pushed you brighter and lighter."): 8 comparatives (Body and Roast both start "light"); not shown until written;
     - **nothing moved**.
 13. **[this round] 1b's "N more cups to lock it in"** (D-47): lock-in is 10, counted per axis; N counts the least-noted axis. **Once locked, it stays locked**: a first note on a new axis does not un-lock it (decided 2026-10-11). Try next's 5 is separate; 1b's "3 OF 5 CUPS" is not shown at this stage.
+16. **[this round] 1b's greeting**: the mock says "Good morning". We show "Good afternoon" / "Good evening" (evening also at night) by part of day — ours, to confirm or replace.
+17. **[this round] 1b's line under the counts** ("A slow start is still a start."): one sentence with no rule for when it applies (a slow week? always?). **Not shown** until there is a rule and a line for each case.
 14. **[this round] Save failure** (today a plain alert with the technical error). What it cannot promise yet — a retry, and that closing loses the input — belongs with `gaps.md` 30 (no drafts).
 15. **[this round] 3c's Bean name error** (built with 5d's vocabulary: "Bean name · required", error-coloured label and underline). Within the existing error set, or new?
 

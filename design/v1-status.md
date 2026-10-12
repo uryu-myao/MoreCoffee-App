@@ -22,7 +22,7 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 3c Add a bag | yes | **partial (minimal)** | name, roaster, roast date. Not: roast level, size, photo, origin / region / process, "Reuse a past bag" |
 | 3a Add gear | yes | **partial (minimal)** | 8c's generic list. Not: catalogue, search, models, "Not listed" |
 | Bag / gear picker (no mock) | yes | **done** | from 5a |
-| 1b / 4a / 4b Home | **yes** | **partial** | Taste DNA card; My gear / My beans block ("Day N", no freshness meter; Manage my beans → 3d). Not yet: cups total, this week, recently sipped |
+| 1b / 4a / 4b Home | **yes** | **done** | greeting, cups total + this week strip, Record a coffee, Taste DNA card, recently sipped (→ 2c, See all → Records), My gear / My beans. Not shown: Try next box (V2), the slow-start line (no rule) |
 | 2a Records | yes | **partial** | grouped list, count; rows open 2c. No sort (2b), no search (8l) |
 | 2b Sort sheet | not now | not started | |
 | 2c Record (one cup) | **yes** (decided 2026-10-11) | **done, read only** | edit (pencil) waits for Design; share, photo, "22 clicks" / "My default brewer" not shown |

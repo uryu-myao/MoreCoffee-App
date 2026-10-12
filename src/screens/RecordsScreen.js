@@ -4,7 +4,7 @@ import RecordRow from '../components/base/RecordRow';
 import Text from '../components/base/Text';
 import { useDatabase } from '../data/DatabaseProvider';
 import { listCups, onCupsChanged } from '../data/repository';
-import { cupTitle } from '../constants/cups';
+import { MODE_BADGE, cupTitle } from '../constants/cups';
 import { onOpenCupRequest } from '../navigation';
 import { layout, spacing } from '../theme/tokens';
 import CupRecordScreen from './CupRecordScreen';
@@ -23,11 +23,6 @@ import ScreenFrame from './ScreenFrame';
  * The brew-category badge (FILTER / ESPRESSO / COLD BREW) is not shown: it has
  * no column yet (gaps.md 10).
  */
-const MODE_BADGE = {
-  made_it: { label: 'I made it', tone: 'success' },
-  barista: { label: 'Barista', tone: 'info' },
-  packaged: { label: 'Packaged', tone: 'neutral' },
-};
 
 
 const countFormat = new Intl.NumberFormat();

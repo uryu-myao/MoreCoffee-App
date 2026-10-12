@@ -1,15 +1,28 @@
 /**
- * Cross-screen requests that do not fit the tab state: today, 5c's "See this
- * record" asking Records to open one cup (2c). AppShell switches the tab;
- * RecordsScreen listens and opens the cup.
+ * Cross-screen requests that do not fit the tab state. AppShell owns the tabs
+ * and the Record sheet; screens ask through here.
+ *   requestOpenCup(id)   Records opens one cup (2c) — 5c's "See this record",
+ *                        Home's recently sipped rows
+ *   requestShell(req)    AppShell: { tab } switches tab, { record: true }
+ *                        opens the Record sheet (1b "Record a coffee")
  */
-const listeners = new Set();
+const cupListeners = new Set();
+const shellListeners = new Set();
 
 export function requestOpenCup(id) {
-  listeners.forEach((l) => l(id));
+  cupListeners.forEach((l) => l(id));
 }
 
 export function onOpenCupRequest(listener) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
+  cupListeners.add(listener);
+  return () => cupListeners.delete(listener);
+}
+
+export function requestShell(request) {
+  shellListeners.forEach((l) => l(request));
+}
+
+export function onShellRequest(listener) {
+  shellListeners.add(listener);
+  return () => shellListeners.delete(listener);
 }

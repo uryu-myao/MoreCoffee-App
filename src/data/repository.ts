@@ -320,6 +320,12 @@ export async function countCups(db: SQLiteDatabase): Promise<number> {
 }
 
 /** Which cup this is, counting from the first logged (5c's "Cup 4"). */
+/** When each cup since `from` was logged: 1b's week count and strip. */
+export async function cupTimesSince(db: SQLiteDatabase, from: number): Promise<number[]> {
+  const rows = await db.getAllAsync<{ logged_at: number }>('SELECT logged_at FROM cups WHERE logged_at >= ?', [from]);
+  return rows.map((r) => r.logged_at);
+}
+
 export async function cupOrdinal(db: SQLiteDatabase, id: number): Promise<number> {
   const row = await db.getFirstAsync<{ n: number }>(
     `SELECT COUNT(*) AS n FROM cups c, (SELECT logged_at, id FROM cups WHERE id = ?) t
