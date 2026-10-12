@@ -878,7 +878,9 @@ Swiping horizontally moves between the four tab screens: Home → Records → Tr
 - Measured (390pt simulator, programmatic animated page changes): 60 fps on the JS thread, p95 17.5 ms, one ~25 ms frame per page change at settle (the bar re-rendering; screens are memoised and do not re-render). Footer taps land on the right page in all four directions. Gesture arbitration with real fingers needs a physical device: the simulator cannot inject swipes here.
 
 ### Bottom bar — formerly "Floating bar" (revised 2026-10-05)
-**Hide and reveal (2026-10-06)**: the bar **hides on downward scroll**, sliding its full height off the bottom edge. **Any upward scroll brings it fully back at once**: no threshold, no waiting for the top, because + is the primary action and scrolling back up the list is when a missed cup comes to mind.
+**The bar no longer hides (decided on device, 2026-10-12)**: it stays put while a page scrolls; the hide / reveal below is superseded.
+
+~~**Hide and reveal (2026-10-06)**~~: the bar **hides on downward scroll**, sliding its full height off the bottom edge. **Any upward scroll brings it fully back at once**: no threshold, no waiting for the top, because + is the primary action and scrolling back up the list is when a missed cup comes to mind.
 - It is binary: always either on its way out or fully back, never part-way.
 - The move is eased (`motion.expand`), since it runs on after the finger.
 - Only a change of direction triggers it, from the ScrollView's scroll events. The animation runs on the native driver.
@@ -886,7 +888,7 @@ Swiping horizontally moves between the four tab screens: Home → Records → Tr
 - Measured: the reveal starts 9 ms after an upward scroll begins and completes 340 ms later. A real flick decelerates for longer, so the bar is back first. A programmatic scroll (UIKit's fixed 326 ms) finishes about 20 ms ahead of it.
 
 **Current spec (base `FooterNav`)**: the tab bar spans the **full screen width on the bottom edge**, on `color.surface.raised`, with **no hard shadow**. Its `2px` ink top rule is the boundary: with the bar on the screen edge, that line does the separating work the shadow used to do.
-- **Row**: `size.tabBar.height` (**48** since 2026-10-12, was 60: on device there was too much room under the icons), with the home-indicator inset below it (34 on notched iPhones). The 40 slot box sits centred, 4 above and below; the touch area is the whole row (≥ 44).
+- **Row**: `size.tabBar.height` (**48** since 2026-10-12, was 60: on device there was too much room under the icons), with **the home-indicator inset less `space.14`** below it (34 − 14 = 20 on notched iPhones; decided on device 2026-10-12: the full inset left too much room; the indicator, ~8 above the edge and 5 tall, stays clear). The 40 slot box sits centred, 4 above and below; the touch area is the whole row (≥ 44).
 - **Slots**: the icons sit inside the screen gutter: the two outer slots take `layout.gutter` (22) of padding on their outer side, then all five share the remaining width equally, so the icons are evenly spaced and the centre + sits exactly in the middle. The outer slots still reach the screen edge, so the gutter is part of their touch area (the icons move in; the touch areas do not shrink). Measured at 390pt: icon centres every 69 (56.7 / 126 / 195 / 264.3 / 333.3); touch areas Home 0–91.3 and Profile 298.7–390 (both start at the screen edge, 0pt), inner slots 69 wide, all 60 tall. Superseded: five equal 78pt slots with centres 39 … 351 (2026-10-05).
 - **Pressed** (§1, by surface): the tab icons are bare glyphs, so they scale to `state.pressed.scale` over `motion.press`. There is no square fill behind them any more. The + is an ink square, a surface whose fill has no darker tier, so it shows no visual change. Both give a light impact haptic. Measured: Home glyph 20 → 17.6 while held, its touch area fixed at 0–91.3 × 60; the + touch area fixed at 69.3 × 60. (Superseded 2026-10-06: a `state.pressed.surface` fill in the 60 × 40 / 68 × 40 slot box.)
 - **No fade band** (removed on review, 2026-10-05): with the bar on the screen edge, the 30pt fade above the rule only covered the content just above the bar. The rule alone separates. Rebuilt tab screens keep `layout.empty.block` of room under their content.
@@ -1248,3 +1250,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-12 — §9 Bottom bar: `size.tabBar.height` 60 → 48 (decided on device); icons centred in the row, the home-indicator inset kept below.
 - 2026-10-12 — `color.text.placeholder` (#9B8F87) added for every placeholder and add slot label (decided on device; D-38 settled).
 - 2026-10-12 — §1 Type: no italics in the app; `text.note` (My words) is upright, and the italic face is no longer loaded.
+- 2026-10-12 — §9 Bottom bar: no hide on scroll; below the row, the home-indicator inset less `space.14`.

@@ -1,16 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, StyleSheet, View, useWindowDimensions } from 'react-native';
 import AddCoffeeOverlay from './components/AddCoffeeOverlay';
 import { onShellRequest, requestOpenCup, requestTabReset } from './navigation';
 import DotTexture from './components/base/DotTexture';
 import FooterNav from './components/FooterNav';
 import { TABS } from './constants/navigation';
 import { SCREEN_COMPONENTS } from './screens';
-import { ScreenBackdropContext, ScrollChromeContext } from './screens/ScreenFrame';
-import { color, motion } from './theme/tokens';
+import { ScreenBackdropContext } from './screens/ScreenFrame';
+import { color } from './theme/tokens';
 
 const PAGES = TABS.map((t) => t.key);
-const easing = Easing.bezier(...motion.expand.controlPoints);
 
 /**
  * Tab shell. Safe-area insets are handled where the design measures them:
@@ -29,11 +28,8 @@ const easing = Easing.bezier(...motion.expand.controlPoints);
  * One ground + dot texture sits behind the pager (ScreenBackdropContext), so
  * the texture stays put while pages slide over it.
  *
- * The bottom bar hides when a tab screen scrolls down and comes fully back on
- * any upward scroll (ScrollChromeContext; design-system.md §9 Bottom bar). It
- * is always either on its way out or fully back, never part-way, and the move
- * is eased (motion.expand), since it runs on after the finger. A tab tap
- * brings it back, so a screen too short to scroll is never left without it.
+ * The bottom bar stays put (decided on device, 2026-10-12: it no longer hides
+ * on scroll; design-system.md §9 Bottom bar).
  */
 export default function AppShell() {
   const { width } = useWindowDimensions();
@@ -43,26 +39,6 @@ export default function AppShell() {
   const scrollX = useRef(new Animated.Value(0)).current;
   const position = useMemo(() => Animated.divide(scrollX, width), [scrollX, width]);
 
-  // 0 = shown, 1 = hidden. Fires only on a change of direction, not per frame.
-  const footerHidden = useRef(new Animated.Value(0)).current;
-  const footerIsHidden = useRef(false);
-  const setFooterHidden = useCallback(
-    (hidden) => {
-      if (footerIsHidden.current === hidden) return;
-      footerIsHidden.current = hidden;
-      Animated.timing(footerHidden, {
-        toValue: hidden ? 1 : 0,
-        duration: motion.expand.duration,
-        easing,
-        useNativeDriver: true,
-      }).start();
-    },
-    [footerHidden]
-  );
-  const chrome = useMemo(
-    () => ({ scrolledDown: () => setFooterHidden(true), scrolledUp: () => setFooterHidden(false) }),
-    [setFooterHidden]
-  );
   const onScroll = useMemo(
     () => Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: true }),
     [scrollX]
@@ -72,7 +48,6 @@ export default function AppShell() {
   const selectTab = (key) => {
     // Pressing the tab that is already showing returns it to its root.
     if (key === activeRef.current) requestTabReset(key);
-    setFooterHidden(false);
     setActiveTab(key);
     pager.current?.scrollTo({ x: PAGES.indexOf(key) * width, animated: false });
   };
@@ -113,7 +88,7 @@ export default function AppShell() {
     <View style={styles.container}>
       <DotTexture />
       <ScreenBackdropContext.Provider value={false}>
-        <ScrollChromeContext.Provider value={chrome}>
+        <>
           <Animated.ScrollView
             ref={pager}
             horizontal
@@ -124,9 +99,9 @@ export default function AppShell() {
             keyboardShouldPersistTaps="handled">
             {pages}
           </Animated.ScrollView>
-        </ScrollChromeContext.Provider>
+        </>
       </ScreenBackdropContext.Provider>
-      <FooterNav activeTab={activeTab} position={position} hidden={footerHidden} onTabPress={selectTab} onAddPress={() => setShowAddCoffee(true)} />
+      <FooterNav activeTab={activeTab} position={position} onTabPress={selectTab} onAddPress={() => setShowAddCoffee(true)} />
       <AddCoffeeOverlay
         visible={showAddCoffee}
         onClose={() => setShowAddCoffee(false)}

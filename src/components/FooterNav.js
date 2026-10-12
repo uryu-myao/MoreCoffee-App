@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TABS } from '../constants/navigation';
-import { color, component, layout, motion, shape, size, state } from '../theme/tokens';
+import { color, component, layout, motion, shape, size, space, state } from '../theme/tokens';
 import { AddCoffeeIcon, HomeIcon, ProfileIcon, RecordsIcon, TryNextIcon } from './icons/TabBarIcons';
 
 const ICONS = { home: HomeIcon, records: RecordsIcon, tryNext: TryNextIcon, profile: ProfileIcon };
@@ -31,7 +31,7 @@ const { slot, addSlot } = component.tabBar;
 export default function FooterNav({ activeTab, position, hidden, onTabPress, onAddPress }) {
   const insets = useSafeAreaInsets();
   // hidden: 0 → in place, 1 → its whole height below the screen edge.
-  const barHeight = shape.borderWidth.box + size.tabBar.height + insets.bottom;
+  const barHeight = shape.borderWidth.box + size.tabBar.height + Math.max(0, insets.bottom - space[14]);
   const slide = hidden ? { transform: [{ translateY: hidden.interpolate({ inputRange: [0, 1], outputRange: [0, barHeight] }) }] } : null;
 
   const tab = ({ key, label }, index, edges) => {
@@ -54,7 +54,10 @@ export default function FooterNav({ activeTab, position, hidden, onTabPress, onA
 
   return (
     <Animated.View style={[styles.wrapper, slide]}>
-      <View style={[styles.bar, { paddingBottom: insets.bottom }]}>
+      {/* Under the row, room for the home indicator only (2026-10-12): the
+          inset less space.14, so the icons sit lower; the indicator (about
+          8 above the edge, 5 tall) stays clear. */}
+      <View style={[styles.bar, { paddingBottom: Math.max(0, insets.bottom - space[14]) }]}>
         <View style={styles.row}>
           {TABS.slice(0, 2).map((t, i) => tab(t, i, ['start', null]))}
           <Slot box={addSlot} role="button" label="Log a cup" onPress={onAddPress} feedback="none">
