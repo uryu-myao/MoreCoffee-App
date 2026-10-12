@@ -18,10 +18,11 @@ import ScreenFrame from './ScreenFrame';
  * with the same entry points.
  *
  * "Open this bag" stores the bag, opened now, makes it the cup's bag and goes
- * back to 5a. The name is the only required field. At 5 open bags the button
+ * back to 5a. "Add without opening" stores it unopened (it takes a slot; 3d
+ * opens it later). onAdded, when given, replaces Back after a save (Home → 3d). The name is the only required field. At 5 open bags the button
  * is disabled and the line under it says why (3c's copy).
  */
-export default function AddBagScreen({ onBack }) {
+export default function AddBagScreen({ onBack, onAdded }) {
   const db = useDatabase();
   // In the Record sheet the new bag becomes the cup's bag; from 3d it just joins the shelf.
   const chooseBag = useRecordDraftIfAny()?.chooseBag;
@@ -44,15 +45,16 @@ export default function AddBagScreen({ onBack }) {
   const free = open == null ? null : OPEN_BAG_LIMIT - open;
   const name = form.name.trim();
 
-  const openBag = async () => {
+  const addBag = async (opened) => {
     if (!name) {
       setNameMissing(true);
       return;
     }
     try {
-      const bag = await insertBag(db, { name, roaster: form.roaster.trim() || null, roastedAt: form.roastedAt });
-      chooseBag?.(bag);
-      onBack();
+      const bag = await insertBag(db, { name, roaster: form.roaster.trim() || null, roastedAt: form.roastedAt, open: opened });
+      // Only an opened bag can be the cup's bag.
+      if (opened) chooseBag?.(bag);
+      (onAdded ?? onBack)();
     } catch (error) {
       console.error('[bag] could not add', error);
       Alert.alert("This bag wasn't added", `What you typed is still here. ${String(error?.message ?? error)}`);
@@ -71,7 +73,10 @@ export default function AddBagScreen({ onBack }) {
           <View style={styles.footer}>
             {/* Full: the line below says why, so a press warns (§1). An empty
                 name is not a disabled state: the press shows the field's error. */}
-            <Button label="Open this bag" onPress={openBag} disabled={full || open == null} warnWhenDisabled={full} />
+            <Button label="Open this bag" onPress={() => addBag(true)} disabled={full || open == null} warnWhenDisabled={full} />
+            {/* Added, not opened (2026-10-12): it takes a slot and is opened
+                later from 3d. TODO(copy): the label is ours, for Design. */}
+            <Button variant="secondary" label="Add without opening" onPress={() => addBag(false)} disabled={full || open == null} warnWhenDisabled={full} />
             {free != null ? (
               <Text variant="bodySm" color="secondary" style={styles.slots}>
                 {full ? 'No slots free. Finish a bag to free one up.' : `${free} of ${OPEN_BAG_LIMIT} slots free. Finish a bag to free one up.`}

@@ -24,7 +24,7 @@ export async function loadRecordDefaults(db: SQLiteDatabase): Promise<RecordDefa
   // record must be a fact. They come back with their pickers (Packaged's
   // product name: design-missing.md 6; Barista: not at this stage).
   const [bag, brewer, grinder] = await Promise.all([
-    db.getFirstAsync<Bag & { notes: string }>('SELECT * FROM bags WHERE finished_at IS NULL ORDER BY opened_at DESC, id DESC LIMIT 1'),
+    db.getFirstAsync<Bag & { notes: string }>('SELECT * FROM bags WHERE finished_at IS NULL AND opened_at IS NOT NULL ORDER BY opened_at DESC, id DESC LIMIT 1'),
     db.getFirstAsync<Gear>("SELECT * FROM gear WHERE category = 'brewer' AND is_default = 1"),
     db.getFirstAsync<Gear>("SELECT * FROM gear WHERE category = 'grinder' AND is_default = 1"),
   ]);
@@ -41,22 +41,27 @@ export async function loadRecordDefaults(db: SQLiteDatabase): Promise<RecordDefa
   };
 }
 
-/** At most this many bags open at once (3c / 3d "2 / 5"); finishing frees a slot. */
+/**
+ * At most this many bags on the shelf at once (3c / 3d "2 / 5"), opened or
+ * not yet (decided 2026-10-12: an unopened bag takes a slot too). Finishing
+ * frees one.
+ */
 export const OPEN_BAG_LIMIT = 5;
 
-/** Bags not finished yet: what takes the 5 slots. */
+/** Bags not finished yet, opened or not: what takes the 5 slots. */
 export async function countOpenBags(db: SQLiteDatabase): Promise<number> {
   const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM bags WHERE finished_at IS NULL');
   return row?.n ?? 0;
 }
 
 /** What 3c's Bag form hands over (minimal set: name required, the rest optional). */
-export type NewBag = { name: string; roaster: string | null; roastedAt: number | null };
+export type NewBag = { name: string; roaster: string | null; roastedAt: number | null; open: boolean };
 
 /**
- * Add a bag and open it now (3c "Open this bag"). Returns the stored row, so
- * the Record sheet can pre-fill it at once. Refuses past the open-bag limit
- * (the screen disables the button there too).
+ * Add a bag: opened now (3c "Open this bag"), or not yet (3c "Add without
+ * opening", 2026-10-12; opened later from 3d). Returns the stored row, so the
+ * Record sheet can pre-fill an opened one at once. Refuses past the limit
+ * (the screen disables the buttons there too).
  */
 export async function insertBag(db: SQLiteDatabase, bag: NewBag): Promise<Bag> {
   if ((await countOpenBags(db)) >= OPEN_BAG_LIMIT) throw new Error(`All ${OPEN_BAG_LIMIT} slots are taken. Finish a bag to free one up.`);
@@ -64,7 +69,7 @@ export async function insertBag(db: SQLiteDatabase, bag: NewBag): Promise<Bag> {
     bag.name,
     bag.roaster,
     bag.roastedAt,
-    Date.now(),
+    bag.open ? Date.now() : null,
   ]);
   const row = await db.getFirstAsync<Bag & { notes: string }>('SELECT * FROM bags WHERE id = ?', [result.lastInsertRowId]);
   if (!row) throw new Error('The bag was not stored.');
@@ -102,10 +107,26 @@ export async function getCup(db: SQLiteDatabase, id: number): Promise<CupRecord 
   return row ? { ...row, flavours: JSON.parse(row.flavours as unknown as string) } : null;
 }
 
-/** Open bags (not finished), newest opened first: the bag picker's rows. */
+/** Opened, not finished bags, newest opened first: the bag picker's rows (a cup is logged from an opened bag). */
 export async function listOpenBags(db: SQLiteDatabase): Promise<Bag[]> {
-  const rows = await db.getAllAsync<Bag & { notes: string }>('SELECT * FROM bags WHERE finished_at IS NULL ORDER BY opened_at DESC, id DESC');
+  const rows = await db.getAllAsync<Bag & { notes: string }>(
+    'SELECT * FROM bags WHERE finished_at IS NULL AND opened_at IS NOT NULL ORDER BY opened_at DESC, id DESC'
+  );
   return rows.map((row) => ({ ...row, notes: JSON.parse(row.notes as unknown as string) }));
+}
+
+/** Every bag on the shelf (Home's My beans, 3d): opened ones newest first, then those not opened yet. */
+export async function listShelfBags(db: SQLiteDatabase): Promise<Bag[]> {
+  const rows = await db.getAllAsync<Bag & { notes: string }>(
+    'SELECT * FROM bags WHERE finished_at IS NULL ORDER BY opened_at IS NULL, opened_at DESC, id DESC'
+  );
+  return rows.map((row) => ({ ...row, notes: JSON.parse(row.notes as unknown as string) }));
+}
+
+/** Open a bag that was added without opening (3d "Open this bag"). */
+export async function openBag(db: SQLiteDatabase, id: number): Promise<void> {
+  await db.runAsync('UPDATE bags SET opened_at = ? WHERE id = ? AND opened_at IS NULL', [Date.now(), id]);
+  notifyShelfChanged();
 }
 
 /** Finish a bag (3d): it leaves the open bags and frees its slot; its cups keep their copies. */

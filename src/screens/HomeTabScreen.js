@@ -59,7 +59,8 @@ export default function HomeTabScreen() {
 
   const top = stack[stack.length - 1];
   if (top === 'beans') return <MyBeansScreen onBack={back} onAddBag={() => push('addBag')} />;
-  if (top === 'addBag') return <AddBagScreen onBack={back} />;
+  // After adding a bag from Home, land on My beans (2026-10-12).
+  if (top === 'addBag') return <AddBagScreen onBack={back} onAdded={() => setStack(['beans'])} />;
   if (top === 'addGear') return <AddGearScreen onBack={back} />;
 
   const greeting = GREETING[partOfDay(new Date(data?.now ?? Date.now()))];

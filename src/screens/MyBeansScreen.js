@@ -9,7 +9,7 @@ import PhotoPlaceholder from '../components/base/PhotoPlaceholder';
 import Text from '../components/base/Text';
 import { daysSince, formatDay } from '../constants/dates';
 import { useDatabase } from '../data/DatabaseProvider';
-import { OPEN_BAG_LIMIT, finishBag, listOpenBags, onShelfChanged } from '../data/repository';
+import { OPEN_BAG_LIMIT, finishBag, listShelfBags, onShelfChanged, openBag } from '../data/repository';
 import { color, dashed, icon, layout, shape, size, space, spacing } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
@@ -22,6 +22,9 @@ import ScreenFrame from './ScreenFrame';
  * freshness meter at this stage, gaps.md 8); under a dashed rule
  * (dashed.dividerSoft, as the star card's caption) "Finish bag": §9
  * secondary, size row (44), full width (D-25, D-29).
+ *
+ * A bag added without opening (3c, 2026-10-12) reads "not opened yet" and
+ * has "Open this bag" in Finish bag's place; it takes a slot like the rest.
  *
  * Finish bag: no confirmation, no undo at this stage (gaps.md 17: 3f's
  * Reopen is not built; for own use a slip costs one slot, and the cups stay).
@@ -38,10 +41,19 @@ export default function MyBeansScreen({ onBack, onAddBag }) {
   const [bags, setBags] = useState(null);
 
   useEffect(() => {
-    const load = () => listOpenBags(db).then(setBags, (error) => console.error('[3d] could not read bags', error));
+    const load = () => listShelfBags(db).then(setBags, (error) => console.error('[3d] could not read bags', error));
     load();
     return onShelfChanged(load);
   }, [db]);
+
+  const open = async (bag) => {
+    try {
+      await openBag(db, bag.id);
+    } catch (error) {
+      console.error('[3d] could not open', error);
+      Alert.alert("Couldn't open this bag", String(error?.message ?? error));
+    }
+  };
 
   const finish = async (bag) => {
     try {
@@ -75,7 +87,7 @@ export default function MyBeansScreen({ onBack, onAddBag }) {
                     {bag.roast_level ? <Badge label={ROAST[bag.roast_level]} tone="neutral" /> : null}
                   </View>
                   <Text variant="bodySm" color="muted" truncate="meta">
-                    {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? `opened ${formatDay(bag.opened_at)}` : null].filter(Boolean).join(' · ')}
+                    {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? `opened ${formatDay(bag.opened_at)}` : 'not opened yet'].filter(Boolean).join(' · ')}
                   </Text>
                   {day != null && day >= 0 ? (
                     <Text variant="labelCaps" color="muted">
@@ -85,7 +97,12 @@ export default function MyBeansScreen({ onBack, onAddBag }) {
                 </View>
               </View>
               <DashedRule token={dashed.dividerSoft} />
-              <Button variant="secondary" size="row" label="Finish bag" onPress={() => finish(bag)} />
+              {/* Not opened yet: "Open this bag" in Finish bag's place (2026-10-12). */}
+              {bag.opened_at ? (
+                <Button variant="secondary" size="row" label="Finish bag" onPress={() => finish(bag)} />
+              ) : (
+                <Button variant="secondary" size="row" label="Open this bag" onPress={() => open(bag)} />
+              )}
             </View>
           );
         })}

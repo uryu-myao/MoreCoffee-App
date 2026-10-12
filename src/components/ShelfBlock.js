@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { daysSince } from '../constants/dates';
 import { useDatabase } from '../data/DatabaseProvider';
-import { OPEN_BAG_LIMIT, listGearWithUse, listOpenBags, onCupsChanged, onShelfChanged } from '../data/repository';
+import { OPEN_BAG_LIMIT, listGearWithUse, listShelfBags, onCupsChanged, onShelfChanged } from '../data/repository';
 import { color, icon, shape, size, space, spacing, state } from '../theme/tokens';
 import Badge from './base/Badge';
 import EmptySlot from './base/EmptySlot';
@@ -40,7 +40,7 @@ export default function ShelfBlock({ onManageBeans, onAddBag, onAddGear }) {
 
   useEffect(() => {
     const load = () =>
-      Promise.all([listOpenBags(db), listGearWithUse(db)]).then(
+      Promise.all([listShelfBags(db), listGearWithUse(db)]).then(
         ([bags, gear]) => setShelf({ bags, gear }),
         (error) => console.error('[home] could not read the shelf', error)
       );
@@ -90,11 +90,9 @@ function Beans({ bags, onManage, onAdd }) {
             <Text variant="label" truncate="name">
               {bag.name}
             </Text>
-            {bag.roaster || bag.size_g ? (
-              <Text variant="bodySm" color="muted" truncate="meta">
-                {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null].filter(Boolean).join(' · ')}
-              </Text>
-            ) : null}
+            <Text variant="bodySm" color="muted" truncate="meta">
+              {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? null : 'not opened yet'].filter(Boolean).join(' · ') || ' '}
+            </Text>
           </View>
           {bag.roasted_at != null && daysSince(bag.roasted_at) >= 0 ? (
             <Text variant="labelCaps" color="muted">

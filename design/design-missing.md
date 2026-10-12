@@ -59,6 +59,8 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
 14. **[this round] Save failure** (today a plain alert with the technical error). What it cannot promise yet — a retry, and that closing loses the input — belongs with `gaps.md` 30 (no drafts).
 15. **[this round] 3c's Bean name error** (built with 5d's vocabulary: "Bean name · required", error-coloured label and underline). Within the existing error set, or new?
 
+18. **[this round] Adding a bag without opening it** (decided 2026-10-12, built): 3c has a second button, **"Add without opening"** (secondary, under "Open this bag"; the label is ours). An unopened bag **takes one of the 5 slots**, reads "not opened yet" on Home and 3d, is not offered when logging a cup, and **3d shows "Open this bag" in Finish bag's place**. Please check the copy, and whether 3c / 3d's "Bags open" stat should change now that it counts unopened bags too.
+
 ## Copy: Design's proposals (report of 2026-10-11) — adopted, in the app
 
 - **10 (5a, empty shelf)**: "Marked fields are required. Add a bag and your gear once — after that they start pre-filled."
