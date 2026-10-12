@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { color, dashed, icon, shape, size, space, spacing, state } from '../theme/tokens';
+import Badge from './base/Badge';
 import Glyph from './base/Glyph';
 import PhotoPlaceholder from './base/PhotoPlaceholder';
 import Text from './base/Text';
@@ -21,7 +22,8 @@ import Text from './base/Text';
  * box with a plus, then the label.
  *
  * Props
- *   items     [{ key, label, meta?, swatch? }]
+ *   items     [{ key, label, meta?, swatch?, badge? }] — badge: an inline
+ *             Badge after the name ("Default", selected tone, as 4a)
  *   selected  key or null
  *   onPick    (key) => void
  *   add       optional { label, onPress }
@@ -45,9 +47,12 @@ export default function RadioList({ items, selected, onPick, add }) {
             <View style={[styles.marker, on && styles.markerOn]}>{on ? <View style={styles.mark} /> : null}</View>
             {item.swatch ? <PhotoPlaceholder size={size.field.height} /> : null}
             <View style={styles.text}>
-              <Text variant="title" color={on ? 'primary' : 'secondary'} truncate="name">
-                {item.label}
-              </Text>
+              <View style={styles.nameRow}>
+                <Text variant="title" color={on ? 'primary' : 'secondary'} truncate="name">
+                  {item.label}
+                </Text>
+                {item.badge ? <Badge label={item.badge} tone="selected" /> : null}
+              </View>
               {item.meta ? (
                 <Text variant="meta" color="muted" truncate="meta">
                   {item.meta}
@@ -115,6 +120,12 @@ const styles = StyleSheet.create({
   addBox: {
     borderStyle: dashed.addSlot.style,
     borderColor: dashed.addSlot.color,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: spacing.gap.row,
   },
   text: {
     flex: 1,

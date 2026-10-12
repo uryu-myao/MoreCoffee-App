@@ -37,7 +37,8 @@ export default function DateSheet({ visible, onClose, label, value, maximum, onC
   return (
     <BottomSheet visible={visible} onClose={onClose}>
       <View style={styles.header}>
-        <Text variant="labelEyebrow" color="muted">
+        {/* The sheet's title in display.sm, as the picker's (decided 2026-10-12). */}
+        <Text variant="displaySm" color="primary">
           {label}
         </Text>
         <Button

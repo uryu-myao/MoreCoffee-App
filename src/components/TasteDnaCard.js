@@ -20,13 +20,16 @@ import Text from './base/Text';
  *   none    no badge: nothing noted yet
  * The mock's footer "3 of 5 cups" is Try next's progress (V2): not shown.
  *
- * An axis with nothing noted shows its empty track and "Not noted" (5b's
- * word for an untouched axis), never a value of 50.
+ * All four axes always show (Design 10b, option A, decided 2026-10-12): an
+ * axis with nothing noted is AxisReadout's empty track with "Not noted yet"
+ * on it, never a value of 50. The card's height never depends on what has
+ * been noted (design-system.md §9 Taste axis readout).
  *
  * The line under the title:
  *   early   Design's copy (2026-10-11, D-47): the least-noted axes and the
  *           notes they still need — "Body needs 3 more notes to lock in.",
- *           "Body and Roast need 3 more notes each.", "1 more note". Notes,
+ *           "Body and Roast need 3 more notes each to lock in." (to lock in
+ *           also when tied, decided 2026-10-12), "1 more note". Notes,
  *           not cups: a cup that skips an axis does not count for it.
  *   TODO(copy, PROVISIONAL): none and locked have no copy from Design yet.
  */
@@ -36,7 +39,7 @@ const notes = (n) => `${n} more ${n === 1 ? 'note' : 'notes'}`;
 function earlyLine(dna) {
   const short = TASTE_AXES.filter((a) => dna.axes[a.key].n > 0 && dna.axes[a.key].n === dna.fewest).map((a) => a.name);
   const n = DNA_TUNING.lockIn - dna.fewest;
-  return short.length === 1 ? `${short[0]} needs ${notes(n)} to lock in.` : `${listNames(short)} need ${notes(n)} each.`;
+  return short.length === 1 ? `${short[0]} needs ${notes(n)} to lock in.` : `${listNames(short)} need ${notes(n)} each to lock in.`;
 }
 
 const LINE = {
@@ -83,11 +86,6 @@ export default function TasteDnaCard({ dna }) {
                 </Text>
               </View>
               <AxisReadout value={value} accessibilityLabel={`${axis.from} to ${axis.to}, ${band ?? 'not noted'}`} />
-              {value == null ? (
-                <Text variant="meta" color="muted" style={styles.notNoted}>
-                  Not noted
-                </Text>
-              ) : null}
             </View>
           );
         })}
@@ -127,8 +125,5 @@ const styles = StyleSheet.create({
   poles: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  notNoted: {
-    alignSelf: 'flex-end',
   },
 });

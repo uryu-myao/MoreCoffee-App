@@ -473,15 +473,21 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
         sections={[
           {
             label: 'Brewer',
-            items: shelf.brewers.map((g) => ({ key: g.id, label: g.name, meta: g.is_default ? 'Default' : undefined })),
+            items: shelf.brewers.map((g) => ({ key: g.id, label: g.name, badge: g.is_default ? 'Default' : undefined })),
             selected: defaults.brewer?.id ?? null,
             onPick: (id) => chooseGear({ brewer: shelf.brewers.find((g) => g.id === id) }),
           },
           {
             label: 'Grinder',
-            items: shelf.grinders.map((g) => ({ key: g.id, label: g.name, meta: g.is_default ? 'Default' : undefined })),
+            items: shelf.grinders.map((g) => ({ key: g.id, label: g.name, badge: g.is_default ? 'Default' : undefined })),
             selected: defaults.grinder?.id ?? null,
             onPick: (id) => chooseGear({ grinder: shelf.grinders.find((g) => g.id === id) }),
+          },
+          {
+            // Its own row after every category: 3a adds any gear, not a grinder only.
+            items: [],
+            selected: null,
+            onPick: () => {},
             add: {
               label: 'Add gear',
               onPress: () => {

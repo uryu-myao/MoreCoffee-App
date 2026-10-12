@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
-import { color, size } from '../../theme/tokens';
+import { color, size, space, textStyle } from '../../theme/tokens';
+import Text from './Text';
 
 /**
  * AxisReadout (design-system.md §9 Taste axis readout): a value on a bipolar
@@ -24,8 +25,13 @@ import { color, size } from '../../theme/tokens';
  * Moving away from 50 the extra current fill is the movement; moving toward
  * 50 the exposed lighter fill is.
  *
- * value null (nothing noted on this axis): the track alone. TODO: no mock
- * draws an axis without a value; asked of Design.
+ * value null (nothing noted on this axis; Design 10b, decided 2026-10-12):
+ * the bare track with "Not noted yet" centred on it, on a surface.raised
+ * patch padded space.8 each side — readable, and the gap in the bar reads as
+ * "no value", never as "balanced". Every readout sits in a 17pt slot (meta's
+ * line height) with the track centred, so filled and empty rows are the same
+ * height and a card of readouts never changes height. Shown on raised cards
+ * (Taste DNA card, 2c), which the patch matches.
  *
  * Props: value 0–100 or null, tone, previous, accessibilityLabel
  */
@@ -48,14 +54,36 @@ export default function AxisReadout({ value, tone = 'computed', previous = null,
       </View>
       {previous != null ? <View style={[styles.marker, { left: `${previous}%`, backgroundColor: GHOST }]} /> : null}
       {has ? <View style={[styles.marker, { left: `${value}%`, backgroundColor: t.marker }]} /> : null}
+      {has ? null : (
+        <View style={styles.emptyLabel} pointerEvents="none">
+          <Text variant="meta" color="muted" style={styles.patch}>
+            Not noted yet
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   box: {
-    height: size.marker.line.h,
+    // meta's line height: the slot an empty row's label needs, kept by every row.
+    height: textStyle.meta.lineHeight,
     justifyContent: 'center',
+  },
+  emptyLabel: {
+    // RN 0.86 has no absoluteFillObject (see AddCoffeeOverlay).
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  patch: {
+    backgroundColor: color.surface.raised,
+    paddingHorizontal: space[8],
   },
   track: {
     height: size.meter.track,
@@ -68,7 +96,7 @@ const styles = StyleSheet.create({
   },
   marker: {
     position: 'absolute',
-    top: 0,
+    top: (textStyle.meta.lineHeight - size.marker.line.h) / 2,
     width: size.marker.line.w,
     height: size.marker.line.h,
     marginLeft: -size.marker.line.w / 2,

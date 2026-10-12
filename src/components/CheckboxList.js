@@ -27,11 +27,13 @@ import Text from './base/Text';
  *   locked    true at the cap: unchecked rows can't be checked
  *   onToggle  (name) => void
  *   add       optional { label, onPress }: the add row
+ *   framed    false when the container draws the frame (the search sheet's
+ *             list scrolls inside a fixed frame)
  */
-export default function CheckboxList({ items, selected, locked = false, onToggle, add }) {
+export default function CheckboxList({ items, selected, locked = false, onToggle, add, framed = true }) {
   if (items.length === 0 && !add) return null;
   return (
-    <View style={styles.frame}>
+    <View style={framed && styles.frame}>
       {items.map((item, i) => {
         const on = selected.includes(item.name);
         const off = locked && !on;

@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import BottomSheet from './base/BottomSheet';
 import Button from './base/Button';
 import SearchField from './base/SearchField';
-import { spacing } from '../theme/tokens';
+import { color, shape, spacing } from '../theme/tokens';
 import CheckboxList from './CheckboxList';
 
 /**
@@ -71,25 +71,31 @@ export default function SearchSheet({ visible, onClose, placeholder, items, sele
         <SearchField value={query} onChangeText={setQuery} placeholder={placeholder} autoFocus={visible} />
         <Button variant="text" label="Done" onPress={close} />
       </View>
-      <ScrollView style={styles.list} keyboardShouldPersistTaps="handled" keyboardDismissMode="none">
-        <CheckboxList
-          items={shown.map((item) => ({ name: item.key, label: item.label, hint: item.hint }))}
-          selected={selected}
-          locked={locked}
-          onToggle={onToggle}
-          add={
-            canAdd
-              ? {
-                  label: `Add "${added}"`,
-                  onPress: () => {
-                    onAdd(added);
-                    setQuery('');
-                  },
-                }
-              : undefined
-          }
-        />
-      </ScrollView>
+      {/* The 2px frame stays whole around the list; only its inside scrolls
+          (decided 2026-10-12: a frame cut by the sheet's edge breaks "the
+          box's outline", §1). */}
+      <View style={[styles.list, shown.length || canAdd ? styles.frame : null]}>
+        <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="none">
+          <CheckboxList
+            framed={false}
+            items={shown.map((item) => ({ name: item.key, label: item.label, hint: item.hint }))}
+            selected={selected}
+            locked={locked}
+            onToggle={onToggle}
+            add={
+              canAdd
+                ? {
+                    label: `Add "${added}"`,
+                    onPress: () => {
+                      onAdd(added);
+                      setQuery('');
+                    },
+                  }
+                : undefined
+            }
+          />
+        </ScrollView>
+      </View>
     </BottomSheet>
   );
 }
@@ -101,6 +107,11 @@ const styles = StyleSheet.create({
     gap: spacing.gap.row,
   },
   list: {
-    flex: 1,
+    flexShrink: 1,
+  },
+  frame: {
+    borderWidth: shape.borderWidth.box,
+    borderColor: color.border.strong,
+    backgroundColor: color.surface.raised,
   },
 });

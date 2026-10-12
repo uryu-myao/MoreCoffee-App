@@ -177,11 +177,6 @@ export default function CupRecordScreen({ id, onBack }) {
                       value={value}
                       accessibilityLabel={`${axis.from} to ${axis.to}, ${value == null ? 'not noted' : axis.steps[Math.round(value / 25)]}`}
                     />
-                    {value == null ? (
-                      <Text variant="meta" color="muted">
-                        Not noted
-                      </Text>
-                    ) : null}
                   </View>
                 );
               })}
