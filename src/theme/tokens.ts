@@ -246,7 +246,12 @@ export const size = {
   /** list: the list row (2a). summary: the one-cup summary row (5b). */
   thumbnail: { list: 66, summary: 40 },
   avatar: 88,
-  tabBar: { height: 60 },
+  /**
+   * tabBar.height: the bar's row above the home-indicator inset. 48 since
+   * 2026-10-12 (60 left too much room under the icons on device): the 40
+   * slot box with 4 above and below, still over size.tapTarget (44).
+   */
+  tabBar: { height: 48 },
   badge: { numeral: 22 },
   checkbox: 24,
   /**
