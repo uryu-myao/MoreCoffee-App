@@ -20,8 +20,7 @@ import Text from './Text';
  *   divided   hairline above the row
  *   error     5d missing-field state: dashed swatch with a plus, error-toned text
  *   placeholder  the value is an invitation, not a value ("Add a bag" when the
- *             shelf is empty): `text.secondary`, the placeholder colour of
- *             the plain fields (gaps.md 23, until D-38 settles it)
+ *             shelf is empty): `text.placeholder`, as every placeholder
  *   readOnly  a record, not a field (2c "What I logged"): no press, no chevron
  *   onPress
  *   testOnly_pressed   force the pressed look (dev harness)
@@ -68,7 +67,7 @@ export default function FieldRow({
         <Text variant="labelEyebrow" color={error ? state.error.text : 'muted'}>
           {label}
         </Text>
-        <Text variant="title" color={error ? state.error.text : placeholder ? 'secondary' : 'primary'} truncate="name">
+        <Text variant="title" color={error ? state.error.text : placeholder ? 'placeholder' : 'primary'} truncate="name">
           {value}
         </Text>
         {meta ? (

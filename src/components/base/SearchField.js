@@ -9,7 +9,7 @@ import Glyph from './Glyph';
  * 12 / 14, the search glyph (icon.md, ink) then the input, caret color.caret.
  * 8l sets the query in 16 / 600, which no text style matches; `title`
  * (16 / 700) stands in, as for the form fields (drift D-44). Placeholder
- * text.secondary (gaps.md 23).
+ * text.placeholder.
  *
  * Props: value, onChangeText, placeholder, autoFocus, accessibilityLabel
  */
@@ -22,7 +22,7 @@ const SearchField = forwardRef(function SearchField({ value, onChangeText, place
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={color.text.secondary}
+        placeholderTextColor={color.text.placeholder}
         autoFocus={autoFocus}
         autoCorrect={false}
         autoCapitalize="none"

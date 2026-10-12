@@ -17,7 +17,7 @@ import Text from './base/Text';
  * Text: the mocks set a focused / entered value at 16 / 700 (`title`) and an
  * idle field at 16 / 500, which has no text style (drift D-44), so every
  * value uses `title`. Entered text is text.primary, placeholders
- * text.secondary (gaps.md 23).
+ * text.placeholder (2026-10-12). Bean name's example is Uryu's (2026-10-12).
  *
  * Roasted on is a day, picked in a sheet (DateSheet): the field shows it as
  * "Apr 1" and opens the sheet; the screen hosts the sheet, since it covers
@@ -36,7 +36,7 @@ import Text from './base/Text';
 export default function BagForm({ value, onChange, onPickDate, datePicking = false, nameMissing = false }) {
   return (
     <View style={styles.card}>
-      <Field label="Bean name" value={value.name} onChangeText={(name) => onChange({ ...value, name })} autoFocus error={nameMissing} />
+      <Field label="Bean name" value={value.name} placeholder="e.g. Ethiopia Guji" onChangeText={(name) => onChange({ ...value, name })} autoFocus error={nameMissing} />
       <Field label="Roaster" value={value.roaster} placeholder="Optional" onChangeText={(roaster) => onChange({ ...value, roaster })} />
       <DayField
         label="Roasted on"
@@ -60,7 +60,7 @@ function Field({ label, value = '', placeholder, onChangeText, editable = true, 
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={color.text.secondary}
+        placeholderTextColor={color.text.placeholder}
         editable={editable}
         autoFocus={autoFocus}
         autoCorrect={false}
@@ -87,7 +87,7 @@ function DayField({ label, value, placeholder, onPress, focused }) {
         accessibilityRole="button"
         accessibilityLabel={`${label}, ${filled ? formatDay(value) : 'not set'}`}
         style={[styles.input, styles.dayField, focused && styles.inputFocused]}>
-        <Text variant="title" color={filled ? 'primary' : 'secondary'}>
+        <Text variant="title" color={filled ? 'primary' : 'placeholder'}>
           {filled ? formatDay(value) : placeholder}
         </Text>
       </Pressable>

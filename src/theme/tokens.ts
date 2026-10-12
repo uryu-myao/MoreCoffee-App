@@ -18,6 +18,13 @@ export const color = {
     primary: '#273D22',
     secondary: '#5C5049',
     muted: '#6B5D55',
+    /**
+     * An empty field's invitation (placeholder, "Add a bag", an add slot's
+     * label) — one colour for all of them (decided 2026-10-12, settles D-38:
+     * text.secondary read like an entered value on device). The tab bar's
+     * inactive grey: 3.08:1 on raised, the 3:1 floor; 8o drew #A39389.
+     */
+    placeholder: '#9B8F87',
     accent: '#9E5202',
     accentStrong: '#8A4602',
     link: '#05639C',

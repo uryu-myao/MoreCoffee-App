@@ -106,7 +106,7 @@ function MyWords({ noteRef, setNoteFilled }) {
       }}
       multiline
       placeholder="Cooled down it turned into iced tea…"
-      placeholderTextColor={color.text.muted}
+      placeholderTextColor={color.text.placeholder}
       accessibilityLabel="My words"
       style={[styles.note, styles.noteInput]}
     />

@@ -469,7 +469,9 @@ The user sees the past rewritten.
 
 ---
 
-## 23. Placeholder text has no colour token (added 2026-10-10)
+## 23. Placeholder text has no colour token (added 2026-10-10) — RESOLVED 2026-10-12
+
+**Resolved**: `color.text.placeholder` (#9B8F87) for every placeholder, decided on device. Entered text stays `text.primary`. The weight (16 / 700) is still `gaps.md` 26.
 
 **Found by**: 8o's optional fields use `#A39389` (drift D-38), which is not in the palette.
 

@@ -272,6 +272,7 @@ Grouped by role. Every hex is a value that qualified **inside that role** (≥3 
 | `color.text.primary` | `#273D22` | 30 screens; the product's ink |
 | `color.text.secondary` | `#5C5049` | body-text 18 screens / secondary-text 21 screens |
 | `color.text.muted` | `#6B5D55` | secondary-text 29 screens / 237 uses — the most-used text colour |
+| `color.text.placeholder` | `#9B8F87` | **an empty field's invitation** (added 2026-10-12, decided on device: `text.secondary` read like an entered value): every placeholder (3c's fields incl. Bean name's "e.g. Ethiopia Guji", the search field, 5b's My words), 5a's "Add a bag" / "Add gear" rows, and the label and glyph of an add slot (`EmptySlot`; its dashed frame says pressable). The tab bar's inactive grey; 3.08:1 on raised, the 3:1 floor. Settles D-38 |
 | `color.text.accent` | `#9E5202` | 19 screens; section eyebrows, brand emphasis |
 | `color.text.accentStrong` | `#8A4602` | 4 screens; paired with `accent`, used on tinted grounds |
 | `color.text.link` | `#05639C` | 4 screens |
@@ -1245,3 +1246,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-12 — §9 Text input error (3c's Bean name), confirmed by Design as within the error set.
 - 2026-10-12 — Design round 2: AxisReadout's empty axis shows "Not noted yet" (10b) and the Taste DNA card keeps four axes and a fixed height (A over B, with the reason). Unchecked checkboxes are `border.muted`, not ink (the contradiction in §1 removed). §9 Empty slot gets its in-list form; §8 lists it. §9 Bottom sheet: the list frame stays whole; sheet titles in `display.sm`.
 - 2026-10-12 — §9 Bottom bar: `size.tabBar.height` 60 → 48 (decided on device); icons centred in the row, the home-indicator inset kept below.
+- 2026-10-12 — `color.text.placeholder` (#9B8F87) added for every placeholder and add slot label (decided on device; D-38 settled).

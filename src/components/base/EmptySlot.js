@@ -44,8 +44,11 @@ export default function EmptySlot({
         disabled && styles.slotDisabled,
         pressed && !disabled && styles.slotPressed,
       ]}>
-      {icon ? <Glyph name={icon} token={iconToken} color={disabled ? color.icon.muted : color.icon.default} /> : null}
-      <Text variant="labelCaps" color={disabled ? 'secondary' : 'primary'} style={styles.label}>
+      {/* The label and glyph are an invitation, in text.placeholder (2026-10-12);
+          the dashed frame is what says pressable (§1 Tap affordance: a part
+          with a surface → its frame), and the inert frame says it isn't. */}
+      {icon ? <Glyph name={icon} token={iconToken} color={color.text.placeholder} /> : null}
+      <Text variant="labelCaps" color="placeholder" style={styles.label}>
         {label}
       </Text>
       {tag ? (
