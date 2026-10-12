@@ -43,6 +43,8 @@ import ScreenFrame from './ScreenFrame';
 /** "Blue Bottle · day 7 when brewed": day only with a roast date, never negative. */
 function subtitle(cup) {
   if (cup.mode !== 'made_it') return cupTitle(cup).source;
+  // No bag: the absence is said once, here (Design 12a).
+  if (!cup.bean_name) return cupTitle(cup).noBag;
   const day = cup.bean_roasted_at != null ? daysBetween(cup.bean_roasted_at, cup.logged_at) : null;
   return [cup.bean_roaster, day != null && day >= 0 ? `day ${day} when brewed` : null].filter(Boolean).join(' · ') || undefined;
 }
@@ -67,15 +69,22 @@ function Logged({ cup }) {
     const method = [cup.brew_method, cup.grinder].filter(Boolean).join(' · ');
     return (
       <View style={styles.card}>
-        <FieldRow
-          readOnly
-          swatch
-          label="Bag"
-          value={cup.bean_name ?? NONE}
-          // "from my shelf": the cup still points at a bag on the shelf.
-          meta={[cup.bean_roaster, cup.bag_id != null ? 'from my shelf' : null].filter(Boolean).join(' · ') || undefined}
-        />
-        <FieldRow readOnly divided label="Method" value={method || NONE} />
+        {/* No bag: the Bag row is hidden, since a row reading "—" looks like
+            missing data (12a). Method stays even when it repeats the title:
+            it is the record, with the grinder. */}
+        {cup.bean_name ? (
+          <FieldRow
+            readOnly
+            swatch
+            label="Bag"
+            value={cup.bean_name}
+            // "from my shelf": the cup still points at a bag on the shelf.
+            meta={[cup.bean_roaster, cup.bag_id != null ? 'from my shelf' : null].filter(Boolean).join(' · ') || undefined}
+          />
+        ) : null}
+        {/* TODO: with neither bag nor gear, this row reads "—" — the look 12a
+            avoids. Undrawn; asked of Design (design-reply-2026-10-13.md). */}
+        <FieldRow readOnly divided={Boolean(cup.bean_name)} label="Method" value={method || NONE} />
       </View>
     );
   }

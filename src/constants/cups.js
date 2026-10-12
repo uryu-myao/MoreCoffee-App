@@ -1,3 +1,5 @@
+import { partOfDay } from './dates';
+
 /**
  * How a cup is named in lists and on its own page, degrading by mode (drift.md
  * D-16): made_it → bean name, barista → drink, packaged → product name.
@@ -17,16 +19,26 @@ const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
 
 /**
  * title and source line (2a's row, 2c's heading, 1b's recent rows).
- * I made it with no bag (a legitimate cup) falls back to what it was brewed
- * with (decided 2026-10-12): bean name → brewer → grinder → "—". Barista /
- * Packaged stay "—" until they have inputs.
+ * I made it with no bag (a legitimate cup) is named by what it was brewed
+ * with (decided 2026-10-12; Design 12b, 2026-10-13):
+ *   bag      bean name · "roaster · process"
+ *   brewer   brewer · "No bag · ‹grinder›" (the brewer is not repeated)
+ *   grinder  grinder · "No bag"
+ *   neither  "Morning cup" (the daypart 2c shows) · "No bag or gear noted"
+ * noBag: how 2c says the absence, once, under its title (12a).
+ * Barista / Packaged stay "—" until they have inputs.
  */
 export function cupTitle(cup) {
   if (cup.mode === 'made_it') {
-    return {
-      title: cup.bean_name ?? cup.brew_method ?? cup.grinder ?? NONE,
-      source: [cup.bean_roaster, cup.bean_process && capitalise(cup.bean_process)].filter(Boolean).join(' · ') || undefined,
-    };
+    if (cup.bean_name) {
+      return {
+        title: cup.bean_name,
+        source: [cup.bean_roaster, cup.bean_process && capitalise(cup.bean_process)].filter(Boolean).join(' · ') || undefined,
+      };
+    }
+    if (cup.brew_method) return { title: cup.brew_method, source: ['No bag', cup.grinder].filter(Boolean).join(' · '), noBag: 'No bag noted' };
+    if (cup.grinder) return { title: cup.grinder, source: 'No bag', noBag: 'No bag noted' };
+    return { title: `${partOfDay(new Date(cup.logged_at))} cup`, source: 'No bag or gear noted', noBag: 'No bag or gear noted' };
   }
   if (cup.mode === 'barista') return { title: cup.drink_type ?? NONE, source: cup.place_name ?? undefined };
   return { title: cup.product_name ?? NONE, source: cup.product_brand ?? undefined };

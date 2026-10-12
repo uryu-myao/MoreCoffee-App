@@ -10,6 +10,7 @@ import PhotoPlaceholder from '../components/base/PhotoPlaceholder';
 import SectionLabel from '../components/base/SectionLabel';
 import Text from '../components/base/Text';
 import { useRecordDraft } from '../components/RecordDraft';
+import { partOfDay } from '../constants/dates';
 import SearchSheet from '../components/SearchSheet';
 import { useDatabase } from '../data/DatabaseProvider';
 import { listFlavourHistory } from '../data/repository';
@@ -44,7 +45,7 @@ function cupSummary(defaults, mode) {
   if (mode === 'made_it') {
     const method = defaults.brewer?.name;
     // As cupTitle: no bag → the brewer, then the grinder (2026-10-12).
-    return { name: defaults.bag?.name ?? defaults.brewer?.name ?? defaults.grinder?.name ?? 'No bag', meta: [MODE_LABEL.made_it, method, timeFormat.format(new Date())].filter(Boolean).join(' · ') };
+    return { name: defaults.bag?.name ?? defaults.brewer?.name ?? defaults.grinder?.name ?? `${partOfDay(new Date())} cup`, meta: [MODE_LABEL.made_it, method, timeFormat.format(new Date())].filter(Boolean).join(' · ') };
   }
   // No fixed drink (2026-10-11): Barista records none until it has an input.
   if (mode === 'barista') return { name: 'No drink', meta: [MODE_LABEL.barista, defaults.cafe?.name, timeFormat.format(new Date())].filter(Boolean).join(' · ') };
