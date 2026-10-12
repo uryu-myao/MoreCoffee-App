@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TABS } from '../constants/navigation';
-import { color, component, layout, motion, shape, size, state } from '../theme/tokens';
+import { color, component, layout, motion, shape, size, space, state } from '../theme/tokens';
 import { AddCoffeeIcon, HomeIcon, ProfileIcon, RecordsIcon, TryNextIcon } from './icons/TabBarIcons';
 
 const ICONS = { home: HomeIcon, records: RecordsIcon, tryNext: TryNextIcon, profile: ProfileIcon };
@@ -142,7 +142,10 @@ const styles = StyleSheet.create({
     flexBasis: 0,
     flexGrow: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    // Icons sit near the rule (less room above them, 2026-10-12); the touch
+    // area still fills the row.
+    justifyContent: 'flex-start',
+    paddingTop: space[4],
   },
   slotStart: {
     paddingLeft: layout.gutter,

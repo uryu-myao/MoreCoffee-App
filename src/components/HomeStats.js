@@ -99,7 +99,8 @@ const styles = StyleSheet.create({
   },
   total: {
     flex: 1,
-    justifyContent: 'flex-end',
+    // Centred against the week panel (on device it read low at the foot, 2026-10-12).
+    justifyContent: 'center',
   },
   hero: {
     marginTop: -HERO_ABOVE_INK,
