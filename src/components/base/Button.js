@@ -103,8 +103,8 @@ function FilledButton({
   const labelColor = disabled ? 'muted' : primary ? color.action.fg : 'primary';
   const iconColor = disabled ? color.icon.muted : primary ? color.icon.onAction : color.icon.default;
 
+  // Row size has no hard shadow (1b's See all, 2026-10-12).
   return (
-    {/* Row size has no hard shadow (1b's See all, 2026-10-12). */}
     <HardShadow shadow={primary && !row ? shadow.primary : null}>
       <Pressable
         onPress={warns ? warnDisabled : onPress}
