@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, StyleSheet, View, useWindowDimensions } from 'react-native';
 import AddCoffeeOverlay from './components/AddCoffeeOverlay';
-import { onEditCupRequest, onShellRequest, requestCloseCup, requestOpenCup, requestTabReset } from './navigation';
+import { onShellRequest, requestOpenCup, requestTabReset } from './navigation';
 import DotTexture from './components/base/DotTexture';
 import FooterNav from './components/FooterNav';
-import PushedScreen from './components/PushedScreen';
+import ShellStack from './components/ShellStack';
 import { TABS } from './constants/navigation';
 import { SCREEN_COMPONENTS } from './screens';
-import EditCupScreen from './screens/EditCupScreen';
 import { ScreenBackdropContext } from './screens/ScreenFrame';
 import { color } from './theme/tokens';
 
@@ -37,8 +36,6 @@ export default function AppShell() {
   const { width } = useWindowDimensions();
   const [activeTab, setActiveTab] = useState('home');
   const [showAddCoffee, setShowAddCoffee] = useState(false);
-  const [editing, setEditing] = useState(null); // the cup 11a edits
-  useEffect(() => onEditCupRequest(setEditing), []);
   const pager = useRef(null);
   const scrollX = useRef(new Animated.Value(0)).current;
   const position = useMemo(() => Animated.divide(scrollX, width), [scrollX, width]);
@@ -106,23 +103,8 @@ export default function AppShell() {
         </>
       </ScreenBackdropContext.Provider>
       <FooterNav activeTab={activeTab} position={position} onTabPress={selectTab} onAddPress={() => setShowAddCoffee(true)} />
-      {/* 11a, pushed over the tabs and the bottom bar (its mock has none). */}
-      {editing ? (
-        <ScreenBackdropContext.Provider value={false}>
-          <PushedScreen key={editing.id} onBack={() => setEditing(null)}>
-            {(goBack) => (
-              <EditCupScreen
-                cup={editing}
-                onBack={goBack}
-                onDeleted={() => {
-                  requestCloseCup();
-                  setEditing(null);
-                }}
-              />
-            )}
-          </PushedScreen>
-        </ScreenBackdropContext.Provider>
-      ) : null}
+      {/* 3d / 3c / 3a / 11a, pushed over the tabs and the bar (their mocks have none). */}
+      <ShellStack />
       <AddCoffeeOverlay
         visible={showAddCoffee}
         onClose={() => setShowAddCoffee(false)}

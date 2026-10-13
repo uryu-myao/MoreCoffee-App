@@ -5,7 +5,7 @@ import Text from '../components/base/Text';
 import { useDatabase } from '../data/DatabaseProvider';
 import { listCups, onCupsChanged } from '../data/repository';
 import { MODE_BADGE, cupTitle } from '../constants/cups';
-import { onCloseCupRequest, onOpenCupRequest, onTabReset, requestEditCup } from '../navigation';
+import { onCloseCupRequest, onOpenCupRequest, onTabReset, requestPush } from '../navigation';
 import PushedScreen from '../components/PushedScreen';
 import { layout, spacing } from '../theme/tokens';
 import CupRecordScreen from './CupRecordScreen';
@@ -17,7 +17,7 @@ import ScreenFrame from './ScreenFrame';
  *
  * A row pushes the cup (2c, CupRecordScreen) over the list, which stays
  * mounted: Back, a swipe from the left edge, or the Records icon returns to it.
- * 2c's pencil asks AppShell for 11a (over the bottom bar); a delete there
+ * 2c's pencil asks ShellStack for 11a (over the bottom bar); a delete there
  * closes the cup here. Not built here: search, the category chips, the 2b sort panel.
  *
  * Row content follows the data model, degrading by mode (drift.md D-16):
@@ -119,7 +119,7 @@ export default function RecordsScreen() {
       </ScreenFrame>
       {openId != null ? (
         <PushedScreen key={openId} onBack={() => setOpenId(null)}>
-          {(goBack) => <CupRecordScreen id={openId} onBack={goBack} onEdit={requestEditCup} />}
+          {(goBack) => <CupRecordScreen id={openId} onBack={goBack} onEdit={(cup) => requestPush({ name: 'editCup', cup })} />}
         </PushedScreen>
       ) : null}
     </View>

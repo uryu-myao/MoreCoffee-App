@@ -10,12 +10,8 @@ import { MODE_BADGE, cupTitle } from '../constants/cups';
 import { partOfDay } from '../constants/dates';
 import { useDatabase } from '../data/DatabaseProvider';
 import { countCups, cupTimesSince, listCups, loadTasteDna, onCupsChanged } from '../data/repository';
-import { onTabReset, requestOpenCup, requestShell } from '../navigation';
-import PushedScreen from '../components/PushedScreen';
+import { requestOpenCup, requestPush, requestShell } from '../navigation';
 import { layout, space, spacing } from '../theme/tokens';
-import AddBagScreen from './AddBagScreen';
-import AddGearScreen from './AddGearScreen';
-import MyBeansScreen from './MyBeansScreen';
 import ScreenFrame from './ScreenFrame';
 
 /**
@@ -31,9 +27,9 @@ import ScreenFrame from './ScreenFrame';
  *   - My gear / My beans
  * Not shown: Try next's box (V2), the line under the counts (no rule yet).
  *
- * Screens opened from Home are pushed over it (PushedScreen, as 2c over
- * Records): 3d (Manage my beans), 3c (Add a bag) and 3a (Add gear). Back, a
- * swipe from the left edge or the Home icon returns.
+ * Screens opened from Home — 3d (Manage my beans), 3c (Add a bag), 3a (Add
+ * gear) — are pushed over Home and the bottom bar (ShellStack; their mocks
+ * draw no bar). Back or a swipe from the left edge returns.
  * Everything is read on open and again whenever a cup is saved.
  */
 const GREETING = { Morning: 'Good morning', Afternoon: 'Good afternoon', Evening: 'Good evening', Night: 'Good evening' };
@@ -42,13 +38,7 @@ const dayFormat = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'num
 export default function HomeTabScreen() {
   const db = useDatabase();
   const [data, setData] = useState(null);
-  // [] = Home; each entry a screen opened on top: 'beans' | 'addBag' | 'addGear'.
-  const [stack, setStack] = useState([]);
-  // A screen is pushed at most once: a quick double tap on "Add a bag" (on
-  // device, while the first push slides in) put 'addBag' in twice — two
-  // screens with one key (2026-10-13). Each screen pops itself by name.
-  const push = (page) => setStack((s) => (s.includes(page) ? s : [...s, page]));
-  const pop = (page) => setStack((s) => s.filter((p) => p !== page));
+  const push = (name) => requestPush({ name });
 
   useEffect(() => {
     const load = () => {
@@ -62,25 +52,6 @@ export default function HomeTabScreen() {
     return onCupsChanged(load);
   }, [db]);
 
-  // The Home icon pressed while a screen is pushed returns to Home (as Records).
-  useEffect(() => onTabReset((tab) => tab === 'home' && setStack([])), []);
-
-  /** One pushed screen; goBack slides it out (PushedScreen), then it is popped. */
-  const renderPage = (page, goBack) => {
-    if (page === 'beans') return <MyBeansScreen onBack={goBack} onAddBag={() => push('addBag')} />;
-    if (page === 'addGear') return <AddGearScreen onBack={goBack} />;
-    // After adding a bag, land on My beans (2026-10-12): put My beans under
-    // this screen if it is not there yet, then slide this one out.
-    return (
-      <AddBagScreen
-        onBack={goBack}
-        onAdded={() => {
-          setStack((s) => (s.includes('beans') ? s : ['beans', ...s]));
-          goBack();
-        }}
-      />
-    );
-  };
 
   const greeting = GREETING[partOfDay(new Date(data?.now ?? Date.now()))];
   return (
@@ -118,11 +89,6 @@ export default function HomeTabScreen() {
           </View>
         ) : null}
       </ScreenFrame>
-      {stack.map((page) => (
-        <PushedScreen key={page} onBack={() => pop(page)}>
-          {(goBack) => renderPage(page, goBack)}
-        </PushedScreen>
-      ))}
     </View>
   );
 }

@@ -5,8 +5,9 @@
  *                        Home's recently sipped rows
  *   requestShell(req)    AppShell: { tab } switches tab, { record: true }
  *                        opens the Record sheet (1b "Record a coffee")
- *   requestEditCup(cup)  AppShell pushes 11a (Edit cup) over everything,
- *                        the bottom bar included (11a draws none)
+ *   requestPush(entry)   ShellStack pushes a screen over everything, the
+ *                        bottom bar included: { name: 'beans' | 'addBag' |
+ *                        'addGear' } from Home, { name: 'editCup', cup } from 2c
  *   requestCloseCup()    Records closes its open cup (after a delete in 11a)
  */
 const cupListeners = new Set();
@@ -21,16 +22,16 @@ export function onOpenCupRequest(listener) {
   return () => cupListeners.delete(listener);
 }
 
-const editListeners = new Set();
+const pushListeners = new Set();
 const closeListeners = new Set();
 
-export function requestEditCup(cup) {
-  editListeners.forEach((l) => l(cup));
+export function requestPush(entry) {
+  pushListeners.forEach((l) => l(entry));
 }
 
-export function onEditCupRequest(listener) {
-  editListeners.add(listener);
-  return () => editListeners.delete(listener);
+export function onPushRequest(listener) {
+  pushListeners.add(listener);
+  return () => pushListeners.delete(listener);
 }
 
 export function requestCloseCup() {
