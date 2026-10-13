@@ -1,5 +1,42 @@
 # Design response — design-missing.md
 
+## Round 4 (2026-10-13): 11a open points (19–26)
+
+19. **Leaving with unsaved changes**: a bottom sheet, the same shape as 11b. Back and the edge swipe both lead to it: catch the leave (navigation `beforeRemove`) instead of only the Back button. With no changes, leave silently.
+    - Title: "Discard your changes?"
+    - Body: "Your edits to this cup won't be saved. The cup stays as it was."
+    - Primary: "Keep editing". Secondary text button: "Discard changes".
+    - The same applies to 3e / 3g / 6d.
+20. **Yes, offer "No bag"** in 11a's picker only: the first row, a square radio like the others. Label "No bag", meta "This cup wasn't from a bag." Choosing it puts the row back to "No bag noted".
+21. **Confirmed: no "Add gear" in 11a.** Editing corrects a record; it doesn't stock the shelf. New gear is added from My gear (3a). Same rule as 20: the Brewer and Grinder pickers each get a first row, "No brewer" / "No grinder".
+22. **No line.** The spinner can't pass today, so "Up to today" would only state the obvious. The second line shows only when there is a roast date.
+23. **Yes, mark it.** The row stays selectable and keeps its look; its meta line starts with "Finished Apr 2 ·" in `text.muted`. Only this cup's own bag appears that way; other finished bags are not listed.
+24. **Confirmed**: Packaged and Barista leave the block out (When, My words and As logged only) until item 6.
+25. **Keep it always pressable** (§1, same as 5a). With nothing changed it returns to 2c without writing anything.
+26. **No note.** The existing "Your Taste DNA counted these when you saved" covers it.
+
+**Round 3 leftover: 2c with neither bag nor gear**: hide the Method row too, which leaves "What I logged" empty, so the whole section goes. The title ("Morning cup") and "No bag or gear noted" under it say what's missing (follows 12a).
+
+---
+
+## Round 3 (2026-10-13): reply to `design-reply-2026-10-13.md`
+
+### 1. Unselected vs disabled — accepted
+- 11c updated: Kenya Nyeri's marker is now a 2px ink frame; Colombia Huila keeps `border.muted` + `text.muted`. The "Depends on" note is removed.
+- 11c otherwise stays as drawn.
+
+### 2. 11a / 11b / 11c — noted as adopted
+- 11b's caption marks "Your profile goes back to Early signs." as adopted.
+
+### 3. The title of a cup with no bag — drawn in Turn 12
+- **2c: hide the Bag row** (12a). A display row reading "—" looks like missing data. The absence is said once, under the title: **"No bag noted"**, in the roaster's slot.
+- **2c: keep the repetition.** The title is the name; the Method row is the record (grinder, clicks). Removing it would leave the grinder nowhere. 11a keeps its Bag FieldRow, since it's an input there.
+- **List rows** (12b): when the brewer is the title, line 3 reads "No bag · ‹grinder›", without repeating the brewer. When the grinder is the title: "No bag".
+- **Neither bag nor gear: "Morning cup"** (Afternoon / Evening / Night), from the daypart 2c already shows. It reads as a name, needs no new data, and the date tells two apart. Second line: "No bag or gear noted". This applies to 2a, 2c, 5b and 1b.
+- Barista / Packaged: not answered here. The same daypart rule would work if you want one rule.
+
+---
+
 ## Round 2 (2026-10-12): rechecked against the repo design-system.md (2026-10-12)
 
 This round uses `uploads/design-system-174ec2c3.md`, read end to end. The stale copies are deleted: the root copy, `uploads/design-system.md` and `-04f729b2`.
