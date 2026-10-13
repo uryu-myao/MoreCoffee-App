@@ -1,5 +1,14 @@
 # Design response — design-missing.md
 
+## Round 5 (2026-10-13): after deleting a cup, the notice (Turn 13)
+- Confirming in 11b returns to Records (2a). A one-line notice sits 12 above the tab bar, at the tab bar's width (90%).
+- Look: `surface.inverse` + `text.onInverse`, square, no border and no shadow, min 48 tall, padding 13 / 16.
+- Copy: "‹cup title› deleted." The title follows 2a's row-title rule. The name truncates; "deleted." never does.
+- Timing: enters with `motion.expand` (fade + rise 8), holds 2s, fades out. Not tappable, no Undo (11b says it can't be undone).
+- Accessibility: announce the sentence; with Reduce Motion on, fade only.
+
+---
+
 ## Round 4 (2026-10-13): 11a open points (19–26)
 
 19. **Leaving with unsaved changes**: a bottom sheet, the same shape as 11b. Back and the edge swipe both lead to it: catch the leave (navigation `beforeRemove`) instead of only the Back button. With no changes, leave silently.
