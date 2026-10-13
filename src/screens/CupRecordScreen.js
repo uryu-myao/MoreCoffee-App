@@ -83,8 +83,6 @@ function Logged({ cup }) {
             meta={[cup.bean_roaster, cup.bag_id != null ? 'from my shelf' : null].filter(Boolean).join(' · ') || undefined}
           />
         ) : null}
-        {/* TODO: with neither bag nor gear, this row reads "—" — the look 12a
-            avoids. Undrawn; asked of Design (design-reply-2026-10-13.md). */}
         <FieldRow readOnly divided={Boolean(cup.bean_name)} label="Method" value={method || NONE} />
       </View>
     );
@@ -157,10 +155,14 @@ export default function CupRecordScreen({ id, onBack, onEdit }) {
           ) : null}
         </View>
 
-        <View style={styles.section}>
-          <SectionLabel variant="plain" label="What I logged" />
-          <Logged cup={cup} />
-        </View>
+        {/* Neither bag nor gear: the whole section goes (Design Round 4); the
+            title and "No bag or gear noted" under it say what's missing. */}
+        {cup.mode !== 'made_it' || cup.bean_name || cup.brew_method || cup.grinder ? (
+          <View style={styles.section}>
+            <SectionLabel variant="plain" label="What I logged" />
+            <Logged cup={cup} />
+          </View>
+        ) : null}
 
         <View style={styles.card}>
           <View style={styles.cardInner}>
