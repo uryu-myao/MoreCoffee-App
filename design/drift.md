@@ -68,6 +68,7 @@ Source: `MoreCoffee design.dc.html` · 30 screens · 2026-09-20.
 | D-51 | Active (code; no token) | 4a 4b 3d | Shelf thumbnails | 44 (4a / 4b), 56 (3d) | **46** (`size.field.height`, FieldRow's swatch) | Neither 44 nor 56 has a size token; a thumbnail token needs approval (§5: drawn alike in 2+ places). Recorded 2026-10-12 |
 | D-52 | Active (code; no style) | 1b 4a 4b | "This week" count and the strip's dates | count 44px serif; dates 13 / 700 (a day with a cup) and 13 / 500 | count `displayLg` (40); dates `meta` (12 / 600), a cup day told by accent colour only | No text style for 44 serif or 13px; new styles need approval. Recorded 2026-10-12 |
 | D-53 | Active (code; rule) | 1b | Recently sipped rows | 58 thumbnail, a brew-category badge ("Filter") + the mode badge | **2a's RecordRow** (66 thumbnail, mode badge only; a chevron, as rows open 2c) | One list row component; brew category has no column (`gaps.md` 10). Recorded 2026-10-12 |
+| D-54 | Active (code; decision) | 5c | The Taste DNA card when nothing moved | Design's line alone ("Your Taste DNA stays where it was — nothing on this cup moves it.") | **the line, then all four axes where they stand** (the stored profile after the cup; Home's card look: a value, or the empty track with "Not noted yet") | On device the line alone didn't show what "where it was" is. Moved axes are unchanged (only those, with the ghost). Decided 2026-10-13 |
 
 ## Not drift — recorded so they are not "fixed" by mistake
 

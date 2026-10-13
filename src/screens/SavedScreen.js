@@ -8,6 +8,7 @@ import { DnaStateBadge } from '../components/TasteDnaCard';
 import { TASTE_AXES } from '../constants/tasteAxes';
 import { useDatabase } from '../data/DatabaseProvider';
 import { cupOrdinal, getCup, loadTasteDna } from '../data/repository';
+import { bandOf } from '../data/tasteDna';
 import { color, motion, shape, size, spacing } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
@@ -22,7 +23,10 @@ import ScreenFrame from './ScreenFrame';
  * before, the value after; both neutral, decided 2026-10-11) with its line
  * under it. Read from the cup's stored dna_change, never recomputed.
  *   - only axes that moved (rounding to >= 1 point) or got their first value,
- *     largest first (DnaChangeLines); nothing moved: Design's line
+ *     largest first (DnaChangeLines); nothing moved: Design's line, then
+ *     all four axes where they stand (decided on device 2026-10-13: the line
+ *     alone doesn't show what "where it was" is). As Home's card: an axis
+ *     never noted is the empty track with "Not noted yet".
  *   - "Where it sat before": the legend for the ghost, when there is one
  *   - the summary sentence, under the title: "This cup pushed you ‹phrases›."
  *     (moved axes only; Design's phrase table, design-missing.md 12)
@@ -115,9 +119,31 @@ export default function SavedScreen({ id, onHome, onSeeRecord }) {
                 })}
               </View>
             ) : (
-              <Text variant="body" color="muted">
-                {NOTHING_MOVED}
-              </Text>
+              <>
+                <Text variant="body" color="muted">
+                  {NOTHING_MOVED}
+                </Text>
+                <View style={styles.axes}>
+                  {TASTE_AXES.map((axis) => {
+                    // The stored profile after this cup; data.dna if the cup has none.
+                    const value = (change ? change.after[axis.key]?.value : data.dna.axes[axis.key].value) ?? null;
+                    const band = value == null ? null : axis.steps[bandOf(value)];
+                    return (
+                      <View key={axis.key} style={styles.axis}>
+                        <View style={styles.poles}>
+                          <Text variant="labelCaps" color="muted">
+                            {axis.from}
+                          </Text>
+                          <Text variant="labelCaps" color="muted">
+                            {axis.to}
+                          </Text>
+                        </View>
+                        <AxisReadout value={value} accessibilityLabel={`${axis.from} to ${axis.to}, ${band ?? 'not noted'}`} />
+                      </View>
+                    );
+                  })}
+                </View>
+              </>
             )}
           </View>
         </ScreenFrame>
