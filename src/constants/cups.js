@@ -45,8 +45,14 @@ export function cupTitle(cup) {
 }
 
 /**
- * My words as 2c shows them (2026-10-13, on device): line breaks at the end
- * are dropped, and between lines at most one empty line is kept. The stored
- * text is not changed.
+ * My words as 2c and 2a's rows show them (2026-10-13, on device): empty
+ * lines at the start and line breaks at the end are dropped, and between
+ * lines at most one empty line is kept. The stored text is not changed.
  */
-export const tidyNote = (note) => (note ? note.replace(/\s+$/, '').replace(/\n[ \t]*(?:\n[ \t]*)+\n/g, '\n\n') : '');
+export const tidyNote = (note) =>
+  note
+    ? note
+        .replace(/^(?:[ \t]*\n)+/, '')
+        .replace(/\s+$/, '')
+        .replace(/\n[ \t]*(?:\n[ \t]*)+\n/g, '\n\n')
+    : '';

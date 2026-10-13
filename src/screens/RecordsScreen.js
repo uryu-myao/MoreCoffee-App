@@ -4,7 +4,7 @@ import RecordRow from '../components/base/RecordRow';
 import Text from '../components/base/Text';
 import { useDatabase } from '../data/DatabaseProvider';
 import { listCups, onCupsChanged } from '../data/repository';
-import { MODE_BADGE, cupTitle } from '../constants/cups';
+import { MODE_BADGE, cupTitle, tidyNote } from '../constants/cups';
 import { onCloseCupRequest, onOpenCupRequest, onTabReset, requestPush } from '../navigation';
 import PushedScreen from '../components/PushedScreen';
 import { layout, spacing } from '../theme/tokens';
@@ -105,7 +105,7 @@ export default function RecordsScreen() {
                         title={title}
                         badges={[MODE_BADGE[cup.mode]]}
                         source={source}
-                        note={cup.note ?? undefined}
+                        note={tidyNote(cup.note) || undefined}
                         rating={cup.rating}
                         date={dayFormat.format(new Date(cup.logged_at))}
                         onPress={() => setOpenId(cup.id)}
