@@ -43,3 +43,10 @@ export function cupTitle(cup) {
   if (cup.mode === 'barista') return { title: cup.drink_type ?? NONE, source: cup.place_name ?? undefined };
   return { title: cup.product_name ?? NONE, source: cup.product_brand ?? undefined };
 }
+
+/**
+ * My words as 2c shows them (2026-10-13, on device): line breaks at the end
+ * are dropped, and between lines at most one empty line is kept. The stored
+ * text is not changed.
+ */
+export const tidyNote = (note) => (note ? note.replace(/\s+$/, '').replace(/\n[ \t]*(?:\n[ \t]*)+\n/g, '\n\n') : '');

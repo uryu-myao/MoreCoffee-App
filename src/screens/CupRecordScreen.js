@@ -9,7 +9,7 @@ import SectionLabel from '../components/base/SectionLabel';
 import Text from '../components/base/Text';
 import DnaChangeLines from '../components/DnaChangeLines';
 import { whenLine } from '../components/WhenMeta';
-import { MODE_LABEL, NONE, cupTitle } from '../constants/cups';
+import { MODE_LABEL, NONE, cupTitle, tidyNote } from '../constants/cups';
 import { daysBetween } from '../constants/dates';
 import { FLAVOUR_LIMIT } from '../constants/flavours';
 import { TASTE_AXES } from '../constants/tasteAxes';
@@ -134,6 +134,7 @@ export default function CupRecordScreen({ id, onBack, onEdit }) {
   const noted = TASTE_AXES.filter((a) => cup[`axis_${a.key}`] != null).length;
   const change = cup.dna_change ? JSON.parse(cup.dna_change) : null;
   const sub = subtitle(cup);
+  const note = tidyNote(cup.note);
 
   return (
     <ScreenFrame
@@ -221,11 +222,11 @@ export default function CupRecordScreen({ id, onBack, onEdit }) {
           </View>
         ) : null}
 
-        {cup.note ? (
+        {note ? (
           <View style={styles.section}>
             <SectionLabel variant="plain" label="My words" />
             <Text variant="note" color="primary">
-              {cup.note}
+              {note}
             </Text>
           </View>
         ) : null}
