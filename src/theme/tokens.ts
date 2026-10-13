@@ -297,6 +297,8 @@ export const icon = {
   /** fill icons are a separate system: no stroke, fixed color, rating stars only */
   fill: {
     sm: { size: 14, color: color.icon.rating },
+    /** 2c's rating line (its mock draws 20; added 2026-10-13) */
+    md: { size: 20, color: color.icon.rating },
     xl: { size: 38, color: color.icon.rating },
   },
 } as const;

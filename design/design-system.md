@@ -642,6 +642,7 @@ Icons are stroke-based and take `currentColor`. `icon.xl` widens the stroke back
 | token | size | colour | reach |
 |---|---|---|---|
 | `icon.fill.sm` | 14 | `color.icon.rating` | 17 uses — rating stars |
+| `icon.fill.md` | 20 | `color.icon.rating` | 2c's rating line (its mock; added 2026-10-13, was drawn at 14) |
 | `icon.fill.xl` | 38 | `color.icon.rating` | 7 uses — hero rating star |
 
 *Correction (2026-10-04)*: fill glyphs have a second job. The tab bar's icons are also fills; their colours live in the component anatomy (`component.tabBar.icon`, §2 C), not in `icon.fill`. The extraction missed them, which is why this section originally said "one job".
@@ -1260,3 +1261,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-12 — §9 Bottom bar: no hide on scroll; below the row, the home-indicator inset less `space.14`.
 - 2026-10-12 — §1 Disabled options: unselected markers are a 2px ink frame, disabled ones `border.muted` + `text.muted` label; a disabled option always shows its reason (a row's meta, a set's count). The two §1 lines on unchecked boxes now agree. `gaps.md` 12 closed by rule.
 - 2026-10-13 — §9 Buttons: a text action stacked under full-width buttons takes a 44 row, label centred.
+- 2026-10-13 — §2 Icons: `icon.fill.md` (20) for 2c's rating stars, as its mock draws them.

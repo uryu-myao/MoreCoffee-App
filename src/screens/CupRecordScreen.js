@@ -50,14 +50,25 @@ function subtitle(cup) {
   return [cup.bean_roaster, day != null && day >= 0 ? `day ${day} when brewed` : null].filter(Boolean).join(' · ') || undefined;
 }
 
-export function Stars({ rating }) {
+/**
+ * A rating as five stars, display only. size 'md' (20, 2c's mock; enlarged
+ * on device 2026-10-13 from 14) or 'sm' (14, 11a's As logged). The empty
+ * star is the stroke glyph at the same size, in border.muted.
+ */
+const STAR = {
+  md: { fill: icon.fill.md, empty: { size: icon.fill.md.size, strokeWidth: icon.md.strokeWidth } },
+  sm: { fill: icon.fill.sm, empty: icon.xs },
+};
+
+export function Stars({ rating, size = 'md' }) {
+  const star = STAR[size];
   return (
     <View style={styles.stars} accessible accessibilityLabel={`${rating} of 5`}>
       {[1, 2, 3, 4, 5].map((n) =>
         n <= rating ? (
-          <Glyph key={n} name="star" token={icon.fill.sm} filled />
+          <Glyph key={n} name="star" token={star.fill} filled />
         ) : (
-          <Glyph key={n} name="star" token={icon.xs} color={color.border.muted} />
+          <Glyph key={n} name="star" token={star.empty} color={color.border.muted} />
         )
       )}
     </View>

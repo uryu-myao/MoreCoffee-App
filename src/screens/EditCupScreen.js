@@ -84,7 +84,7 @@ function AsLogged({ cup }) {
         </Text>
         <DashedRule token={dashed.dividerSoft} />
         <View style={styles.ratingRow}>
-          <Stars rating={cup.rating} />
+          <Stars rating={cup.rating} size="sm" />
           <Text variant="meta" color="muted">
             {RATING_COPY[cup.rating]}
           </Text>
