@@ -44,8 +44,11 @@ export default function HomeTabScreen() {
   const [data, setData] = useState(null);
   // [] = Home; each entry a screen opened on top: 'beans' | 'addBag' | 'addGear'.
   const [stack, setStack] = useState([]);
-  const push = (page) => setStack((s) => [...s, page]);
-  const back = () => setStack((s) => s.slice(0, -1));
+  // A screen is pushed at most once: a quick double tap on "Add a bag" (on
+  // device, while the first push slides in) put 'addBag' in twice — two
+  // screens with one key (2026-10-13). Each screen pops itself by name.
+  const push = (page) => setStack((s) => (s.includes(page) ? s : [...s, page]));
+  const pop = (page) => setStack((s) => s.filter((p) => p !== page));
 
   useEffect(() => {
     const load = () => {
@@ -116,7 +119,7 @@ export default function HomeTabScreen() {
         ) : null}
       </ScreenFrame>
       {stack.map((page) => (
-        <PushedScreen key={page} onBack={back}>
+        <PushedScreen key={page} onBack={() => pop(page)}>
           {(goBack) => renderPage(page, goBack)}
         </PushedScreen>
       ))}
