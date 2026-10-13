@@ -1113,6 +1113,7 @@ Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control
   - `primary`: `color.action.bg` fill, `2px solid` outline, `shadow.primary`, `button.caps`;
   - `secondary`: `color.surface.ground`, `2px solid` ink outline, `color.text.primary` label;
   - `text`: no fill, no frame, ink, **underlined** (§1 Tap affordance).
+    - **Stacked under full-width buttons** (11a's Delete this cup; decided on device 2026-10-13): the text action takes a full-width **`size.tapTarget` (44) row**, label centred — as 11a's mock draws it. Sized to its label, it sat the footer gap (12) under the primary, minus the 5pt hard shadow. Applies to every such stack.
   - `quiet` (1.5 `border.muted`, no fill) was proposed and **dropped**: that is §1's look for an *unselected option*.
 - **`size`** (surfaced variants only): `full` (full width: **56 primary, 52 secondary**, so the secondary sits one step under the primary it stacks beneath) · `row` (44) · `compact` (40) · `small` (36, touch area padded to 44 with `hitSlop`, `gaps.md` 19).
   - 48 (8f, one use) is decided with 8f.
@@ -1258,3 +1259,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-12 — §1 Type: no italics in the app; `text.note` (My words) is upright, and the italic face is no longer loaded.
 - 2026-10-12 — §9 Bottom bar: no hide on scroll; below the row, the home-indicator inset less `space.14`.
 - 2026-10-12 — §1 Disabled options: unselected markers are a 2px ink frame, disabled ones `border.muted` + `text.muted` label; a disabled option always shows its reason (a row's meta, a set's count). The two §1 lines on unchecked boxes now agree. `gaps.md` 12 closed by rule.
+- 2026-10-13 — §9 Buttons: a text action stacked under full-width buttons takes a 44 row, label centred.

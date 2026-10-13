@@ -234,10 +234,7 @@ export default function EditCupScreen({ cup, onBack, onDeleted }) {
         footer={
           <>
             <Button label="Save changes" onPress={save} />
-            {/* 11a: the text action sits centred under Save. */}
-            <View style={styles.textAction}>
-              <Button variant="text" label="Delete this cup" onPress={askDelete} />
-            </View>
+            <Button variant="text" stacked label="Delete this cup" onPress={askDelete} />
           </>
         }>
         <View style={styles.sections}>
@@ -377,9 +374,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.gap.row,
-  },
-  textAction: {
-    alignItems: 'center',
   },
   // 11b: the buttons sit a step under the copy (margin-top 8 over the sheet's gap).
   sheetActions: {

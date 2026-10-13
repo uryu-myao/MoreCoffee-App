@@ -21,6 +21,11 @@ import Text from './Text';
  *              label.eyebrow). The underline is §1's "a text-only action is
  *              underlined" (the means text.inlineAction defines); colour
  *              alone never marks pressable.
+ *              stacked: a text action under full-width buttons (11a's
+ *              Delete this cup): a full-width size.tapTarget (44) row with
+ *              the label centred, as the mock's 44 button — so the label
+ *              keeps clear of the button above and its hard shadow
+ *              (decided on device 2026-10-13, for every such stack).
  *   disabled   either variant: ground fill, border.muted outline, text.muted
  *              label, no shadow — the border.addSlot.inert vocabulary from 5d
  *   pressed    the fill darkens (state.pressed.action / .surface); outline,
@@ -60,7 +65,7 @@ const TEXT_HIT_SLOP = { top: space[16], bottom: space[16], left: space[8], right
 // only 4pt into it; 20 below ends where the next axis begins (gap.axis).
 const SMALL_HIT_SLOP = { top: space[8], bottom: space[20], left: space[8], right: space[8] };
 
-function TextButton({ label, small = false, disabled = false, onPress, accessibilityLabel }) {
+function TextButton({ label, small = false, stacked = false, disabled = false, onPress, accessibilityLabel }) {
   const scale = useRef(new Animated.Value(1)).current;
   const scaleTo = (toValue) =>
     Animated.timing(scale, { toValue, duration: motion.press.duration, easing: pressEasing, useNativeDriver: true }).start();
@@ -70,7 +75,8 @@ function TextButton({ label, small = false, disabled = false, onPress, accessibi
       disabled={disabled}
       onPressIn={disabled ? undefined : () => scaleTo(state.pressed.scale)}
       onPressOut={disabled ? undefined : () => scaleTo(1)}
-      hitSlop={small ? SMALL_HIT_SLOP : TEXT_HIT_SLOP}
+      hitSlop={stacked ? undefined : small ? SMALL_HIT_SLOP : TEXT_HIT_SLOP}
+      style={stacked && styles.stacked}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled }}>
@@ -132,6 +138,12 @@ function FilledButton({
 }
 
 const styles = StyleSheet.create({
+  stacked: {
+    alignSelf: 'stretch',
+    minHeight: size.tapTarget,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   /** §1: a text-only action is underlined; colour alone never marks pressable. */
   underline: {
     textDecorationLine: 'underline',
