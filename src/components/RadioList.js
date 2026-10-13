@@ -10,8 +10,8 @@ import Text from './base/Text';
  * single-select sibling of CheckboxList. Used by stage 3's bag / gear picker.
  *
  * Marker (design-system.md §9 Radio marker, D-35): square, outer
- * size.checkbox (24) with a 2px frame — border.muted on raised, ink when
- * selected — and, when selected, an inner ink square of
+ * size.checkbox (24) with a 2px frame — ink, border.muted when disabled
+ * (decided 2026-10-12) — and, when selected, an inner ink square of
  * 24 − 2 × 2 − 2 × 4 = 12 (border 2, gap 4 a side). It reads differently from
  * the checkbox's tick.
  * Row: the marker, an optional 46 photo placeholder (10a), the name

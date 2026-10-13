@@ -66,6 +66,8 @@ const COLLAPSE = {
  *             scrolls (title shrinks, rule rises; §9 Header collapse)
  *   footer    optional node in the footer panel at the end of the page; it sits at
  *             the bottom when the content is short and follows it when it is long
+ *   trailing  compact only: a control at the row's right end (2c's edit
+ *             pencil). Moves with the row like `leading`; never fades
  *   compact   Record flow header (Log a cup, Tasting note, 3c, 3a, 2c; revised 2026-10-07):
  *             the leading control and the title on one row at the left, centred
  *             on the title's cap band; meta as the standard right-aligned column.
@@ -82,6 +84,7 @@ export default function ScreenFrame({
   title,
   eyebrow,
   leading,
+  trailing,
   meta,
   stat,
   scroll = false,
@@ -252,7 +255,7 @@ export default function ScreenFrame({
   // standard header otherwise (padding, rule, meta 20 above the rule).
   const header = compact ? (
     <View style={[styles.header, headerTop, scroll && styles.headerNoRule]}>
-      <View style={styles.compactRow} onLayout={onPart('row')}>
+      <View style={[styles.compactRow, trailing && styles.compactRowFull]} onLayout={onPart('row')}>
         {leading ? (
           <Animated.View onLayout={onPart('leading')} style={{ transform: [{ translateY: anim ? anim.leading : optical }] }}>
             {leading}
@@ -266,6 +269,9 @@ export default function ScreenFrame({
           ]}>
           {titleText}
         </Animated.View>
+        {trailing ? (
+          <Animated.View style={[styles.trailing, { transform: [{ translateY: anim ? anim.leading : optical }] }]}>{trailing}</Animated.View>
+        ) : null}
       </View>
       {stat ? (
         // Compact + stat (3c / 3a, 2026-10-11): the stat takes meta's right
@@ -475,6 +481,12 @@ const styles = StyleSheet.create({
   },
   compactTitle: {
     flexShrink: 1,
+  },
+  compactRowFull: {
+    flexGrow: 1,
+  },
+  trailing: {
+    marginLeft: 'auto',
   },
   body: {
     flexGrow: 1,

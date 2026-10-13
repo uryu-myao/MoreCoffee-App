@@ -40,7 +40,8 @@ const TONE_COLOR = {
 /**
  * Props
  *   label        section name (fixed copy)
- *   variant      'marked' (default) | 'plain'
+ *   variant      'marked' (default) | 'optional' (the grey bullet with no
+ *                status line: 11a's My words) | 'plain'
  *   status       'set' | 'prefilled' | 'required' | 'missing' | 'optional' | 'count' | 'limit' | undefined
  *   statusLabel  overrides the status copy; required for 'missing', 'count' and 'limit'
  */
@@ -56,8 +57,8 @@ export default function SectionLabel({ label, variant = 'marked', status, status
       accessible
       accessibilityRole="header"
       accessibilityLabel={statusText ? `${label}, ${statusText}` : label}>
-      {variant === 'marked' ? (
-        <View style={[styles.bullet, status === 'optional' ? styles.bulletOptional : styles.bulletRequired]} />
+      {variant !== 'plain' ? (
+        <View style={[styles.bullet, variant === 'optional' || status === 'optional' ? styles.bulletOptional : styles.bulletRequired]} />
       ) : null}
       <Text variant="labelEyebrow" color={isError ? state.error.text : 'muted'} style={styles.label}>
         {label}

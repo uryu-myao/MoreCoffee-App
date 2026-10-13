@@ -8,7 +8,8 @@ import Button from './base/Button';
 import Text from './base/Text';
 
 /**
- * A day picked in the bottom sheet (3c Roasted on; later 3g's dates).
+ * A day picked in the bottom sheet (3c Roasted on; later 3g's dates), or a
+ * day and time (11a's Date & time, `mode="datetime"`).
  *
  * iOS's spinner, decided 2026-10-10: compact (a rounded pill + popover) and
  * inline (a month grid with a round selected day) both bring the OS's round
@@ -24,11 +25,14 @@ import Text from './base/Text';
  * Props
  *   visible, onClose
  *   label     the field's label ("Roasted on")
- *   value     ms of a local midnight, or null
+ *   value     ms of a local midnight (date), or of a moment (datetime); or null
+ *   minimum   earliest pickable moment (Date), optional (11a: the bag's roast day)
  *   maximum   latest pickable day (Date); the roast date stops at today (T-5)
- *   onChange  (ms of local midnight) => void
+ *   mode      'date' (default) | 'datetime'
+ *   onChange  (ms) => void — a local midnight in date mode
  */
-export default function DateSheet({ visible, onClose, label, value, maximum, onChange }) {
+export default function DateSheet({ visible, onClose, label, value, minimum, maximum, mode = 'date', onChange }) {
+  const pick = (date) => (mode === 'date' ? startOfDay(date) : date.getTime());
   const [shown, setShown] = useState(() => new Date(value ?? Date.now()));
   useEffect(() => {
     if (visible) setShown(new Date(value ?? Date.now()));
@@ -45,22 +49,23 @@ export default function DateSheet({ visible, onClose, label, value, maximum, onC
           variant="text"
           label="Done"
           onPress={() => {
-            onChange(startOfDay(shown));
+            onChange(pick(shown));
             onClose();
           }}
         />
       </View>
       <DateTimePicker
         value={shown}
-        mode="date"
+        mode={mode}
         display="spinner"
+        minimumDate={minimum}
         maximumDate={maximum}
         themeVariant="light"
         textColor={color.text.primary}
         onValueChange={(_, date) => {
           if (!date) return;
           setShown(date);
-          onChange(startOfDay(date));
+          onChange(pick(date));
         }}
       />
     </BottomSheet>

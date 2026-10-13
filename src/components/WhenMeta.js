@@ -15,6 +15,10 @@ const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute:
 /** One line: "Wed, Apr 8 · 08:20 · Morning" (2c). */
 export const whenLine = (at) => `${dateFormat.format(at)} · ${timeFormat.format(at)} · ${partOfDay(at)}`;
 
+/** "Wed, Apr 8 · 08:20" (11a's Date & time row) and "Wed, Apr 8" (11b). */
+export const dayTimeLine = (at) => `${dateFormat.format(at)} · ${timeFormat.format(at)}`;
+export const dayLine = (at) => dateFormat.format(at);
+
 export default function WhenMeta({ at }) {
   return (
     <View style={styles.when}>

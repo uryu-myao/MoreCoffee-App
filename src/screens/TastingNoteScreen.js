@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { memo, useCallback, useEffect, useState } from 'react';
-import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AxisSlider from '../components/base/AxisSlider';
 import Button from '../components/base/Button';
@@ -9,6 +9,7 @@ import IconButton from '../components/base/IconButton';
 import PhotoPlaceholder from '../components/base/PhotoPlaceholder';
 import SectionLabel from '../components/base/SectionLabel';
 import Text from '../components/base/Text';
+import NoteField from '../components/NoteField';
 import { useRecordDraft } from '../components/RecordDraft';
 import { partOfDay } from '../constants/dates';
 import SearchSheet from '../components/SearchSheet';
@@ -16,8 +17,7 @@ import { useDatabase } from '../data/DatabaseProvider';
 import { listFlavourHistory } from '../data/repository';
 import { BUNDLED_FLAVOURS, FLAVOUR_LIMIT, normalizeFlavour } from '../constants/flavours';
 import { TASTE_AXES } from '../constants/tasteAxes';
-import { resolveTextStyle } from '../theme/fonts';
-import { color, dashed, icon, layout, shape, size, space, spacing, state, textStyle } from '../theme/tokens';
+import { color, dashed, icon, layout, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
 /**
@@ -65,9 +65,6 @@ function shownFlavours(selected, history) {
   return [...selected.map((w) => ({ word: w, on: true })), ...rest.slice(0, Math.max(0, FLAVOUR_LIMIT - selected.length)).map((w) => ({ word: w, on: false }))];
 }
 
-/** "My words" field: min-height is local to the field (not a token, on review). */
-const NOTE_MIN_HEIGHT = 84;
-
 /**
  * The four axes. Their values live in the Record sheet's draft (shared with
  * 5a, kept when going back). An axis commits on release only, so a commit
@@ -98,7 +95,7 @@ const AxisRow = memo(function AxisRow({ axis, value, setAxis }) {
 function MyWords({ noteRef, setNoteFilled }) {
   const [text, setText] = useState(noteRef.current);
   return (
-    <TextInput
+    <NoteField
       value={text}
       onChangeText={(t) => {
         setText(t);
@@ -106,11 +103,6 @@ function MyWords({ noteRef, setNoteFilled }) {
         if (Boolean(t.trim()) !== Boolean(noteRef.current.trim())) setNoteFilled(Boolean(t.trim()));
         noteRef.current = t;
       }}
-      multiline
-      placeholder="Cooled down it turned into iced tea…"
-      placeholderTextColor={color.text.placeholder}
-      accessibilityLabel="My words"
-      style={[styles.note, styles.noteInput]}
     />
   );
 }
@@ -374,18 +366,6 @@ const styles = StyleSheet.create({
   },
   chipPressed: {
     backgroundColor: state.pressed.surface,
-  },
-  note: {
-    minHeight: NOTE_MIN_HEIGHT,
-    padding: space[16],
-    borderWidth: shape.borderWidth.box,
-    borderColor: color.border.strong,
-    backgroundColor: color.surface.raised,
-  },
-  noteInput: {
-    ...resolveTextStyle(textStyle.note),
-    color: color.text.primary,
-    textAlignVertical: 'top',
   },
   actions: {
     marginTop: space[28],
