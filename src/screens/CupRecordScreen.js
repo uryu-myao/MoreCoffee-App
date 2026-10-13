@@ -30,8 +30,9 @@ import ScreenFrame from './ScreenFrame';
  * with the date line (2c's "Wed, Apr 8 · 08:20 · Morning", accent) and the
  * mode Badge on one row, then the roaster line and the stars.
  *
+ * The pencil at the header's right opens 11a (Edit cup), pushed over this.
+ *
  * Not shown in V1 (decided 2026-10-11):
- *   - the pencil (cup edit, waiting for Design: design-missing.md 1)
  *   - share (no mock says what it shares; gaps.md 32)
  *   - the photo area (no camera in V1; a placeholder is Design's: design-missing.md 6)
  *   - "22 clicks" and "My default brewer" (gaps.md 33)
@@ -49,7 +50,7 @@ function subtitle(cup) {
   return [cup.bean_roaster, day != null && day >= 0 ? `day ${day} when brewed` : null].filter(Boolean).join(' · ') || undefined;
 }
 
-function Stars({ rating }) {
+export function Stars({ rating }) {
   return (
     <View style={styles.stars} accessible accessibilityLabel={`${rating} of 5`}>
       {[1, 2, 3, 4, 5].map((n) =>
@@ -106,7 +107,7 @@ function Logged({ cup }) {
   );
 }
 
-export default function CupRecordScreen({ id, onBack }) {
+export default function CupRecordScreen({ id, onBack, onEdit }) {
   const db = useDatabase();
   const [cup, setCup] = useState(null);
 
@@ -131,7 +132,8 @@ export default function CupRecordScreen({ id, onBack }) {
       compact
       userTitle
       title={cupTitle(cup).title}
-      leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}>
+      leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
+      trailing={<IconButton icon="pencil" accessibilityLabel="Edit cup" onPress={() => onEdit(cup)} />}>
       <View style={styles.body}>
         <View style={styles.lead}>
           <View style={styles.whenRow}>

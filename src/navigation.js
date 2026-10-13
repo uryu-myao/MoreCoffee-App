@@ -5,6 +5,9 @@
  *                        Home's recently sipped rows
  *   requestShell(req)    AppShell: { tab } switches tab, { record: true }
  *                        opens the Record sheet (1b "Record a coffee")
+ *   requestEditCup(cup)  AppShell pushes 11a (Edit cup) over everything,
+ *                        the bottom bar included (11a draws none)
+ *   requestCloseCup()    Records closes its open cup (after a delete in 11a)
  */
 const cupListeners = new Set();
 const shellListeners = new Set();
@@ -16,6 +19,27 @@ export function requestOpenCup(id) {
 export function onOpenCupRequest(listener) {
   cupListeners.add(listener);
   return () => cupListeners.delete(listener);
+}
+
+const editListeners = new Set();
+const closeListeners = new Set();
+
+export function requestEditCup(cup) {
+  editListeners.forEach((l) => l(cup));
+}
+
+export function onEditCupRequest(listener) {
+  editListeners.add(listener);
+  return () => editListeners.delete(listener);
+}
+
+export function requestCloseCup() {
+  closeListeners.forEach((l) => l());
+}
+
+export function onCloseCupRequest(listener) {
+  closeListeners.add(listener);
+  return () => closeListeners.delete(listener);
 }
 
 export function requestShell(request) {

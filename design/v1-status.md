@@ -25,7 +25,8 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 1b / 4a / 4b Home | **yes** | **done** | greeting, cups total + this week strip, Record a coffee, Taste DNA card, recently sipped (→ 2c, See all → Records), My gear / My beans. Not shown: Try next box (V2), the slow-start line (no rule) |
 | 2a Records | yes | **partial** | grouped list, count; rows open 2c. No sort (2b), no search (8l) |
 | 2b Sort sheet | not now | not started | |
-| 2c Record (one cup) | **yes** (decided 2026-10-11) | **done, read only** | edit (pencil) waits for Design; share, photo, "22 clicks" / "My default brewer" not shown |
+| 2c Record (one cup) | **yes** (decided 2026-10-11) | **done** | the pencil opens 11a; share, photo, "22 clicks" / "My default brewer" not shown |
+| 11a Edit cup · 11b Delete · 11c Bag picker | **yes** (approved 2026-10-13) | **done** | bag, method, date & time, My words; "As logged" read only; delete with 11b's sheet; the date wins over the bag. Open: unsaved changes (`gaps.md` 20), a cup with no bag, the date row with no roast date, Packaged's Product row, Barista |
 | 3b My gear / 3e Edit gear | not now | not started | the only way to rename generic gear (`gaps.md` 25) |
 | 3d My beans | **yes** | **done** | open bags, "Day N", Finish bag (no confirm, no undo at this stage), Add a bag → 3c. Card tap (3g) and Finished bags (3f) not at this stage |
 | 3g Edit bag / 3f Finished bags | not now | not started | 3f's Reopen is the undo for a mistaken Finish; for own use, losing one of five slots is acceptable and the cups stay |

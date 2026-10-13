@@ -286,6 +286,90 @@ export async function insertCup(db: SQLiteDatabase, cup: NewCup): Promise<number
   return id;
 }
 
+/** One bag by id, finished or not (11a: the cup's own bag, which may have left the shelf). */
+export async function getBag(db: SQLiteDatabase, id: number): Promise<Bag | null> {
+  const row = await db.getFirstAsync<Bag & { notes: string }>('SELECT * FROM bags WHERE id = ?', [id]);
+  return row ? { ...row, notes: JSON.parse(row.notes as unknown as string) } : null;
+}
+
+/**
+ * What 11a can change on a cup: the bag, the gear, when, My words. The
+ * rating, axes and flavours are not editable (Taste DNA counted them at save).
+ */
+export type CupEdit = {
+  bagId: number | null;
+  brewerId: number | null;
+  brewMethod: string | null;
+  grinderId: number | null;
+  grinder: string | null;
+  loggedAt: number;
+  note: string | null;
+};
+
+/**
+ * Save 11a's changes. A new bag is copied onto the cup as at logging
+ * (data-model.md); an unchanged bag keeps the cup's own copy. Refuses a time
+ * in the future or before the bag's roast day (the date sheet stops there
+ * too: the date wins over the bag, 11c).
+ *
+ * dna_change is NOT recomputed (taste-dna.md item 5: stored at save, never
+ * recomputed); the profile itself is computed on read, so it follows the new
+ * time at once.
+ */
+export async function updateCup(db: SQLiteDatabase, id: number, edit: CupEdit): Promise<void> {
+  if (edit.loggedAt > Date.now()) throw new Error('A cup cannot be logged in the future.');
+  await db.withExclusiveTransactionAsync(async (tx) => {
+    const cup = await tx.getFirstAsync<{ bag_id: number | null }>('SELECT bag_id FROM cups WHERE id = ?', [id]);
+    if (!cup) throw new Error('This cup is no longer stored.');
+    if (edit.bagId != null) {
+      const bag = await tx.getFirstAsync<{ roasted_at: number | null }>('SELECT roasted_at FROM bags WHERE id = ?', [edit.bagId]);
+      if (bag?.roasted_at != null && edit.loggedAt < bag.roasted_at) throw new Error("A cup can't be logged before its bag was roasted.");
+    }
+    if (edit.bagId !== cup.bag_id) {
+      await tx.runAsync(
+        `UPDATE cups SET (bag_id, bean_name, bean_roaster, bean_origin, bean_region, bean_process, bean_roast_level, bean_roasted_at) =
+           (SELECT b.id, b.name, b.roaster, b.origin, b.region, b.process, b.roast_level, b.roasted_at
+              FROM (SELECT 1) LEFT JOIN bags b ON b.id = ?)
+         WHERE id = ?`,
+        [edit.bagId, id]
+      );
+    }
+    await tx.runAsync('UPDATE cups SET brewer_id = ?, brew_method = ?, grinder_id = ?, grinder = ?, logged_at = ?, note = ? WHERE id = ?', [
+      edit.brewerId,
+      edit.brewMethod,
+      edit.grinderId,
+      edit.grinder,
+      edit.loggedAt,
+      edit.note,
+      id,
+    ]);
+  });
+  notifyCupsChanged();
+}
+
+/**
+ * Whether deleting this cup takes the profile out of Locked in (11b's third
+ * line, "Your profile goes back to Early signs."): lock-in is sticky, but is
+ * recomputed from the cups that remain, so a delete can mean it was never met.
+ */
+export async function deleteDropsLockIn(db: SQLiteDatabase, id: number): Promise<boolean> {
+  const settings = await db.getFirstAsync<{ reset_at: number | null }>('SELECT reset_at FROM settings');
+  const rows = await db.getAllAsync<Parameters<typeof dnaCupFromRow>[0] & { id: number }>(
+    'SELECT id, rating, logged_at, axis_acidity, axis_body, axis_roast, axis_sweetness, flavours FROM cups ORDER BY logged_at, id'
+  );
+  const resetAt = settings?.reset_at ?? null;
+  const now = computeDna(rows.map(dnaCupFromRow), Date.now(), resetAt);
+  if (now.state !== 'locked') return false;
+  const without = computeDna(rows.filter((r) => r.id !== id).map(dnaCupFromRow), Date.now(), resetAt);
+  return without.state !== 'locked';
+}
+
+/** Delete a cup (11b). Taste DNA is computed on read, so it follows at once. */
+export async function deleteCup(db: SQLiteDatabase, id: number): Promise<void> {
+  await db.runAsync('DELETE FROM cups WHERE id = ?', [id]);
+  notifyCupsChanged();
+}
+
 /* ── Change signal ─────────────────────────────────────────────────────────
  * Screens that read cups subscribe; every write notifies. A screen left
  * mounted under the Record overlay (the Records tab) refreshes after a save.

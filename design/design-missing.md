@@ -6,7 +6,7 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
 
 ## Screens
 
-1. **[this round] Cup edit** (2c's pencil)
+1. **[drawn 11a–11c, approved and built 2026-10-13] Cup edit** (2c's pencil)
    - **Editable**: the bag, the gear, the date and time, My words; Packaged's product name. (Barista's café and drink: not at this stage.)
    - **Shown but not editable**: the rating, the four axes, the flavours (Taste DNA's input: if they changed while each cup's stored change stayed, the history would become false). **Decided look: 2c's read-only display** — the entered (brown) AxisReadout, flavour Badges with no frame, stars that do not press. **Not** the disabled look, which is only for options in a set (§1 "Values that cannot be edited are displayed").
    - **Date limits**: not in the future; not before the bag's roast date (when it has one).
