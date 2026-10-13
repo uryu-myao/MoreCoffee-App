@@ -61,7 +61,7 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
 
 18. **[this round] Adding a bag without opening it** (decided 2026-10-12, built): 3c has a second button, **"Add without opening"** (secondary, under "Open this bag"; the label is ours). An unopened bag **takes one of the 5 slots**, reads "not opened yet" on Home and 3d, is not offered when logging a cup, and **3d shows "Open this bag" in Finish bag's place**. Please check the copy, and whether 3c / 3d's "Bags open" stat should change now that it counts unopened bags too.
 
-## 11a, as built: open points (added 2026-10-13) [this round]
+## 11a, as built: open points (added 2026-10-13) — answered (Design Round 4) and built 2026-10-13
 
 11a / 11b / 11c are built as drawn (`EditCupScreen.js`). These cases are not drawn; each says what the app does today, marked TODO in the code. Every value stays a token; no new components unless one is needed.
 

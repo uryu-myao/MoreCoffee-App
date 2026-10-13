@@ -436,7 +436,7 @@ The photo pair sits beside a 76 thumbnail, so 44 would still fit its height.
 
 **Gap**: only 6d draws a pattern: a footer with "Unsaved changes" and "Discard", Save in the header. 3e / 3g have Back and a footer "Save changes", and nothing says what Back does with unsaved edits: discard silently, ask, or keep a draft. Remove photo (item 18) depends on it, since a removal is only staged until Save.
 
-**Status**: recorded, not designed. One answer for all forms, likely built from 6d's pattern.
+**Status**: **decided (Design Round 4, 2026-10-13), built in 11a.** Back and the left-edge swipe both lead to a bottom sheet (the 11b shape): "Discard your changes?" / "Your edits to this cup won't be saved. The cup stays as it was." / primary "Keep editing", text action "Discard changes". With no changes, leave silently. The same applies to 3e / 3g / 6d.
 
 **5a too (added 2026-10-11)**: with no drafts in V1, closing the Record sheet drops everything entered, including after 5d has said a rating is missing. Whether closing should warn is the same question. Recorded only; not built now.
 

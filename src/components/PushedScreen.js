@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -17,9 +17,15 @@ import DotTexture from './base/DotTexture';
  * It draws its own ground and dot texture: inside the pager, screens are
  * transparent over AppShell's backdrop.
  *
+ * Leave guard (Design Round 4, 19: unsaved changes): a screen can hold its
+ * leave — guardLeave(active, onBlocked). While active, Back (goBack) and a
+ * completed edge swipe do not leave: the swipe springs back and onBlocked
+ * runs (11a opens "Discard your changes?"). goBack({ force: true }) leaves
+ * anyway (that sheet's "Discard changes").
+ *
  * Props
  *   onBack    called once the screen has slid out
- *   children  (goBack) => node — goBack slides out, then calls onBack
+ *   children  (goBack, guardLeave) => node — goBack slides out, then calls onBack
  */
 const easing = Easing.bezier(...motion.expand.controlPoints);
 
@@ -31,7 +37,20 @@ export default function PushedScreen({ onBack, children }) {
     x.value = withTiming(0, { duration: motion.expand.duration, easing });
   }, [x]);
 
-  const goBack = () => {
+  const guarded = useSharedValue(false);
+  const onBlocked = useRef(null);
+  const guardLeave = (active, blocked) => {
+    guarded.value = active;
+    onBlocked.current = blocked;
+  };
+  const notifyBlocked = () => onBlocked.current?.();
+
+  // goBack is also handed straight to onPress, so its argument may be a press event.
+  const goBack = (options) => {
+    if (guarded.value && options?.force !== true) {
+      notifyBlocked();
+      return;
+    }
     x.value = withTiming(width, { duration: motion.expand.duration, easing }, (done) => {
       if (done) scheduleOnRN(onBack);
     });
@@ -45,7 +64,9 @@ export default function PushedScreen({ onBack, children }) {
       x.value = Math.min(width, Math.max(0, e.translationX));
     })
     .onEnd((e) => {
-      const back = e.translationX > width * BACK_DISTANCE || e.velocityX > BACK_VELOCITY;
+      const wantsBack = e.translationX > width * BACK_DISTANCE || e.velocityX > BACK_VELOCITY;
+      const back = wantsBack && !guarded.value;
+      if (wantsBack && !back) scheduleOnRN(notifyBlocked);
       x.value = withTiming(back ? width : 0, { duration: motion.expand.duration, easing }, (done) => {
         if (done && back) scheduleOnRN(onBack);
       });
@@ -57,7 +78,7 @@ export default function PushedScreen({ onBack, children }) {
     <GestureDetector gesture={swipe}>
       <Reanimated.View style={[StyleSheet.absoluteFill, styles.page, slide]}>
         <DotTexture />
-        {children(goBack)}
+        {children(goBack, guardLeave)}
       </Reanimated.View>
     </GestureDetector>
   );

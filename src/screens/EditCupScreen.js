@@ -40,13 +40,26 @@ import ScreenFrame from './ScreenFrame';
  * shown, not hidden, in §1's disabled look, its meta saying why ("roasted
  * Apr 12, after this cup"). No "Add a bag": a new bag can't predate a past cup.
  *
- * Not here: leaving with unsaved changes (gaps.md 20) — Back discards.
- * TODO(design): undrawn — a cup with no bag (the row reads "No bag noted"
- * and opens the picker; there is no way back to no bag), the date row's meta
- * with no roast date, Packaged's Product row and Barista (their blocks are
- * left out until they have inputs).
+ * Design Round 4 (2026-10-13, design-missing 19–26):
+ *   - leaving with changes (Back or the edge swipe; PushedScreen's leave
+ *     guard) opens "Discard your changes?" — the 11b shape; with none it
+ *     leaves at once
+ *   - the pickers' first rows: "No bag" ("This cup wasn't from a bag."),
+ *     "No brewer", "No grinder" — so each can be cleared; no "Add gear"
+ *     (editing corrects a record, it doesn't stock the shelf)
+ *   - the date row's second line only with a roast date
+ *   - this cup's own bag, if finished: listed first, selectable, its meta
+ *     starting "Finished ‹day› ·"
+ *   - Packaged / Barista: no shelf block (until design-missing 6)
+ *   - Save is always pressable (§1); with nothing changed it writes nothing
  */
 const bagMeta = (bag) => [bag.roaster, bag.roasted_at != null ? `roasted ${formatDay(bag.roasted_at)}` : null].filter(Boolean).join(' · ') || undefined;
+
+/** The pickers' "No bag" / "No brewer" / "No grinder" row (Round 4, 20–21). */
+const NONE_KEY = 'none';
+
+/** The picker row for the cup's gear: by id, or by name for a cup that kept only the name (the dev seed's). */
+const pickedGear = (gear, list) => gear.id ?? list.find((g) => g.name === gear.name)?.id ?? null;
 
 /** 11c: a bag roasted after the cup's day cannot be chosen (the date wins). */
 const roastedAfter = (bag, at) => bag.roasted_at != null && bag.roasted_at > startOfDay(new Date(at));
@@ -119,6 +132,24 @@ function AsLogged({ cup }) {
  * says what goes, that it can't be undone and that Taste DNA is recalculated;
  * a third line when the delete takes the profile out of Locked in.
  */
+/** 19: leaving with unsaved changes (the 11b shape; 3e / 3g / 6d will share it). */
+function DiscardSheet({ visible, onClose, onDiscard }) {
+  return (
+    <BottomSheet visible={visible} onClose={onClose}>
+      <Text variant="displaySm" color="primary">
+        Discard your changes?
+      </Text>
+      <Text variant="body" color="secondary">
+        Your edits to this cup won't be saved. The cup stays as it was.
+      </Text>
+      <View style={styles.sheetActions}>
+        <Button label="Keep editing" onPress={onClose} />
+        <Button variant="text" stacked label="Discard changes" onPress={onDiscard} />
+      </View>
+    </BottomSheet>
+  );
+}
+
 function DeleteSheet({ visible, onClose, cup, dropsLockIn, onDelete }) {
   return (
     <BottomSheet visible={visible} onClose={onClose}>
@@ -144,7 +175,7 @@ function DeleteSheet({ visible, onClose, cup, dropsLockIn, onDelete }) {
   );
 }
 
-export default function EditCupScreen({ cup, onBack, onDeleted }) {
+export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
   const db = useDatabase();
   const [bag, setBag] = useState(() =>
     cup.bag_id != null || cup.bean_name ? { id: cup.bag_id, name: cup.bean_name, roaster: cup.bean_roaster, roasted_at: cup.bean_roasted_at } : null
@@ -153,7 +184,7 @@ export default function EditCupScreen({ cup, onBack, onDeleted }) {
   const [grinder, setGrinder] = useState(() => (cup.grinder ? { id: cup.grinder_id, name: cup.grinder } : null));
   const [loggedAt, setLoggedAt] = useState(cup.logged_at);
   const [note, setNote] = useState(cup.note ?? '');
-  // 'bag' | 'gear' | 'date' | 'delete' | null
+  // 'bag' | 'gear' | 'date' | 'delete' | 'discard' | null
   const [sheet, setSheet] = useState(null);
   const [shelf, setShelf] = useState({ bags: [], brewers: [], grinders: [] });
   const [dropsLockIn, setDropsLockIn] = useState(false);
@@ -179,9 +210,30 @@ export default function EditCupScreen({ cup, onBack, onDeleted }) {
   const madeIt = cup.mode === 'made_it';
   const method = [brewer?.name, grinder?.name].filter(Boolean).join(' · ');
   const roastDay = madeIt && bag?.roasted_at != null ? bag.roasted_at : null;
+  const noteValue = note.trim() ? note : null;
+  const dirty =
+    (bag?.id ?? null) !== cup.bag_id ||
+    (bag?.name ?? null) !== cup.bean_name ||
+    (brewer?.id ?? null) !== cup.brewer_id ||
+    (brewer?.name ?? null) !== cup.brew_method ||
+    (grinder?.id ?? null) !== cup.grinder_id ||
+    (grinder?.name ?? null) !== cup.grinder ||
+    loggedAt !== cup.logged_at ||
+    noteValue !== (cup.note ?? null);
+
+  // Back and the edge swipe ask first while there are changes (19).
+  useEffect(() => {
+    guardLeave?.(dirty && !busy, () => setSheet('discard'));
+  }, [guardLeave, dirty, busy]);
+  const leave = () => onBack({ force: true });
 
   const save = async () => {
     if (busy) return;
+    // 25: nothing changed — back to 2c without writing.
+    if (!dirty) {
+      leave();
+      return;
+    }
     setBusy(true);
     try {
       await updateCup(db, cup.id, {
@@ -191,9 +243,9 @@ export default function EditCupScreen({ cup, onBack, onDeleted }) {
         grinderId: madeIt ? (grinder?.id ?? null) : cup.grinder_id,
         grinder: madeIt ? (grinder?.name ?? null) : cup.grinder,
         loggedAt,
-        note: note.trim() ? note : null,
+        note: noteValue,
       });
-      onBack();
+      leave();
     } catch (error) {
       console.error('[edit] could not save', error);
       Alert.alert("Couldn't save your changes", String(error?.message ?? error));
@@ -281,19 +333,24 @@ export default function EditCupScreen({ cup, onBack, onDeleted }) {
         closeOnPick
         sections={[
           {
-            items: shelf.bags.map((b) => {
-              const after = roastedAfter(b, loggedAt);
-              return {
-                key: b.id,
-                label: b.name,
-                meta: after ? [b.roaster, `roasted ${formatDay(b.roasted_at)}, after this cup`].filter(Boolean).join(' · ') : bagMeta(b),
-                swatch: true,
-                disabled: after,
-                disabledHint: after ? 'Roasted after this cup' : undefined,
-              };
-            }),
-            selected: bag?.id ?? null,
-            onPick: (id) => setBag(shelf.bags.find((b) => b.id === id)),
+            items: [
+              { key: NONE_KEY, label: 'No bag', meta: "This cup wasn't from a bag." },
+              ...shelf.bags.map((b) => {
+                const after = roastedAfter(b, loggedAt);
+                const meta = after ? [b.roaster, `roasted ${formatDay(b.roasted_at)}, after this cup`].filter(Boolean).join(' · ') : bagMeta(b);
+                return {
+                  key: b.id,
+                  label: b.name,
+                  // 23: only this cup's own bag can be a finished one here.
+                  meta: b.finished_at != null ? [`Finished ${formatDay(b.finished_at)}`, meta].filter(Boolean).join(' · ') : meta,
+                  swatch: true,
+                  disabled: after,
+                  disabledHint: after ? 'Roasted after this cup' : undefined,
+                };
+              }),
+            ],
+            selected: bag ? bag.id : NONE_KEY,
+            onPick: (id) => setBag(id === NONE_KEY ? null : shelf.bags.find((b) => b.id === id)),
           },
         ]}
       />
@@ -304,15 +361,21 @@ export default function EditCupScreen({ cup, onBack, onDeleted }) {
         sections={[
           {
             label: 'Brewer',
-            items: shelf.brewers.map((g) => ({ key: g.id, label: g.name, badge: g.is_default ? 'Default' : undefined })),
-            selected: brewer?.id ?? null,
-            onPick: (id) => setBrewer(shelf.brewers.find((g) => g.id === id)),
+            items: [
+              { key: NONE_KEY, label: 'No brewer' },
+              ...shelf.brewers.map((g) => ({ key: g.id, label: g.name, badge: g.is_default ? 'Default' : undefined })),
+            ],
+            selected: brewer ? pickedGear(brewer, shelf.brewers) : NONE_KEY,
+            onPick: (id) => setBrewer(id === NONE_KEY ? null : shelf.brewers.find((g) => g.id === id)),
           },
           {
             label: 'Grinder',
-            items: shelf.grinders.map((g) => ({ key: g.id, label: g.name, badge: g.is_default ? 'Default' : undefined })),
-            selected: grinder?.id ?? null,
-            onPick: (id) => setGrinder(shelf.grinders.find((g) => g.id === id)),
+            items: [
+              { key: NONE_KEY, label: 'No grinder' },
+              ...shelf.grinders.map((g) => ({ key: g.id, label: g.name, badge: g.is_default ? 'Default' : undefined })),
+            ],
+            selected: grinder ? pickedGear(grinder, shelf.grinders) : NONE_KEY,
+            onPick: (id) => setGrinder(id === NONE_KEY ? null : shelf.grinders.find((g) => g.id === id)),
           },
         ]}
       />
@@ -325,6 +388,14 @@ export default function EditCupScreen({ cup, onBack, onDeleted }) {
         minimum={roastDay != null ? new Date(roastDay) : undefined}
         maximum={new Date()}
         onChange={setLoggedAt}
+      />
+      <DiscardSheet
+        visible={sheet === 'discard'}
+        onClose={() => setSheet(null)}
+        onDiscard={() => {
+          setSheet(null);
+          leave();
+        }}
       />
       <DeleteSheet visible={sheet === 'delete'} onClose={() => setSheet(null)} cup={cup} dropsLockIn={dropsLockIn} onDelete={remove} />
     </View>

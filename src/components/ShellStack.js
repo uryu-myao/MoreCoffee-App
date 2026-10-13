@@ -28,7 +28,7 @@ export default function ShellStack() {
   const pop = (name) => setStack((s) => s.filter((e) => e.name !== name));
   useEffect(() => onPushRequest(push), []);
 
-  const render = (entry, goBack) => {
+  const render = (entry, goBack, guardLeave) => {
     switch (entry.name) {
       case 'beans':
         return <MyBeansScreen onBack={goBack} onAddBag={() => push({ name: 'addBag' })} />;
@@ -49,6 +49,7 @@ export default function ShellStack() {
           <EditCupScreen
             cup={entry.cup}
             onBack={goBack}
+            guardLeave={guardLeave}
             onDeleted={() => {
               requestCloseCup();
               pop('editCup');
@@ -64,7 +65,7 @@ export default function ShellStack() {
     <ScreenBackdropContext.Provider value={false}>
       {stack.map((entry) => (
         <PushedScreen key={entry.name} onBack={() => pop(entry.name)}>
-          {(goBack) => render(entry, goBack)}
+          {(goBack, guardLeave) => render(entry, goBack, guardLeave)}
         </PushedScreen>
       ))}
     </ScreenBackdropContext.Provider>
