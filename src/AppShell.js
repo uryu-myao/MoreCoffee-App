@@ -4,6 +4,7 @@ import AddCoffeeOverlay from './components/AddCoffeeOverlay';
 import { onShellRequest, requestOpenCup, requestTabReset } from './navigation';
 import DotTexture from './components/base/DotTexture';
 import FooterNav from './components/FooterNav';
+import Notice from './components/Notice';
 import ShellStack from './components/ShellStack';
 import { TABS } from './constants/navigation';
 import { SCREEN_COMPONENTS } from './screens';
@@ -105,6 +106,8 @@ export default function AppShell() {
       <FooterNav activeTab={activeTab} position={position} onTabPress={selectTab} onAddPress={() => setShowAddCoffee(true)} />
       {/* 3d / 3c / 3a / 11a, pushed over the tabs and the bar (their mocks have none). */}
       <ShellStack />
+      {/* 13b: "‹cup› deleted." above the bar, over Records. */}
+      <Notice />
       <AddCoffeeOverlay
         visible={showAddCoffee}
         onClose={() => setShowAddCoffee(false)}

@@ -28,10 +28,16 @@ const { slot, addSlot } = component.tabBar;
  * surface whose fill has no darker tier, so it shows no visual change (§1). Both
  * give a light impact haptic (a discrete press).
  */
+/** The bar's height from the screen's bottom edge (its rule, row and the trimmed inset); 13b's notice sits above it. */
+export function useFooterHeight() {
+  const insets = useSafeAreaInsets();
+  return shape.borderWidth.box + size.tabBar.height + Math.max(0, insets.bottom - space[14]);
+}
+
 export default function FooterNav({ activeTab, position, hidden, onTabPress, onAddPress }) {
   const insets = useSafeAreaInsets();
   // hidden: 0 → in place, 1 → its whole height below the screen edge.
-  const barHeight = shape.borderWidth.box + size.tabBar.height + Math.max(0, insets.bottom - space[14]);
+  const barHeight = useFooterHeight();
   const slide = hidden ? { transform: [{ translateY: hidden.interpolate({ inputRange: [0, 1], outputRange: [0, barHeight] }) }] } : null;
 
   const tab = ({ key, label }, index, edges) => {

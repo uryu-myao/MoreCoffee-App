@@ -4,7 +4,8 @@ import AddGearScreen from '../screens/AddGearScreen';
 import EditCupScreen from '../screens/EditCupScreen';
 import MyBeansScreen from '../screens/MyBeansScreen';
 import { ScreenBackdropContext } from '../screens/ScreenFrame';
-import { onPushRequest, requestCloseCup } from '../navigation';
+import { cupTitle } from '../constants/cups';
+import { onPushRequest, requestCloseCup, requestNotice } from '../navigation';
 import PushedScreen from './PushedScreen';
 
 /**
@@ -20,7 +21,8 @@ import PushedScreen from './PushedScreen';
  *   addBag    3c — after adding, lands on My beans (2026-10-12): My beans
  *             goes under it if not there yet, then it slides out
  *   addGear   3a
- *   editCup   11a ({ cup }); a delete also closes the cup in Records
+ *   editCup   11a ({ cup }); a delete also closes the cup in Records and
+ *             shows 13b's notice ("‹title› deleted.")
  */
 export default function ShellStack() {
   const [stack, setStack] = useState([]);
@@ -53,6 +55,7 @@ export default function ShellStack() {
             onDeleted={() => {
               requestCloseCup();
               pop('editCup');
+              requestNotice({ name: cupTitle(entry.cup).title });
             }}
           />
         );

@@ -166,6 +166,9 @@ export const textStyle = {
   /** lineHeight UNDECLARED in source */
   label:         { fontFamily: 'Archivo', fontSize: 15, fontWeight: '700' },
   body:          { fontFamily: 'Archivo', fontSize: 14, fontWeight: '500', lineHeight: 21 },
+  /** 13b's notice: "‹cup title›" (noticeName) "deleted." (notice), one line. 2026-10-13. */
+  noticeName:    { fontFamily: 'Archivo', fontSize: 14, fontWeight: '700', lineHeight: 21 },
+  notice:        { fontFamily: 'Archivo', fontSize: 14, fontWeight: '600', lineHeight: 21 },
   bodySm:        { fontFamily: 'Archivo', fontSize: 12, fontWeight: '500', lineHeight: 18 },
   meta:          { fontFamily: 'Archivo', fontSize: 12, fontWeight: '600', lineHeight: 17 },
   /** lineHeight UNDECLARED · 0.08em x 12 */
@@ -280,6 +283,8 @@ export const size = {
   marker: { line: { w: 2, h: 14 } },
   dot: { bullet: 6 },
   sheet: { handle: { w: 56, h: 5 } },
+  /** 13b's one-line notice above the bottom bar (2026-10-13). */
+  notice: { minHeight: 48 },
 } as const;
 
 /**
@@ -368,6 +373,8 @@ export const dashed = {
 export const motion = {
   expand: { duration: 340, controlPoints: [0.22, 0.61, 0.36, 1] as const },
   press: { duration: 100, controlPoints: [0.22, 0.61, 0.36, 1] as const },
+  /** 13b's notice: how long it stays between fading in and out (2026-10-13). */
+  notice: { hold: 2000 },
 } as const;
 
 /** Tilted sticker badge. Format as `${rotation.sticker}deg` at use. */

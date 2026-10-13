@@ -752,6 +752,13 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 ### Card
 `2px solid color.border.strong` on `color.surface.raised`, `inset.container`, internal groups separated by `gap.section`, meta separated by `divider.soft`. No radius, no shadow unless it is a control.
 
+### Notice (13a / 13b, Design Round 5, 2026-10-13)
+A one-line confirmation above the bottom bar, today only after a delete: **"‹cup title› deleted."** (the title by 2a's rule, `cupTitle`).
+- **Look**: `color.surface.inverse` with `color.text.onInverse`; square, no border, no shadow; min `size.notice.minHeight` (48), `space.16` a side. The name in `text.noticeName` (14/700), one line, truncates; "deleted." in `text.notice` (14/600), never truncates.
+- **Place**: `spacing.gap.section` (12) above the bar. **Width: the screen gutter** (`layout.gutter`) on both sides — the mock's 90% is the old floating bar's width; the built bar is full width with its icons inside the gutter (drift D-55).
+- **Motion**: `motion.expand` in (fade + rise `space.8`), `motion.notice.hold` (2s), `motion.expand` out. Reduce Motion: fade only.
+- **Behaviour**: not pressable, touches pass through; no close, **no Undo** (11b: a delete can't be undone). A new notice replaces the one showing. The sentence is announced to the screen reader.
+
 ### Bottom sheet (2b; 3b's action sheet removed by drift D-26)
 Planned uses (2026-10-09 / -10):
 - the confirmation for "Remove from my gear" and "Delete this bag", built like 3b's former action sheet (`gaps.md` 18);
@@ -1262,3 +1269,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-12 — §1 Disabled options: unselected markers are a 2px ink frame, disabled ones `border.muted` + `text.muted` label; a disabled option always shows its reason (a row's meta, a set's count). The two §1 lines on unchecked boxes now agree. `gaps.md` 12 closed by rule.
 - 2026-10-13 — §9 Buttons: a text action stacked under full-width buttons takes a 44 row, label centred.
 - 2026-10-13 — §2 Icons: `icon.fill.md` (20) for 2c's rating stars, as its mock draws them.
+- 2026-10-13 — §9 Notice (13b): the deleted notice; tokens `text.noticeName` / `text.notice`, `size.notice.minHeight`, `motion.notice.hold`.

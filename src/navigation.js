@@ -9,6 +9,7 @@
  *                        bottom bar included: { name: 'beans' | 'addBag' |
  *                        'addGear' } from Home, { name: 'editCup', cup } from 2c
  *   requestCloseCup()    Records closes its open cup (after a delete in 11a)
+ *   requestNotice(text)  AppShell shows 13b's one-line notice above the bar
  */
 const cupListeners = new Set();
 const shellListeners = new Set();
@@ -41,6 +42,17 @@ export function requestCloseCup() {
 export function onCloseCupRequest(listener) {
   closeListeners.add(listener);
   return () => closeListeners.delete(listener);
+}
+
+const noticeListeners = new Set();
+
+export function requestNotice(notice) {
+  noticeListeners.forEach((l) => l(notice));
+}
+
+export function onNoticeRequest(listener) {
+  noticeListeners.add(listener);
+  return () => noticeListeners.delete(listener);
 }
 
 export function requestShell(request) {
