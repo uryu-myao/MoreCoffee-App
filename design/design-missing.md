@@ -61,6 +61,21 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
 
 18. **[this round] Adding a bag without opening it** (decided 2026-10-12, built): 3c has a second button, **"Add without opening"** (secondary, under "Open this bag"; the label is ours). An unopened bag **takes one of the 5 slots**, reads "not opened yet" on Home and 3d, is not offered when logging a cup, and **3d shows "Open this bag" in Finish bag's place**. Please check the copy, and whether 3c / 3d's "Bags open" stat should change now that it counts unopened bags too.
 
+## 11a, as built: open points (added 2026-10-13) [this round]
+
+11a / 11b / 11c are built as drawn (`EditCupScreen.js`). These cases are not drawn; each says what the app does today, marked TODO in the code. Every value stays a token; no new components unless one is needed.
+
+19. **Leaving with unsaved changes** (`gaps.md` 20). Today Back and the left-edge swipe **discard silently**. 11a is the first edit form built, so the answer becomes the pattern for 3e / 3g / 6d. Conditions: no dialogs (a bottom sheet, as 11b); the swipe must be covered too, not only Back; say what is lost.
+20. **A cup with no bag** (I made it, logged from an empty shelf). The Bag row reads **"No bag noted"** in the placeholder look and opens the picker. **Once a bag is chosen there is no way back to "no bag".** Should the picker offer it, and how? (A wrongly chosen bag can only be swapped, not removed.)
+21. **No gear**: the Method row reads **"No gear noted"**, the same way; the brewer and grinder can be swapped but not cleared. The Method picker here has **no "Add gear"** (as 11c drops "Add a bag"); confirm, or say where adding gear from 11a should lead.
+22. **The date row's limit line without a roast date.** Drawn: "From Mar 28, the bag's roast date, to today". With no bag, or a bag with no roast date, the only limit is "not in the future", and **the row has no second line today**. Is a line needed ("Up to today"?), or is none right?
+23. **The cup's own bag after it was finished.** The picker lists open bags; a cup whose bag has been finished still shows it, **first, looking like any open bag**. Does it need a mark ("finished")?
+24. **Packaged and Barista.** 11a's caption: "For a Packaged cup, the shelf block becomes a single Product row." The product name can't be edited until item 6 (Packaged input) is drawn and built, so **the block is left out for both modes**: they show only When, My words and As logged. Confirm, or draw the Product row read only.
+25. **"Save changes" when nothing changed**: always pressable; it saves and returns to 2c. Disabled until something changes, or as is? (5a's Save is always pressable, §1.)
+26. **Changing the date and Taste DNA.** The profile is computed from every cup's date (newer cups weigh more), so a new date shifts it slightly, at once. The cup's stored "what this cup changed" (2c's Feeds my taste DNA) is **not** recomputed: it stays as at save, like the rating and axes. Does 11a need to say so near the date row, or does "Your Taste DNA counted these when you saved" cover it?
+
+Also still open from Round 3: 2c with **neither bag nor gear** (Method reads "—"; `design-reply-2026-10-13.md`).
+
 ## Copy: Design's proposals (report of 2026-10-11) — adopted, in the app
 
 - **10 (5a, empty shelf)**: "Marked fields are required. Add a bag and your gear once — after that they start pre-filled."
