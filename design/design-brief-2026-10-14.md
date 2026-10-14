@@ -1,5 +1,7 @@
 # Brief for Design — 2026-10-14
 
+Round 7 · responds to design-response-next.md Round 6. **Please number your reply "Round 7" as well.**
+
 Everything below is in `design-missing.md` under the same numbers. New items first, then older ones still open. Values stay tokens; no new components unless one is needed.
 
 ## New

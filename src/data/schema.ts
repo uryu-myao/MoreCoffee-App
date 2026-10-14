@@ -163,6 +163,14 @@ export const schema = {
     external_id: { type: 'TEXT', nullable: true },
   },
 
+  /**
+   * UNUSED (2026-10-14). Nothing writes it but the dev seed: brand is NOT
+   * NULL and no screen enters a brand. A packaged cup's name will live on
+   * the cup (cups.product_name, migration 4), and migration 4 drops this
+   * table and cups.product_id in the same cups rebuild (data-model.md).
+   * If a brand is ever needed, add a column to cups — do NOT revive this
+   * table.
+   */
   products: {
     id: { type: 'INTEGER', nullable: false, pk: true },
     brand: { type: 'TEXT', nullable: false },

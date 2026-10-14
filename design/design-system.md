@@ -733,13 +733,15 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 ### List row
 `[thumbnail] [content column] [right meta column]`. The right column stacks rating over date, right-aligned — dates and ratings align down the whole list because they live in a fixed-width column, not at the end of a text run. Content column: title (`title`) → chips (`badge.inline`) → provenance (`body.sm`) → tasting note (`body.sm`, `color.text.muted`).
 
-**Row order — one rule for all three modes (2026-10-06)**: **line 1 = what was drunk** (bean name / drink / product name), **line 2 = where it came from** (roaster / café / brand). Do not add a per-mode rule.
+**Row order — one rule for all three modes (2026-10-06)**: **line 1 = what was drunk** (bean name / drink / product name), **line 2 = where it came from** (roaster / café / **store**). Do not add a per-mode rule: the principle is one; only what "where it came from" holds differs by mode.
 
 | mode | line 1 (`title`, `name` truncation, ≤ 2 lines) | line 2 (`source`, `meta` truncation, 1 line) |
 |---|---|---|
 | I made it | bean name | roaster · process |
 | Barista | drink | café |
-| Packaged | product name | brand — **empty at this stage** (brand is not entered; 2026-10-11). How a list row looks with line 2 empty: Design (`design-missing.md` 6) |
+| Packaged | product name | **the store** (Bought at) — **not at this stage**, so the row is **one line**, with no empty line 2 (Design Round 7, 14b). When Bought at returns, line 2 is the store, as 2a / 13a / 1a draw it ("7-Eleven · Can 185 ml") |
+
+- **Corrected 2026-10-14: this row said "Packaged line 2 = brand".** That was **an analogy** from bean name / roaster, written 2026-10-06, **not drawn in any mock**: the mocks put the store on line 2, and 5e's only brand-like field ("Brand") holds brand and product in one value ("Boss Craft · Black"). A packaged coffee's name usually carries its brand, so there is no separate brand field (Design Round 7: none needed later either). Rules written by analogy rather than from a mock may exist elsewhere; check them against the mocks before relying on them.
 
 - Why this direction: line 1 is the two-line heading slot. Putting a MapKit café name there (the longest and least predictable string) would put the most fragile text in the most prominent place. As line 2 it falls under the one-line rule below. A proposal to swap Barista / Packaged (source first) was withdrawn on review.
 - I made it's line 2 stays "roaster · process". Changing it to the brew method waits for a brew-method input (`gaps.md` 10): without one the line would be empty.
@@ -1272,3 +1274,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-13 — §9 Notice (13b): the deleted notice; tokens `text.noticeName` / `text.notice`, `size.notice.minHeight`, `motion.notice.hold`.
 - 2026-10-14 — §3: `text.displayXs` (Instrument Serif 24, 3d's "Finished bags" entry, from the mock) and `text.inlineActionOff` (inlineAction without the underline: 3f's Reopen at 5 / 5, Design Round 6). §9 Notice also says "‹name› reopened." after 3f's Reopen (the verb is ours).
 - 2026-10-14 — §9 beanFreshness: counted from the roast date, three states (resting provisional), built on 3d / 4b; `text.meterLabel`; `beanFreshness.*.label`, `.marker`; the `clock` glyph.
+- 2026-10-14 — §9 List row: line 2 = where it came from (roaster / café / store). Packaged's "line 2 = brand" removed — it was an analogy, not from a mock; at this stage a Packaged row is one line.

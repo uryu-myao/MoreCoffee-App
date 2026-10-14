@@ -373,6 +373,22 @@ Which of these are V1 is open (report 2026-10-10).
 
 ---
 
+## Migration 4 plan (decided 2026-10-14, not built)
+
+Comes with Packaged's product-name input (design-missing.md 6). **One cups rebuild** (SQLite can't drop a column with a foreign key), doing all of:
+- **add `cups.product_name`** (TEXT, nullable): the packaged cup's name as typed, brand included ("BOSS Black"). No separate brand field (Design Round 7);
+- **drop `cups.product_id` and the `products` table.** Today `products` is written by nothing but the dev seed (brand NOT NULL, no screen enters one). If a brand is ever needed, add a column to cups — do not revive the table;
+- **move the dev seed's one packaged cup** to `product_name` ("Boss Craft Black").
+
+Readers to switch to `cups.product_name` (all of them; check none is left):
+- 2c's Product row (`CupRecordScreen`);
+- titles in Records, 2c and Home's recent rows — all through `cupTitle()` in `constants/cups.js`, so one place;
+- 5a's Packaged fields (`RecordCoffeeScreen`; hidden since 2026-10-14 until the input exists);
+- 5b's summary (`TastingNoteScreen`);
+- `getCup` / `listCups` (the products join) and `NewCup.productId` / `RecordDraft`.
+
+---
+
 ## Freshness (decided 2026-10-14)
 
 **These windows are a reference, not a prediction.** The real drinking window depends on the roast level, the packaging (a valve or not), storage temperature, the brew method, and whole bean vs ground — none of which the app knows. The app takes the industry's most-used ranges and shows them **as a guide**, to the user too.
