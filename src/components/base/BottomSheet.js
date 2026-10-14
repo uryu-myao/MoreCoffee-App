@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Reanimated, { interpolate, useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SwipeBackHoldContext } from '../swipeBackHold';
 import { color, layout, motion, opticalMargin, shape, size, space, spacing } from '../../theme/tokens';
 
 /**
@@ -42,6 +43,13 @@ export default function BottomSheet({ visible, onClose, full = false, children }
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [mounted, setMounted] = useState(visible);
+  // While shown, the screen under it doesn't swipe back (swipeBackHold.js).
+  const swipeHold = useContext(SwipeBackHoldContext);
+  useEffect(() => {
+    if (!mounted || !swipeHold) return undefined;
+    swipeHold.hold();
+    return swipeHold.release;
+  }, [mounted, swipeHold]);
   const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {

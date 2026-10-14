@@ -5,6 +5,7 @@ import Reanimated, { Easing as REasing, useAnimatedStyle, useSharedValue, withTi
 import { scheduleOnRN } from 'react-native-worklets';
 import RecordCoffeeScreen from '../screens/RecordCoffeeScreen';
 import AddBagScreen from '../screens/AddBagScreen';
+import { SwipeBackHoldContext, useSwipeBackHold } from './swipeBackHold';
 import SavedScreen from '../screens/SavedScreen';
 import AddGearScreen from '../screens/AddGearScreen';
 import TastingNoteScreen from '../screens/TastingNoteScreen';
@@ -102,9 +103,11 @@ export default function AddCoffeeOverlay({ visible, onClose, onNavigate }) {
     toStep(0);
   };
   const log = (st, extra) => logGesture('sheet.edge', st, extra);
+  const [swipeHeld, swipeHold] = useSwipeBackHold();
 
   const edgeSwipe = Gesture.Pan()
-    .enabled(onNote)
+    // Held while a sheet is open on the step (3c's date spinner, 2026-10-14).
+    .enabled(onNote && !swipeHeld)
     .hitSlop({ left: 0, width: EDGE })
     .activeOffsetX(ACTIVE_OFFSET_X)
     .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
@@ -157,13 +160,15 @@ export default function AddCoffeeOverlay({ visible, onClose, onNavigate }) {
         {second ? (
           <GestureDetector gesture={edgeSwipe}>
             <Reanimated.View style={[StyleSheet.absoluteFill, styles.overlay, noteStyle]}>
-              {second === 'note' ? (
-                <TastingNoteScreen onBack={backToRecord} />
-              ) : second === 'bag' ? (
-                <AddBagScreen onBack={backToRecord} />
-              ) : (
-                <AddGearScreen onBack={backToRecord} />
-              )}
+              <SwipeBackHoldContext.Provider value={swipeHold}>
+                {second === 'note' ? (
+                  <TastingNoteScreen onBack={backToRecord} />
+                ) : second === 'bag' ? (
+                  <AddBagScreen onBack={backToRecord} />
+                ) : (
+                  <AddGearScreen onBack={backToRecord} />
+                )}
+              </SwipeBackHoldContext.Provider>
             </Reanimated.View>
           </GestureDetector>
         ) : null}

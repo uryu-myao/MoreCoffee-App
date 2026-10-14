@@ -6,6 +6,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { ACTIVE_OFFSET_X, BACK_DISTANCE, BACK_VELOCITY, EDGE, FAIL_OFFSET_Y } from '../constants/edgeSwipe';
 import { color, motion } from '../theme/tokens';
 import DotTexture from './base/DotTexture';
+import { SwipeBackHoldContext, useSwipeBackHold } from './swipeBackHold';
 
 /**
  * A screen pushed over a tab's page (2c over Records), the way the Record
@@ -16,6 +17,9 @@ import DotTexture from './base/DotTexture';
  *
  * It draws its own ground and dot texture: inside the pager, screens are
  * transparent over AppShell's backdrop.
+ *
+ * The swipe is held while a bottom sheet is open on the screen
+ * (swipeBackHold.js).
  *
  * Leave guard (Design Round 4, 19: unsaved changes): a screen can hold its
  * leave — guardLeave(active, onBlocked). While active, Back (goBack) and a
@@ -32,6 +36,7 @@ import DotTexture from './base/DotTexture';
 const easing = Easing.bezier(...motion.expand.controlPoints);
 
 export default function PushedScreen({ onLeave, onBack, children }) {
+  const [held, holdValue] = useSwipeBackHold();
   const { width } = useWindowDimensions();
   const x = useSharedValue(width); // 0 = in place, width = off to the right
 
@@ -60,6 +65,7 @@ export default function PushedScreen({ onLeave, onBack, children }) {
   };
 
   const swipe = Gesture.Pan()
+    .enabled(!held)
     .hitSlop({ left: 0, width: EDGE })
     .activeOffsetX(ACTIVE_OFFSET_X)
     .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
@@ -82,7 +88,7 @@ export default function PushedScreen({ onLeave, onBack, children }) {
     <GestureDetector gesture={swipe}>
       <Reanimated.View style={[StyleSheet.absoluteFill, styles.page, slide]}>
         <DotTexture />
-        {children(goBack, guardLeave)}
+        <SwipeBackHoldContext.Provider value={holdValue}>{children(goBack, guardLeave)}</SwipeBackHoldContext.Provider>
       </Reanimated.View>
     </GestureDetector>
   );
