@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AddBagScreen from '../screens/AddBagScreen';
 import AddGearScreen from '../screens/AddGearScreen';
 import EditBagScreen from '../screens/EditBagScreen';
@@ -18,7 +18,10 @@ import PushedScreen from './PushedScreen';
  * one). Screens ask with requestPush({ name, ... }) (navigation.js).
  *
  * A screen is pushed at most once (a quick double tap pushed 'addBag' twice,
- * 2026-10-13); each pops itself by name when it has slid out.
+ * 2026-10-13) — unless that one is already leaving: a screen is marked
+ * leaving the moment Back or a swipe commits, so a tap on "Manage my beans"
+ * while 3d is still sliding out opens a new 3d (on device 2026-10-14 that
+ * tap was swallowed). Each entry has its own key and pops itself by it.
  *   beans     3d
  *   addBag    3c — after adding, lands on My beans (2026-10-12): My beans
  *             goes under it if not there yet, then it slides out
@@ -31,8 +34,12 @@ import PushedScreen from './PushedScreen';
  */
 export default function ShellStack() {
   const [stack, setStack] = useState([]);
-  const push = (entry) => setStack((s) => (s.some((e) => e.name === entry.name) ? s : [...s, entry]));
-  const pop = (name) => setStack((s) => s.filter((e) => e.name !== name));
+  const nextKey = useRef(0);
+  const push = (entry) =>
+    setStack((s) => (s.some((e) => e.name === entry.name && !e.leaving) ? s : [...s, { ...entry, key: (nextKey.current += 1) }]));
+  const leaving = (key) => setStack((s) => s.map((e) => (e.key === key ? { ...e, leaving: true } : e)));
+  const popKey = (key) => setStack((s) => s.filter((e) => e.key !== key));
+  const pop = (name) => setStack((s) => s.filter((e) => e.name !== name || e.leaving));
   useEffect(() => onPushRequest(push), []);
 
   const render = (entry, goBack, guardLeave) => {
@@ -67,7 +74,7 @@ export default function ShellStack() {
           <AddBagScreen
             onBack={goBack}
             onAdded={() => {
-              setStack((s) => (s.some((e) => e.name === 'beans') ? s : [{ name: 'beans' }, ...s]));
+              setStack((s) => (s.some((e) => e.name === 'beans' && !e.leaving) ? s : [{ name: 'beans', key: (nextKey.current += 1) }, ...s]));
               goBack();
             }}
           />
@@ -93,7 +100,7 @@ export default function ShellStack() {
   return (
     <ScreenBackdropContext.Provider value={false}>
       {stack.map((entry) => (
-        <PushedScreen key={entry.name} onBack={() => pop(entry.name)}>
+        <PushedScreen key={entry.key} onLeave={() => leaving(entry.key)} onBack={() => popKey(entry.key)}>
           {(goBack, guardLeave) => render(entry, goBack, guardLeave)}
         </PushedScreen>
       ))}

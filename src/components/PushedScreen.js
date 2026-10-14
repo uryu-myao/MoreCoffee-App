@@ -24,12 +24,14 @@ import DotTexture from './base/DotTexture';
  * anyway (that sheet's "Discard changes").
  *
  * Props
+ *   onLeave   called the moment the screen commits to leaving (Back, or a
+ *             swipe past the threshold), before it has slid out
  *   onBack    called once the screen has slid out
  *   children  (goBack, guardLeave) => node — goBack slides out, then calls onBack
  */
 const easing = Easing.bezier(...motion.expand.controlPoints);
 
-export default function PushedScreen({ onBack, children }) {
+export default function PushedScreen({ onLeave, onBack, children }) {
   const { width } = useWindowDimensions();
   const x = useSharedValue(width); // 0 = in place, width = off to the right
 
@@ -51,6 +53,7 @@ export default function PushedScreen({ onBack, children }) {
       notifyBlocked();
       return;
     }
+    onLeave?.();
     x.value = withTiming(width, { duration: motion.expand.duration, easing }, (done) => {
       if (done) scheduleOnRN(onBack);
     });
@@ -67,6 +70,7 @@ export default function PushedScreen({ onBack, children }) {
       const wantsBack = e.translationX > width * BACK_DISTANCE || e.velocityX > BACK_VELOCITY;
       const back = wantsBack && !guarded.value;
       if (wantsBack && !back) scheduleOnRN(notifyBlocked);
+      if (back && onLeave) scheduleOnRN(onLeave);
       x.value = withTiming(back ? width : 0, { duration: motion.expand.duration, easing }, (done) => {
         if (done && back) scheduleOnRN(onBack);
       });
