@@ -96,7 +96,11 @@ Each item says what would be built; every value stays a token.
 33. **The roast date against cups already logged.** 11c's rule is "the date wins": a cup can't predate its bag's roast. Editing the bag goes the other way: moving the roast date after a cup logged from it. Proposal: the date sheet stops at the earliest such cup's day, and the row says so, as 11a's date row does ("Up to Apr 8, your first cup from it"). Or allow it and warn?
 34. **Opened on**, if in: limited to roast date … today. Should it also stop at the first cup's day?
 35. **"Edits apply to the 3 cups already logged from this bag."** (3g's footer line). Adopted as written, with the count. Hidden when no cup is logged from the bag?
-36. **"Delete this bag" stays out** (gaps.md 18: what happens to the bag's cups isn't settled). Confirm.
+36. **"Delete this bag": in V1's 3g or not?** Deleting is now safe for the cups: each cup keeps its own copy of the bag's details from when it was logged (decided 2026-10-09, built), so a deleted bag's cups keep their name, roaster and process, and Taste DNA is unchanged. They lose only the link: 2c's "from my shelf" goes, and 11a's picker can't list the bag. What's open is design only:
+    - **Confirmation**: it can't be undone, so 11b's sheet shape? Its copy should say the cups stay, as 3e does for gear ("Your 2 logged cups keep this grinder").
+    - **Telling it apart from Finish**: Finish = drunk, it goes to 3f and can reopen; Delete = added by mistake, gone. How does 3g make that clear (3g's mock: "Not finish — erases it")?
+    - **Feedback**: 13b's notice ("Ethiopia Guji deleted.") after it, as for cups?
+    If it stays out of V1, a bag added by mistake can only be finished (it then sits in 3f).
 37. **Which bags open 3g.** 3d's cards, unopened ones included. Finished bags in 3f too (a row tap), or 3f only reopens?
 38. **Leaving with changes**: Round 4's sheet applies to 3g. The body for a bag: "Your edits to this bag won't be saved. The bag stays as it was."?
 

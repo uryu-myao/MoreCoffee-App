@@ -379,7 +379,7 @@ Plus, globally:
 | Finish bag | 3d | none drawn | **yes: 3f "Reopen bag"** (may need a free slot) | nothing; see item 17 |
 | Delete this bag | 3g | none drawn | none | **undefined for cups**, see below |
 
-**Delete this bag: what happens to its cups is not settled. Do not build it until it is.**
+**Delete this bag: what happens to its cups** — ~~not settled; do not build it until it is~~. **Resolved for the data by the copy decision below (built)**; only the confirmation and its copy remain (design-missing.md 36, 2026-10-14). The analysis that led there:
 - 3g says only "Not finish — erases it". There is no note like 3e's "Your 2 logged cups keep this grinder."
 - The data model links a cup to its bag (`cups.bean_id → beans`, `ON DELETE SET NULL`).
   - So deleting a bag keeps the cups but **strips their bean**: name, roaster, origin and process.
