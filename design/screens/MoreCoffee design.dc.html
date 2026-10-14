@@ -113,7 +113,7 @@
             </div>
           </div>
 
-          <div style="position:absolute;left:5%;right:5%;bottom:110px;z-index:30;min-height:48px;box-sizing:border-box;background:#273D22;padding:13px 16px;display:flex;align-items:center;gap:10px">
+          <div style="position:absolute;left:22px;right:22px;bottom:110px;z-index:30;min-height:48px;box-sizing:border-box;background:#273D22;padding:13px 16px;display:flex;align-items:center;gap:10px">
             <span style="flex:1;min-width:0;display:flex;align-items:baseline;gap:5px;font-family:Archivo,sans-serif;font-size:14px;font-weight:600;color:#F4EDEA"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700">Ethiopia Guji</span><span style="flex-shrink:0">deleted.</span></span>
           </div>
           <div style="margin-top:auto;padding:30px 0 34px;display:flex;justify-content:center">
@@ -146,7 +146,7 @@
         <div style="display:flex;flex-direction:column;gap:8px"><div style="font-family:Archivo,sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#6B5D55">No bag, no gear · the cup's title</div><div style="width:324px;min-height:48px;box-sizing:border-box;background:#273D22;padding:13px 16px;display:flex;align-items:center;gap:10px"><span style="flex:1;min-width:0;display:flex;align-items:baseline;gap:5px;font-family:Archivo,sans-serif;font-size:14px;font-weight:600;color:#F4EDEA"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700">Morning cup</span><span style="flex-shrink:0">deleted.</span></span></div></div>
       </div>
       <div style="font-size:14px;color:#5C5049;line-height:1.55;text-wrap:pretty">
-        <strong>Look.</strong> <code>surface.inverse</code> with <code>text.onInverse</code>, square corners, no border and no shadow. It's the only dark block on the screen and isn't a card, so it doesn't compete with the tab bar's hard shadow. It's as wide as the tab bar (90%), 12 above it, min 48 tall, padding 13 / 16.<br><br>
+        <strong>Look.</strong> <code>surface.inverse</code> with <code>text.onInverse</code>, square corners, no border and no shadow. It's the only dark block on the screen and isn't a card, so it doesn't compete with the tab bar's hard shadow. Inset 22 left and right, the page margin, so it lines up with the full-width tab bar's icons (about 89% on iPhone 14). It sits 12 above the tab bar, min 48 tall, padding 13 / 16. <em>(Updated 2026-10-13, matches the build; the 90% came from the old floating tab bar.)</em><br><br>
         <strong>Copy.</strong> "‹cup title› deleted." The title follows 2a's row-title rule (bag → brewer → grinder → "Morning cup"). The name is Archivo 14/700 and "deleted." is 14/600. One line: the name truncates with an ellipsis, and "deleted." never does.<br><br>
         <strong>Timing.</strong> It enters with <code>motion.expand</code> (340, fade + rise 8) once Records is showing, holds 2s, then fades out over the same 340. It isn't tappable and has no close button. A tap passes through to the list.<br><br>
         <strong>No Undo.</strong> 11b already says the delete can't be undone; an Undo here would contradict it.<br><br>

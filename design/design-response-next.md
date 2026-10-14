@@ -1,7 +1,7 @@
 # Design response — design-missing.md
 
 ## Round 5 (2026-10-13): after deleting a cup, the notice (Turn 13)
-- Confirming in 11b returns to Records (2a). A one-line notice sits 12 above the tab bar, at the tab bar's width (90%).
+- Confirming in 11b returns to Records (2a). A one-line notice sits 12 above the tab bar, inset 22pt left and right (the page margin, lined up with the full-width tab bar's icons). Updated to match the build; the earlier 90% came from the old floating tab bar.
 - Look: `surface.inverse` + `text.onInverse`, square, no border and no shadow, min 48 tall, padding 13 / 16.
 - Copy: "‹cup title› deleted." The title follows 2a's row-title rule. The name truncates; "deleted." never does.
 - Timing: enters with `motion.expand` (fade + rise 8), holds 2s, fades out. Not tappable, no Undo (11b says it can't be undone).
