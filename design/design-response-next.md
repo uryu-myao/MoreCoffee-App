@@ -1,5 +1,31 @@
 # Design response — design-missing.md
 
+## Round 6 (2026-10-14): 3f / 3g open points (28, 29, 34, 36, 38)
+
+### 3f — Finished bags
+28. **Reopen with 5 / 5 slots taken.** Say it once, above the list, instead of on every row:
+    - Line under the header (Archivo 12/500, `text.secondary`, the same style as 3c's slot line): **"5 of 5 slots in use. Finish a bag in My beans to reopen one."**
+    - Every row's Reopen: label `text.muted`, no underline, not pressable, still 44 tall. The row stays tappable if it opens 3g (37).
+    - With a free slot, the line is hidden and Reopen looks the way 3f draws it.
+29. **Confirmed**, with three details:
+    - Line 2: **"Blue Bottle · Mar 2 → Apr 1"**. No "opened" / "finished" words: the arrow carries it and the line fits. With no roaster: "Mar 2 → Apr 1".
+    - Cups and rating: "3 cups · ★ 4.4". A bag with no cups reads "No cups" and shows no rating.
+    - No sort and no summary row in V1, but a fixed order: **latest finished first**.
+
+### 3g — Edit bag
+34. **Yes.** Opened on runs from the roast date to the day of the first cup from this bag. With no cups, up to today. A limit line under the field, the same as 11a's: "From Mar 30, the roast date, to Apr 6, your first cup from it." With no roast date: "Up to Apr 6, your first cup from it." With neither, no line (Round 4, 22).
+38. **Yes, adopted as written:** "Your edits to this bag won't be saved. The bag stays as it was." Title and buttons as in Round 4 (19).
+36. **Yes, put "Delete this bag" in V1's 3g.** Without it, a bag added by mistake can only be finished, and then it sits in 3f and skews "Finished bags".
+    - **Confirmation**: 11b's sheet shape and buttons, with "cup" → "bag".
+      - Title: "Delete this bag?"
+      - Body: "It's removed from My beans for good. Your 3 logged cups keep its details." With no cups, the second sentence is dropped.
+      - Third line, only for an open bag: "Drank it? Finish it instead. A finished bag can be reopened."
+    - **Telling it apart from Finish**: they are on different screens. Finish is only on 3d's card, and Delete is only at the bottom of 3g, so the two never appear together. 3g has no Finish button.
+      - Delete row's meta line: replace "Not finish — erases it" with **"For a bag added by mistake"**.
+    - **Feedback**: yes, 13b's notice: "Ethiopia Guji deleted." It returns to where 3g was opened from (3d, or 3f).
+
+---
+
 ## Round 5 (2026-10-13): after deleting a cup, the notice (Turn 13)
 - Confirming in 11b returns to Records (2a). A one-line notice sits 12 above the tab bar, inset 22pt left and right (the page margin, lined up with the full-width tab bar's icons). Updated to match the build; the earlier 90% came from the old floating tab bar.
 - Look: `surface.inverse` + `text.onInverse`, square, no border and no shadow, min 48 tall, padding 13 / 16.
