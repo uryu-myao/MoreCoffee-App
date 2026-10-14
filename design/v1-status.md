@@ -6,7 +6,9 @@ Scope test (2026-10-11): can Uryu use it every day himself? His cups are mostly 
 
 **In scope, in order**: 1. 3c / 3a on the compact header · 2. 5c · 3. Home's My beans / My gear + 3d (Finish bag) · 4. Packaged's minimal input (product name only; needs Design) · 5. the rest of Home (cups total, this week, recently sipped).
 
-**Not now**: 3f · 3g · 2b · 8l · 3b · 3e · 8f · 8g · 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6a · 6b · 6c · 6d · Barista. The Profile and Try next tabs stay placeholders (decided before release).
+**In scope since 2026-10-14, after the above**: 3f (minimal: list + Reopen bag), then 3g (minimal: name, roaster, roasted on). Questions: design-missing.md 27–38.
+
+**Not now**: 2b · 8l · 3b · 3e · 8f · 8g · 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6a · 6b · 6c · 6d · Barista. The Profile and Try next tabs stay placeholders (decided before release).
 
 Status: **done** (built from the mock, checked on the simulator) · **partial** · **not started** · **out** (decided outside V1).
 
@@ -29,7 +31,7 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 11a Edit cup · 11b Delete · 11c Bag picker | **yes** (approved 2026-10-13) | **done** | bag, method, date & time, My words; "As logged" read only; delete with 11b's sheet; the date wins over the bag. Round 4 built: the discard sheet on leaving with changes, "No bag" / "No brewer" / "No grinder", a finished own bag marked. Packaged / Barista: no shelf block until design-missing 6 |
 | 3b My gear / 3e Edit gear | not now | not started | the only way to rename generic gear (`gaps.md` 25) |
 | 3d My beans | **yes** | **done** | open bags, "Day N", Finish bag (no confirm, no undo at this stage), Add a bag → 3c. Card tap (3g) and Finished bags (3f) not at this stage |
-| 3g Edit bag / 3f Finished bags | not now | not started | 3f's Reopen is the undo for a mistaken Finish; for own use, losing one of five slots is acceptable and the cups stay |
+| 3g Edit bag / 3f Finished bags | **yes, minimal (2026-10-14)**: 3f first, then 3g | not started | 3f's Reopen is the recovery for Finish (gaps 17 / 18), which stays unconfirmed; questions to Design: design-missing.md 27–38 |
 | 6a / 6b / 6c Profile | not now | not started (placeholder) | 6a is 8f's entry point |
 | 6d Edit profile | not now | not started | |
 | 8f My taste DNA | not now | not started | needs the shift history (`dna_change`, stored) and Design's answers (8f's two contradictions) |

@@ -76,6 +76,30 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
 
 Also still open from Round 3: 2c with **neither bag nor gear** (Method reads "—"; `design-reply-2026-10-13.md`).
 
+## 3f and 3g, minimal (added 2026-10-14) [this round]
+
+Decided 2026-10-14: **3f (Finished bags) first, then 3g (Edit bag)**, both minimal, into V1.
+- Why 3f: Finish bag has no confirmation, and its recovery (gaps.md 17 / 18, settled 2026-10-09) is 3f's "Reopen bag", which wasn't built. A finished bag now leaves 3d with no trace and can't come back. 3f restores the settled answer; **Finish stays unconfirmed**.
+- Why 3g: 11a corrects one cup; a typo in a bag's name or a missing roast date sits in the bag and in every cup copied from it. 3g also gives D-29's card link (the upper half, with a chevron) somewhere to go; until then 3d's cards stay not pressable, as built.
+
+Each item says what would be built; every value stays a token.
+
+### 3f — Finished bags
+27. **The entry from 3d.** 3d has no "Finished bags" entry today. 3f's mock shows "My beans / Finished bags" at its top, but 3d draws no entry. Where does it go (under the bag cards, by the "Add a bag" slot?), and what does it look like (§1: it must read pressable)? Is it hidden while no bag is finished, or shown with an empty 3f?
+28. **"Reopen bag" with 5 / 5 slots taken.** Reopening takes a slot. With none free the button can't work. §1 now requires every disabled control to show why on screen: what does it say ("Finish a bag to free a slot"?), and where?
+29. **The row, with V1's data.** V1 bags have a name, roaster, roast date, opened and finished dates; **no size or roast level** (3c minimal). Built row: name, "roaster · opened Mar 2 → finished Mar 21", cups logged and their average rating, "Reopen bag". Not built: the sort chips (Newest / Best rated / Most cups) and the "From archived bags" summary. Confirm, or say what's essential.
+30. **After Reopen.** The bag returns to 3d (and Home) with its original opened date, so its "Day N" carries on. Any feedback, like 13b's notice ("Kenya Kirinyaga reopened.")? Does 3f stay open or go back to 3d?
+31. **After Finish.** Today the card just disappears from 3d. Should Finish show 13b's notice too ("Ethiopia Guji finished." — and where it went), so the bag doesn't seem to vanish?
+
+### 3g — Edit bag
+32. **Fields in V1.** 3c minimal has name, roaster, roasted on. 3g's mock adds photo, origin, region, roast level, process, opened on and size. Built: **name, roaster, roasted on**. Is **opened on** in too? The rest stay out (no inputs for them yet), and the photo stays hidden (no camera). The "Day 7 · drink now" line: 3d shows "Day N" with no freshness word (gaps.md 8); the same here?
+33. **The roast date against cups already logged.** 11c's rule is "the date wins": a cup can't predate its bag's roast. Editing the bag goes the other way: moving the roast date after a cup logged from it. Proposal: the date sheet stops at the earliest such cup's day, and the row says so, as 11a's date row does ("Up to Apr 8, your first cup from it"). Or allow it and warn?
+34. **Opened on**, if in: limited to roast date … today. Should it also stop at the first cup's day?
+35. **"Edits apply to the 3 cups already logged from this bag."** (3g's footer line). Adopted as written, with the count. Hidden when no cup is logged from the bag?
+36. **"Delete this bag" stays out** (gaps.md 18: what happens to the bag's cups isn't settled). Confirm.
+37. **Which bags open 3g.** 3d's cards, unopened ones included. Finished bags in 3f too (a row tap), or 3f only reopens?
+38. **Leaving with changes**: Round 4's sheet applies to 3g. The body for a bag: "Your edits to this bag won't be saved. The bag stays as it was."?
+
 ## Copy: Design's proposals (report of 2026-10-11) — adopted, in the app
 
 - **10 (5a, empty shelf)**: "Marked fields are required. Add a bag and your gear once — after that they start pre-filled."

@@ -361,6 +361,8 @@ Plus, globally:
 
 **Settled 2026-10-09 (item 18)**: 3f's "Reopen bag" is the recovery; no confirmation or immediate undo is added.
 
+**2026-10-14**: 3f wasn't built, so Finish had neither. 3f (minimal) is now in V1 ahead of 3g, restoring the settled recovery; Finish stays unconfirmed (design-missing.md 27–31).
+
 **At this stage (2026-10-12)**: 3f is not built, so **a finished bag cannot be reopened**. Accepted for own use: a slip costs one of five slots; the cups and notes stay. Return here with 3f.
 
 ---
