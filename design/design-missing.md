@@ -123,6 +123,8 @@ Rules decided (data-model.md "Freshness"): counted from the roast date — **res
     - It stays optional, with no required mark (§1 Required marks: a mark only where the field can be filled every time).
     - **Also check, decided 2026-10-14**: a bag with no roast date shows **no beanFreshness row at all** (no day, no state, no bar). Please look at how such a bag reads on 3d (its card), 5a (its Bag row: the roaster alone) and 2c (no "day N when brewed"), with the bar row gone.
 
+42. **3g's line under Roasted on.** 3g's mock says "Recounted from the roast date when you change it." That speaks only to changing a date already there. A bag whose roast date was skipped in 3c can only get one in 3g, and then the line doesn't fit. 3g corrects, it doesn't ask, so **no nudge** — but the user should see that a date can go in and what it does. Proposal: one plain line that fits both cases, empty or filled, e.g. "Freshness on My beans counts from this date." Please write it.
+
 **3g, item 33 decided (2026-10-14)**: the roast date can't move past the first cup logged from the bag. The date sheet stops at that cup's day, and the field's limit line says so, as 11a's: "Up to Apr 6, your first cup from it." (with no cups: up to today, no line).
 
 ## Copy: Design's proposals (report of 2026-10-11) — adopted, in the app
