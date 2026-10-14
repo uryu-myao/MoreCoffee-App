@@ -1,5 +1,33 @@
 # Design response — design-missing.md
 
+## Round 7 (2026-10-14): reply to `design-brief-2026-10-14.md` (drawn in Turn 14)
+
+### Freshness
+39. **Resting**: elapsed `#C2B4AB`, marker `#8C7E76`, label `text.secondary`. These are pastPeak's neutral pair, not a warning, and need no new tokens. Green means only "drink now".
+    **OQ-3: the band is the bag's.** The peak band stays `#CFDCC8` in all three states. pastPeak's `#E4D6CC` band was drift: set pastPeak.peakBand to drinkNow's. Resting and past peak share the same colours; the marker's position (before or after the band) and the label tell them apart.
+40. **"The windows are a rough guide. Your own taste is the better judge."**
+    - Where: once on 3d, under the last bag card and above "Finished bags".
+    - Style: Archivo 12/500, `text.secondary`.
+    - When: only if at least one bag has a roast date.
+41. **3c's Roasted on line: "Add it to see when it's at its best."** It stays optional, with no required mark.
+    - **No roast date**: 3d's card drops the freshness row and closes up; the opened line stays.
+    - 5a's Bag row shows the roaster alone. With no roaster either, there is no meta line.
+    - 2c shows nothing in place of "day N when brewed". All three read fine; nothing reads as missing.
+42. **3g: "Freshness on My beans counts from this date."** Adopted as you proposed. It covers both an empty date and a filled one.
+33. Noted.
+
+### Still open
+2 / 6. **Agreed: one line, no brand field.** I see no reason for one later.
+    - The row closes up with no empty line 2. When Bought at returns, line 2 is the store.
+    - **2c for Packaged**: the title is the product name, and "What I logged" is hidden (the same rule as 12a with no bag or gear).
+16. **Confirmed**, with this split: Good morning before 12:00, Good afternoon 12:00–17:59, Good evening from 18:00 and through the night.
+17. **Agreed**: not shown until there's a rule.
+18. **Copy is fine.** In 3d and Home write it in sentence case: "Not opened yet". "Add without opening" and "Open this bag" stay.
+    - **Rename "Bags open" to "On the shelf"** in 3c and 3d. It counts the bags you have, opened or not.
+    - The slot line stays as it is: "3 of 5 slots free. Finish a bag to free one up."
+
+---
+
 ## Round 6 (2026-10-14): 3f / 3g open points (28, 29, 34, 36, 38)
 
 ### 3f — Finished bags
