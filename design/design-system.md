@@ -278,7 +278,7 @@ Grouped by role. Every hex is a value that qualified **inside that role** (≥3 
 | `color.text.primary` | `#273D22` | 30 screens; the product's ink |
 | `color.text.secondary` | `#5C5049` | body-text 18 screens / secondary-text 21 screens |
 | `color.text.muted` | `#6B5D55` | secondary-text 29 screens / 237 uses — the most-used text colour |
-| `color.text.placeholder` | `#9B8F87` | **an empty field's invitation** (added 2026-10-12, decided on device: `text.secondary` read like an entered value): every placeholder (3c's fields incl. Bean name's "e.g. Ethiopia Guji", the search field, 5b's My words), 5a's "Add a bag" / "Add gear" rows, and the label and glyph of an add slot (`EmptySlot`; its dashed frame says pressable). The tab bar's inactive grey; 3.08:1 on raised, the 3:1 floor. Settles D-38 |
+| `color.text.placeholder` | `#9B8F87` | **an empty field's invitation** (added 2026-10-12, decided on device: `text.secondary` read like an entered value): every placeholder (3c's fields incl. Bean name's "e.g. Ethiopia Guji", the search field, 5b's My words), 5a's "Add a bag" / "Add gear" rows. ~~and the label and glyph of an add slot~~ — **an add slot (`EmptySlot`) is ink again (2026-10-14, Uryu: as 3d draws it); it is an action, not an empty field.** The tab bar's inactive grey; 3.08:1 on raised, the 3:1 floor. Settles D-38 |
 | `color.text.accent` | `#9E5202` | 19 screens; section eyebrows, brand emphasis |
 | `color.text.accentStrong` | `#8A4602` | 4 screens; paired with `accent`, used on tinted grounds |
 | `color.text.link` | `#05639C` | 4 screens |
@@ -1277,3 +1277,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-14 — §9 List row: line 2 = where it came from (roaster / café / store). Packaged's "line 2 = brand" removed — it was an analogy, not from a mock; at this stage a Packaged row is one line.
 - 2026-10-14 — Design Round 7: beanFreshness resting = past peak's neutral pair, peak band mint in all states (OQ-3 settled as drift); 3d's guide line; 3c / 3d stat "On the shelf"; Packaged rows one line, 2c Packaged hides What I logged; greeting split 12 / 18.
 - 2026-10-14 — §9 AxisReadout: an empty axis reads "Not noted" on a cup's own values (entered), "Not noted yet" on a profile (computed).
+- 2026-10-14 — EmptySlot's label and glyph back to ink (as 3d), out of `text.placeholder`'s list.
