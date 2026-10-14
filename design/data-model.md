@@ -373,6 +373,29 @@ Which of these are V1 is open (report 2026-10-10).
 
 ---
 
+## Freshness (decided 2026-10-14)
+
+**These windows are a reference, not a prediction.** The real drinking window depends on the roast level, the packaging (a valve or not), storage temperature, the brew method, and whole bean vs ground — none of which the app knows. The app takes the industry's most-used ranges and shows them **as a guide**, to the user too.
+
+The numbers live in one constant, `FRESHNESS_TUNING` (`src/data/freshness.ts`), tunable later like `DNA_TUNING`.
+
+- **Counted from the roast date**, not opening: degassing starts at the roast; 3g says "Recounted from the roast date"; and two bags side by side share one "today".
+- **Three states**:
+  | state | days since roast | why |
+  |---|---|---|
+  | resting | 0–6 | |
+  | drink now | 7–21 | "from a week after roasting" and "up to three weeks" are the most widely used guides (roasters' bags, SCA-style consumer material) |
+  | past peak | 22+ | |
+- **The bar is 42 days** (twice the window), so the peak band is 7/42–21/42 = 17%–50% (the mock draws 17%–52%; the look doesn't change). Past 42 the bar stays full and the state stays past peak. 42 is a display choice (how much of past peak to show), not science.
+- **One window for every roast level.** Light roasts rest longer, dark ones open and fade sooner, and bags have a 4-step roast level, but the level is the roaster's own claim with uneven granularity: moving the window on it would look more precise without being better founded. One rule is better. **A per-level window is V1.5.**
+- **No roast date** (it's optional): no "Day N", no state, no bar — only the name and roaster.
+- **Past peak ≠ stale.**
+  - **past peak** = 22+ days since **roasting** (advances even unopened);
+  - **stale** = 21+ days since **opening** (oxidation once open; 8i "Bag going stale — around day 21 after opening", 6a "1 stale").
+  - A bag can be both. **Stale is not built at this stage** (8i and 6a are out of scope).
+
+---
+
 ## No price
 
 **There is no price column anywhere, deliberately.** A hand-entered price is always partial: people skip it, round it, or forget it for some cups. Partial price data cannot support spend reporting, because any total built on it is wrong in an unknown direction. Meanwhile, collecting it still costs UI space and user attention on every log.

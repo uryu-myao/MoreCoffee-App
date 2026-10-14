@@ -8,7 +8,8 @@ import Glyph from '../components/base/Glyph';
 import IconButton from '../components/base/IconButton';
 import PhotoPlaceholder from '../components/base/PhotoPlaceholder';
 import Text from '../components/base/Text';
-import { daysSince, formatDay } from '../constants/dates';
+import BeanFreshness from '../components/BeanFreshness';
+import { formatDay } from '../constants/dates';
 import { useDatabase } from '../data/DatabaseProvider';
 import { OPEN_BAG_LIMIT, countFinishedBags, finishBag, listShelfBags, onShelfChanged, openBag } from '../data/repository';
 import { color, dashed, icon, layout, shape, size, space, spacing, state } from '../theme/tokens';
@@ -19,8 +20,9 @@ import ScreenFrame from './ScreenFrame';
  *
  * Header: compact, as 3c (Back + title; "N / 5 Bags open" in the stat).
  * Card per bag (3d): thumbnail, name, the roast level as a Badge when the bag
- * has one, "roaster · 250 g · opened Apr 6", "Day N" from the roast date (no
- * freshness meter at this stage, gaps.md 8); under a dashed rule
+ * has one, "roaster · 250 g · opened Apr 6", then beanFreshness ("Day 7 ·
+ * drink now" and its bar, from the roast date; nothing without one; gaps.md
+ * 8, decided 2026-10-14); under a dashed rule
  * (dashed.dividerSoft, as the star card's caption) "Finish bag": §9
  * secondary, size row (44), full width (D-25, D-29).
  *
@@ -86,7 +88,6 @@ export default function MyBeansScreen({ onBack, onAddBag, onFinished }) {
       stat={bags ? { value: `${bags.length} / ${OPEN_BAG_LIMIT}`, label: 'Bags open' } : undefined}>
       <View style={styles.body}>
         {(bags ?? []).map((bag) => {
-          const day = bag.roasted_at != null ? daysSince(bag.roasted_at) : null;
           return (
             <View key={bag.id} style={styles.card}>
               <View style={styles.top}>
@@ -101,13 +102,9 @@ export default function MyBeansScreen({ onBack, onAddBag, onFinished }) {
                   <Text variant="bodySm" color="muted" truncate="meta">
                     {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? `opened ${formatDay(bag.opened_at)}` : 'not opened yet'].filter(Boolean).join(' · ')}
                   </Text>
-                  {day != null && day >= 0 ? (
-                    <Text variant="labelCaps" color="muted">
-                      {`Day ${day}`}
-                    </Text>
-                  ) : null}
                 </View>
               </View>
+              <BeanFreshness roastedAt={bag.roasted_at} />
               <DashedRule token={dashed.dividerSoft} />
               {/* Not opened yet: "Open this bag" in Finish bag's place (2026-10-12). */}
               {bag.opened_at ? (

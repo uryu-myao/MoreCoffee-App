@@ -386,7 +386,7 @@ Promoted regardless of frequency: a low count here means "only a few screens sho
 ### Component-specific anatomies
 Two meters exist. They look similar and are **not** one component: different anatomy, different semantics.
 
-**A. `beanFreshness`** — elapsed time since a bag was opened. Track + peak band + elapsed fill + today marker, `4px` tall. Single-directional, has a notion of completion.
+**A. `beanFreshness`** — days since a bag was **roasted** (corrected 2026-10-14; rules in data-model.md "Freshness"): resting / drink now / past peak, a 42-day bar. A clock glyph before it, "Day 7 · drink now" after it (`text.meterLabel`, the marker's green / `text.muted` past peak). **resting: drinkNow's colours, PROVISIONAL** (design-missing.md 39). Track + peak band + elapsed fill + today marker, `4px` tall. Single-directional, has a notion of completion.
 
 | part | drinkNow | pastPeak |
 |---|---|---|
@@ -1271,3 +1271,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-13 — §2 Icons: `icon.fill.md` (20) for 2c's rating stars, as its mock draws them.
 - 2026-10-13 — §9 Notice (13b): the deleted notice; tokens `text.noticeName` / `text.notice`, `size.notice.minHeight`, `motion.notice.hold`.
 - 2026-10-14 — §3: `text.displayXs` (Instrument Serif 24, 3d's "Finished bags" entry, from the mock) and `text.inlineActionOff` (inlineAction without the underline: 3f's Reopen at 5 / 5, Design Round 6). §9 Notice also says "‹name› reopened." after 3f's Reopen (the verb is ours).
+- 2026-10-14 — §9 beanFreshness: counted from the roast date, three states (resting provisional), built on 3d / 4b; `text.meterLabel`; `beanFreshness.*.label`, `.marker`; the `clock` glyph.

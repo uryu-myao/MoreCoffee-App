@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { daysSince } from '../constants/dates';
+import BeanFreshness from './BeanFreshness';
 import { useDatabase } from '../data/DatabaseProvider';
 import { OPEN_BAG_LIMIT, listGearWithUse, listShelfBags, onCupsChanged, onShelfChanged } from '../data/repository';
 import { color, icon, shape, size, space, spacing, state } from '../theme/tokens';
@@ -17,8 +17,8 @@ import Text from './base/Text';
  * the other on badge.bg.neutral with muted text (4a / 4b). label.caps.
  *
  * My beans (4b): open bags, newest opened first — thumbnail, name, "roaster ·
- * 250 g", and "Day N" from the roast date (no freshness meter at this stage,
- * gaps.md 8; nothing without a roast date). Then "Manage my beans  N / 5" →
+ * 250 g", and beanFreshness under it ("Day 7 · drink now" and its bar, from
+ * the roast date; nothing without one; gaps.md 8, decided 2026-10-14). Then "Manage my beans  N / 5" →
  * 3d. No bag: an "Add a bag" slot (3d's vocabulary) → 3c.
  *
  * My gear (4a): every piece of gear, defaults first — name with a "Default"
@@ -84,21 +84,20 @@ function Beans({ bags, onManage, onAdd }) {
   return (
     <>
       {bags.map((bag, i) => (
-        <View key={bag.id} style={[styles.row, i > 0 && styles.divided]}>
-          <PhotoPlaceholder size={size.field.height} />
-          <View style={styles.text}>
-            <Text variant="label" truncate="name">
-              {bag.name}
-            </Text>
-            <Text variant="bodySm" color="muted" truncate="meta">
-              {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? null : 'not opened yet'].filter(Boolean).join(' · ') || ' '}
-            </Text>
+        // 4b: the bag row, then its freshness under it (nothing without a roast date).
+        <View key={bag.id} style={[styles.bag, i > 0 && styles.divided]}>
+          <View style={styles.bagTop}>
+            <PhotoPlaceholder size={size.field.height} />
+            <View style={styles.text}>
+              <Text variant="label" truncate="name">
+                {bag.name}
+              </Text>
+              <Text variant="bodySm" color="muted" truncate="meta">
+                {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? null : 'not opened yet'].filter(Boolean).join(' · ') || ' '}
+              </Text>
+            </View>
           </View>
-          {bag.roasted_at != null && daysSince(bag.roasted_at) >= 0 ? (
-            <Text variant="labelCaps" color="muted">
-              {`Day ${daysSince(bag.roasted_at)}`}
-            </Text>
-          ) : null}
+          <BeanFreshness roastedAt={bag.roasted_at} />
         </View>
       ))}
       <Manage label="Manage my beans" count={`${bags.length} / ${OPEN_BAG_LIMIT}`} onPress={onManage} />
@@ -190,6 +189,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: space[12],
     paddingVertical: space[12],
+  },
+  // 4b: the bag row over its freshness (gap 9 in the mock; gap.row).
+  bag: {
+    gap: spacing.gap.row,
+    paddingVertical: space[12],
+  },
+  bagTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[12],
   },
   divided: {
     borderTopWidth: shape.borderWidth.divider,

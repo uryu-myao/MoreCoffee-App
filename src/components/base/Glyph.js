@@ -30,6 +30,8 @@ const SHAPES = {
     <Path key="c" d="M3 20.5h15" />,
   ],
   star: [<Path key="p" d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />],
+  // beanFreshness's clock (3d / 4b), verbatim.
+  clock: [<Circle key="c" cx="12" cy="12" r="9" />, <Path key="p" d="M12 7v5l3.5 2" />],
   // 2c's edit button (the pencil), verbatim.
   pencil: [<Path key="a" d="M4 20h4l10-10-4-4L4 16z" />, <Path key="b" d="M14 6l4 4" />],
 };

@@ -16,7 +16,7 @@ import { useDatabase } from '../data/DatabaseProvider';
 import { listGear, listOpenBags } from '../data/repository';
 import { color, icon, motion, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
-import { daysSince } from '../constants/dates';
+import { FRESHNESS_WORDS, freshnessOf } from '../data/freshness';
 
 /**
  * Record coffee — 5a "Log a cup". All three maker modes. The cup being
@@ -136,11 +136,11 @@ const NONE = '—';
  * "Chilled, unsweetened" (not in the schema) wait for the features behind them.
  * TODO(Step 5): rows open their pickers; tapping does nothing yet.
  */
-/** Roaster · day N, the day counted from the roast date (gaps.md 8: two clocks). */
+/** "Blue Bottle · day 7, drink now" (5a's mock): the day and state from the roast date (data/freshness.ts); roaster alone without one. */
 function bagMeta(bag) {
   if (!bag) return undefined;
-  if (bag.roasted_at == null) return bag.roaster ?? undefined;
-  return [bag.roaster, `day ${daysSince(bag.roasted_at)}`].filter(Boolean).join(' · ');
+  const f = freshnessOf(bag.roasted_at);
+  return [bag.roaster, f ? `day ${f.day}, ${FRESHNESS_WORDS[f.state]}` : null].filter(Boolean).join(' · ') || undefined;
 }
 
 const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);

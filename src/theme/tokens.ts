@@ -192,6 +192,8 @@ export const textStyle = {
    * lineHeight UNDECLARED · 0.08em x 11
    */
   inlineAction:  { fontFamily: 'Archivo', fontSize: 11, fontWeight: '700', letterSpacing: 0.88, textTransform: 'uppercase', textDecorationLine: 'underline' },
+  /** beanFreshness's "Day 7 · drink now" (3d / 4b). Same metrics as inlineAction, no underline: a status, not an action. */
+  meterLabel:    { fontFamily: 'Archivo', fontSize: 11, fontWeight: '700', letterSpacing: 0.88, textTransform: 'uppercase' },
   /** inlineAction that can't be pressed now: no underline (3f's Reopen at 5 / 5, Design Round 6). Pair with text.muted. */
   inlineActionOff: { fontFamily: 'Archivo', fontSize: 11, fontWeight: '700', letterSpacing: 0.88, textTransform: 'uppercase' },
 } as const;
@@ -427,16 +429,23 @@ const axisGrip = { w: shape.borderWidth.box, h: space[8] } as const;
 /** Component anatomies whose parts are mechanism-bound. */
 export const component = {
   /**
-   * Elapsed time since a bag was opened: track + peak band + elapsed fill +
-   * today marker, 4px tall. Single-directional, has a notion of completion.
-   * todayMarker is intentionally one step darker than the fill it stands on.
-   * peakBand's state dependence is UNRESOLVED — see OQ-3.
+   * Days since a bag was ROASTED (decided 2026-10-14, data/freshness.ts):
+   * track + peak band + elapsed fill + today marker, 4px tall, with a clock
+   * glyph before it and "Day 7 · drink now" after it. Single-directional, has
+   * a notion of completion. todayMarker is intentionally one step darker than
+   * the fill it stands on. peakBand's state dependence is UNRESOLVED — see
+   * OQ-3. label: the "Day N · state" text (3d / 4b: the marker's green when
+   * drinking, text.muted past peak).
+   * resting is PROVISIONAL: drinkNow's colours until Design draws it
+   * (design-missing.md 39).
    */
   beanFreshness: {
     track: color.surface.muted,
-    drinkNow: { peakBand: '#CFDCC8', elapsed: '#7E9675', todayMarker: '#4A6640' },
-    pastPeak: { peakBand: '#E4D6CC', elapsed: '#C2B4AB', todayMarker: '#8C7E76' },
+    drinkNow: { peakBand: '#CFDCC8', elapsed: '#7E9675', todayMarker: '#4A6640', label: '#4A6640' },
+    pastPeak: { peakBand: '#E4D6CC', elapsed: '#C2B4AB', todayMarker: '#8C7E76', label: color.text.muted },
+    resting: { peakBand: '#CFDCC8', elapsed: '#7E9675', todayMarker: '#4A6640', label: '#4A6640' }, // PROVISIONAL
     height: size.meter.track,
+    marker: { w: shape.borderWidth.box, h: size.marker.line.h },
   },
   /**
    * Taste axis slider (5b, the input): one solid rail and a square handle.

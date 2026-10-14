@@ -104,6 +104,21 @@ Each item says what would be built; every value stays a token.
 37. **Which bags open 3g.** 3d's cards, unopened ones included. Finished bags in 3f too (a row tap), or 3f only reopens?
 38. **Leaving with changes**: Round 4's sheet applies to 3g. The body for a bag: "Your edits to this bag won't be saved. The bag stays as it was."?
 
+## Bean freshness (added 2026-10-14) [this round]
+
+Rules decided (data-model.md "Freshness"): counted from the roast date — **resting** day 0–6, **drink now** 7–21, **past peak** 22+; a 42-day bar, peak band 17%–50%; nothing shown without a roast date. Built on 3d and 4b.
+
+39. **The resting look.** The mocks have drinkNow and pastPeak only.
+    - Label in the existing form: **"Day 3 · resting"**.
+    - The existing two: drinkNow peakBand `#CFDCC8` / elapsed `#7E9675` / marker `#4A6640`; pastPeak peakBand `#E4D6CC` / elapsed `#C2B4AB` / marker `#8C7E76`.
+    - In resting the elapsed fill hasn't reached the peak band yet (left of 17%).
+    - It means "not yet", not "bad": **no warning colour**. Choose from existing tokens.
+    - **Also settle OQ-3** (design-system.md): pastPeak changes peakBand's colour (mint → beige), and we can't tell intent from drift. With resting added, please look at all three states together and say whether the band changes with the state or stays the bag's.
+    - Built today: resting uses drinkNow's colours, marked PROVISIONAL.
+40. **Saying it's a guide.** The app knows neither storage nor brew method, so it must not sound certain. A short line, **once** on 3d or 3g (not on every card), saying the window is a guide and that the user's own taste is the better judge. Please write it and say where it goes.
+
+**3g, item 33 decided (2026-10-14)**: the roast date can't move past the first cup logged from the bag. The date sheet stops at that cup's day, and the field's limit line says so, as 11a's: "Up to Apr 6, your first cup from it." (with no cups: up to today, no line).
+
 ## Copy: Design's proposals (report of 2026-10-11) — adopted, in the app
 
 - **10 (5a, empty shelf)**: "Marked fields are required. Add a bag and your gear once — after that they start pre-filled."

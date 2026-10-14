@@ -167,7 +167,7 @@ Plus, globally:
 
 ## 8. `beanFreshness` has no state for a freshly opened bag
 
-**At this stage (decided 2026-10-12)**: no freshness meter. 4b / 3d show the text "Day N" only, counted from the roast date like 5a's "day N", and nothing when the bag has no roast date. The meter returns when its rules are settled (base date, peak window, the resting state).
+**Decided 2026-10-14** (data-model.md "Freshness", `src/data/freshness.ts`): from the roast date, resting 0–6 / drink now 7–21 / past peak 22+, a 42-day bar; no roast date → nothing shown. The meter is built on 3d and 4b; **resting's look is provisional** (drinkNow's colours) until Design draws it (design-missing.md 39). ~~**At this stage (decided 2026-10-12)**: no freshness meter. 4b / 3d show the text "Day N" only, counted from the roast date like 5a's "day N", and nothing when the bag has no roast date. The meter returns when its rules are settled (base date, peak window, the resting state).~~
 
 **Parts affected**: the bean freshness meter on 3d and 4b.
 
