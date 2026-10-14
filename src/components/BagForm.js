@@ -41,7 +41,8 @@ export default function BagForm({ value, onChange, onPickDate, datePicking = fal
       <DayField
         label="Roasted on"
         value={value.roastedAt}
-        placeholder="Optional — for freshness"
+        // Says what it gives, not that it's optional (Design Round 7, 41).
+        placeholder="Add it to see when it's at its best."
         onPress={onPickDate}
         focused={datePicking}
       />

@@ -11,7 +11,7 @@ import Text from './base/Text';
  * Bar: the track, the peak band (FRESHNESS_TUNING.drinkFrom … drinkUntil of
  * span), the elapsed fill from the left, and the today marker (2 × 14) at
  * its end. Past `span` the fill stays full. Colours by state
- * (component.beanFreshness); resting is PROVISIONAL (drinkNow's).
+ * (component.beanFreshness, Design Round 7 / 14a).
  * Without a roast date nothing is drawn: no day, no state, no bar.
  */
 const { drinkFrom, drinkUntil, span } = FRESHNESS_TUNING;

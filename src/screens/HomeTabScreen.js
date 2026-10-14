@@ -7,7 +7,6 @@ import HomeStats, { weekStart } from '../components/HomeStats';
 import ShelfBlock from '../components/ShelfBlock';
 import TasteDnaCard from '../components/TasteDnaCard';
 import { MODE_BADGE, cupTitle } from '../constants/cups';
-import { partOfDay } from '../constants/dates';
 import { useDatabase } from '../data/DatabaseProvider';
 import { countCups, cupTimesSince, listCups, loadTasteDna, onCupsChanged } from '../data/repository';
 import { requestOpenCup, requestPush, requestShell } from '../navigation';
@@ -17,7 +16,7 @@ import ScreenFrame from './ScreenFrame';
 /**
  * Home (1b; 4a / 4b are Home with My gear / My beans below), top to bottom:
  *   - title: a greeting by part of day — 1b's "Good morning"; "Good
- *     afternoon" / "Good evening" are ours (TODO(copy): Design); eyebrow
+ *     afternoon" / "Good evening" ours, confirmed (Design Round 7); eyebrow
  *     "MoreCoffee"
  *   - HomeStats: cups total, this week (count + strip)
  *   - "Record a coffee" (primary) → the Record sheet, as the bar's +
@@ -32,7 +31,16 @@ import ScreenFrame from './ScreenFrame';
  * draw no bar). Back or a swipe from the left edge returns.
  * Everything is read on open and again whenever a cup is saved.
  */
-const GREETING = { Morning: 'Good morning', Afternoon: 'Good afternoon', Evening: 'Good evening', Night: 'Good evening' };
+/**
+ * The greeting by the hour (Design Round 7, 16): morning before 12:00,
+ * afternoon 12:00–17:59, evening from 18:00 and through the night. Its own
+ * split, not partOfDay's (the cup's daypart words keep theirs).
+ */
+function greetingAt(date) {
+  const h = date.getHours();
+  if (h >= 18 || h < 5) return 'Good evening';
+  return h < 12 ? 'Good morning' : 'Good afternoon';
+}
 const dayFormat = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
 
 export default function HomeTabScreen() {
@@ -53,7 +61,7 @@ export default function HomeTabScreen() {
   }, [db]);
 
 
-  const greeting = GREETING[partOfDay(new Date(data?.now ?? Date.now()))];
+  const greeting = greetingAt(new Date(data?.now ?? Date.now()));
   return (
     <View style={styles.screen}>
       <ScreenFrame scroll title={greeting} eyebrow="MoreCoffee">

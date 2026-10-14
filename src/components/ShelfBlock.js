@@ -93,7 +93,7 @@ function Beans({ bags, onManage, onAdd }) {
                 {bag.name}
               </Text>
               <Text variant="bodySm" color="muted" truncate="meta">
-                {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? null : 'not opened yet'].filter(Boolean).join(' · ') || ' '}
+                {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? null : 'Not opened yet'].filter(Boolean).join(' · ') || ' '}
               </Text>
             </View>
           </View>

@@ -18,7 +18,8 @@ import ScreenFrame from './ScreenFrame';
 /**
  * 3d — My beans: the open bags, from Home's "Manage my beans".
  *
- * Header: compact, as 3c (Back + title; "N / 5 Bags open" in the stat).
+ * Header: compact, as 3c (Back + title; "N / 5 On the shelf" in the stat:
+ * it counts the bags you have, opened or not; Design Round 7, 18).
  * Card per bag (3d): thumbnail, name, the roast level as a Badge when the bag
  * has one, "roaster · 250 g · opened Apr 6", then beanFreshness ("Day 7 ·
  * drink now" and its bar, from the roast date; nothing without one; gaps.md
@@ -26,7 +27,7 @@ import ScreenFrame from './ScreenFrame';
  * (dashed.dividerSoft, as the star card's caption) "Finish bag": §9
  * secondary, size row (44), full width (D-25, D-29).
  *
- * A bag added without opening (3c, 2026-10-12) reads "not opened yet" and
+ * A bag added without opening (3c, 2026-10-12) reads "Not opened yet" and
  * has "Open this bag" in Finish bag's place; it takes a slot like the rest.
  *
  * Finish bag: no confirmation, no undo at this stage (gaps.md 17: 3f's
@@ -85,7 +86,7 @@ export default function MyBeansScreen({ onBack, onAddBag, onFinished }) {
       compact
       title="My beans"
       leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
-      stat={bags ? { value: `${bags.length} / ${OPEN_BAG_LIMIT}`, label: 'Bags open' } : undefined}>
+      stat={bags ? { value: `${bags.length} / ${OPEN_BAG_LIMIT}`, label: 'On the shelf' } : undefined}>
       <View style={styles.body}>
         {(bags ?? []).map((bag) => {
           return (
@@ -100,7 +101,7 @@ export default function MyBeansScreen({ onBack, onAddBag, onFinished }) {
                     {bag.roast_level ? <Badge label={ROAST[bag.roast_level]} tone="neutral" /> : null}
                   </View>
                   <Text variant="bodySm" color="muted" truncate="meta">
-                    {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? `opened ${formatDay(bag.opened_at)}` : 'not opened yet'].filter(Boolean).join(' · ')}
+                    {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? `opened ${formatDay(bag.opened_at)}` : 'Not opened yet'].filter(Boolean).join(' · ')}
                   </Text>
                 </View>
               </View>
@@ -115,6 +116,13 @@ export default function MyBeansScreen({ onBack, onAddBag, onFinished }) {
             </View>
           );
         })}
+        {/* Once, under the last card (Design Round 7, 40): the freshness
+            windows are a guide. Only when some bag has a roast date. */}
+        {bags?.some((b) => b.roasted_at != null) ? (
+          <Text variant="bodySm" color="secondary">
+            The windows are a rough guide. Your own taste is the better judge.
+          </Text>
+        ) : null}
         {bags && left > 0 ? <EmptySlot icon="plus" iconToken={icon.sm} label="Add a bag" tag={left === 1 ? '1 slot left' : `${left} slots left`} onPress={onAddBag} /> : null}
         {finished > 0 ? (
           <Pressable

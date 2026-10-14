@@ -433,17 +433,18 @@ export const component = {
    * track + peak band + elapsed fill + today marker, 4px tall, with a clock
    * glyph before it and "Day 7 · drink now" after it. Single-directional, has
    * a notion of completion. todayMarker is intentionally one step darker than
-   * the fill it stands on. peakBand's state dependence is UNRESOLVED — see
-   * OQ-3. label: the "Day N · state" text (3d / 4b: the marker's green when
-   * drinking, text.muted past peak).
-   * resting is PROVISIONAL: drinkNow's colours until Design draws it
-   * (design-missing.md 39).
+   * the fill it stands on. label: the "Day N · state" text.
+   * Design Round 7 (14a, 2026-10-14): the peak band is the bag's window and
+   * stays mint in every state (OQ-3 settled: pastPeak's beige band was
+   * drift). Green means only "drink now"; resting and past peak share the
+   * neutral pair with a text.secondary label, told apart by where the marker
+   * sits (before or after the band) and by the label.
    */
   beanFreshness: {
     track: color.surface.muted,
     drinkNow: { peakBand: '#CFDCC8', elapsed: '#7E9675', todayMarker: '#4A6640', label: '#4A6640' },
-    pastPeak: { peakBand: '#E4D6CC', elapsed: '#C2B4AB', todayMarker: '#8C7E76', label: color.text.muted },
-    resting: { peakBand: '#CFDCC8', elapsed: '#7E9675', todayMarker: '#4A6640', label: '#4A6640' }, // PROVISIONAL
+    pastPeak: { peakBand: '#CFDCC8', elapsed: '#C2B4AB', todayMarker: '#8C7E76', label: color.text.secondary },
+    resting: { peakBand: '#CFDCC8', elapsed: '#C2B4AB', todayMarker: '#8C7E76', label: color.text.secondary },
     height: size.meter.track,
     marker: { w: shape.borderWidth.box, h: size.marker.line.h },
   },

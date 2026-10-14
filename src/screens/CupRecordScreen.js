@@ -98,20 +98,12 @@ function Logged({ cup }) {
       </View>
     );
   }
-  // TODO(design): 2c is drawn for I made it only (design-missing.md 2); these
-  // rows follow 5a's fields for the mode.
-  if (cup.mode === 'barista') {
-    return (
-      <View style={styles.card}>
-        <FieldRow readOnly icon="pin" label="Café" value={cup.place_name ?? NONE} />
-        <FieldRow readOnly divided label="Drink" value={cup.drink_type ?? NONE} />
-      </View>
-    );
-  }
+  // Barista (not at this stage, undrawn): 5a's fields for the mode.
+  // Packaged never gets here: its "What I logged" is hidden (Design Round 7).
   return (
     <View style={styles.card}>
-      <FieldRow readOnly icon="can" label="Product" value={[cup.product_brand, cup.product_name].filter(Boolean).join(' · ') || NONE} />
-      <FieldRow readOnly divided label="Bought at" value={cup.bought_at_name ?? NONE} />
+      <FieldRow readOnly icon="pin" label="Café" value={cup.place_name ?? NONE} />
+      <FieldRow readOnly divided label="Drink" value={cup.drink_type ?? NONE} />
     </View>
   );
 }
@@ -169,7 +161,9 @@ export default function CupRecordScreen({ id, onBack, onEdit }) {
 
         {/* Neither bag nor gear: the whole section goes (Design Round 4); the
             title and "No bag or gear noted" under it say what's missing. */}
-        {cup.mode !== 'made_it' || cup.bean_name || cup.brew_method || cup.grinder ? (
+        {/* Packaged: hidden too — it would only repeat the title (Design
+            Round 7, 14b). */}
+        {cup.mode === 'barista' || (cup.mode === 'made_it' && (cup.bean_name || cup.brew_method || cup.grinder)) ? (
           <View style={styles.section}>
             <SectionLabel variant="plain" label="What I logged" />
             <Logged cup={cup} />

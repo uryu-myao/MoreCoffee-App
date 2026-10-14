@@ -104,7 +104,7 @@ Each item says what would be built; every value stays a token.
 37. **Which bags open 3g.** 3d's cards, unopened ones included. Finished bags in 3f too (a row tap), or 3f only reopens?
 38. **Leaving with changes**: Round 4's sheet applies to 3g. The body for a bag: "Your edits to this bag won't be saved. The bag stays as it was."?
 
-## Bean freshness (added 2026-10-14) [this round]
+## Bean freshness (added 2026-10-14) — answered (Design Round 7, 14a) and built 2026-10-14, except 42 (with 3g)
 
 Rules decided (data-model.md "Freshness"): counted from the roast date — **resting** day 0–6, **drink now** 7–21, **past peak** 22+; a 42-day bar, peak band 17%–50%; nothing shown without a roast date. Built on 3d and 4b.
 

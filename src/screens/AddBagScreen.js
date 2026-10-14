@@ -68,7 +68,7 @@ export default function AddBagScreen({ onBack, onAdded }) {
         compact
         title="Add a bag"
         leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
-        stat={open != null ? { value: `${open} / ${OPEN_BAG_LIMIT}`, label: 'Bags open' } : undefined}
+        stat={open != null ? { value: `${open} / ${OPEN_BAG_LIMIT}`, label: 'On the shelf' } : undefined}
         footer={
           <View style={styles.footer}>
             {/* Full: the line below says why, so a press warns (§1). An empty
