@@ -135,6 +135,38 @@ export async function finishBag(db: SQLiteDatabase, id: number): Promise<void> {
   notifyShelfChanged();
 }
 
+/** A finished bag with what was logged from it (3f's row). */
+export type FinishedBag = Bag & { cups: number; avg_rating: number | null };
+
+/** Finished bags, latest finished first (3f; Design Round 6: a fixed order, no sort). */
+export async function listFinishedBags(db: SQLiteDatabase): Promise<FinishedBag[]> {
+  const rows = await db.getAllAsync<FinishedBag & { notes: string }>(
+    `SELECT b.*, COUNT(c.id) AS cups, AVG(c.rating) AS avg_rating
+       FROM bags b LEFT JOIN cups c ON c.bag_id = b.id
+      WHERE b.finished_at IS NOT NULL
+      GROUP BY b.id
+      ORDER BY b.finished_at DESC, b.id DESC`
+  );
+  return rows.map((row) => ({ ...row, notes: JSON.parse(row.notes as unknown as string) }));
+}
+
+/** How many bags are finished (3d's "Finished bags" entry). */
+export async function countFinishedBags(db: SQLiteDatabase): Promise<number> {
+  const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM bags WHERE finished_at IS NOT NULL');
+  return row?.n ?? 0;
+}
+
+/**
+ * Reopen a finished bag (3f "Reopen bag"): back on the shelf with its
+ * opened date, so its Day N carries on. It takes a slot: refused at the
+ * limit (3f disables the button there and says why).
+ */
+export async function reopenBag(db: SQLiteDatabase, id: number): Promise<void> {
+  if ((await countOpenBags(db)) >= OPEN_BAG_LIMIT) throw new Error(`All ${OPEN_BAG_LIMIT} slots are taken. Finish a bag to free one.`);
+  await db.runAsync('UPDATE bags SET finished_at = NULL WHERE id = ? AND finished_at IS NOT NULL', [id]);
+  notifyShelfChanged();
+}
+
 /** Every piece of gear with the cups logged with it (4a: "Brewer · 2 cups"); defaults first. */
 export async function listGearWithUse(db: SQLiteDatabase): Promise<(Gear & { cups: number })[]> {
   return db.getAllAsync<Gear & { cups: number }>(

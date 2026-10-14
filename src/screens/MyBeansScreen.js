@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import Badge from '../components/base/Badge';
 import Button from '../components/base/Button';
 import DashedRule from '../components/base/DashedRule';
 import EmptySlot from '../components/base/EmptySlot';
+import Glyph from '../components/base/Glyph';
 import IconButton from '../components/base/IconButton';
 import PhotoPlaceholder from '../components/base/PhotoPlaceholder';
 import Text from '../components/base/Text';
 import { daysSince, formatDay } from '../constants/dates';
 import { useDatabase } from '../data/DatabaseProvider';
-import { OPEN_BAG_LIMIT, finishBag, listShelfBags, onShelfChanged, openBag } from '../data/repository';
-import { color, dashed, icon, layout, shape, size, space, spacing } from '../theme/tokens';
+import { OPEN_BAG_LIMIT, countFinishedBags, finishBag, listShelfBags, onShelfChanged, openBag } from '../data/repository';
+import { color, dashed, icon, layout, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
 /**
@@ -29,19 +30,30 @@ import ScreenFrame from './ScreenFrame';
  * Finish bag: no confirmation, no undo at this stage (gaps.md 17: 3f's
  * Reopen is not built; for own use a slip costs one slot, and the cups stay).
  *
- * Not at this stage: tapping a card (→ 3g), "Finished bags" (→ 3f).
+ * "Finished bags" (3d's foot, 2026-10-14) → 3f: a 1.5 border.soft rule, the
+ * name in display.xs, "N archived — still counted in my taste DNA" and a
+ * chevron. Shown once a bag is finished (no entry to an empty 3f).
+ * Not at this stage: tapping a card (→ 3g).
  * "Add a bag" (an add slot, with "N slots left") → 3c; hidden at 5 / 5.
  * The thumbnail is FieldRow's swatch (46); 3d draws 56, which has no token
  * (drift D-51).
  */
 const ROAST = { light: 'Light', medium: 'Medium', 'medium-dark': 'Medium-dark', dark: 'Dark' };
 
-export default function MyBeansScreen({ onBack, onAddBag }) {
+export default function MyBeansScreen({ onBack, onAddBag, onFinished }) {
   const db = useDatabase();
   const [bags, setBags] = useState(null);
+  const [finished, setFinished] = useState(0);
 
   useEffect(() => {
-    const load = () => listShelfBags(db).then(setBags, (error) => console.error('[3d] could not read bags', error));
+    const load = () =>
+      Promise.all([listShelfBags(db), countFinishedBags(db)]).then(
+        ([shelf, done]) => {
+          setBags(shelf);
+          setFinished(done);
+        },
+        (error) => console.error('[3d] could not read bags', error)
+      );
     load();
     return onShelfChanged(load);
   }, [db]);
@@ -107,6 +119,21 @@ export default function MyBeansScreen({ onBack, onAddBag }) {
           );
         })}
         {bags && left > 0 ? <EmptySlot icon="plus" iconToken={icon.sm} label="Add a bag" tag={left === 1 ? '1 slot left' : `${left} slots left`} onPress={onAddBag} /> : null}
+        {finished > 0 ? (
+          <Pressable
+            onPress={onFinished}
+            accessibilityRole="button"
+            accessibilityLabel={`Finished bags, ${finished} archived`}
+            style={({ pressed }) => [styles.finished, pressed && styles.pressed]}>
+            <View style={styles.finishedText}>
+              <Text variant="displayXs">Finished bags</Text>
+              <Text variant="bodySm" color="secondary">
+                {`${finished} archived — still counted in my taste DNA`}
+              </Text>
+            </View>
+            <Glyph name="chevronRight" token={icon.md} color={color.icon.default} />
+          </Pressable>
+        ) : null}
       </View>
     </ScreenFrame>
   );
@@ -143,5 +170,23 @@ const styles = StyleSheet.create({
   },
   name: {
     flexShrink: 1,
+  },
+  // 3d's foot: the entry to 3f, under a 1.5 rule.
+  finished: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: space[12],
+    marginTop: spacing.gap.section,
+    paddingTop: space[16],
+    borderTopWidth: shape.borderWidth.divider,
+    borderTopColor: color.border.soft,
+  },
+  finishedText: {
+    flex: 1,
+    gap: spacing.gap.tight,
+  },
+  pressed: {
+    backgroundColor: state.pressed.surface,
   },
 });

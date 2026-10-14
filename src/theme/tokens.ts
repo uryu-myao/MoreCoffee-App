@@ -152,6 +152,8 @@ export const texture = {
 export const textStyle = {
   displayLg:     { fontFamily: 'Instrument Serif', fontSize: 40, fontWeight: '400', lineHeight: 41 },
   displaySm:     { fontFamily: 'Instrument Serif', fontSize: 30, fontWeight: '400', lineHeight: 31 },
+  /** 3d's "Finished bags" entry (2026-10-14, from the mock). */
+  displayXs:     { fontFamily: 'Instrument Serif', fontSize: 24, fontWeight: '400', lineHeight: 24 },
   numeralHero:   { fontFamily: 'Instrument Serif', fontSize: 96, fontWeight: '400', lineHeight: 79 },
   numeralInline: { fontFamily: 'Instrument Serif', fontSize: 22, fontWeight: '400', lineHeight: 22 },
   /**
@@ -190,6 +192,8 @@ export const textStyle = {
    * lineHeight UNDECLARED · 0.08em x 11
    */
   inlineAction:  { fontFamily: 'Archivo', fontSize: 11, fontWeight: '700', letterSpacing: 0.88, textTransform: 'uppercase', textDecorationLine: 'underline' },
+  /** inlineAction that can't be pressed now: no underline (3f's Reopen at 5 / 5, Design Round 6). Pair with text.muted. */
+  inlineActionOff: { fontFamily: 'Archivo', fontSize: 11, fontWeight: '700', letterSpacing: 0.88, textTransform: 'uppercase' },
 } as const;
 
 /**

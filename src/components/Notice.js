@@ -7,7 +7,8 @@ import { useFooterHeight } from './FooterNav';
 
 /**
  * 13a / 13b — the one-line notice after a delete ("Ethiopia Guji deleted."),
- * Design Round 5 (2026-10-13). AppShell mounts it over the tabs.
+ * Design Round 5 (2026-10-13). AppShell mounts it over the tabs. Also after
+ * 3f's Reopen ("Kenya Kirinyaga reopened.", 2026-10-14; the verb is ours).
  *
  *   look     surface.inverse + text.onInverse, square, no border, no shadow;
  *            min size.notice.minHeight (48), padding 16 a side; gap.section
@@ -34,9 +35,9 @@ export default function Notice() {
 
   useEffect(
     () =>
-      onNoticeRequest(({ name }) => {
-        setNotice({ name, key: Date.now() });
-        AccessibilityInfo.announceForAccessibility(`${name} deleted.`);
+      onNoticeRequest(({ name, verb = 'deleted' }) => {
+        setNotice({ name, verb, key: Date.now() });
+        AccessibilityInfo.announceForAccessibility(`${name} ${verb}.`);
       }),
     []
   );
@@ -76,7 +77,7 @@ export default function Notice() {
         </Text>
       </View>
       <Text variant="notice" color="onInverse">
-        deleted.
+        {`${notice.verb}.`}
       </Text>
     </Animated.View>
   );

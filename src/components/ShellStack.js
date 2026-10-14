@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import AddBagScreen from '../screens/AddBagScreen';
 import AddGearScreen from '../screens/AddGearScreen';
 import EditCupScreen from '../screens/EditCupScreen';
+import FinishedBagsScreen from '../screens/FinishedBagsScreen';
 import MyBeansScreen from '../screens/MyBeansScreen';
 import { ScreenBackdropContext } from '../screens/ScreenFrame';
 import { cupTitle } from '../constants/cups';
@@ -20,6 +21,7 @@ import PushedScreen from './PushedScreen';
  *   beans     3d
  *   addBag    3c — after adding, lands on My beans (2026-10-12): My beans
  *             goes under it if not there yet, then it slides out
+ *   finished  3f, from 3d's foot
  *   addGear   3a
  *   editCup   11a ({ cup }); a delete also closes the cup in Records and
  *             shows 13b's notice ("‹title› deleted.")
@@ -33,7 +35,9 @@ export default function ShellStack() {
   const render = (entry, goBack, guardLeave) => {
     switch (entry.name) {
       case 'beans':
-        return <MyBeansScreen onBack={goBack} onAddBag={() => push({ name: 'addBag' })} />;
+        return <MyBeansScreen onBack={goBack} onAddBag={() => push({ name: 'addBag' })} onFinished={() => push({ name: 'finished' })} />;
+      case 'finished':
+        return <FinishedBagsScreen onBack={goBack} />;
       case 'addGear':
         return <AddGearScreen onBack={goBack} />;
       case 'addBag':

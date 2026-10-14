@@ -1270,3 +1270,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-13 — §9 Buttons: a text action stacked under full-width buttons takes a 44 row, label centred.
 - 2026-10-13 — §2 Icons: `icon.fill.md` (20) for 2c's rating stars, as its mock draws them.
 - 2026-10-13 — §9 Notice (13b): the deleted notice; tokens `text.noticeName` / `text.notice`, `size.notice.minHeight`, `motion.notice.hold`.
+- 2026-10-14 — §3: `text.displayXs` (Instrument Serif 24, 3d's "Finished bags" entry, from the mock) and `text.inlineActionOff` (inlineAction without the underline: 3f's Reopen at 5 / 5, Design Round 6). §9 Notice also says "‹name› reopened." after 3f's Reopen (the verb is ours).

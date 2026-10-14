@@ -46,6 +46,7 @@ export function onCloseCupRequest(listener) {
 
 const noticeListeners = new Set();
 
+/** { name, verb? } — "‹name› ‹verb›." (verb: 'deleted' by default; 'reopened' after 3f's Reopen). */
 export function requestNotice(notice) {
   noticeListeners.forEach((l) => l(notice));
 }
