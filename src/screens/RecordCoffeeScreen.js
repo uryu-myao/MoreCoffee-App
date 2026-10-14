@@ -143,8 +143,6 @@ function bagMeta(bag) {
   return [bag.roaster, f ? `day ${f.day}, ${FRESHNESS_WORDS[f.state]}` : null].filter(Boolean).join(' · ') || undefined;
 }
 
-const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
-
 /**
  * I made it: the bag and the method, off the shelf. With no bag or no gear the
  * row says "Add a bag" / "Add gear" (placeholder look, text.secondary) and the
@@ -192,39 +190,15 @@ function BaristaFields({ defaults }) {
   );
 }
 
-function PackagedFields({ defaults }) {
-  const { product, store } = defaults;
-  const brand = product ? [product.brand, product.name].filter(Boolean).join(' · ') : NONE;
-  const pack = product
-    ? [product.container && capitalise(product.container), product.volume_ml && `${product.volume_ml} ml`].filter(Boolean).join(' · ') || NONE
-    : NONE;
-  return (
-    <View style={styles.fieldSets}>
-      {/* No mark and no "Pre-filled" while there is no product (§1 Required
-          marks); the product-name input comes with Design (design-missing.md 6). */}
-      <Section label="Product" status={product ? 'prefilled' : undefined} plain={!product}>
-        <View style={styles.card}>
-          <FieldRow readOnly icon="can" label="Brand" value={brand} />
-          <FieldRow readOnly divided label="Package" value={pack} />
-        </View>
-      </Section>
-      <Section label="Bought at" status="optional">
-        {/* Inline composition, 5e only (design-system.md §9 Bought at row): weak
-            1.5px frame, inline bag glyph, store name, no chevron. 5e's ¥180 is
-            dropped — there is no price in the data model (drift.md D-15).
-            A second occurrence promotes it to a base component. */}
-        <View style={styles.weakFrame}>
-          {/* Display only until there is a store picker: no press feedback. */}
-          <View accessible accessibilityLabel={`Bought at ${store?.name ?? NONE}`} style={styles.inlineRow}>
-            <Glyph name="bag" token={icon.md} color={color.icon.muted} />
-            <Text variant="label" truncate="name" style={styles.inlineName}>
-              {store?.name ?? NONE}
-            </Text>
-          </View>
-        </View>
-      </Section>
-    </View>
-  );
+/**
+ * Packaged: nothing to show until the product-name input exists
+ * (design-missing.md 6, migration 4). Brand / Package / Bought at read "—"
+ * and couldn't be filled, so they are gone (2026-10-14, §1: no field that
+ * can't be filled); the whole block goes too — a "Product" heading over
+ * nothing read as a page still loading.
+ */
+function PackagedFields() {
+  return null;
 }
 
 const FIELD_SETS = { made_it: MadeItFields, barista: BaristaFields, packaged: PackagedFields };
@@ -575,20 +549,5 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-  },
-  weakFrame: {
-    borderWidth: shape.borderWidth.divider,
-    borderColor: color.border.muted,
-    backgroundColor: color.surface.raised,
-  },
-  inlineRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space[12],
-    paddingVertical: spacing.inset.control.v,
-    paddingHorizontal: spacing.inset.control.h,
-  },
-  inlineName: {
-    flex: 1,
   },
 });
