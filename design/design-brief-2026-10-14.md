@@ -18,11 +18,11 @@ From the roast date: **resting** day 0–6, **drink now** 7–21, **past peak** 
 
 ## Still open from earlier rounds
 
-- **2 / 6. Packaged.** One FieldRow for the product name (free text, completing from the user's own past products); no brand, container or store. 2c for a Packaged cup: what replaces "What I logged"?
-  Answers to your Round 1 questions:
-  - **a. Brand in §9 List row**: at this stage line 2 goes empty for Packaged; §9's row order stays (brand returns when there's an input for it). Please draw the row with line 2 empty.
-  - **b. Bought at**: not removed from §9, only not at this stage (no input for it in V1).
-  - **c.** The cross-reference is fixed (item 2 now points to item 6).
+- **2 / 6. Packaged.** One FieldRow for the product name, free text, completing from the user's own past products. 2c for a Packaged cup: what replaces "What I logged"?
+  On your Round 1 questions — the two fields are not the same kind of thing, so they get different answers:
+  - **Brand: we're not sure a separate field is needed at all.** A packaged coffee's name usually carries its brand ("Georgia Emerald Mountain", "BOSS Black", "Seven Café", where brand and product are one word), and people type it as one name. Two fields would leave one empty or repeat a word. What the mocks show supports this: **no list row draws a brand.** 2a / 13a / 1a draw the Packaged cup's line 2 as **"7-Eleven · Can 185 ml"** — the store and the package. And 5e's only brand-like field, labelled "Brand", holds **"Boss Craft · Black"**: brand and product in one value. §9's "Packaged line 2 = brand" (2026-10-06) was our own analogy from bean / roaster, not from a mock. **So, at this stage, a Packaged row is one line** (the name), not a row with an empty line 2. Please draw that, and say if you see a reason for a brand field later.
+  - **Bought at: not at this stage, and it will return.** It is a separate fact (where to buy it again). In the mocks it is exactly what line 2 shows ("7-Eleven"), so when it returns, line 2 becomes the store — §9's rule "line 2 = where it came from" holds, with the store, not the brand. §9's Bought at row stays, marked not at this stage.
+  - The cross-reference is fixed (item 2 now points to item 6).
 - **16. 1b's greeting.** The mock has "Good morning"; we show "Good afternoon" / "Good evening" (evening at night too) by part of day. Ours — confirm or replace.
 - **17. 1b's line under the counts** ("A slow start is still a start."): no rule for when it shows. Not shown until there's a rule and a line for each case.
-- **18. Adding a bag without opening it** (built): 3c's second button "Add without opening" (our label). An unopened bag takes a slot, reads "not opened yet" on Home and 3d, isn't offered when logging, and 3d shows "Open this bag" in Finish bag's place. Please check the copy, and whether "Bags open" (3c / 3d) should be renamed now that it counts unopened bags too.
+- **18. Adding a bag without opening it** (built): 3c's second button "Add without opening" (our label). An unopened bag takes a slot, reads "not opened yet" on Home and 3d, isn't offered when logging, and 3d shows "Open this bag" in Finish bag's place. Please check the copy, and whether "Bags open" (3c / 3d) should be renamed. Our reading: unopened bags take a slot too, so what it counts is **the bags you have**, not the bags you've opened.
