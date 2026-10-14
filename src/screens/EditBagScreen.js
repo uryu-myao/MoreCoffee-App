@@ -7,12 +7,13 @@ import DiscardSheet from '../components/DiscardSheet';
 import BottomSheet from '../components/base/BottomSheet';
 import Button from '../components/base/Button';
 import DashedRule from '../components/base/DashedRule';
+import Glyph from '../components/base/Glyph';
 import IconButton from '../components/base/IconButton';
 import Text from '../components/base/Text';
 import { formatDay, startOfDay } from '../constants/dates';
 import { useDatabase } from '../data/DatabaseProvider';
 import { bagUse, deleteBag, updateBag } from '../data/repository';
-import { color, dashed, shape, space, spacing, state } from '../theme/tokens';
+import { color, dashed, icon, shape, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
 /**
@@ -188,9 +189,13 @@ export default function EditBagScreen({ bag, onBack, onDeleted, guardLeave }) {
             accessibilityRole="button"
             accessibilityHint="For a bag added by mistake"
             style={({ pressed }) => [styles.delete, pressed && styles.pressed]}>
-            <Text variant="labelCaps" color="primary">
-              Delete this bag
-            </Text>
+            {/* 3g: the bin (icon.accent; 3g draws 17, icon.md is 18) before the label. */}
+            <View style={styles.deleteLabel}>
+              <Glyph name="trash" token={icon.md} color={color.icon.accent} />
+              <Text variant="labelCaps" color="primary">
+                Delete this bag
+              </Text>
+            </View>
             <Text variant="bodySm" color="muted">
               For a bag added by mistake
             </Text>
@@ -269,6 +274,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.gap.row,
+  },
+  deleteLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[8],
   },
   pressed: {
     backgroundColor: state.pressed.surface,
