@@ -27,7 +27,10 @@ import Text from './Text';
  *
  * value null (nothing noted on this axis; Design 10b, decided 2026-10-12):
  * the bare track with "Not noted yet" centred on it, on a surface.raised
- * patch padded space.8 each side — readable, and the gap in the bar reads as
+ * patch padded space.8 each side. The words follow the tone (2026-10-14,
+ * Uryu): "Not noted yet" on a profile (computed: a later cup can still note
+ * it); "Not noted" on one cup's own values (entered: 2c, 11a — that cup's
+ * axes can't change, so "yet" promises something that won't come). — readable, and the gap in the bar reads as
  * "no value", never as "balanced". Every readout sits in a 17pt slot (meta's
  * line height) with the track centred, so filled and empty rows are the same
  * height and a card of readouts never changes height. Shown on raised cards
@@ -46,6 +49,7 @@ const span = (v) => ({ left: `${Math.min(50, v)}%`, width: `${Math.abs(v - 50)}%
 export default function AxisReadout({ value, tone = 'computed', previous = null, accessibilityLabel }) {
   const t = TONES[tone];
   const has = value != null;
+  const emptyWords = tone === 'entered' ? 'Not noted' : 'Not noted yet';
   return (
     <View style={styles.box} accessible accessibilityLabel={accessibilityLabel}>
       <View style={styles.track}>
@@ -57,7 +61,7 @@ export default function AxisReadout({ value, tone = 'computed', previous = null,
       {has ? null : (
         <View style={styles.emptyLabel} pointerEvents="none">
           <Text variant="meta" color="muted" style={styles.patch}>
-            Not noted yet
+            {emptyWords}
           </Text>
         </View>
       )}
