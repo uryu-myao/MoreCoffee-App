@@ -10,6 +10,7 @@ import IconButton from '../components/base/IconButton';
 import SectionLabel from '../components/base/SectionLabel';
 import Text from '../components/base/Text';
 import DateSheet from '../components/DateSheet';
+import DiscardSheet from '../components/DiscardSheet';
 import NoteField from '../components/NoteField';
 import PickerSheet from '../components/PickerSheet';
 import { dayLine, dayTimeLine } from '../components/WhenMeta';
@@ -132,24 +133,6 @@ function AsLogged({ cup }) {
  * says what goes, that it can't be undone and that Taste DNA is recalculated;
  * a third line when the delete takes the profile out of Locked in.
  */
-/** 19: leaving with unsaved changes (the 11b shape; 3e / 3g / 6d will share it). */
-function DiscardSheet({ visible, onClose, onDiscard }) {
-  return (
-    <BottomSheet visible={visible} onClose={onClose}>
-      <Text variant="displaySm" color="primary">
-        Discard your changes?
-      </Text>
-      <Text variant="body" color="secondary">
-        Your edits to this cup won't be saved. The cup stays as it was.
-      </Text>
-      <View style={styles.sheetActions}>
-        <Button label="Keep editing" onPress={onClose} />
-        <Button variant="text" stacked label="Discard changes" onPress={onDiscard} />
-      </View>
-    </BottomSheet>
-  );
-}
-
 function DeleteSheet({ visible, onClose, cup, dropsLockIn, onDelete }) {
   return (
     <BottomSheet visible={visible} onClose={onClose}>
@@ -392,6 +375,7 @@ export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
       <DiscardSheet
         visible={sheet === 'discard'}
         onClose={() => setSheet(null)}
+        body="Your edits to this cup won't be saved. The cup stays as it was."
         onDiscard={() => {
           setSheet(null);
           leave();

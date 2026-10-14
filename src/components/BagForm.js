@@ -28,24 +28,45 @@ import Text from './base/Text';
  *   onChange    (next) => void
  *   onPickDate  open the date sheet for Roasted on
  *   datePicking the sheet is open (the field shows focus)
+ *   roastedPlaceholder  Roasted on's empty text (3c: what it gives, Design
+ *             Round 7; 3g: "Optional" — 3g corrects, it doesn't ask)
+ *   roastedHint a line under Roasted on (3g: its limit)
+ *   opened      3g: { value, hint, onPick, picking } — an Opened on field
+ *               under Roasted on, for a bag that is open
+ *   children    3g: drawn last inside the card (the freshness block)
+ *   autoFocusName  3c: the keyboard comes up on Bean name; 3g: off (it opens to correct, not to type)
  *   nameMissing "Open this bag" was pressed with no name: Bean name takes 5d's
  *             error vocabulary — the label reads "Bean name · required" and
  *             it and the underline take the error colour (no mock draws an
  *             inline input error, gaps.md 6; for Design to check)
  */
-export default function BagForm({ value, onChange, onPickDate, datePicking = false, nameMissing = false }) {
+export default function BagForm({
+  value,
+  onChange,
+  onPickDate,
+  datePicking = false,
+  nameMissing = false,
+  roastedPlaceholder = "Add it to see when it's at its best.",
+  roastedHint,
+  opened,
+  children,
+  autoFocusName = true,
+}) {
   return (
     <View style={styles.card}>
-      <Field label="Bean name" value={value.name} placeholder="e.g. Ethiopia Guji" onChangeText={(name) => onChange({ ...value, name })} autoFocus error={nameMissing} />
+      <Field label="Bean name" value={value.name} placeholder="e.g. Ethiopia Guji" onChangeText={(name) => onChange({ ...value, name })} autoFocus={autoFocusName} error={nameMissing} />
       <Field label="Roaster" value={value.roaster} placeholder="Optional" onChangeText={(roaster) => onChange({ ...value, roaster })} />
       <DayField
         label="Roasted on"
         value={value.roastedAt}
-        // Says what it gives, not that it's optional (Design Round 7, 41).
-        placeholder="Add it to see when it's at its best."
+        // 3c: says what it gives, not that it's optional (Design Round 7, 41).
+        placeholder={roastedPlaceholder}
+        hint={roastedHint}
         onPress={onPickDate}
         focused={datePicking}
       />
+      {opened ? <DayField label="Opened on" value={opened.value} hint={opened.hint} onPress={opened.onPick} focused={opened.picking} /> : null}
+      {children}
     </View>
   );
 }
@@ -76,7 +97,7 @@ function Field({ label, value = '', placeholder, onChangeText, editable = true, 
 }
 
 /** A field whose value is picked, not typed: the same line, as a button. */
-function DayField({ label, value, placeholder, onPress, focused }) {
+function DayField({ label, value, placeholder, hint, onPress, focused }) {
   const filled = value != null;
   return (
     <View style={styles.field}>
@@ -92,6 +113,11 @@ function DayField({ label, value, placeholder, onPress, focused }) {
           {filled ? formatDay(value) : placeholder}
         </Text>
       </Pressable>
+      {hint ? (
+        <Text variant="meta" color="muted">
+          {hint}
+        </Text>
+      ) : null}
     </View>
   );
 }

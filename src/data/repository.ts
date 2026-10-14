@@ -167,6 +167,64 @@ export async function reopenBag(db: SQLiteDatabase, id: number): Promise<void> {
   notifyShelfChanged();
 }
 
+/** What 3g needs beside the bag: how many cups were logged from it, and the first one's time. */
+export async function bagUse(db: SQLiteDatabase, id: number): Promise<{ cups: number; firstCupAt: number | null }> {
+  const row = await db.getFirstAsync<{ cups: number; first: number | null }>(
+    'SELECT COUNT(*) AS cups, MIN(logged_at) AS first FROM cups WHERE bag_id = ?',
+    [id]
+  );
+  return { cups: row?.cups ?? 0, firstCupAt: row?.first ?? null };
+}
+
+/** What 3g (minimal) edits. */
+export type BagEdit = { name: string; roaster: string | null; roastedAt: number | null; openedAt: number | null };
+
+/**
+ * Save 3g. The cups logged from the bag carry copies of its details
+ * (data-model.md, the copy rule); an edit rewrites those copies in the same
+ * transaction (decided 2026-10-09, option B: "Edits apply to the N cups
+ * already logged from this bag"). Refuses a roast or open date after the
+ * first cup from the bag or in the future, and an open date before the
+ * roast (the date sheets stop there too).
+ */
+export async function updateBag(db: SQLiteDatabase, id: number, edit: BagEdit): Promise<void> {
+  const endOfToday = new Date(new Date().setHours(23, 59, 59, 999)).getTime();
+  await db.withExclusiveTransactionAsync(async (tx) => {
+    const first = await tx.getFirstAsync<{ first: number | null }>('SELECT MIN(logged_at) AS first FROM cups WHERE bag_id = ?', [id]);
+    const latest = first?.first ?? endOfToday;
+    for (const at of [edit.roastedAt, edit.openedAt]) {
+      if (at != null && at > latest) throw new Error("A date can't be after the first cup from this bag, or in the future.");
+    }
+    if (edit.roastedAt != null && edit.openedAt != null && edit.openedAt < edit.roastedAt) throw new Error("A bag can't be opened before it was roasted.");
+    await tx.runAsync('UPDATE bags SET name = ?, roaster = ?, roasted_at = ?, opened_at = ? WHERE id = ?', [
+      edit.name,
+      edit.roaster,
+      edit.roastedAt,
+      edit.openedAt,
+      id,
+    ]);
+    await tx.runAsync('UPDATE cups SET bean_name = ?, bean_roaster = ?, bean_roasted_at = ? WHERE bag_id = ?', [
+      edit.name,
+      edit.roaster,
+      edit.roastedAt,
+      id,
+    ]);
+  });
+  notifyShelfChanged();
+  notifyCupsChanged();
+}
+
+/**
+ * Delete a bag (3g, Design Round 6): for a bag added by mistake. Its cups
+ * keep their copies of its details (the copy rule); only their link goes
+ * (bag_id → NULL by the foreign key), so Taste DNA is unchanged.
+ */
+export async function deleteBag(db: SQLiteDatabase, id: number): Promise<void> {
+  await db.runAsync('DELETE FROM bags WHERE id = ?', [id]);
+  notifyShelfChanged();
+  notifyCupsChanged();
+}
+
 /** Every piece of gear with the cups logged with it (4a: "Brewer · 2 cups"); defaults first. */
 export async function listGearWithUse(db: SQLiteDatabase): Promise<(Gear & { cups: number })[]> {
   return db.getAllAsync<Gear & { cups: number }>(

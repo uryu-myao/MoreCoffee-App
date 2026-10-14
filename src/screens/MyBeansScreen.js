@@ -36,14 +36,15 @@ import ScreenFrame from './ScreenFrame';
  * "Finished bags" (3d's foot, 2026-10-14) → 3f: a 1.5 border.soft rule, the
  * name in display.xs, "N archived — still counted in my taste DNA" and a
  * chevron. Shown once a bag is finished (no entry to an empty 3f).
- * Not at this stage: tapping a card (→ 3g).
+ * A card's upper half (D-29) opens 3g, with the row chevron at its right;
+ * the lower strip is Finish bag only.
  * "Add a bag" (an add slot, with "N slots left") → 3c; hidden at 5 / 5.
  * The thumbnail is FieldRow's swatch (46); 3d draws 56, which has no token
  * (drift D-51).
  */
 const ROAST = { light: 'Light', medium: 'Medium', 'medium-dark': 'Medium-dark', dark: 'Dark' };
 
-export default function MyBeansScreen({ onBack, onAddBag, onFinished }) {
+export default function MyBeansScreen({ onBack, onAddBag, onFinished, onEditBag }) {
   const db = useDatabase();
   const [bags, setBags] = useState(null);
   const [finished, setFinished] = useState(0);
@@ -91,21 +92,31 @@ export default function MyBeansScreen({ onBack, onAddBag, onFinished }) {
         {(bags ?? []).map((bag) => {
           return (
             <View key={bag.id} style={styles.card}>
-              <View style={styles.top}>
-                <PhotoPlaceholder size={size.field.height} />
-                <View style={styles.text}>
-                  <View style={styles.nameRow}>
-                    <Text variant="title" truncate="name" style={styles.name}>
-                      {bag.name}
-                    </Text>
-                    {bag.roast_level ? <Badge label={ROAST[bag.roast_level]} tone="neutral" /> : null}
+              {/* D-29: the upper half opens 3g. */}
+              <Pressable
+                onPress={() => onEditBag(bag)}
+                accessibilityRole="button"
+                accessibilityLabel={`Edit ${bag.name}`}
+                style={({ pressed }) => [styles.info, pressed && styles.pressed]}>
+                <View style={styles.infoText}>
+                  <View style={styles.top}>
+                    <PhotoPlaceholder size={size.field.height} />
+                    <View style={styles.text}>
+                      <View style={styles.nameRow}>
+                        <Text variant="title" truncate="name" style={styles.name}>
+                          {bag.name}
+                        </Text>
+                        {bag.roast_level ? <Badge label={ROAST[bag.roast_level]} tone="neutral" /> : null}
+                      </View>
+                      <Text variant="bodySm" color="muted" truncate="meta">
+                        {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? `opened ${formatDay(bag.opened_at)}` : 'Not opened yet'].filter(Boolean).join(' · ')}
+                      </Text>
+                    </View>
                   </View>
-                  <Text variant="bodySm" color="muted" truncate="meta">
-                    {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? `opened ${formatDay(bag.opened_at)}` : 'Not opened yet'].filter(Boolean).join(' · ')}
-                  </Text>
+                  <BeanFreshness roastedAt={bag.roasted_at} />
                 </View>
-              </View>
-              <BeanFreshness roastedAt={bag.roasted_at} />
+                <Glyph name="chevronRight" token={icon.md} color={color.icon.default} />
+              </Pressable>
               <DashedRule token={dashed.dividerSoft} />
               {/* Not opened yet: "Open this bag" in Finish bag's place (2026-10-12). */}
               {bag.opened_at ? (
@@ -156,6 +167,16 @@ const styles = StyleSheet.create({
     backgroundColor: color.surface.raised,
     paddingVertical: spacing.inset.container.v,
     paddingHorizontal: spacing.inset.container.h,
+    gap: spacing.gap.section,
+  },
+  info: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[12],
+  },
+  infoText: {
+    flex: 1,
+    minWidth: 0,
     gap: spacing.gap.section,
   },
   top: {

@@ -31,7 +31,7 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 11a Edit cup · 11b Delete · 11c Bag picker | **yes** (approved 2026-10-13) | **done** | bag, method, date & time, My words; "As logged" read only; delete with 11b's sheet; the date wins over the bag. Round 4 built: the discard sheet on leaving with changes, "No bag" / "No brewer" / "No grinder", a finished own bag marked. Packaged / Barista: no shelf block until design-missing 6 |
 | 3b My gear / 3e Edit gear | not now | not started | the only way to rename generic gear (`gaps.md` 25) |
 | 3d My beans | **yes** | **done** | open bags, "Day N", Finish bag (no confirm, no undo at this stage), Add a bag → 3c. Card tap (3g) and Finished bags (3f) not at this stage |
-| 3g Edit bag / 3f Finished bags | **yes, minimal (2026-10-14)**: 3f first, then 3g | **3f done** (entry at 3d's foot, rows, Reopen, the 5 / 5 line, the reopened notice); 3g next | 3f's Reopen is the recovery for Finish (gaps 17 / 18), which stays unconfirmed; questions to Design: design-missing.md 27–38 |
+| 3g Edit bag / 3f Finished bags | **yes, minimal (2026-10-14)**: 3f first, then 3g | **3f done** (entry at 3d's foot, rows, Reopen, the 5 / 5 line, the reopened notice); **3g done** (minimal: name, roaster, roasted on, opened on; limits; freshness; Delete; from a 3d card) | 3f's Reopen is the recovery for Finish (gaps 17 / 18), which stays unconfirmed; questions to Design: design-missing.md 27–38 |
 | 6a / 6b / 6c Profile | not now | not started (placeholder) | 6a is 8f's entry point |
 | 6d Edit profile | not now | not started | |
 | 8f My taste DNA | not now | not started | needs the shift history (`dna_change`, stored) and Design's answers (8f's two contradictions) |

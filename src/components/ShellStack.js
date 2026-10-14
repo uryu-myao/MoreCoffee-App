@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import AddBagScreen from '../screens/AddBagScreen';
 import AddGearScreen from '../screens/AddGearScreen';
+import EditBagScreen from '../screens/EditBagScreen';
 import EditCupScreen from '../screens/EditCupScreen';
 import FinishedBagsScreen from '../screens/FinishedBagsScreen';
 import MyBeansScreen from '../screens/MyBeansScreen';
@@ -22,6 +23,8 @@ import PushedScreen from './PushedScreen';
  *   addBag    3c — after adding, lands on My beans (2026-10-12): My beans
  *             goes under it if not there yet, then it slides out
  *   finished  3f, from 3d's foot
+ *   editBag   3g ({ bag }), from a 3d card; a delete returns to 3d with
+ *             13b's notice
  *   addGear   3a
  *   editCup   11a ({ cup }); a delete also closes the cup in Records and
  *             shows 13b's notice ("‹title› deleted.")
@@ -35,7 +38,26 @@ export default function ShellStack() {
   const render = (entry, goBack, guardLeave) => {
     switch (entry.name) {
       case 'beans':
-        return <MyBeansScreen onBack={goBack} onAddBag={() => push({ name: 'addBag' })} onFinished={() => push({ name: 'finished' })} />;
+        return (
+          <MyBeansScreen
+            onBack={goBack}
+            onAddBag={() => push({ name: 'addBag' })}
+            onFinished={() => push({ name: 'finished' })}
+            onEditBag={(bag) => push({ name: 'editBag', bag })}
+          />
+        );
+      case 'editBag':
+        return (
+          <EditBagScreen
+            bag={entry.bag}
+            onBack={goBack}
+            guardLeave={guardLeave}
+            onDeleted={(name) => {
+              pop('editBag');
+              requestNotice({ name });
+            }}
+          />
+        );
       case 'finished':
         return <FinishedBagsScreen onBack={goBack} />;
       case 'addGear':
