@@ -117,6 +117,12 @@ Rules decided (data-model.md "Freshness"): counted from the roast date — **res
     - Built today: resting uses drinkNow's colours, marked PROVISIONAL.
 40. **Saying it's a guide.** The app knows neither storage nor brew method, so it must not sound certain. A short line, **once** on 3d or 3g (not on every card), saying the window is a guide and that the user's own taste is the better judge. Please write it and say where it goes.
 
+41. **3c's Roasted on line: say what it gives.** Today the empty field reads "Optional — for freshness": it leads with "optional" and puts the benefit last. Turn it round, in the direction of "Add it to see when it's best" — **please write your own line; don't take ours as is.**
+    - Only on 3c's Roasted on row. **Not on Roaster**: adding a roaster changes nothing on screen, so the same form would be untrue there. Not on 3g either (3g corrects; it doesn't ask).
+    - Short: it must fit FieldRow's second line.
+    - It stays optional, with no required mark (§1 Required marks: a mark only where the field can be filled every time).
+    - **Also check, decided 2026-10-14**: a bag with no roast date shows **no beanFreshness row at all** (no day, no state, no bar). Please look at how such a bag reads on 3d (its card), 5a (its Bag row: the roaster alone) and 2c (no "day N when brewed"), with the bar row gone.
+
 **3g, item 33 decided (2026-10-14)**: the roast date can't move past the first cup logged from the bag. The date sheet stops at that cup's day, and the field's limit line says so, as 11a's: "Up to Apr 6, your first cup from it." (with no cups: up to today, no line).
 
 ## Copy: Design's proposals (report of 2026-10-11) — adopted, in the app
