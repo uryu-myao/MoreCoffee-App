@@ -757,7 +757,7 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 ### Notice (13a / 13b, Design Round 5, 2026-10-13)
 A one-line confirmation above the bottom bar, today only after a delete: **"‹cup title› deleted."** (the title by 2a's rule, `cupTitle`).
 - **Look**: `color.surface.inverse` with `color.text.onInverse`; square, no border, no shadow; min `size.notice.minHeight` (48), `space.16` a side. The name in `text.noticeName` (14/700), one line, truncates; "deleted." in `text.notice` (14/600), never truncates.
-- **Place**: `spacing.gap.section` (12) above the bar. **Width: the screen gutter** (`layout.gutter`) on both sides — the mock's 90% is the old floating bar's width; the built bar is full width with its icons inside the gutter (drift D-55).
+- **Place**: `spacing.gap.section` (12) above the bar — **the same place on every screen**, including those pushed over the bar (3d, after a bag is deleted in 3g): decided 2026-10-15 (Uryu), so it never moves with the screen. **Width: the screen gutter** (`layout.gutter`) on both sides — the mock's 90% is the old floating bar's width; the built bar is full width with its icons inside the gutter (drift D-55).
 - **Motion**: `motion.expand` in (fade + rise `space.8`), `motion.notice.hold` (2s), `motion.expand` out. Reduce Motion: fade only.
 - **Behaviour**: not pressable, touches pass through; no close, **no Undo** (11b: a delete can't be undone). A new notice replaces the one showing. The sentence is announced to the screen reader.
 
@@ -1278,3 +1278,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-14 — Design Round 7: beanFreshness resting = past peak's neutral pair, peak band mint in all states (OQ-3 settled as drift); 3d's guide line; 3c / 3d stat "On the shelf"; Packaged rows one line, 2c Packaged hides What I logged; greeting split 12 / 18.
 - 2026-10-14 — §9 AxisReadout: an empty axis reads "Not noted" on a cup's own values (entered), "Not noted yet" on a profile (computed).
 - 2026-10-14 — EmptySlot's label and glyph back to ink (as 3d), out of `text.placeholder`'s list.
+- 2026-10-15 — §9 Notice: one place on every screen, the bar's offset, also where the bar is covered.
