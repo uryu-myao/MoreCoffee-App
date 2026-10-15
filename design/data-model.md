@@ -424,7 +424,9 @@ UI consequence: 5e's "Bought at" row shows the store name only. The mock's right
 
 ## Dev seed
 
-`src/data/dev/seed.ts` holds three cups, one per mode, every value taken from the mocks: 2a's three April records, enriched with 5a and 5e. Driver-agnostic SQL, so `check:schema` runs it under node:sqlite and a development database can run it under expo-sqlite. It is never imported by the app.
+`src/data/dev/seed.ts` holds three cups, one per mode, every value taken from the mocks: 2a's three April records, enriched with 5a and 5e. Driver-agnostic SQL, so `check:schema` runs it under node:sqlite and a development database can run it under expo-sqlite.
+
+**Corrected 2026-10-15**: "never imported by the app" was wrong. `DatabaseProvider` wrote the reference rows (bags, gear, places) in every dev build **whenever `bags` was empty** — not only on a first run, so a wiped database got them back on the next launch. It is now **opt-in**: only with `EXPO_PUBLIC_DEV_SEED=1 npx expo start`. A normal `npx expo start` (dogfood on the dev client) never seeds. The seed's cups are only run by `check:schema`. Production builds drop the module (it is required inside the `__DEV__` branch). The seed itself stays, for development.
 
 ## Editing a cup (decided 2026-10-11)
 

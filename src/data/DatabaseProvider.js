@@ -33,9 +33,12 @@ export default function DatabaseProvider({ children }) {
     (async () => {
       try {
         const db = await openDatabase();
-        if (__DEV__) {
-          // Dev-only reference rows on first run. Required inside the __DEV__
-          // branch so production builds drop the seed module entirely.
+        // Dev reference rows, OPT-IN (2026-10-15): only with
+        //   EXPO_PUBLIC_DEV_SEED=1 npx expo start
+        // It wrote whenever bags was empty, so a wiped device (dogfood) got the
+        // seed back on the next launch. Required inside the branch so
+        // production builds drop the seed module entirely.
+        if (__DEV__ && process.env.EXPO_PUBLIC_DEV_SEED === '1') {
           const { seedGearStatements, seedReferenceStatements } = require('./dev/seed');
           const row = await db.getFirstAsync('SELECT COUNT(*) AS n FROM bags');
           const gear = await db.getFirstAsync('SELECT COUNT(*) AS n FROM gear');
