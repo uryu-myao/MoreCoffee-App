@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { resolveTextStyle } from '../../theme/fonts';
-import { color, icon, shape, space, spacing, textStyle } from '../../theme/tokens';
+import { color, icon, shape, size, space, spacing, textStyle } from '../../theme/tokens';
 import Glyph from './Glyph';
 
 /**
@@ -10,6 +10,10 @@ import Glyph from './Glyph';
  * 8l sets the query in 16 / 600, which no text style matches; `title`
  * (16 / 700) stands in, as for the form fields (drift D-44). Placeholder
  * text.placeholder.
+ * Height: a fixed size.field.height (46, as the form fields) with the input
+ * stretched to it, so iOS centres the line in a box that fits it. Sized by
+ * padding alone, the input took the font's line box, which on an iPhone 16
+ * Pro / 15 Pro Max cut the text's lower half (2026-10-15).
  *
  * Props: value, onChangeText, placeholder, autoFocus, accessibilityLabel
  */
@@ -47,12 +51,13 @@ const styles = StyleSheet.create({
     borderWidth: shape.borderWidth.box,
     borderColor: color.border.strong,
     backgroundColor: color.surface.raised,
-    paddingVertical: space[12],
+    height: size.field.height,
     paddingHorizontal: space[14],
   },
   input: {
     ...resolveTextStyle(textStyle.title),
     flex: 1,
+    alignSelf: 'stretch',
     color: color.text.primary,
     paddingVertical: 0,
   },
