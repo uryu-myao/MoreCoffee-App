@@ -10,10 +10,11 @@ import SegmentedControl from '../components/base/SegmentedControl';
 import StarRating from '../components/base/StarRating';
 import Text from '../components/base/Text';
 import PickerSheet from '../components/PickerSheet';
+import SearchSheet from '../components/SearchSheet';
 import { useRecordDraft } from '../components/RecordDraft';
 import WhenMeta from '../components/WhenMeta';
 import { useDatabase } from '../data/DatabaseProvider';
-import { listGear, listOpenBags } from '../data/repository';
+import { listGear, listOpenBags, listProductHistory } from '../data/repository';
 import { color, icon, motion, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 import { FRESHNESS_WORDS, freshnessOf } from '../data/freshness';
@@ -191,14 +192,27 @@ function BaristaFields({ defaults }) {
 }
 
 /**
- * Packaged: nothing to show until the product-name input exists
- * (design-missing.md 6, migration 4). Brand / Package / Bought at read "—"
- * and couldn't be filled, so they are gone (2026-10-14, §1: no field that
- * can't be filled); the whole block goes too — a "Product" heading over
- * nothing read as a page still loading.
+ * Packaged (design-missing.md 6, Design Round 7; built 2026-10-15): one
+ * FieldRow, the product name as typed — brand included, no brand field.
+ * It opens a search sheet over the user's own past products (most used
+ * first), with Add "‹typed›" for a new one. Not pre-filled and not required
+ * (a cup saves without it), so the heading has no mark (§1 Required marks).
+ * Package and Bought at stay out (not at this stage).
+ * TODO(copy): "Add a product" (5a's "Add a bag" pattern) and the sheet's
+ * placeholder are ours, for Design.
  */
-function PackagedFields() {
-  return null;
+function PackagedFields({ productName, onPickProduct }) {
+  return (
+    <Section label="Product" plain>
+      <View style={styles.card}>
+        {productName ? (
+          <FieldRow swatch icon="can" label="Product" value={productName} onPress={onPickProduct} />
+        ) : (
+          <FieldRow swatch icon="can" label="Product" value="Add a product" placeholder onPress={onPickProduct} />
+        )}
+      </View>
+    </Section>
+  );
 }
 
 const FIELD_SETS = { made_it: MadeItFields, barista: BaristaFields, packaged: PackagedFields };
@@ -331,7 +345,7 @@ function MissingLine({ onGoToFirst }) {
 const GO_TO_FIRST_SLOP = { top: space[16], bottom: space[16], left: space[8], right: space[8] };
 
 export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAddGear }) {
-  const { defaults, chooseBag, chooseGear, rating, setRating, mode: maker, setMode: setMaker, missing, save } = useRecordDraft();
+  const { defaults, chooseBag, chooseGear, productName, setProductName, rating, setRating, mode: maker, setMode: setMaker, missing, save } = useRecordDraft();
   const db = useDatabase();
   // Stage 3's picker (decided 2026-10-11): the Bag / Method rows open the
   // shelf's open bags / gear for this cup. 'bag' | 'gear' | null.
@@ -349,6 +363,16 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
     },
     [db]
   );
+  // Packaged's product sheet: the names logged before.
+  const [products, setProducts] = useState([]);
+  const openProducts = useCallback(async () => {
+    try {
+      setProducts(await listProductHistory(db));
+    } catch (error) {
+      console.error('[record] could not read past products', error);
+    }
+    setPicking('product');
+  }, [db]);
   const now = useMinuteClock();
   const Fields = FIELD_SETS[maker];
   const scrollRef = useRef(null);
@@ -412,7 +436,15 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
 
           <ExpandingBlock>
             {/* Keyed by mode: a switch remounts the field set, so nothing carries over. */}
-            <Fields key={maker} defaults={defaults} onAddBag={onAddBag} onAddGear={onAddGear} onPick={openPicker} />
+            <Fields
+              key={maker}
+              defaults={defaults}
+              onAddBag={onAddBag}
+              onAddGear={onAddGear}
+              onPick={openPicker}
+              productName={productName}
+              onPickProduct={openProducts}
+            />
           </ExpandingBlock>
 
           {/* "Add a photo" is not shown at this stage (decided 2026-10-11):
@@ -471,6 +503,16 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
             },
           },
         ]}
+      />
+      <SearchSheet
+        visible={picking === 'product'}
+        onClose={() => setPicking(null)}
+        mode="single"
+        placeholder="Product name"
+        items={products.map((p) => ({ key: p.name, label: p.name }))}
+        selected={productName}
+        onPick={setProductName}
+        onAdd={setProductName}
       />
     </View>
   );

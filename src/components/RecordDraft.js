@@ -33,7 +33,7 @@ import { insertCup, loadRecordDefaults } from '../data/repository';
  */
 const RecordDraftContext = createContext(null);
 
-const EMPTY_DEFAULTS = { bag: null, brewer: null, grinder: null, cafe: null, product: null, store: null };
+const EMPTY_DEFAULTS = { bag: null, brewer: null, grinder: null, cafe: null, store: null };
 const EMPTY_AXES = { acidity: null, body: null, roast: null, sweetness: null };
 
 export function RecordDraftProvider({ onSaved, children }) {
@@ -43,6 +43,8 @@ export function RecordDraftProvider({ onSaved, children }) {
   const [mode, setMode] = useState('made_it');
   const [axes, setAxes] = useState(EMPTY_AXES);
   const [flavours, setFlavours] = useState([]);
+  // Packaged: the product name as typed or picked from past ones (never pre-filled).
+  const [productName, setProductName] = useState(null);
   const noteRef = useRef('');
   const [noteFilled, setNoteFilled] = useState(false);
   const [missing, setMissing] = useState(false);
@@ -111,7 +113,7 @@ export function RecordDraftProvider({ onSaved, children }) {
           // Never a fixed drink: a cup records only what was entered
           // (2026-10-11; "Flat white" was written for every Barista cup).
           drinkType: null,
-          productId: defaults.product?.id ?? null,
+          productName,
           boughtAtPlaceId: defaults.store?.id ?? null,
           ...(withNote ? { axes, flavours, note: note || null } : {}),
         });
@@ -135,7 +137,7 @@ export function RecordDraftProvider({ onSaved, children }) {
         saving.current = false;
       }
     },
-    [axes, db, defaults, flavours, mode, onSaved, rating]
+    [axes, db, defaults, flavours, mode, onSaved, productName, rating]
   );
 
   const saveRef = useRef(null);
@@ -144,8 +146,27 @@ export function RecordDraftProvider({ onSaved, children }) {
   const hasTastingInput = noteFilled || flavours.length > 0 || Object.values(axes).some((v) => v != null);
 
   const value = useMemo(
-    () => ({ defaults, chooseBag, chooseGear, rating, setRating, mode, setMode, axes, setAxis, flavours, toggleFlavour, noteRef, setNoteFilled, hasTastingInput, missing, save }),
-    [axes, defaults, flavours, hasTastingInput, missing, mode, rating, save, setAxis, toggleFlavour, chooseBag, chooseGear]
+    () => ({
+      defaults,
+      chooseBag,
+      chooseGear,
+      productName,
+      setProductName,
+      rating,
+      setRating,
+      mode,
+      setMode,
+      axes,
+      setAxis,
+      flavours,
+      toggleFlavour,
+      noteRef,
+      setNoteFilled,
+      hasTastingInput,
+      missing,
+      save,
+    }),
+    [axes, defaults, flavours, hasTastingInput, missing, mode, productName, rating, save, setAxis, toggleFlavour, chooseBag, chooseGear]
   );
   return <RecordDraftContext.Provider value={value}>{children}</RecordDraftContext.Provider>;
 }

@@ -13,12 +13,13 @@ import DateSheet from '../components/DateSheet';
 import DiscardSheet from '../components/DiscardSheet';
 import NoteField from '../components/NoteField';
 import PickerSheet from '../components/PickerSheet';
+import SearchSheet from '../components/SearchSheet';
 import { dayLine, dayTimeLine } from '../components/WhenMeta';
 import { cupTitle } from '../constants/cups';
 import { formatDay, startOfDay } from '../constants/dates';
 import { TASTE_AXES } from '../constants/tasteAxes';
 import { useDatabase } from '../data/DatabaseProvider';
-import { deleteCup, deleteDropsLockIn, getBag, listGear, listOpenBags, updateCup } from '../data/repository';
+import { deleteCup, deleteDropsLockIn, getBag, listGear, listOpenBags, listProductHistory, updateCup } from '../data/repository';
 import { color, dashed, shape, space, spacing } from '../theme/tokens';
 import { Stars } from './CupRecordScreen';
 import { RATING_COPY } from './RecordCoffeeScreen';
@@ -51,7 +52,8 @@ import ScreenFrame from './ScreenFrame';
  *   - the date row's second line only with a roast date
  *   - this cup's own bag, if finished: listed first, selectable, its meta
  *     starting "Finished ‹day› ·"
- *   - Packaged / Barista: no shelf block (until design-missing 6)
+ *   - Barista: no shelf block. Packaged: one Product row (11a's caption),
+ *     the same search sheet as 5a's (built with design-missing 6, 2026-10-15)
  *   - Save is always pressable (§1); with nothing changed it writes nothing
  */
 const bagMeta = (bag) => [bag.roaster, bag.roasted_at != null ? `roasted ${formatDay(bag.roasted_at)}` : null].filter(Boolean).join(' · ') || undefined;
@@ -167,6 +169,8 @@ export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
   const [grinder, setGrinder] = useState(() => (cup.grinder ? { id: cup.grinder_id, name: cup.grinder } : null));
   const [loggedAt, setLoggedAt] = useState(cup.logged_at);
   const [note, setNote] = useState(cup.note ?? '');
+  const [productName, setProductName] = useState(cup.product_name);
+  const [products, setProducts] = useState([]);
   // 'bag' | 'gear' | 'date' | 'delete' | 'discard' | null
   const [sheet, setSheet] = useState(null);
   const [shelf, setShelf] = useState({ bags: [], brewers: [], grinders: [] });
@@ -202,6 +206,7 @@ export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
     (grinder?.id ?? null) !== cup.grinder_id ||
     (grinder?.name ?? null) !== cup.grinder ||
     loggedAt !== cup.logged_at ||
+    productName !== cup.product_name ||
     noteValue !== (cup.note ?? null);
 
   // Back and the edge swipe ask first while there are changes (19).
@@ -227,6 +232,7 @@ export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
         grinder: madeIt ? (grinder?.name ?? null) : cup.grinder,
         loggedAt,
         note: noteValue,
+        productName: cup.mode === 'packaged' ? productName : cup.product_name,
       });
       leave();
     } catch (error) {
@@ -286,6 +292,28 @@ export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
                 ) : (
                   <FieldRow divided label="Method" value="No gear noted" placeholder onPress={() => setSheet('gear')} />
                 )}
+              </View>
+            </Section>
+          ) : null}
+
+          {cup.mode === 'packaged' ? (
+            <Section label="Product" variant="plain">
+              <View style={styles.card}>
+                <FieldRow
+                  swatch
+                  icon="can"
+                  label="Product"
+                  value={productName ?? 'No product noted'}
+                  placeholder={!productName}
+                  onPress={async () => {
+                    try {
+                      setProducts(await listProductHistory(db));
+                    } catch (error) {
+                      console.error('[edit] could not read past products', error);
+                    }
+                    setSheet('product');
+                  }}
+                />
               </View>
             </Section>
           ) : null}
@@ -361,6 +389,16 @@ export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
             onPick: (id) => setGrinder(id === NONE_KEY ? null : shelf.grinders.find((g) => g.id === id)),
           },
         ]}
+      />
+      <SearchSheet
+        visible={sheet === 'product'}
+        onClose={() => setSheet(null)}
+        mode="single"
+        placeholder="Product name"
+        items={products.map((p) => ({ key: p.name, label: p.name }))}
+        selected={productName}
+        onPick={setProductName}
+        onAdd={setProductName}
       />
       <DateSheet
         visible={sheet === 'date'}

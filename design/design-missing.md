@@ -25,7 +25,7 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
    - keyboard closed: about 9.5 rows. Confirmed on a device.
    - Also undrawn: the "Add \"Word\"" row; "Done" in place of 8l's "Cancel".
 5. **[this round, built — please check] Date sheet**: iOS spinner in the bottom sheet; the only option without OS round shapes (compact and inline bring a pill and a round selected day).
-6. **[this round] Packaged: the product name** (5a, Packaged selected)
+6. **[built 2026-10-15] Packaged: the product name** (5a, Packaged selected)
    - **One FieldRow**, like 5a's Bag row: the product name only. No brand, container or where bought (there is no built-in brand table, and none is planned: the long tail is endless).
    - **Free text + completion from the user's own past products** (as the flavour Search sheet completes from history).
    - The rating, axes and flavours work as for any cup.
@@ -126,6 +126,8 @@ Rules decided (data-model.md "Freshness"): counted from the roast date — **res
 42. **3g's line under Roasted on.** 3g's mock says "Recounted from the roast date when you change it." That speaks only to changing a date already there. A bag whose roast date was skipped in 3c can only get one in 3g, and then the line doesn't fit. 3g corrects, it doesn't ask, so **no nudge** — but the user should see that a date can go in and what it does. Proposal: one plain line that fits both cases, empty or filled, e.g. "Freshness on My beans counts from this date." Please write it.
 
 43. **For information (decided 2026-10-14, built): "Not noted" on a cup's own axes.** 10b's empty-axis label "Not noted yet" stays on the Taste DNA card and 5c (a profile: a later cup can still note the axis). On 2c's "Where it sat" and 11a's "As logged" — one cup's values, which can't change — it reads **"Not noted"**: "yet" promised a note that can't come. Please check and say if you'd word it differently.
+
+44. **Packaged's product name, built (2026-10-15): copy that is ours.** 5a's empty row "Add a product" (5a's "Add a bag" pattern); the search sheet's placeholder "Product name"; 11a's empty row "No product noted" (12a's "No bag noted" pattern); the sheet's new-name row reuses 5b's Add "‹typed›". The section heading "Product" has no mark (not required). A packaged cup with no name is still titled "—" (Round 3 offered the daypart title for Packaged too; not decided). Please check the copy and say whether the daypart title should apply.
 
 **3g, item 33 decided (2026-10-14)**: the roast date can't move past the first cup logged from the bag. The date sheet stops at that cup's day, and the field's limit line says so, as 11a's: "Up to Apr 6, your first cup from it." (with no cups: up to today, no line).
 

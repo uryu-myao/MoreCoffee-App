@@ -5,6 +5,7 @@ import Button from './base/Button';
 import SearchField from './base/SearchField';
 import { color, shape, spacing } from '../theme/tokens';
 import CheckboxList from './CheckboxList';
+import RadioList from './RadioList';
 
 /**
  * Search sheet (decided 2026-10-10): BottomSheet (full) + SearchField + a
@@ -30,10 +31,12 @@ import CheckboxList from './CheckboxList';
  *   placeholder
  *   items       [{ key, label, hint?, searchText? }], already ordered
  *   selected    keys
- *   mode        'multi' (built). TODO: 'single' for Origin — a radio row
- *               (§9 Radio marker, D-35 pending) that picks and closes.
+ *   mode        'multi' (5b's flavours) | 'single' (Packaged's product name,
+ *               2026-10-15): radio rows; a pick or an Add closes the sheet
+ *   selected    multi: keys; single: one key or null
  *   limit       multi only: at the limit unselected rows and Add lock
- *   onToggle    (key) => void
+ *   onToggle    multi: (key) => void
+ *   onPick      single: (key) => void
  *   onAdd       optional (label) => void, with `normalize`
  *   normalize   (query) => label, for Add
  */
@@ -43,7 +46,20 @@ const defaultMatch = (item, q) => {
   return hay.includes(q) ? 1 : 0;
 };
 
-export default function SearchSheet({ visible, onClose, placeholder, items, selected, limit, onToggle, onAdd, normalize = (q) => q.trim(), match = defaultMatch }) {
+export default function SearchSheet({
+  visible,
+  onClose,
+  placeholder,
+  items,
+  selected,
+  mode = 'multi',
+  limit,
+  onToggle,
+  onPick,
+  onAdd,
+  normalize = (q) => q.trim(),
+  match = defaultMatch,
+}) {
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
 
@@ -58,7 +74,8 @@ export default function SearchSheet({ visible, onClose, placeholder, items, sele
 
   const added = onAdd && q ? normalize(query) : null;
   const canAdd = Boolean(added) && !items.some((item) => item.label.toLowerCase() === added.toLowerCase());
-  const locked = limit != null && selected.length >= limit;
+  const single = mode === 'single';
+  const locked = !single && limit != null && selected.length >= limit;
 
   const close = () => {
     setQuery('');
@@ -76,24 +93,47 @@ export default function SearchSheet({ visible, onClose, placeholder, items, sele
           box's outline", §1). */}
       <View style={[styles.list, shown.length || canAdd ? styles.frame : null]}>
         <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="none">
-          <CheckboxList
-            framed={false}
-            items={shown.map((item) => ({ name: item.key, label: item.label, hint: item.hint }))}
-            selected={selected}
-            locked={locked}
-            onToggle={onToggle}
-            add={
-              canAdd
-                ? {
-                    label: `Add "${added}"`,
-                    onPress: () => {
-                      onAdd(added);
-                      setQuery('');
-                    },
-                  }
-                : undefined
-            }
-          />
+          {single ? (
+            <RadioList
+              framed={false}
+              items={shown.map((item) => ({ key: item.key, label: item.label, meta: item.hint }))}
+              selected={selected}
+              onPick={(key) => {
+                onPick(key);
+                close();
+              }}
+              add={
+                canAdd
+                  ? {
+                      label: `Add "${added}"`,
+                      onPress: () => {
+                        onAdd(added);
+                        close();
+                      },
+                    }
+                  : undefined
+              }
+            />
+          ) : (
+            <CheckboxList
+              framed={false}
+              items={shown.map((item) => ({ name: item.key, label: item.label, hint: item.hint }))}
+              selected={selected}
+              locked={locked}
+              onToggle={onToggle}
+              add={
+                canAdd
+                  ? {
+                      label: `Add "${added}"`,
+                      onPress: () => {
+                        onAdd(added);
+                        setQuery('');
+                      },
+                    }
+                  : undefined
+              }
+            />
+          )}
         </ScrollView>
       </View>
     </BottomSheet>

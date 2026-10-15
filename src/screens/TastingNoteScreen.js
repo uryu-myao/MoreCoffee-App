@@ -41,7 +41,7 @@ const MODE_LABEL = { made_it: 'I made it', barista: 'Barista', packaged: 'Packag
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 
 /** The cup being noted, from the draft: what it is, then mode · method · time. */
-function cupSummary(defaults, mode) {
+function cupSummary(defaults, mode, productName) {
   if (mode === 'made_it') {
     const method = defaults.brewer?.name;
     // As cupTitle: no bag → the brewer, then the grinder (2026-10-12).
@@ -49,8 +49,7 @@ function cupSummary(defaults, mode) {
   }
   // No fixed drink (2026-10-11): Barista records none until it has an input.
   if (mode === 'barista') return { name: 'No drink', meta: [MODE_LABEL.barista, defaults.cafe?.name, timeFormat.format(new Date())].filter(Boolean).join(' · ') };
-  const product = defaults.product ? [defaults.product.brand, defaults.product.name].filter(Boolean).join(' · ') : 'No product';
-  return { name: product, meta: [MODE_LABEL.packaged, timeFormat.format(new Date())].join(' · ') };
+  return { name: productName ?? 'No product', meta: [MODE_LABEL.packaged, timeFormat.format(new Date())].join(' · ') };
 }
 
 /**
@@ -171,7 +170,7 @@ function searchItems(history, selected) {
 export default function TastingNoteScreen({ onBack }) {
   const insets = useSafeAreaInsets();
   const db = useDatabase();
-  const { defaults, mode, rating, axes, setAxis, flavours, toggleFlavour, noteRef, setNoteFilled, hasTastingInput, save } = useRecordDraft();
+  const { defaults, mode, productName, rating, axes, setAxis, flavours, toggleFlavour, noteRef, setNoteFilled, hasTastingInput, save } = useRecordDraft();
   const [searching, setSearching] = useState(false);
   const [history, setHistory] = useState([]);
   // Read on open and again whenever the search sheet opens; history only
@@ -190,7 +189,7 @@ export default function TastingNoteScreen({ onBack }) {
   const saveOrGoBack = async (options) => {
     if ((await save(options)) === 'missing') onBack();
   };
-  const cup = cupSummary(defaults, mode);
+  const cup = cupSummary(defaults, mode, productName);
   const atLimit = flavours.length >= FLAVOUR_LIMIT;
   return (
     <View style={styles.screen}>

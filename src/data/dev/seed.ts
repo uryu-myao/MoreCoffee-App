@@ -4,7 +4,7 @@
  * false and drops that branch before collecting dependencies in production
  * builds, so this module is never bundled or shipped.
  *
- * Reference rows (bags / gear / places / products) seed a development database on
+ * Reference rows (bags / gear / places) seed a development database on
  * first run. Sample cups are used by scripts/check-schema.ts only, so cups
  * saved on device are never mixed with fixtures.
  *
@@ -52,10 +52,6 @@ export function seedReferenceStatements(): SeedStatement[] {
       sql: `INSERT INTO places (id, name, kind) VALUES (?, ?, ?)`,
       params: [2, '7-Eleven Tomigaya', 'store'],
     },
-    {
-      sql: `INSERT INTO products (id, brand, name, container, volume_ml) VALUES (?, ?, ?, ?, ?)`,
-      params: [1, 'Boss Craft', 'Black', 'can', 185],
-    },
   ];
 }
 
@@ -81,9 +77,9 @@ export function seedCupStatements(): SeedStatement[] {
     },
     {
       // 2a "Cold brew · Ready-to-drink · 7-Eleven · Can 185 ml · 3" = 5e's cup.
-      sql: `INSERT INTO cups (id, created_at, rating, mode, product_id, bought_at_place_id)
+      sql: `INSERT INTO cups (id, created_at, rating, mode, product_name, bought_at_place_id)
             VALUES (?, ?, ?, ?, ?, ?)`,
-      params: [3, at('2026-04-06T14:05:00+09:00'), 3, 'packaged', 1, 2],
+      params: [3, at('2026-04-06T14:05:00+09:00'), 3, 'packaged', 'Boss Craft Black', 2],
     },
   ];
 }

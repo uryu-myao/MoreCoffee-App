@@ -373,7 +373,7 @@ Which of these are V1 is open (report 2026-10-10).
 
 ---
 
-## Migration 4 plan (decided 2026-10-14, not built)
+## Migration 4 (decided 2026-10-14, built 2026-10-15)
 
 Comes with Packaged's product-name input (design-missing.md 6). **One cups rebuild** (SQLite can't drop a column with a foreign key), doing all of:
 - **add `cups.product_name`** (TEXT, nullable): the packaged cup's name as typed, brand included ("BOSS Black"). No separate brand field (Design Round 7);

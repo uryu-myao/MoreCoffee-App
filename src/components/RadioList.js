@@ -30,13 +30,14 @@ import Text from './base/Text';
  *   selected  key or null
  *   onPick    (key) => void
  *   add       optional { label, onPress }
+ *   framed    false when the container draws the frame (the search sheet)
  */
 const MARK = size.checkbox - 2 * shape.borderWidth.box - 2 * space[4];
 
-export default function RadioList({ items, selected, onPick, add }) {
+export default function RadioList({ items, selected, onPick, add, framed = true }) {
   if (items.length === 0 && !add) return null;
   return (
-    <View style={styles.frame} accessibilityRole="radiogroup">
+    <View style={framed && styles.frame} accessibilityRole="radiogroup">
       {items.map((item, i) => {
         const on = item.key === selected;
         const off = Boolean(item.disabled);

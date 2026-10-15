@@ -110,7 +110,6 @@ rejects('drinks_out not 0/1', `UPDATE settings SET drinks_out = 2 WHERE id = 1`)
   if (n !== 1) fail(`settings: expected exactly one row after migrations, got ${n}`);
 }
 rejects('unknown place kind', `INSERT INTO places (name, kind) VALUES ('x', 'kiosk')`);
-rejects('unknown container', `INSERT INTO products (brand, container) VALUES ('x', 'jar')`);
 rejects('dangling bag_id', `INSERT INTO cups (rating, mode, bag_id) VALUES (3, 'made_it', 999)`);
 rejects('duplicate external_id', `INSERT INTO places (name, kind, external_id) VALUES ('a', 'cafe', 'mk1'); INSERT INTO places (name, kind, external_id) VALUES ('b', 'cafe', 'mk1')`);
 
@@ -202,6 +201,30 @@ if (!row.created_at || row.logged_at !== row.created_at) fail('a minimal cup (ra
 {
   const fresh = db.prepare('SELECT setup_done, reset_at FROM settings').get() as { setup_done: number; reset_at: number | null };
   if (fresh.setup_done !== 0 || fresh.reset_at !== null) fail(`migration 3: a fresh install should have setup_done 0, reset_at NULL; got ${JSON.stringify(fresh)}`);
+}
+
+// Migration 4: a version-3 database with a product and a packaged cup. The
+// product's brand and name become the cup's product_name; products is gone.
+{
+  const d = new DatabaseSync(':memory:');
+  d.exec('PRAGMA foreign_keys = ON');
+  d.exec(MIGRATIONS_TABLE);
+  for (const m of migrations.slice(0, 3)) {
+    d.exec('BEGIN');
+    for (const sql of m.statements) d.exec(sql);
+    d.exec('COMMIT');
+  }
+  d.exec(`INSERT INTO products (id, brand, name) VALUES (1, 'Boss Craft', 'Black'), (2, 'Seven Café', NULL)`);
+  d.exec(`INSERT INTO cups (id, rating, mode, product_id) VALUES (1, 3, 'packaged', 1), (2, 4, 'packaged', 2), (3, 5, 'packaged', NULL)`);
+  d.exec('BEGIN');
+  for (const sql of migrations[3].statements) d.exec(sql);
+  d.exec('COMMIT');
+  const names = (d.prepare('SELECT product_name FROM cups ORDER BY id').all() as { product_name: string | null }[]).map((r) => r.product_name);
+  if (JSON.stringify(names) !== JSON.stringify(['Boss Craft Black', 'Seven Café', null])) fail(`migration 4: product names ${JSON.stringify(names)}`);
+  const left = d.prepare(`SELECT COUNT(*) AS n FROM sqlite_master WHERE name = 'products'`).get() as { n: number };
+  if (left.n !== 0) fail('migration 4: products should be dropped');
+  const trig4 = d.prepare(`SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'trigger' AND name = 'cups_logged_at_default'`).get() as { n: number };
+  if (trig4.n !== 1) fail('migration 4: logged_at trigger missing after the rebuild');
 }
 
 if (problems.length) {

@@ -20,7 +20,7 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 5b Tasting note | yes | **done** | axes, flavours + Search sheet, My words, three Save paths |
 | 5c Saved — what the cup changed | yes | **done** | over the steps after a save; moved axes from the stored `dna_change`; summary sentence and Try next parts not shown; first-value / nothing-moved lines provisional |
 | 5d Missing required fields | yes | **done (rating only)** | copy provisional (Design); café out of scope |
-| 5e Packaged | **yes (minimal)** | partial | in scope as one row: the product name, free text + history (design-missing.md 15). No brand, container or store |
+| 5e Packaged | **yes (minimal)** | **done** (2026-10-15) | one Product row: the name as typed, from a search sheet over past products with Add "‹typed›"; also editable in 11a. No brand (Design Round 7), container or store. Migration 4 |
 | 3c Add a bag | yes | **partial (minimal)** | name, roaster, roast date. Not: roast level, size, photo, origin / region / process, "Reuse a past bag" |
 | 3a Add gear | yes | **partial (minimal)** | 8c's generic list. Not: catalogue, search, models, "Not listed" |
 | Bag / gear picker (no mock) | yes | **done** | from 5a |

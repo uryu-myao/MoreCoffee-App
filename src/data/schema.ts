@@ -91,7 +91,11 @@ export const schema = {
     drink_type: { type: 'TEXT', nullable: true },
 
     // mode = packaged
-    product_id: { type: 'INTEGER', nullable: true, references: 'products' },
+    /**
+     * The packaged coffee's name as typed, brand included ("BOSS Black"):
+     * one name, no brand field (Design Round 7). Migration 4.
+     */
+    product_name: { type: 'TEXT', nullable: true },
     bought_at_place_id: { type: 'INTEGER', nullable: true, references: 'places' },
     /**
      * Taste DNA before / after this cup, as of its logged time (tasteDna.ts
@@ -164,22 +168,6 @@ export const schema = {
   },
 
   /**
-   * UNUSED (2026-10-14). Nothing writes it but the dev seed: brand is NOT
-   * NULL and no screen enters a brand. A packaged cup's name will live on
-   * the cup (cups.product_name, migration 4), and migration 4 drops this
-   * table and cups.product_id in the same cups rebuild (data-model.md).
-   * If a brand is ever needed, add a column to cups — do NOT revive this
-   * table.
-   */
-  products: {
-    id: { type: 'INTEGER', nullable: false, pk: true },
-    brand: { type: 'TEXT', nullable: false },
-    name: { type: 'TEXT', nullable: true },
-    container: { type: 'TEXT', nullable: true, values: ['can', 'bottle', 'carton', 'pouch'] },
-    volume_ml: { type: 'INTEGER', nullable: true },
-  },
-
-  /**
    * The two V1 settings, one row (id = 1), both from first setup and NULL when
    * skipped (data-model.md):
    *   drinks_out    8c "I mostly drink out" (0 / 1): read once, for the first
@@ -221,10 +209,8 @@ export type Bag = Row<'bags'>;
 export type Gear = Row<'gear'>;
 export type Settings = Row<'settings'>;
 export type Place = Row<'places'>;
-export type Product = Row<'products'>;
 
 export type CupMode = NonNullable<Cup['mode']>;
 export type BagProcess = NonNullable<Bag['process']>;
 export type GearCategory = Gear['category'];
 export type PlaceKind = Place['kind'];
-export type ProductContainer = NonNullable<Product['container']>;

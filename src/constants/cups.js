@@ -41,10 +41,9 @@ export function cupTitle(cup) {
     return { title: `${partOfDay(new Date(cup.logged_at))} cup`, source: 'No bag or gear noted', noBag: 'No bag or gear noted' };
   }
   if (cup.mode === 'barista') return { title: cup.drink_type ?? NONE, source: cup.place_name ?? undefined };
-  // Packaged (Design Round 7, 14b): one name, no line 2 — no brand field;
-  // line 2 is the store once Bought at returns. Until migration 4 the name
-  // is the products row's brand · name (the dev seed's only).
-  return { title: [cup.product_brand, cup.product_name].filter(Boolean).join(' · ') || NONE, source: undefined };
+  // Packaged (Design Round 7, 14b): one name as typed, no line 2 — no brand
+  // field; line 2 is the store once Bought at returns.
+  return { title: cup.product_name ?? NONE, source: undefined };
 }
 
 /**

@@ -1,11 +1,11 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
-import type { Bag, CupMode, Gear, GearCategory, Place, Product, Row } from './schema';
+import type { Bag, CupMode, Gear, GearCategory, Place, Row } from './schema';
 import { changeOf, computeDna, dnaCupFromRow, type Dna } from './tasteDna';
 
 /**
  * The reference rows Record coffee pre-fills its field sets with. Until the
  * pickers land (Step 5 TODOs): the most recently opened bag that is still open,
- * the default brewer and grinder, and the most recent café / product / store.
+ * the default brewer and grinder, and the most recent café / store.
  * Any of them can be null on a database with no rows yet.
  */
 export type RecordDefaults = {
@@ -13,7 +13,6 @@ export type RecordDefaults = {
   brewer: Gear | null;
   grinder: Gear | null;
   cafe: Place | null;
-  product: Product | null;
   store: Place | null;
 };
 
@@ -29,14 +28,12 @@ export async function loadRecordDefaults(db: SQLiteDatabase): Promise<RecordDefa
     db.getFirstAsync<Gear>("SELECT * FROM gear WHERE category = 'grinder' AND is_default = 1"),
   ]);
   const cafe: Place | null = null;
-  const product: Product | null = null;
   const store: Place | null = null;
   return {
     bag: bag ? { ...bag, notes: JSON.parse(bag.notes as unknown as string) } : null,
     brewer: brewer ?? null,
     grinder: grinder ?? null,
     cafe: cafe ?? null,
-    product: product ?? null,
     store: store ?? null,
   };
 }
@@ -86,20 +83,17 @@ export async function loadTasteDna(db: SQLiteDatabase): Promise<Dna> {
   return computeDna(rows.map(dnaCupFromRow), Date.now(), settings?.reset_at ?? null);
 }
 
-/** One cup as 2c shows it: every stored field, with its place / product names. */
+/** One cup as 2c shows it: every stored field, with its place names. */
 export type CupRecord = Row<'cups'> & {
   place_name: string | null;
-  product_brand: string | null;
-  product_name: string | null;
   bought_at_name: string | null;
 };
 
 export async function getCup(db: SQLiteDatabase, id: number): Promise<CupRecord | null> {
   const row = await db.getFirstAsync<CupRecord & { flavours: string }>(
-    `SELECT c.*, p.name AS place_name, pr.brand AS product_brand, pr.name AS product_name, bp.name AS bought_at_name
+    `SELECT c.*, p.name AS place_name, bp.name AS bought_at_name
        FROM cups c
        LEFT JOIN places p ON p.id = c.place_id
-       LEFT JOIN products pr ON pr.id = c.product_id
        LEFT JOIN places bp ON bp.id = c.bought_at_place_id
       WHERE c.id = ?`,
     [id]
@@ -225,6 +219,22 @@ export async function deleteBag(db: SQLiteDatabase, id: number): Promise<void> {
   notifyCupsChanged();
 }
 
+/**
+ * The packaged coffees logged before, most used first, then most recent:
+ * the product-name sheet's completions (as the flavour sheet's history).
+ * Grouped ignoring case; the latest spelling is shown.
+ */
+export async function listProductHistory(db: SQLiteDatabase): Promise<{ name: string; uses: number }[]> {
+  return db.getAllAsync<{ name: string; uses: number }>(
+    `SELECT (SELECT c2.product_name FROM cups c2 WHERE lower(c2.product_name) = lower(c.product_name) ORDER BY c2.logged_at DESC LIMIT 1) AS name,
+            COUNT(*) AS uses
+       FROM cups c
+      WHERE c.product_name IS NOT NULL
+      GROUP BY lower(c.product_name)
+      ORDER BY uses DESC, MAX(c.logged_at) DESC`
+  );
+}
+
 /** Every piece of gear with the cups logged with it (4a: "Brewer · 2 cups"); defaults first. */
 export async function listGearWithUse(db: SQLiteDatabase): Promise<(Gear & { cups: number })[]> {
   return db.getAllAsync<Gear & { cups: number }>(
@@ -302,7 +312,8 @@ export type NewCup = {
   grinder: string | null;
   placeId: number | null;
   drinkType: string | null;
-  productId: number | null;
+  /** Packaged: the name as typed, brand included. */
+  productName: string | null;
   boughtAtPlaceId: number | null;
   /** The tasting note (5b). Absent = saved without it. */
   axes?: { acidity: number | null; body: number | null; roast: number | null; sweetness: number | null };
@@ -332,7 +343,7 @@ export async function insertCup(db: SQLiteDatabase, cup: NewCup): Promise<number
       `INSERT INTO cups (rating, mode, note, flavours, axis_acidity, axis_body, axis_roast, axis_sweetness,
                          bag_id, bean_name, bean_roaster, bean_origin, bean_region, bean_process, bean_roast_level, bean_roasted_at,
                          brewer_id, brew_method, grinder_id, grinder,
-                         place_id, drink_type, product_id, bought_at_place_id)
+                         place_id, drink_type, product_name, bought_at_place_id)
        SELECT ?, ?, ?, ?, ?, ?, ?, ?,
               b.id, b.name, b.roaster, b.origin, b.region, b.process, b.roast_level, b.roasted_at,
               ?, ?, ?, ?,
@@ -353,7 +364,7 @@ export async function insertCup(db: SQLiteDatabase, cup: NewCup): Promise<number
         madeIt ? cup.grinder : null,
         barista ? cup.placeId : null,
         barista ? cup.drinkType : null,
-        packaged ? cup.productId : null,
+        packaged ? cup.productName : null,
         packaged ? cup.boughtAtPlaceId : null,
         bagId,
       ]
@@ -394,6 +405,8 @@ export type CupEdit = {
   grinder: string | null;
   loggedAt: number;
   note: string | null;
+  /** Packaged: the product name as typed. */
+  productName: string | null;
 };
 
 /**
@@ -424,13 +437,14 @@ export async function updateCup(db: SQLiteDatabase, id: number, edit: CupEdit): 
         [edit.bagId, id]
       );
     }
-    await tx.runAsync('UPDATE cups SET brewer_id = ?, brew_method = ?, grinder_id = ?, grinder = ?, logged_at = ?, note = ? WHERE id = ?', [
+    await tx.runAsync('UPDATE cups SET brewer_id = ?, brew_method = ?, grinder_id = ?, grinder = ?, logged_at = ?, note = ?, product_name = ? WHERE id = ?', [
       edit.brewerId,
       edit.brewMethod,
       edit.grinderId,
       edit.grinder,
       edit.loggedAt,
       edit.note,
+      edit.productName,
       id,
     ]);
   });
@@ -506,7 +520,6 @@ export type CupListItem = {
   brew_method: string | null;
   grinder: string | null;
   place_name: string | null;
-  product_brand: string | null;
   product_name: string | null;
 };
 
@@ -537,11 +550,9 @@ export async function listCups(db: SQLiteDatabase): Promise<CupListItem[]> {
   return db.getAllAsync<CupListItem>(
     `SELECT c.id, c.logged_at, c.rating, c.mode, c.note, c.drink_type,
             c.bean_name, c.bean_roaster, c.bean_process, c.brew_method, c.grinder,
-            p.name AS place_name,
-            pr.brand AS product_brand, pr.name AS product_name
+            c.product_name, p.name AS place_name
        FROM cups c
        LEFT JOIN places p ON p.id = c.place_id
-       LEFT JOIN products pr ON pr.id = c.product_id
       ORDER BY c.logged_at DESC, c.id DESC`
   );
 }
