@@ -28,10 +28,18 @@ const { slot, addSlot } = component.tabBar;
  * surface whose fill has no darker tier, so it shows no visual change (§1). Both
  * give a light impact haptic (a discrete press).
  */
+/**
+ * Room under the row: the home-indicator inset less space.8 (26 on notched
+ * iPhones). 2026-10-12 it was less space.14 (20); 2026-10-15, on device, a
+ * little taller — the row (and the icons' room above them) is unchanged,
+ * only the space under it grows.
+ */
+const footerInset = (insets) => Math.max(0, insets.bottom - space[8]);
+
 /** The bar's height from the screen's bottom edge (its rule, row and the trimmed inset); 13b's notice sits above it. */
 export function useFooterHeight() {
   const insets = useSafeAreaInsets();
-  return shape.borderWidth.box + size.tabBar.height + Math.max(0, insets.bottom - space[14]);
+  return shape.borderWidth.box + size.tabBar.height + footerInset(insets);
 }
 
 export default function FooterNav({ activeTab, position, hidden, onTabPress, onAddPress }) {
@@ -60,10 +68,7 @@ export default function FooterNav({ activeTab, position, hidden, onTabPress, onA
 
   return (
     <Animated.View style={[styles.wrapper, slide]}>
-      {/* Under the row, room for the home indicator only (2026-10-12): the
-          inset less space.14, so the icons sit lower; the indicator (about
-          8 above the edge, 5 tall) stays clear. */}
-      <View style={[styles.bar, { paddingBottom: Math.max(0, insets.bottom - space[14]) }]}>
+      <View style={[styles.bar, { paddingBottom: footerInset(insets) }]}>
         <View style={styles.row}>
           {TABS.slice(0, 2).map((t, i) => tab(t, i, ['start', null]))}
           <Slot box={addSlot} role="button" label="Log a cup" onPress={onAddPress} feedback="none">
