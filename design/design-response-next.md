@@ -1,5 +1,69 @@
 # Design response — design-missing.md
 
+## Round 9 copy check — reply (2026-10-18)
+
+### A. Required bar sub-line
+1. I made it, shelf has a bag and gear: **OK**, "Pre-filled from your shelf".
+2. I made it, empty shelf: **"Add a bag & gear once to pre-fill"**. Uses the "&" like 5e, and is shorter than the 40-character limit.
+3. Barista: **"Café cups skip beans & brewing"**. This matches 5e's "Packaged cups…" opening.
+
+### B. 5d with the product missing (Packaged)
+4. **OK** as proposed. The body copy is the rating body, with "one" kept.
+5. **OK** as proposed. The body copy is the rating body with "one" changed to "them".
+- Star hint: **change it to "Tap a star — only you know how it tasted."** The old line ("the one thing the app can't guess") stops being true once the product is required too. Show it only while the rating is missing, as before.
+
+### Not copy
+Token names below follow `tokens.ts`. Every colour maps to an existing token; no new tokens.
+- Bar ground: **confirmed, `surface.muted` (#E4D6CC).** `surface.mutedStrong` in Round 9 was my error.
+  - Frame: 1.5 `border.muted` (#C8BCB4).
+  - Empty slot: 1.5 dashed `border.muted`-weight frame in `text.muted` (#6B5D55), no fill; label `text.muted`.
+  - Filled slot: #CFDCC8 ground with #4A6640 check and label (the bean-freshness `drinkNow` pair).
+- Count: **confirmed, `text.muted` (#6B5D55) below full**, switching to #4A6640 only when every slot is filled. 5e mock updated to match (1/2 in `text.muted`).
+- SEE ALL (4a / 4b, three places): it is now a text-and-arrow link with no fill or frame.
+  - Text and arrow: `text.secondary` (#5C5049), Archivo 12/700, uppercase, tracking .08em.
+  - Hit target: 44px high, with 8px left padding.
+  - Do not use the blue `action` colour. Blue is only for primary actions and the active tab.
+
+## Round 9 (2026-10-18): app lists drop item dividers
+
+- **Item dividers are removed in every app list**: Records (2a), My beans (3d / 3f), My gear (3a / 4a), the Bag / Method pickers, and the Beans list on Home 4b. Items are separated by spacing only.
+  - **Kept**: the one line between a list's header and its first item. The header row's `border-bottom` or the first item's `border-top` (1.5 `divider.soft`) stays.
+  - **Removed**: the `border-top` / `border-bottom` (1.5 `divider.soft`) on the second item onwards, and the bottom line on the last item.
+- **Row padding tightens** to make up for the lost line: vertical padding 16 → 12 and 14 → 11, with horizontal padding unchanged. Gear rows go 12 / 13 → 11.
+  - Use the list's `gap: 0`. The padding alone sets the rhythm; don't add margin between rows.
+- **Out of scope**:
+  - dashed lines (`border.addSlot`, card-internal section breaks);
+  - field dividers inside a card, such as 2c's "What I logged" rows and the FieldRows in 5a / 11a;
+  - the bottom-sheet search list's 2px frame (§9).
+- **5e Required bar** (same turn):
+  - The bar sits on `surface.muted` (#E4D6CC) with a 1.5 `border.muted` (#C8BCB4) frame.
+  - Header row: "Required" label, a sub-line, and a live count ("0/2" → "2/2").
+  - One slot per required field. When filled, the slot is `#CFDCC8` with a `#4A6640` check and label. When empty, it is a 1.5 dashed frame with no fill.
+  - These are the freshness status colours, not the active-tag ink, so the bar doesn't read as pressable.
+
+## Round 8 (2026-10-17): Taste DNA status stamp → info sheet (drawn in Turn 15, applied everywhere)
+
+- **The sub-line under "My taste DNA" is removed** everywhere: Home 4a/4b, Turn 10 states, DNA page. ("Three more cups to lock it in." / "Body and Roast need 9 more notes each to lock in.") Progress stays in the card footer ("3 of 5 cups" + cup glyphs).
+  - Exception: the post-save card (Turn 5) keeps "This cup pushed you brighter and lighter." It's this cup's result, not an explanation.
+- **The stamp becomes a button.** Inside it: a 14pt ⓘ glyph (stroke 2.4, the stamp's ink colour), then the label, gap 6. Stamp padding is unchanged, except the left side is 2 less to balance the glyph.
+  - Hit area: a transparent wrapper, 44 tall, padding 0 / 6 and margin −6 on the top, right and bottom, so the stamp stays where it was. The header row is vertically centred.
+  - **No rotation.** `rotation.sticker` is no longer applied to this Badge, which supersedes Round 2's "rotation.sticker kept". Other sticker uses are unchanged.
+  - Same treatment for every status ("Early signs", "Locked in"). ⓘ is reserved for status words that need explaining; don't add it to labels.
+  - The DNA page header's compact "Locked in" (9px, `surface.inverse` fill) gets it too: an 11pt glyph in `text.onInverse`, gap 5, and the same 44 wrapper.
+  - **Exception:** a status chip inside a card that is itself a link (the Profile Taste DNA card, Turn 6) stays a plain chip with no ⓘ and no tap of its own. That avoids a nested button; the card leads to the DNA page.
+- **Tap → info sheet** (§9 Bottom sheet, 15b):
+  - Max height 78%; the body scrolls.
+  - Order: eyebrow "My taste DNA" (Archivo 11/700, accent) → title = status (Instrument Serif 34) → body copy (Archivo 14/500, line height 21, `text.secondary`, free length; final copy TBD) → progress box → "Got it".
+  - Progress box: `surface.base` with a 2px ink frame. "N of 5 cups" + glyphs, then the live sentence that used to sit on the card ("2 more cups to lock it in." / per-axis "Body and Roast need 9 more notes each.").
+  - "Got it" is the 52 secondary. There's no primary.
+  - Closes on Got it, a scrim tap, or swipe down.
+- **Copy fix:** at 3 of 5 the line reads "2 more cups to lock it in." (the earlier "Three more" was wrong).
+- **3c / 3d (unopened bag)**: 3c adds "Add without opening", a 48 secondary under "Open this bag". An unopened bag takes a slot.
+  - The 3d card: dashed 2px ink frame, no freshness bar. Meta line "… · Not opened yet". Status row "Sealed · clock starts when opened". Primary 44 "Open this bag".
+  - Header count label: "On the shelf" (per item 18).
+
+---
+
 ## Round 7 (2026-10-14): reply to `design-brief-2026-10-14.md` (drawn in Turn 14)
 
 ### Freshness
