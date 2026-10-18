@@ -1,13 +1,15 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { color, dashed, icon, shape, size, space, spacing, state } from '../theme/tokens';
+import { color, icon, shape, size, space, spacing, state } from '../theme/tokens';
 import Badge from './base/Badge';
 import Glyph from './base/Glyph';
 import PhotoPlaceholder from './base/PhotoPlaceholder';
 import Text from './base/Text';
 
 /**
- * Radio list: a single-select list in one 2px frame, hairline-divided — the
- * single-select sibling of CheckboxList. Used by stage 3's bag / gear picker.
+ * Radio list: a single-select list in one 2px frame — the single-select
+ * sibling of CheckboxList. No item dividers (Design Round 9, 2026-10-18):
+ * rows are set apart by spacing.inset.listRow alone. Used by stage 3's bag /
+ * gear picker.
  *
  * Marker (design-system.md §9 Radio marker, D-35): square, outer
  * size.checkbox (24) with a 2px frame — ink, border.muted when disabled
@@ -18,8 +20,10 @@ import Text from './base/Text';
  * (title; ink when selected, text.secondary otherwise, as CheckboxList) and
  * an optional meta line (meta, text.muted). The row is the pressable.
  *
- * Add row (optional, last): as CheckboxList's — a 24 dashed border.addSlot
- * box with a plus, then the label.
+ * Add row (optional, last): as CheckboxList's — an ink plus (icon.sm) in
+ * the marker's 24 place, no frame, then the label in ink. A row like the
+ * others, pressed like them: dashed means only an empty or not-started state
+ * (decided 2026-10-18, Uryu), and a framed box would read as a marker.
  *
  * Props
  *   items     [{ key, label, meta?, swatch?, badge?, disabled?, disabledHint? }]
@@ -38,7 +42,7 @@ export default function RadioList({ items, selected, onPick, add, framed = true 
   if (items.length === 0 && !add) return null;
   return (
     <View style={framed && styles.frame} accessibilityRole="radiogroup">
-      {items.map((item, i) => {
+      {items.map((item) => {
         const on = item.key === selected;
         const off = Boolean(item.disabled);
         return (
@@ -50,7 +54,7 @@ export default function RadioList({ items, selected, onPick, add, framed = true 
             accessibilityState={{ checked: on, disabled: off }}
             accessibilityHint={off ? item.disabledHint : undefined}
             accessibilityLabel={item.meta ? `${item.label}, ${item.meta}` : item.label}
-            style={({ pressed }) => [styles.row, i > 0 && styles.divided, pressed && styles.pressed]}>
+            style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
             <View style={[styles.marker, off && styles.markerOff]}>{on ? <View style={styles.mark} /> : null}</View>
             {item.swatch ? <PhotoPlaceholder size={size.field.height} /> : null}
             <View style={styles.text}>
@@ -74,9 +78,9 @@ export default function RadioList({ items, selected, onPick, add, framed = true 
           onPress={add.onPress}
           accessibilityRole="button"
           accessibilityLabel={add.label}
-          style={({ pressed }) => [styles.row, items.length > 0 && styles.divided, pressed && styles.pressed]}>
-          <View style={[styles.marker, styles.addBox]}>
-            <Glyph name="plus" token={icon.xs} color={color.text.primary} />
+          style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+          <View style={styles.addMark}>
+            <Glyph name="plus" token={icon.sm} color={color.text.primary} />
           </View>
           <Text variant="title" color="primary" style={styles.text} truncate="name">
             {add.label}
@@ -97,15 +101,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space[12],
-    paddingVertical: spacing.inset.control.v,
-    paddingHorizontal: spacing.inset.control.h,
+    paddingVertical: spacing.inset.listRow.v,
+    paddingHorizontal: spacing.inset.listRow.h,
   },
-  divided: {
-    borderTopWidth: shape.borderWidth.divider,
-    borderTopColor: color.divider.hairline,
-  },
+  // A frameless whole row (state.pressed.row, 2026-10-18): it already spans
+  // its frame, edge to edge.
   pressed: {
-    backgroundColor: state.pressed.surface,
+    backgroundColor: state.pressed.row,
   },
   // Unselected: a 2px ink frame; disabled: border.muted (decided 2026-10-12).
   marker: {
@@ -125,9 +127,11 @@ const styles = StyleSheet.create({
     height: MARK,
     backgroundColor: color.surface.inverse,
   },
-  addBox: {
-    borderStyle: dashed.addSlot.style,
-    borderColor: dashed.addSlot.color,
+  addMark: {
+    width: size.checkbox,
+    height: size.checkbox,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   nameRow: {
     flexDirection: 'row',

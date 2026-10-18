@@ -9,7 +9,7 @@ import TasteDnaCard from '../components/TasteDnaCard';
 import { MODE_BADGE, cupTitle } from '../constants/cups';
 import { useDatabase } from '../data/DatabaseProvider';
 import { countCups, cupTimesSince, listCups, loadTasteDna, onCupsChanged } from '../data/repository';
-import { requestOpenCup, requestPush, requestShell } from '../navigation';
+import { requestDnaInfo, requestOpenCup, requestPush, requestShell } from '../navigation';
 import { layout, space, spacing } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
@@ -20,7 +20,8 @@ import ScreenFrame from './ScreenFrame';
  *     "MoreCoffee"
  *   - HomeStats: cups total, this week (count + strip)
  *   - "Record a coffee" (primary) → the Record sheet, as the bar's +
- *   - the Taste DNA card
+ *   - the Taste DNA card; its stamp opens 15b's sheet (over the bar, so
+ *     AppShell hosts it: DnaInfoHost)
  *   - "Recently sipped" (display.sm) with "See all" (→ Records) and the three
  *     latest cups as list rows (title, mode badge, rating, date) → their 2c
  *   - My gear / My beans
@@ -69,18 +70,21 @@ export default function HomeTabScreen() {
           <View style={styles.body}>
             <HomeStats total={data.total} cupTimes={data.week} now={data.now} />
             <Button label="Record a coffee" onPress={() => requestShell({ record: true })} />
-            <TasteDnaCard dna={data.dna} />
+            <TasteDnaCard dna={data.dna} onStampPress={() => requestDnaInfo(data.dna)} />
             {data.recent.length ? (
               <View>
                 <View style={styles.recentHead}>
                   <Text variant="displaySm" color="primary">
                     Recently sipped
                   </Text>
-                  <Button size="row" label="See all" trailingIcon="arrowRight" onPress={() => requestShell({ tab: 'records' })} />
+                  <View style={styles.seeAll}>
+                    <Button variant="text" label="See all" trailingIcon="arrowRight" onPress={() => requestShell({ tab: 'records' })} />
+                  </View>
                 </View>
-                {data.recent.map((cup) => (
+                {data.recent.map((cup, i) => (
                   <RecordRow
                     key={cup.id}
+                    first={i === 0}
                     title={cupTitle(cup).title}
                     badges={[MODE_BADGE[cup.mode]]}
                     rating={cup.rating}
@@ -117,5 +121,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: spacing.gap.section,
     paddingBottom: space[14],
+  },
+  // Optical (on device, 2026-10-18): centred on the title's box, the caps
+  // read high beside a mostly lowercase serif. Its cap centre sits 0.5 under
+  // the title's cap centre but 2.7 over its x-height centre (Instrument Serif
+  // 30, iOS natural box: 18.9 / 22.1 from the top); space.2 lowers it between
+  // the two, near the x-height.
+  seeAll: {
+    transform: [{ translateY: space[2] }],
   },
 });

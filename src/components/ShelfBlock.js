@@ -5,7 +5,7 @@ import { useDatabase } from '../data/DatabaseProvider';
 import { OPEN_BAG_LIMIT, listGearWithUse, listShelfBags, onCupsChanged, onShelfChanged } from '../data/repository';
 import { color, icon, shape, size, space, spacing, state } from '../theme/tokens';
 import Badge from './base/Badge';
-import EmptySlot from './base/EmptySlot';
+import AddButton from './base/AddButton';
 import Glyph from './base/Glyph';
 import PhotoPlaceholder from './base/PhotoPlaceholder';
 import Text from './base/Text';
@@ -19,12 +19,16 @@ import Text from './base/Text';
  * My beans (4b): open bags, newest opened first — thumbnail, name, "roaster ·
  * 250 g", and beanFreshness under it ("Day 7 · drink now" and its bar, from
  * the roast date; nothing without one; gaps.md 8, decided 2026-10-14). Then "Manage my beans  N / 5" →
- * 3d. No bag: an "Add a bag" slot (3d's vocabulary) → 3c.
+ * 3d. No bag: an "Add a bag" AddButton (3d's vocabulary) → 3c.
  *
  * My gear (4a): every piece of gear, defaults first — name with a "Default"
  * badge, "Brewer · 2 cups" / "· not used yet". A kettle or scale is never on
  * a cup, so its line is the category alone. "Manage my gear" → 3b is not at
- * this stage: not shown. No gear: an "Add gear" slot → 3a.
+ * this stage: not shown. No gear: an "Add gear" AddButton → 3a.
+ *
+ * No item dividers (Design Round 9, 2026-10-18): rows are set apart by
+ * spacing.inset.listRow alone, and "Manage my beans" sits under the last row
+ * with no rule, as 4a / 4b draw it.
  *
  * Thumbnails are FieldRow's swatch (size.field.height, 46): 4a / 4b draw 44,
  * which has no token (drift D-51).
@@ -80,12 +84,12 @@ function Tab({ label, on, onPress, first = true }) {
 }
 
 function Beans({ bags, onManage, onAdd }) {
-  if (!bags.length) return <EmptySlot icon="plus" iconToken={icon.sm} label="Add a bag" onPress={onAdd} />;
+  if (!bags.length) return <AddButton icon="plus" iconToken={icon.sm} label="Add a bag" onPress={onAdd} />;
   return (
     <>
-      {bags.map((bag, i) => (
+      {bags.map((bag) => (
         // 4b: the bag row, then its freshness under it (nothing without a roast date).
-        <View key={bag.id} style={[styles.bag, i > 0 && styles.divided]}>
+        <View key={bag.id} style={styles.bag}>
           <View style={styles.bagTop}>
             <PhotoPlaceholder size={size.field.height} />
             <View style={styles.text}>
@@ -106,12 +110,12 @@ function Beans({ bags, onManage, onAdd }) {
 }
 
 function Gear({ gear, onAdd }) {
-  if (!gear.length) return <EmptySlot icon="plus" iconToken={icon.sm} label="Add gear" onPress={onAdd} />;
-  return gear.map((g, i) => {
+  if (!gear.length) return <AddButton icon="plus" iconToken={icon.sm} label="Add gear" onPress={onAdd} />;
+  return gear.map((g) => {
     const used = g.category === 'brewer' || g.category === 'grinder';
     const line = used ? `${CATEGORY[g.category]} · ${g.cups ? `${g.cups} ${g.cups === 1 ? 'cup' : 'cups'}` : 'not used yet'}` : CATEGORY[g.category];
     return (
-      <View key={g.id} style={[styles.row, i > 0 && styles.divided]}>
+      <View key={g.id} style={styles.row}>
         <PhotoPlaceholder size={size.field.height} />
         <View style={styles.text}>
           <View style={styles.nameRow}>
@@ -129,10 +133,14 @@ function Gear({ gear, onAdd }) {
   });
 }
 
-/** "Manage my beans   2 / 5  ›" — a whole row, so a chevron (§1 Tap affordance). */
+/**
+ * "Manage my beans   2 / 5  ›" — a whole row, so a chevron (§1 Tap
+ * affordance). Pressed (state.pressed.row, 2026-10-18): the fill bleeds
+ * through the card's padding to its frame, sides and bottom, past the label.
+ */
 function Manage({ label, count, onPress }) {
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label}, ${count}`} style={({ pressed }) => [styles.manage, pressed && styles.pressed]}>
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label}, ${count}`} style={({ pressed }) => [styles.manage, pressed && styles.managePressed]}>
       <Text variant="labelCaps" color="primary">
         {label}
       </Text>
@@ -188,21 +196,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space[12],
-    paddingVertical: space[12],
+    paddingVertical: spacing.inset.listRow.v,
   },
   // 4b: the bag row over its freshness (gap 9 in the mock; gap.row).
   bag: {
     gap: spacing.gap.row,
-    paddingVertical: space[12],
+    paddingVertical: spacing.inset.listRow.v,
   },
   bagTop: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space[12],
-  },
-  divided: {
-    borderTopWidth: shape.borderWidth.divider,
-    borderTopColor: color.divider.hairline,
   },
   text: {
     flex: 1,
@@ -218,13 +222,20 @@ const styles = StyleSheet.create({
   name: {
     flexShrink: 1,
   },
+  // Out through the card's padding to its frame (sides and bottom), padded
+  // back in: the content stays put, the 44 row keeps its height.
   manage: {
-    minHeight: size.tapTarget,
+    minHeight: size.tapTarget + spacing.gap.row,
+    marginHorizontal: -spacing.inset.container.h,
+    paddingHorizontal: spacing.inset.container.h,
+    marginBottom: -spacing.gap.row,
+    paddingBottom: spacing.gap.row,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderTopWidth: shape.borderWidth.divider,
-    borderTopColor: color.divider.hairline,
+  },
+  managePressed: {
+    backgroundColor: state.pressed.row,
   },
   manageEnd: {
     flexDirection: 'row',

@@ -32,7 +32,7 @@ Pressed, focus, tap affordance, the selection limit and the disabled look of opt
 | 3 | Button | 14 primary (1b 2b 3a 3c 3e 4a 4b 5a–5e 7b 8e) · 7 secondary (1b 3b 5a 5b 5c 5e) · ~13 text-only (2b 5d 6d 7b 8c 8e 8f 8h 8l) · 9 compact 36–48 (3c 3d 3e 6a 6d 7a 8f 8h 8j) · 8c Next (56, not full width) · 8d in-card CTA (borderless blue) | component: primary and secondary only | primary · secondary · **tertiary (text) not built** · **compact (40) / small (36) not built** · 44-tall inline (3c "Use", 3d "Edit / Finish bag") · shadowed 48 (8f) | default, pressed, disabled (decided, Button only) | **destructive** (3b / 3e "Remove from my gear", 8g "Reset my taste DNA" have no distinct look); disabled for text / compact; secondary height is 52 in the mocks, 56 in code (`gaps.md` 4) **2026-10-09**: small (36) is used by 3e / 3g's photo pair *and* 7a's "Mark all read", so it is a Button variant rather than a photo-slot part (its 44pt touch area: `gaps.md` 19). Note the name clash: the text variant's `small` prop (taste axis Clear) is a different thing; rename one when the 36 is built. **Destructive: decided to have no look of its own for now** (ink like any action, §1); protection is confirm / undo (`gaps.md` 18); a warning colour, which the product has none of, is a separate, undecided call. |
 | 4 | IconButton | ~20 (back / close on 3a–3f 5a 5b 5d 5e 6d 7a 7b 8e–8j 8m) + 2a filter opener + 8e muted icon | component (default look) | default (2px ink, raised) · accent fill (2a) · muted 1.5 border (8e) | default, pressed | disabled; **what 2a's accent fill means** (filters applied?) 2026-10-09: 2a's accent fill goes (drift D-24), so it is the default look. |
 | 5 | Single-select chip group (`SegmentedControl`) | 12 screens: 2a 2b 3a 3c 3e 3f 5a 5d 5e 6d 8j 8l | component for 5a / 5d / 5e only | padding 6/11 (2a) · 7/12 (3a) · 9/13–14 (2b 3c 3e 3f) · 9/11 (8l) · 11/15 (5a) · 2px-border 11/13 (6d 8j) | selected (ink), unselected; tap affordance (§1); disabled (§1 Disabled options) | — |
-| 6 | Flavour chip, multi-select | 5b (6) | inline | selected · unselected · Search opener (`border.addSlot`) | selected, unselected; at the limit, disabled (§1) | — |
+| 6 | Flavour chip, multi-select | 5b (6) | inline | selected · unselected · Search opener (2px solid ink frame since 2026-10-18; was `border.addSlot`) | selected, unselected; at the limit, disabled (§1) | — |
 | 7 | Checkbox list, multi-select | 3a (5 rows, cap 8: "3 / 8 Selected · 5 slots left") · 8c (5 rows, cap 3: "2 of 3 picked") | not started | row + 24px checkbox; 8c tints the selected row `#FFF8F1` | selected, unselected, count; at the limit, disabled (§1) | — |
 | 8 | Checkbox | 3a (5) · 8c (5); all 24 (`size.checkbox`) | not started | checked fill: **ink on 3a, action blue on 8c** (drift, `drift.md` D-19) | checked, unchecked; disabled (§1) | — |
 | 9 | Toggle switch | 8 uses / 4 screens: 3e (1, 62×34, on = ink) · 8i (4) 8j (2) 8m (1), all 52×30, on = action blue | not started | one; 3e is drift in size and on-colour (`drift.md` D-20) | on, off; role switch (§1 Tap affordance) | disabled |
@@ -43,7 +43,7 @@ Pressed, focus, tap affordance, the selection limit and the disabled look of opt
 | 14 | Cup summary row | 5b (1) | inline | — | default | — |
 | 15 | Badge | inline 30 / standalone 18 | component | tones neutral · accent · success · info · selected; sticker rotation (E-4) | static | — (not pressable) |
 | 16 | Section heading (`SectionLabel`) | ~25 screens | component | marked · plain | set, pre-filled, required, missing, optional, count | — |
-| 17 | Empty slot (`EmptySlot`) | 3a 3b 3d 5a 5d 5e | component | — | default, pressed, inert (5d) | — |
+| 17 | Add button (`AddButton`; was Empty slot / `EmptySlot`, a button since 2026-10-18) | 3a 3b 3d 5a 5d 5e | component | — | default, pressed, disabled (5d) | — |
 | 18 | Taste axis slider | 5b (3 entered, 1 empty). The display on 1b 4a 4b 5c 8f is AxisReadout (to build) | **component** (`AxisSlider`) | 5 steps; square handle on a solid track (spec: `design-system.md` §9, the one place) | **empty, entered** (two states; pressed = scale) | disabled |
 | 19 | Card (padded container) | 13: 1b ×2 3c 3e 4a 4b 5b 5c 7b 8e 8f 8j 8m | pattern only (no component) | padding 20/18 ×8 · 16 ×4 · 18/16 ×1 | static | — |
 | 20 | Grouped list (rows in one 2px frame, hairline-divided) | 13 screens: 5a 5d 5e 6a 7a 8c 8d 8g 8h 8i 8j 8l 8m | inline (5a's FieldRow groups) | — | static | **empty group** |
@@ -311,7 +311,7 @@ The bundled list is the starting point for 5b's flavour tags (never a whitelist;
 - **5b's five chips use the same order** (decided 2026-10-11): one set of suggestions is never shown in two orders. With no history it is the bundled list's interleaved order.
 - **8n vs history**: 8n's favouring ("Black" → bright first) only reorders the bundled list, so it is the starting order while there is no history. As history grows, history leads and 8n's effect fades. That is intended.
 
-**Add row**: last row; "Add \"Word\"" beside a 24 dashed `border.addSlot` box with a plus. Not drawn in any mock.
+**Add row**: last row; "Add \"Word\"" beside an ink plus (`icon.sm`, no frame) in the checkbox's place (2026-10-18; was a 24 dashed `border.addSlot` box). Not drawn in any mock.
 
 **Date sheet**: iOS spinner in the BottomSheet, text in `text.primary`, `maximumDate` today; a picked day is stored as its local midnight. Compact and inline both bring OS round shapes (a pill; a round selected day). The spinner's selection band is still a light rounded bar from the OS.
 
@@ -341,7 +341,7 @@ The bundled list is the starting point for 5b's flavour tags (never a whitelist;
 
 **How it works**: Save stays pressable. Pressed with no rating, 5a switches to 5d's state (no screen change):
 - the intro block is replaced by the reminder card;
-- "How was it?" shows Required in the error colour, and the star card takes 5d's error state with "Tap a star — this is the one thing the app can't guess.";
+- "How was it?" shows Required in the error colour, and the star card takes 5d's error state with "Tap a star — only you know how it tasted." (Design's Round 9 copy check, 2026-10-18; was "Tap a star — this is the one thing the app can't guess.");
 - the footer gets the count line with "Go to first", above Save. **No "Keep as draft"** (no drafts, `gaps.md` 30).
 - 5b's two Save buttons with no rating go back to 5a in this state (an automatic "Go to first"); 5b's input stays.
 - Rating a star ends the state.

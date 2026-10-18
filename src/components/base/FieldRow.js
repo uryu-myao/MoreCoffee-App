@@ -25,7 +25,7 @@ import Text from './Text';
  *   onPress
  *   testOnly_pressed   force the pressed look (dev harness)
  *
- * Pressed: the row fill darkens to state.pressed.surface (Hard Rule, design-system.md §1).
+ * Pressed: the row fill darkens to state.pressed.row (Hard Rule, design-system.md §1).
  */
 export default function FieldRow({
   label,
@@ -92,8 +92,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.inset.control.v,
     paddingHorizontal: spacing.inset.control.h,
   },
+  // A frameless whole row (state.pressed.row, 2026-10-18): it already spans
+  // its frame, edge to edge.
   pressed: {
-    backgroundColor: state.pressed.surface,
+    backgroundColor: state.pressed.row,
   },
   divided: {
     borderTopWidth: shape.borderWidth.divider,

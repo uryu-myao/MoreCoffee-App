@@ -26,14 +26,20 @@ import Text from './Text';
  *              the label centred, as the mock's 44 button — so the label
  *              keeps clear of the button above and its hard shadow
  *              (decided on device 2026-10-13, for every such stack).
+ *              trailingIcon: a text action that leads somewhere, beside a
+ *              section title (1b's See all, redrawn 2026-10-18): the label
+ *              then the glyph (icon.sm, gap.tight), both text.secondary, NO
+ *              underline — §1 lets it go where the position already says
+ *              "action", and the arrow says it too.
  *   disabled   either variant: ground fill, border.muted outline, text.muted
- *              label, no shadow — the border.addSlot.inert vocabulary from 5d
+ *              label, no shadow (5d)
  *   pressed    the fill darkens (state.pressed.action / .surface); outline,
  *              label and shadow stay — Hard Rule, design-system.md §1
  *
  * Optional trailing glyph (5a "Add tasting note →"): icon.sm, gap.row after the
  * label, coloured like the label — onAction on primary, ink on secondary,
- * muted when disabled. 1b's leading-icon form is not built.
+ * muted when disabled. On text, see trailingIcon above. 1b's leading-icon
+ * form is not built.
  *
  * No loading state, deliberately: saves write to local SQLite and complete
  * instantly. Revisit when real async arrives (Step 5: MapKit, barcode lookup).
@@ -45,6 +51,9 @@ import Text from './Text';
  *   disabled
  *   size      'full' (default, 56) | 'row' (44, size.button.row: an action
  *             inside a card's strip, 3d "Finish bag"; label.caps). §9 Buttons.
+ *   raised    row size, primary: the control hard shadow (shadow.control, 3)
+ *             — 3d's "Open this bag" (2026-10-17). Row size has none by
+ *             default.
  *   warnWhenDisabled  a press while disabled gives the warning haptic (§1
  *             Haptics). Only where the screen already shows why the button
  *             is off (decided 2026-10-11); otherwise leave it false and show
@@ -65,7 +74,7 @@ const TEXT_HIT_SLOP = { top: space[16], bottom: space[16], left: space[8], right
 // only 4pt into it; 20 below ends where the next axis begins (gap.axis).
 const SMALL_HIT_SLOP = { top: space[8], bottom: space[20], left: space[8], right: space[8] };
 
-function TextButton({ label, small = false, stacked = false, disabled = false, onPress, accessibilityLabel }) {
+function TextButton({ label, small = false, stacked = false, trailingIcon, disabled = false, onPress, accessibilityLabel }) {
   const scale = useRef(new Animated.Value(1)).current;
   const scaleTo = (toValue) =>
     Animated.timing(scale, { toValue, duration: motion.press.duration, easing: pressEasing, useNativeDriver: true }).start();
@@ -80,11 +89,20 @@ function TextButton({ label, small = false, stacked = false, disabled = false, o
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled }}>
-      <Animated.View style={{ transform: [{ scale }] }}>
-        <Text variant={small ? 'meta' : 'labelCaps'} color={disabled ? 'muted' : 'primary'} style={styles.underline}>
-          {label}
-        </Text>
-      </Animated.View>
+      {trailingIcon ? (
+        <Animated.View style={[styles.lead, { transform: [{ scale }] }]}>
+          <Text variant="labelCaps" color={disabled ? 'muted' : 'secondary'}>
+            {label}
+          </Text>
+          <Glyph name={trailingIcon} token={icon.sm} color={disabled ? color.text.muted : color.text.secondary} />
+        </Animated.View>
+      ) : (
+        <Animated.View style={{ transform: [{ scale }] }}>
+          <Text variant={small ? 'meta' : 'labelCaps'} color={disabled ? 'muted' : 'primary'} style={styles.underline}>
+            {label}
+          </Text>
+        </Animated.View>
+      )}
     </Pressable>
   );
 }
@@ -100,6 +118,7 @@ function FilledButton({
   disabled = false,
   warnWhenDisabled = false,
   size: buttonSize = 'full',
+  raised = false,
   onPress,
   testOnly_pressed,
 }) {
@@ -109,9 +128,10 @@ function FilledButton({
   const labelColor = disabled ? 'muted' : primary ? color.action.fg : 'primary';
   const iconColor = disabled ? color.icon.muted : primary ? color.icon.onAction : color.icon.default;
 
-  // Row size has no hard shadow (1b's See all, 2026-10-12).
+  // Row size has no hard shadow unless raised (1b's See all, 2026-10-12).
+  const hardShadow = primary ? (row ? (raised ? shadow.control : null) : shadow.primary) : null;
   return (
-    <HardShadow shadow={primary && !row ? shadow.primary : null}>
+    <HardShadow shadow={hardShadow}>
       <Pressable
         onPress={warns ? warnDisabled : onPress}
         disabled={disabled && !warns}
@@ -147,6 +167,11 @@ const styles = StyleSheet.create({
   /** §1: a text-only action is underlined; colour alone never marks pressable. */
   underline: {
     textDecorationLine: 'underline',
+  },
+  lead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.gap.tight,
   },
   base: {
     height: size.button.primary,

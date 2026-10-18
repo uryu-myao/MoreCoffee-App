@@ -30,7 +30,6 @@ export const color = {
     link: '#05639C',
     success: '#4A6640',
     onInverse: '#F4EDEA',
-    onAction: '#FFFFFF',
   },
   surface: {
     ground: '#F4EDEA',
@@ -39,7 +38,6 @@ export const color = {
     inverse: '#273D22',
     muted: '#E4D6CC',
     mutedStrong: '#D9C7BB',
-    mutedDark: '#CBB6A8',
   },
   border: {
     strong: '#273D22',
@@ -104,8 +102,6 @@ export const state = {
   },
   /** Archived bag thumbnails. RN has no style filter — see OQ-5. */
   archived: { filter: 'saturate(0.7)' },
-  /** Scroll fade above a floating bar: transparent stop -> ground. */
-  fade: { from: 'rgba(244, 237, 234, 0)', to: '#F4EDEA', height: 30 },
   /**
    * Pressed (Hard Rule, design-system.md §1) depends on whether the element has
    * a surface. With one (a fill, frame or box), the fill steps one tier darker:
@@ -116,6 +112,17 @@ export const state = {
   pressed: {
     /** raised / ground / transparent-over-raised fills. Alias of surface.muted. */
     surface: color.surface.muted,
+    /**
+     * A frameless whole row (list rows, "Manage my beans", My beans' card
+     * info) — 2026-10-18, on device: surface.muted's beige read loud on a
+     * row. The ink at 6%, laid over whatever is under it: #E8E2DE on ground,
+     * #F2F0ED on raised — the smallest step that still shows, low in chroma,
+     * from the app's own ink, and the ground's dots show through. The row's
+     * fill also bleeds past its content to its container's edges (the screen,
+     * or the card's frame). Framed controls keep `surface`: their frame
+     * carries the shape.
+     */
+    row: 'rgba(39, 61, 34, 0.06)',
     /**
      * action.bg fill. Same value as color.text.link but a separate role (fill vs
      * link text) — cf. border.subtle and texture sharing #E4D6CC. Never merge.
@@ -187,6 +194,13 @@ export const textStyle = {
    */
   weekday:       { fontFamily: 'Archivo', fontSize: 10, fontWeight: '700', letterSpacing: 0.2 },
   /**
+   * The bottom bar's tab names under the glyphs (2026-10-18, ours). 10: the
+   * smallest size on the scale, as iOS's own tab labels. Sentence case, a
+   * weight under labelEyebrow's so the four names stay quiet beside the
+   * glyphs. lineHeight 12 is set so the block's height is fixed.
+   */
+  tabLabel:      { fontFamily: 'Archivo', fontSize: 10, fontWeight: '600', lineHeight: 12, letterSpacing: 0.2 },
+  /**
    * The only "this word is tappable" expression. Pair with color.text.link.
    * textDecorationColor is a separate RN prop — verify it inherits the text color.
    * lineHeight UNDECLARED · 0.08em x 11
@@ -213,6 +227,14 @@ export const spacing = {
   inset: {
     container: { v: space[14], h: space[16] },
     control:   { v: space[14], h: space[16] },
+    /**
+     * A row in an app list (Design Round 9, 2026-10-18): lists have no item
+     * dividers, so the padding alone sets the rhythm (the list's gap is 0).
+     * Round 9 draws 12 (was 16) and 11 (was 14 / 13 / 12); 11 is off the
+     * scale and folds to 12, so every list row is 12. h: rows in a framed
+     * list (the pickers); a row on the screen gutter takes v only.
+     */
+    listRow:   { v: space[12], h: space[16] },
   },
   badge: {
     /** chips that sit inside a list row */
@@ -241,7 +263,6 @@ export const layout = {
   gutter: 22,
   screen: { top: 60, bottom: 34 },
   section: { gap: 56 },
-  fade: { top: 30 },
   empty: { block: 100 },
 } as const;
 
@@ -249,7 +270,6 @@ export const layout = {
 export const opticalMargin = {
   nudge: -2,
   handle: -6,
-  reset: [-12, -14],
 } as const;
 
 /** Fixed element dimensions. NEVER subject to the spacing scale. */
@@ -264,11 +284,12 @@ export const size = {
   thumbnail: { list: 66, summary: 40 },
   avatar: 88,
   /**
-   * tabBar.height: the bar's row above the home-indicator inset. 48 since
-   * 2026-10-12 (60 left too much room under the icons on device): the 40
-   * slot box with 4 above and below, still over size.tapTarget (44).
+   * tabBar.height: the bar's row above the home-indicator inset. 56 since
+   * 2026-10-18, to carry the tab names under the glyphs: the 40 slot box with
+   * 8 above and below (glyph 20 + gap.tight + tabLabel 12 = 36, centred in
+   * it). Was 48 (2026-10-12; 60 before, too much room under bare icons).
    */
-  tabBar: { height: 48 },
+  tabBar: { height: 56 },
   badge: { numeral: 22 },
   checkbox: 24,
   /**
@@ -288,7 +309,11 @@ export const size = {
   meter: { track: 4 },
   marker: { line: { w: 2, h: 14 } },
   dot: { bullet: 6 },
-  sheet: { handle: { w: 56, h: 5 } },
+  sheet: {
+    handle: { w: 56, h: 5 },
+    /** 15b's info sheet: at most this share of the window's height; its body scrolls (Design Round 8). */
+    info: { maxHeight: 0.78 },
+  },
   /** 13b's one-line notice above the bottom bar (2026-10-13). */
   notice: { minHeight: 48 },
 } as const;
@@ -305,6 +330,8 @@ export const icon = {
   lg: { size: 22, strokeWidth: 1.8 },
   /** decorative large glyph — stroke widens back */
   xl: { size: 38, strokeWidth: 2.0 },
+  /** the ⓘ inside a status stamp (15a, Design Round 8): 14 at 2.4, lighter than xs */
+  stamp: { size: 14, strokeWidth: 2.4 },
   /** fill icons are a separate system: no stroke, fixed color, rating stars only */
   fill: {
     sm: { size: 14, color: color.icon.rating },
@@ -342,29 +369,40 @@ export const shape = {
 } as const;
 
 /**
- * dashed never means "draft". It has two uses, kept apart (design-system.md §8):
- *   addSlot / addSlotInert   an entry for adding something (nothing in it yet)
- *   track                    the axis rail of a value the user did not enter
- * What they share — "not something the user has settled" — is not one rule.
+ * dashed has two uses, and only two (decided 2026-10-18, Uryu;
+ * design-system.md §8). It never says "you can press this": a pressable add
+ * entry is a button (AddButton, the lists' add rows, 5b's Search opener).
+ *   a frame: an empty or not-started state
+ *     emptyFrame     an empty list's frame (2a), not pressable
+ *     sealed         a bag not opened yet (3d)
+ *     requiredSlot   a required field not filled yet (the Required bar)
+ *   a line: two parts of one block
+ *     dividerSoft    splits one card into two parts that belong together
+ *                    (never between blocks or list items)
+ * Removed 2026-10-18: addSlot (the pressable add slot), and addSlotInert's
+ * "add that can't be pressed now" (now a disabled button).
  */
 export const dashed = {
   /**
-   * an entry for adding something, and pressable: the empty slots ("Add a
-   * photo", "Add gear") and 5b's "Search" opener. Renamed from empty
-   * (2026-10-07): "an entry you can add through" is what it is. Colour:
-   * #6B5D55 (icon.muted's value, same value, border role), two steps lighter
-   * than ink on review — the ink dashes read as noise. The label and glyph
-   * keep their own colour, so the slot still reads as pressable. ΔE00 32.6
-   * from addSlotInert's border.muted, so the two never blur.
+   * an empty state's frame, not a thing to press (2a's empty list frame; not
+   * built). Was addSlotInert, which also covered a blocked add button.
    */
-  addSlot:       { width: 2, style: 'dashed', color: color.icon.muted },
-  /**
-   * an add entry that cannot be pressed now (5d's blocked add button), or a
-   * frame that is not a thing to press at all (2a's empty list frame)
-   */
-  addSlotInert:  { width: 2, style: 'dashed', color: color.border.muted },
-  /** secondary line inside a card */
+  emptyFrame:    { width: 2, style: 'dashed', color: color.border.muted },
+  /** the line that splits one card or block into two parts that belong together */
   dividerSoft:   { width: 1.5, style: 'dashed', color: color.border.soft },
+  /**
+   * a bag card whose bag is not opened yet (3d, 2026-10-17): the card's own
+   * 2px ink frame, dashed — not started.
+   */
+  sealed:        { width: 2, style: 'dashed', color: color.border.strong },
+  /**
+   * a required field not filled yet, in Log a cup's Required bar (Design
+   * Round 9, 2026-10-18): 1.5 dashed, no fill. The "not entered" use (as the
+   * old track), not an add entry: the slot is not pressable. Colour:
+   * text.muted (Design's copy check, 2026-10-18), the slot's label colour;
+   * the bar's frame keeps border.muted.
+   */
+  requiredSlot:  { width: 1.5, style: 'dashed', color: color.text.muted },
 } as const;
 
 /**
@@ -383,7 +421,10 @@ export const motion = {
   notice: { hold: 2000 },
 } as const;
 
-/** Tilted sticker badge. Format as `${rotation.sticker}deg` at use. */
+/**
+ * Tilted sticker badge. Format as `${rotation.sticker}deg` at use. Not on the
+ * Taste DNA stamp since Design Round 8 (2026-10-17): a button doesn't tilt.
+ */
 export const rotation = {
   sticker: -3,
 } as const;
@@ -426,6 +467,24 @@ const axisNeedle = {
  */
 const axisGrip = { w: shape.borderWidth.box, h: space[8] } as const;
 
+/**
+ * Log a cup's Required bar (5e, Design Round 9, 2026-10-18): one slot per
+ * required field, counted live. On surface.muted (#E4D6CC; Round 9's
+ * "surface.mutedStrong" was Design's slip, confirmed 2026-10-18).
+ * A filled slot takes beanFreshness's "drink now" pair (the mint band, the
+ * green ink), status colours rather than the active ink, so the bar never
+ * reads as pressable. An empty slot is dashed.requiredSlot.
+ */
+const requiredBar = {
+  background: color.surface.muted,
+  border: { width: shape.borderWidth.divider, color: color.border.muted },
+  slot: {
+    height: 24,
+    filled: { background: '#CFDCC8', ink: color.text.success },
+    empty: { border: dashed.requiredSlot, ink: color.text.muted },
+  },
+} as const;
+
 /** Component anatomies whose parts are mechanism-bound. */
 export const component = {
   /**
@@ -445,6 +504,8 @@ export const component = {
     drinkNow: { peakBand: '#CFDCC8', elapsed: '#7E9675', todayMarker: '#4A6640', label: '#4A6640' },
     pastPeak: { peakBand: '#CFDCC8', elapsed: '#C2B4AB', todayMarker: '#8C7E76', label: color.text.secondary },
     resting: { peakBand: '#CFDCC8', elapsed: '#C2B4AB', todayMarker: '#8C7E76', label: color.text.secondary },
+    /** 3d's unopened bag (2026-10-17): a sealed-bag glyph and a line, no track. */
+    sealed: { glyph: '#8C7E76', label: color.text.muted },
     height: size.meter.track,
     marker: { w: shape.borderWidth.box, h: size.marker.line.h },
   },
@@ -476,6 +537,18 @@ export const component = {
   tabBar: {
     slot: { w: 60, h: 40 },
     addSlot: { w: 68, h: 40 },
+    /**
+     * The glyphs' box (2026-10-18): the glyphs are 19–20 tall, so each sits
+     * centred in 20 and the names under them share one baseline.
+     */
+    glyph: 20,
+    /**
+     * Optical: the + rises this far off the glyph-and-name block's centre
+     * (2026-10-18, on device it read low). The tabs' weight is in the glyphs,
+     * so the + centres halfway between the block's centre (28 in the row) and
+     * the glyphs' (20): 24.
+     */
+    addLift: space[4],
     icon: {
       active: color.action.bg,
       inactive: '#9B8F87',
@@ -486,6 +559,7 @@ export const component = {
     /** the add button: ink square with a ground-coloured plus */
     add: { background: color.surface.inverse, mark: color.text.onInverse },
   },
+  requiredBar,
 } as const;
 
 export const tokens = {

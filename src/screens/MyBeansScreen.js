@@ -3,7 +3,7 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import Badge from '../components/base/Badge';
 import Button from '../components/base/Button';
 import DashedRule from '../components/base/DashedRule';
-import EmptySlot from '../components/base/EmptySlot';
+import AddButton from '../components/base/AddButton';
 import Glyph from '../components/base/Glyph';
 import IconButton from '../components/base/IconButton';
 import PhotoPlaceholder from '../components/base/PhotoPlaceholder';
@@ -27,8 +27,11 @@ import ScreenFrame from './ScreenFrame';
  * (dashed.dividerSoft, as the star card's caption) "Finish bag": §9
  * secondary, size row (44), full width (D-25, D-29).
  *
- * A bag added without opening (3c, 2026-10-12) reads "Not opened yet" and
- * has "Open this bag" in Finish bag's place; it takes a slot like the rest.
+ * A bag added without opening (3c, 2026-10-12) reads "not opened yet" and
+ * takes a slot like the rest. Told apart from an open bag (2026-10-17, the
+ * mock): the card's frame is dashed (dashed.sealed), the freshness line reads
+ * "Sealed · clock starts when opened", and "Open this bag" in Finish bag's
+ * place is the primary row button, raised — the one thing to do with it.
  *
  * Finish bag: no confirmation, no undo at this stage (gaps.md 17: 3f's
  * Reopen is not built; for own use a slip costs one slot, and the cups stay).
@@ -38,7 +41,11 @@ import ScreenFrame from './ScreenFrame';
  * chevron. Shown once a bag is finished (no entry to an empty 3f).
  * A card's upper half (D-29) opens 3g, with the row chevron at its right;
  * the lower strip is Finish bag only.
- * "Add a bag" (an add slot, with "N slots left") → 3c; hidden at 5 / 5.
+ * Pressed (state.pressed.row, 2026-10-18): the card's upper half fills out
+ * to the card's frame (sides and top) and halfway to the dashed rule; the
+ * "Finished bags" row fills the screen's width, its rule keeping the
+ * content width.
+ * "Add a bag" (an AddButton, with "N slots left") → 3c; hidden at 5 / 5.
  * The thumbnail is FieldRow's swatch (46); 3d draws 56, which has no token
  * (drift D-51).
  */
@@ -91,13 +98,13 @@ export default function MyBeansScreen({ onBack, onAddBag, onFinished, onEditBag 
       <View style={styles.body}>
         {(bags ?? []).map((bag) => {
           return (
-            <View key={bag.id} style={styles.card}>
+            <View key={bag.id} style={[styles.card, !bag.opened_at && styles.cardSealed]}>
               {/* D-29: the upper half opens 3g. */}
               <Pressable
                 onPress={() => onEditBag(bag)}
                 accessibilityRole="button"
                 accessibilityLabel={`Edit ${bag.name}`}
-                style={({ pressed }) => [styles.info, pressed && styles.pressed]}>
+                style={({ pressed }) => [styles.info, pressed && styles.rowPressed]}>
                 <View style={styles.infoText}>
                   <View style={styles.top}>
                     <PhotoPlaceholder size={size.field.height} />
@@ -109,45 +116,49 @@ export default function MyBeansScreen({ onBack, onAddBag, onFinished, onEditBag 
                         {bag.roast_level ? <Badge label={ROAST[bag.roast_level]} tone="neutral" /> : null}
                       </View>
                       <Text variant="bodySm" color="muted" truncate="meta">
-                        {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? `opened ${formatDay(bag.opened_at)}` : 'Not opened yet'].filter(Boolean).join(' · ')}
+                        {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? `opened ${formatDay(bag.opened_at)}` : 'not opened yet'].filter(Boolean).join(' · ')}
                       </Text>
                     </View>
                   </View>
-                  <BeanFreshness roastedAt={bag.roasted_at} />
+                  <BeanFreshness roastedAt={bag.roasted_at} sealed={!bag.opened_at} />
                 </View>
                 <Glyph name="chevronRight" token={icon.md} color={color.icon.default} />
               </Pressable>
               <DashedRule token={dashed.dividerSoft} />
-              {/* Not opened yet: "Open this bag" in Finish bag's place (2026-10-12). */}
+              {/* Not opened yet: "Open this bag" in Finish bag's place (2026-10-12),
+                  primary and raised (2026-10-17). */}
               {bag.opened_at ? (
                 <Button variant="secondary" size="row" label="Finish bag" onPress={() => finish(bag)} />
               ) : (
-                <Button variant="secondary" size="row" label="Open this bag" onPress={() => open(bag)} />
+                <Button size="row" raised label="Open this bag" onPress={() => open(bag)} />
               )}
             </View>
           );
         })}
         {/* Once, under the last card (Design Round 7, 40): the freshness
-            windows are a guide. Only when some bag has a roast date. */}
-        {bags?.some((b) => b.roasted_at != null) ? (
+            windows are a guide. Only when some card draws one: an opened bag
+            with a roast date (a sealed card has no bar). */}
+        {bags?.some((b) => b.opened_at && b.roasted_at != null) ? (
           <Text variant="bodySm" color="secondary">
             The windows are a rough guide. Your own taste is the better judge.
           </Text>
         ) : null}
-        {bags && left > 0 ? <EmptySlot icon="plus" iconToken={icon.sm} label="Add a bag" tag={left === 1 ? '1 slot left' : `${left} slots left`} onPress={onAddBag} /> : null}
+        {bags && left > 0 ? <AddButton icon="plus" iconToken={icon.sm} label="Add a bag" tag={left === 1 ? '1 slot left' : `${left} slots left`} onPress={onAddBag} /> : null}
         {finished > 0 ? (
           <Pressable
             onPress={onFinished}
             accessibilityRole="button"
             accessibilityLabel={`Finished bags, ${finished} archived`}
-            style={({ pressed }) => [styles.finished, pressed && styles.pressed]}>
-            <View style={styles.finishedText}>
-              <Text variant="displayXs">Finished bags</Text>
-              <Text variant="bodySm" color="secondary">
-                {`${finished} archived — still counted in my taste DNA`}
-              </Text>
+            style={({ pressed }) => [styles.finishedTouch, pressed && styles.rowPressed]}>
+            <View style={styles.finished}>
+              <View style={styles.finishedText}>
+                <Text variant="displayXs">Finished bags</Text>
+                <Text variant="bodySm" color="secondary">
+                  {`${finished} archived — still counted in my taste DNA`}
+                </Text>
+              </View>
+              <Glyph name="chevronRight" token={icon.md} color={color.icon.default} />
             </View>
-            <Glyph name="chevronRight" token={icon.md} color={color.icon.default} />
           </Pressable>
         ) : null}
       </View>
@@ -169,10 +180,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.inset.container.h,
     gap: spacing.gap.section,
   },
+  cardSealed: {
+    borderStyle: dashed.sealed.style,
+    borderColor: dashed.sealed.color,
+  },
+  // Out through the card's padding to its frame (sides, top) and halfway to
+  // the rule (gap.section / 2), padded back in: the content stays put.
   info: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space[12],
+    marginHorizontal: -spacing.inset.container.h,
+    paddingHorizontal: spacing.inset.container.h,
+    marginTop: -spacing.inset.container.v,
+    paddingTop: spacing.inset.container.v,
+    marginBottom: -space[6],
+    paddingBottom: space[6],
   },
   infoText: {
     flex: 1,
@@ -197,14 +220,20 @@ const styles = StyleSheet.create({
   name: {
     flexShrink: 1,
   },
-  // 3d's foot: the entry to 3f, under a 1.5 rule.
+  // 3d's foot: the entry to 3f, under a 1.5 rule. The touch area spans the
+  // screen (out through the gutter, padded back in); the rule keeps the
+  // content width.
+  finishedTouch: {
+    marginTop: spacing.gap.section,
+    marginHorizontal: -layout.gutter,
+    paddingHorizontal: layout.gutter,
+  },
   finished: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: space[12],
-    marginTop: spacing.gap.section,
-    paddingTop: space[16],
+    paddingVertical: space[16],
     borderTopWidth: shape.borderWidth.divider,
     borderTopColor: color.border.soft,
   },
@@ -212,7 +241,7 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.gap.tight,
   },
-  pressed: {
-    backgroundColor: state.pressed.surface,
+  rowPressed: {
+    backgroundColor: state.pressed.row,
   },
 });

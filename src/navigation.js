@@ -10,6 +10,8 @@
  *                        'addGear' } from Home, { name: 'editCup', cup } from 2c
  *   requestCloseCup()    Records closes its open cup (after a delete in 11a)
  *   requestNotice(text)  AppShell shows 13b's one-line notice above the bar
+ *   requestDnaInfo(dna)  AppShell shows 15b's Taste DNA info sheet over the
+ *                        tabs and the bar (Home's stamp)
  */
 const cupListeners = new Set();
 const shellListeners = new Set();
@@ -54,6 +56,17 @@ export function requestNotice(notice) {
 export function onNoticeRequest(listener) {
   noticeListeners.add(listener);
   return () => noticeListeners.delete(listener);
+}
+
+const dnaInfoListeners = new Set();
+
+export function requestDnaInfo(dna) {
+  dnaInfoListeners.forEach((l) => l(dna));
+}
+
+export function onDnaInfoRequest(listener) {
+  dnaInfoListeners.add(listener);
+  return () => dnaInfoListeners.delete(listener);
 }
 
 export function requestShell(request) {

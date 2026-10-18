@@ -97,11 +97,12 @@ export default function RecordsScreen() {
                       Newest first
                     </Text>
                   </View>
-                  {group.cups.map((cup) => {
+                  {group.cups.map((cup, i) => {
                     const { title, source } = cupTitle(cup);
                     return (
                       <RecordRow
                         key={cup.id}
+                        first={i === 0}
                         title={title}
                         badges={[MODE_BADGE[cup.mode]]}
                         source={source}

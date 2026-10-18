@@ -6,7 +6,7 @@ import { color, layout, shape, spacing } from '../theme/tokens';
 import AxisReadoutPage from './pages/AxisReadoutPage';
 import AxisSliderPage from './pages/AxisSliderPage';
 import ButtonPage from './pages/ButtonPage';
-import EmptySlotPage from './pages/EmptySlotPage';
+import AddButtonPage from './pages/AddButtonPage';
 import FieldRowPage from './pages/FieldRowPage';
 import IconButtonPage from './pages/IconButtonPage';
 import RecordRowPage from './pages/RecordRowPage';
@@ -29,7 +29,7 @@ const PAGES = [
   { key: 'starRating', title: 'StarRating', Page: StarRatingPage },
   { key: 'button', title: 'Button', Page: ButtonPage },
   { key: 'iconButton', title: 'IconButton', Page: IconButtonPage },
-  { key: 'emptySlot', title: 'EmptySlot', Page: EmptySlotPage },
+  { key: 'addButton', title: 'AddButton', Page: AddButtonPage },
   { key: 'axisSlider', title: 'AxisSlider · dashes', Page: AxisSliderPage },
   { key: 'axisReadout', title: 'AxisReadout', Page: AxisReadoutPage },
   { key: 'recordRow', title: 'Badge · RecordRow', Page: RecordRowPage },

@@ -4,7 +4,8 @@ import AxisReadout from '../components/base/AxisReadout';
 import Button from '../components/base/Button';
 import Text from '../components/base/Text';
 import { NOTHING_MOVED, changeLines, changeSummary } from '../components/DnaChangeLines';
-import { DnaStateBadge } from '../components/TasteDnaCard';
+import DnaInfoSheet from '../components/DnaInfoSheet';
+import { DnaStamp } from '../components/TasteDnaCard';
 import { TASTE_AXES } from '../constants/tasteAxes';
 import { useDatabase } from '../data/DatabaseProvider';
 import { cupOrdinal, getCup, loadTasteDna } from '../data/repository';
@@ -18,7 +19,8 @@ import ScreenFrame from './ScreenFrame';
  * buttons closes the sheet.
  *
  * From the mock: eyebrow "Cup N · logged HH:MM", title "Noted.", then the
- * Taste DNA card — "My taste DNA" with the profile's state sticker, the moved
+ * Taste DNA card — "My taste DNA" with the profile's state stamp (15a: it
+ * opens 15b's sheet, here inside the Record sheet, over 5c), the moved
  * axes, each an AxisReadout (computed: §9's ghost at the profile's value
  * before, the value after; both neutral, decided 2026-10-11) with its line
  * under it. Read from the cup's stored dna_change, never recomputed.
@@ -29,7 +31,9 @@ import ScreenFrame from './ScreenFrame';
  *     never noted is the empty track with "Not noted yet".
  *   - "Where it sat before": the legend for the ghost, when there is one
  *   - the summary sentence, under the title: "This cup pushed you ‹phrases›."
- *     (moved axes only; Design's phrase table, design-missing.md 12)
+ *     (moved axes only; Design's phrase table, design-missing.md 12). Kept
+ *     when Round 8 removed the card's sub-line: it's this cup's result, not
+ *     an explanation
  *   - Try next's "4 of 5 cups" and "One more cup and Try next opens up" are
  *     V2: not shown
  * Buttons: "Back to home" (primary) and "See this record" (secondary → 2c).
@@ -40,6 +44,7 @@ const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute:
 export default function SavedScreen({ id, onHome, onSeeRecord }) {
   const db = useDatabase();
   const [data, setData] = useState(null);
+  const [info, setInfo] = useState(false);
   const fade = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -77,7 +82,7 @@ export default function SavedScreen({ id, onHome, onSeeRecord }) {
               <Text variant="displaySm" color="accent" style={styles.title}>
                 My taste DNA
               </Text>
-              <DnaStateBadge state={data.dna.state} />
+              <DnaStamp state={data.dna.state} onPress={() => setInfo(true)} />
             </View>
             {summary ? (
               <Text variant="body" color="muted">
@@ -148,6 +153,7 @@ export default function SavedScreen({ id, onHome, onSeeRecord }) {
           </View>
         </ScreenFrame>
       ) : null}
+      <DnaInfoSheet visible={info} dna={data?.dna} onClose={() => setInfo(false)} />
     </Animated.View>
   );
 }
@@ -166,7 +172,7 @@ const styles = StyleSheet.create({
   },
   head: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.gap.section,
   },

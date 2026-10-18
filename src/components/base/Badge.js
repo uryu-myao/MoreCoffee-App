@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
-import { color, spacing } from '../../theme/tokens';
+import { color, icon, space, spacing } from '../../theme/tokens';
+import Glyph from './Glyph';
 import Text from './Text';
 
 /**
@@ -10,6 +11,11 @@ import Text from './Text';
  *              color.badge.bg.* with its paired color.badge.fg.*
  *   placement  inline (badge.inline, inside a list row) |
  *              standalone (badge.standalone, alone on a surface)
+ *   icon       optional leading Glyph (icon.stamp, the label's colour, gap 6):
+ *              the ⓘ of a status stamp that opens an explanation (15a,
+ *              Design Round 8; the stamp's button is DnaStamp, the Badge
+ *              itself still never acts). The left padding is 2 less, to
+ *              balance the glyph. Status words only, never plain labels.
  *
  * Fixed copy only, on one line: it keeps its own width (flexShrink 0) rather
  * than wrapping, as the source's nowrap does. Long translated labels are
@@ -24,9 +30,16 @@ const FG = {
   selected: color.badge.fg.selected,
 };
 
-export default function Badge({ label, tone = 'neutral', placement = 'inline' }) {
+export default function Badge({ label, tone = 'neutral', placement = 'inline', icon: glyph }) {
   return (
-    <View style={[styles.badge, styles[placement], { backgroundColor: color.badge.bg[tone] }]}>
+    <View
+      style={[
+        styles.badge,
+        styles[placement],
+        glyph && [styles.withIcon, { paddingLeft: styles[placement].paddingHorizontal - space[2] }],
+        { backgroundColor: color.badge.bg[tone] },
+      ]}>
+      {glyph ? <Glyph name={glyph} token={icon.stamp} color={FG[tone]} /> : null}
       <Text variant="labelEyebrow" color={FG[tone]}>
         {label}
       </Text>
@@ -46,5 +59,10 @@ const styles = StyleSheet.create({
   standalone: {
     paddingVertical: spacing.badge.standalone.v,
     paddingHorizontal: spacing.badge.standalone.h,
+  },
+  withIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[6],
   },
 });

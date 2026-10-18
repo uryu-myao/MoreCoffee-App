@@ -12,6 +12,8 @@ const SHAPES = {
   close: [<Path key="p" d="M6 6l12 12M18 6L6 18" />],
   plus: [<Path key="a" d="M12 6v12" />, <Path key="b" d="M6 12h12" />],
   alert: [<Path key="a" d="M12 7v6" />, <Path key="b" d="M12 16.5h.01" />],
+  // 15a's ⓘ on a status stamp (Design Round 8), verbatim.
+  info: [<Circle key="c" cx="12" cy="12" r="9.5" />, <Path key="a" d="M12 11v6" />, <Path key="b" d="M12 7.2v.1" />],
   pin: [
     <Path key="p" d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z" />,
     <Circle key="c" cx="12" cy="10" r="2.4" />,
@@ -22,6 +24,8 @@ const SHAPES = {
     <Circle key="c" cx="12" cy="12.5" r="3.2" />,
   ],
   arrowRight: [<Path key="a" d="M5 12h14" />, <Path key="b" d="M13 6l6 6-6 6" />],
+  // 3d's unopened bag (2026-10-17): the bag, its seal across the top.
+  sealed: [<Rect key="r" x="5" y="4" width="14" height="17" rx="1" />, <Path key="p" d="M5 8h14" />],
   bag: [<Path key="a" d="M4 9h16l-1 11H5z" />, <Path key="b" d="M9 9V6a3 3 0 0 1 6 0v3" />],
   // 10a's placeholder cup (Design 2026-10-12), verbatim.
   cup: [

@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { formatDay } from '../constants/dates';
 import { resolveTextStyle } from '../theme/fonts';
 import { color, shape, size, spacing, state, textStyle } from '../theme/tokens';
+import ClearButton from './base/ClearButton';
 import Text from './base/Text';
 
 /**
@@ -18,6 +19,9 @@ import Text from './base/Text';
  * idle field at 16 / 500, which has no text style (drift D-44), so every
  * value uses `title`. Entered text is text.primary, placeholders
  * text.placeholder (2026-10-12). Bean name's example is Uryu's (2026-10-12).
+ *
+ * A typed field with text shows ClearButton's × at the underline's right end
+ * (2026-10-17, ours): it empties the field.
  *
  * Roasted on is a day, picked in a sheet (DateSheet): the field shows it as
  * "Apr 1" and opens the sheet; the screen hosts the sheet, since it covers
@@ -78,20 +82,23 @@ function Field({ label, value = '', placeholder, onChangeText, editable = true, 
       <Text variant="labelEyebrow" color={error ? state.error.text : 'muted'}>
         {error ? `${label} · required` : label}
       </Text>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={color.text.placeholder}
-        editable={editable}
-        autoFocus={autoFocus}
-        autoCorrect={false}
-        selectionColor={color.caret}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        accessibilityLabel={label}
-        style={[styles.input, focused && styles.inputFocused, error && styles.inputError]}
-      />
+      <View style={[styles.input, styles.typed, focused && styles.inputFocused, error && styles.inputError]}>
+        <TextInput
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={color.text.placeholder}
+          editable={editable}
+          autoFocus={autoFocus}
+          autoCorrect={false}
+          selectionColor={color.caret}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          accessibilityLabel={label}
+          style={styles.typedInput}
+        />
+        {editable && value ? <ClearButton onPress={() => onChangeText('')} accessibilityLabel={`Clear ${label}`} /> : null}
+      </View>
     </View>
   );
 }
@@ -144,6 +151,18 @@ const styles = StyleSheet.create({
   },
   dayField: {
     justifyContent: 'center',
+  },
+  // A typed field: the line (styles.input) holds the input and the clear ×.
+  typed: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  typedInput: {
+    ...resolveTextStyle(textStyle.title),
+    flex: 1,
+    alignSelf: 'stretch',
+    color: color.text.primary,
+    paddingVertical: 0,
   },
   inputFocused: {
     borderBottomColor: color.border.strong,

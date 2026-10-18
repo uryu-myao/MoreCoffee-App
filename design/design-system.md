@@ -52,9 +52,10 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **Press feedback depends on whether the element has a surface. With a surface (a fill, frame or box), the fill darkens. Without one (a bare glyph), the element scales. In neither case does opacity change.** Opacity would wash out the hard shadow and the 2px ink borders, and reads muddy against the warm ground.
 - **Surface-less → scale** to `state.pressed.scale` (0.88) over `motion.press` (100ms), back to 1 on release. 0.88 because ~0.95 is not perceptible on a 20–24px glyph. **Only the visual scales: the touch area does not**, so it stays at least `size.tapTarget` (44) while the glyph shrinks. First use: the bottom-bar tab icons (§9).
 - Light fills — `color.surface.raised`, `color.surface.ground`, or transparent over a raised card — go to **`state.pressed.surface`** (alias of `color.surface.muted`). The action fill `color.action.bg` goes to **`state.pressed.action`**.
+- **A frameless whole row goes to `state.pressed.row` (2026-10-18, on device)**: list rows (Records, Recently sipped, the pickers' and search sheet's rows, FieldRows), "Manage my beans", My beans' card info and "Finished bags". The ink at 6%, laid over what is under it: #E8E2DE on ground, #F2F0ED on raised — the smallest step that still shows, low in chroma, from the app's own ink, and the ground's dots show through. `surface.muted`'s beige read loud on a row. **The fill bleeds past the content to its container's edges**: a row on the screen gutter fills the screen's width; a row in a card fills out to the card's frame (and to its top or bottom edge where it is the first or last part). The content, and a list's header hairline, keep their width. Framed controls (Button, IconButton, AddButton, SegmentedControl, chips, ShelfBlock's tabs, the star disc) keep `state.pressed.surface`: their frame carries the shape.
 - **Surface → darken.** **Nothing else changes**: border, label/ink, glyph and `HardShadow` stay as they are. The change is instant (no motion).
 - A fill that is already ink (the selected chip) has no darker tier and does not respond. Pressing it is a no-op anyway. Disabled controls do not respond.
-- Darken applies to: Button, SegmentedControl options, FieldRow, StarRating stars, IconButton, and the bottom bar's + (an ink square, so no darker tier: no visual change). Scale applies to: the bottom-bar tab icons. Every tappable component added later takes one of the two by this test; its Step 4 component spec says which.
+- Darken applies to: Button, SegmentedControl options, FieldRow, StarRating stars, IconButton. Scale applies to: the bottom-bar tab icons, and the bottom bar's + (an ink square: no darker tier left, below; it showed no change until 2026-10-18). Every tappable component added later takes one of the two by this test; its Step 4 component spec says which.
 - **The condition above both tests (2026-10-10): the feedback must be perceptible.** Surface and size choose the means, *provided that means can be seen*. Where it cannot, scale is used:
   - **too small to see a darker fill under the finger**: under 44pt (the axis handle, checkboxes);
   - **no darker tier left**: a fill that is already the darkest, i.e. the ink-filled selected chip of a clearable set (Roast level, Process). Pressing it clears it, so it must respond.
@@ -99,6 +100,7 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - The mark is not fixed per field: it follows whether the field can be filled. With one bag or more, Bag is marked again and pre-filled with the latest open bag.
 - **The same for every mode (2026-10-11)**: Barista's café and drink and Packaged's product cannot be filled at this stage, so "Café details" and "Product" show no mark and no "Pre-filled" while empty. Nothing is pre-filled from rows the user never chose.
 - Saving: no field blocks it except the rating, and even the rating does not disable Save — a press shows 5d's state (2026-10-11).
+- **Design Round 9 (2026-10-18): Packaged's product is required too.** 5e's Required bar lists it beside the rating, so it now blocks Save as the rating does (5d's state, "Still needs a product"). Like the rating, it is a field the user must enter, not a pre-filled one: its heading is marked and shows SET once named, REQUIRED in 5d's state. The Required bar (§9) lists, per mode, exactly the fields that gate Save or are marked: I made it = rating + bag + method when the shelf fills them (else rating alone), Barista = rating, Packaged = rating + product.
 - Why: a mark on an empty field breaks the promise. It would do so on the very first screen a new user sees (someone who skipped 8o).
 - **Two rules, both in force** (with §9 Section heading):
   - **§9 `SectionLabel` `marked`**: the square bullet marks a section of an input form (5a / 5d / 5e only); `plain` everywhere else.
@@ -284,7 +286,6 @@ Grouped by role. Every hex is a value that qualified **inside that role** (≥3 
 | `color.text.link` | `#05639C` | 4 screens |
 | `color.text.success` | `#4A6640` | 5 screens; "set", "done" confirmations |
 | `color.text.onInverse` | `#F4EDEA` | text on `#273D22` grounds |
-| `color.text.onAction` | `#FFFFFF` | text and icons on `#067BC2` buttons |
 
 `#5C5049` / `#6B5D55` are **two deliberate tiers** (ΔE00 4.84, both qualifying in the same roles) — Gate A. Never merge them. Same for `#9E5202` / `#8A4602` (ΔE00 5.35).
 
@@ -297,7 +298,6 @@ Grouped by role. Every hex is a value that qualified **inside that role** (≥3 
 | `color.surface.inverse` | `#273D22` | selected chips, inverted rows |
 | `color.surface.muted` | `#E4D6CC` | 14 screens; thumbnails, tracks. Absorbed `#DCD0C8`, `#E8DCD3`, `#E0D2C8`, `#DDD0C8` |
 | `color.surface.mutedStrong` | `#D9C7BB` | placeholder thumbs. Absorbed `#D8C9BF`(fill), `#CFC1B6` |
-| `color.surface.mutedDark` | `#CBB6A8` | absorbed `#C2B4AB`(fill) where not mechanism-bound |
 
 ### Borders
 | token | value | evidence |
@@ -373,7 +373,6 @@ Promoted regardless of frequency: a low count here means "only a few screens sho
 | token | value | mechanism |
 |---|---|---|
 | `color.scrim` | `rgba(39, 61, 34, 0.42)` | modal sheet scrim (2b, 3b). The sheet also dims the page behind it with `opacity: 0.45` |
-| `color.fade.stop` | `rgba(244, 237, 234, 0)` → `#F4EDEA` | scroll fade-out under floating bars (6a, 8d) |
 | `state.error.border` | `#9E5202` | 5d |
 | `state.error.shadow` | `#9E5202` | 5d, `4px 4px 0` |
 | `state.error.surface` | `#EFD9C2` | 5d, the warning summary's ground. The other two error blocks use `#FFFCFA`, which is what makes this a distinct surface rather than drift |
@@ -473,6 +472,7 @@ Measured from the font file (Instrument Serif, per 1000):
 | `button.caps` | 16 | 700 | 未找到 | 0.96 | uppercase | 16/.06em, 15/.06em, 14/.08em | 17 screens / 22 uses |
 | `text.weekday` | 10 | 700 | 未找到 | 0.20 | — | 10/700/.02em | 3 screens / 21 uses |
 | `text.inlineAction` | 11 | 700 | 未找到 | 0.88 | uppercase + underline | 11/700/.08em + underline | 2 screens / 5 uses **A** |
+| `tabLabel` | 10 | 600 | 12 | 0.20 | — | none (ours, 2026-10-18) | the bottom bar's tab names (§9 Bottom bar) |
 
 **`body` (14) and `label` (15) are kept separate on purpose.** 14 is the explanatory paragraph (1–2 per screen); 15 is the button label and inline emphasis (~4 per screen). They are different jobs at adjacent sizes.
 
@@ -576,11 +576,10 @@ Each default is the step the most-used value in that axis folds into.
 | `layout.screen.top` | 60 | 18 screens |
 | `layout.screen.bottom` | 34 | 19 screens |
 | `layout.section.gap` | 56 | 12 screens |
-| `layout.fade.top` | 30 | the fade band above a floating bar |
 | `layout.empty.block` | 100 | 2 screens; bottom room under a floating bar |
 
 ### Optical negative margins — kept verbatim, not on the scale
-`-2` (13 screens / 14 uses) · `-6` (2 / 2) · `-12` (1 / 1) · `-14` (1 / 1). These are optical compensations; they are not spacing decisions and must not be snapped to steps.
+`-2` (13 screens / 14 uses) · `-6` (2 / 2) · `-12` (1 / 1) · `-14` (1 / 1); `-12` / `-14` have no token (`opticalMargin.reset`, no consumer, removed 2026-10-18). These are optical compensations; they are not spacing decisions and must not be snapped to steps.
 
 ---
 
@@ -668,18 +667,17 @@ All hard: blur 0, isotropic offset, single ink. Offset **scales with the element
 
 ## 8. Border & Dashed Semantics
 
-`dashed` is a **semantic system, not decoration** (58 uses / 21 screens). It never means "draft". It has **two uses, written separately** (revised 2026-10-06; formerly one rule, "a surface that is not real content", which fits empty slots but not the axis rail):
-- **An entry for adding something (nothing in it yet)**: `border.addSlot`, `border.addSlot.inert`.
-- **The value shown is not one the user entered**: `axis.rail.derived` (§2 B). **Retiring**: the display axis becomes AxisReadout, a 4pt bar with no dashes, and the slider has a solid track. Do not draw new dashed rails. Once AxisReadout is built, dashed keeps one use, the add entry.
+`dashed` is a **semantic system, not decoration** (58 uses / 21 screens). It never means "draft".
 
-What they share is "not something the user has settled". They are still two uses, not one rule; do not merge them.
+**Dashed has two uses, and only two (decided 2026-10-18, Uryu).**
+- **A frame: an empty or not-started state.** Something with nothing in it yet, or not begun: an empty list's frame, a bag not opened yet (`dashed.sealed`), a required field not filled yet (`dashed.requiredSlot`), 5d's empty required swatch (`state.error.dashed`). - **A line: two parts of one block.** `divider.soft` (1.5 dashed `border.soft`) splits a single card or block into two parts that belong together — the bag card's info over its "Finish bag" strip, the star card's stars over their caption, Edit bag / Edit cup's sections. A line *between* blocks or list items is never dashed (Round 9: list items have none; a list's header line is solid).
 
-**Operable or not, by colour (moved from §1, 2026-10-07)**: a **dark dashed** frame (`border.addSlot`, #6B5D55) can be pressed; a **muted dashed** frame (`border.addSlot.inert`, `border.muted`) cannot. The line style does not decide it. 5d's error dashes mark a field that is still pressable. (The axes no longer use dashes: the slider has one solid rail, and the display axis becomes AxisReadout.)
+**It never says "you can press this."** A pressable add entry is a button like any other (§9 Add button; the lists' add rows; 5b's Search opener), never a dashed slot. Superseded: the 2026-10-06 rule that dashed also marked "an entry for adding something", and the 2026-10-07 rule that a dark dashed frame could be pressed and a muted one could not.
 
 | token | value | meaning | reach |
 |---|---|---|---|
-| `border.addSlot` | `2px dashed` #6B5D55 (`icon.muted`'s value; ink until 2026-10-07, lightened two steps on review: ΔE00 32.6 from `.inert`, 5.46:1 on ground, 6.19:1 on raised) | an entry for adding something, and pressable — the empty slots ("Add a photo", "Add gear", "Add beans"), 5b's "Search" opener, and **the 24 box of an in-list add row** (§9 Empty slot, in-list form). | Renamed 2026-10-07 from `border.empty`: "an entry you can add through" is closer to what it is than "empty" | 10 uses / 10 screens + 5b |
-| `border.addSlot.inert` | `2px dashed` `color.border.muted` | an empty slot that cannot be pressed now (5d's blocked add button), or is not a thing to press at all (2a's empty list frame). Renamed 2026-10-06 from `border.empty.disabled` (misnamed the 2a frame), then 2026-10-07 to `addSlot.inert` with its parent | 2 uses |
+| `dashed.emptyFrame` | `2px dashed` `color.border.muted` | an empty state's frame, not a thing to press (2a's empty list frame; not built). Was `border.addSlot.inert`, which also covered a blocked add button (now a disabled button) | 1 use |
+| ~~`border.addSlot`~~ | — | **removed 2026-10-18**: the pressable add slot. Its uses became buttons (§9 Add button, the lists' add rows, 5b's Search opener) | — |
 | `divider.soft` | `1.5px dashed` `color.border.soft` | a secondary line inside a card, separating meta or a closing remark from the body | 24 uses |
 | `border.track` | `1.5px dashed` `color.border.muted` | **retiring** with `axis.rail.derived` (see above). The axis rail of a value the user did not enter, only. Since 2026-10-07 it no longer covers the search placeholder, which moved to `border.addSlot` (drift D-21) | 14 uses |
 | `state.error.dashed` | `1.5px dashed` `#9E5202` | error emphasis (5d) **A** | 1 use |
@@ -731,6 +729,8 @@ Section heading = a `size.dot.bullet` square (`marker.required` / `marker.option
 **Stable height (base `SectionLabel`, 2026-10-05)**: the row reserves `icon.xs` height (14) whether or not a status is shown. The check glyph is taller than the eyebrow line box (about 11), so rows with SET / PRE-FILLED used to be 3pt taller, and a REQUIRED → SET or unrated → SET change pushed everything below it down. Measured on device: no status and all five statuses give 14; tapping the first star moves nothing. The status text is not shrunk; only a wrapping label can make the row taller.
 
 ### List row
+**No item dividers (Design Round 9, 2026-10-18)**: in every app list (Records 2a, Home's Recently sipped 1b and My gear / My beans 4a / 4b, the Bag / Method pickers, 3a's gear list and the search sheet's list) items are set apart by spacing alone, `spacing.inset.listRow` (12 vertical; Round 9 draws 12 and 11, and 11 folds to 12), with the list's gap 0. The one line between a list's header and its first item stays; the line on the second item onward and under the last item is gone (Home's "Manage my beans" too sits under the last row with no rule, as 4a / 4b draw it). Out of scope: dashed lines, the field dividers inside a card (2c's "What I logged", the FieldRows in 5a / 11a), the search list's 2px frame.
+
 `[thumbnail] [content column] [right meta column]`. The right column stacks rating over date, right-aligned — dates and ratings align down the whole list because they live in a fixed-width column, not at the end of a text run. Content column: title (`title`) → chips (`badge.inline`) → provenance (`body.sm`) → tasting note (`body.sm`, `color.text.muted`).
 
 **Row order — one rule for all three modes (2026-10-06)**: **line 1 = what was drunk** (bean name / drink / product name), **line 2 = where it came from** (roaster / café / **store**). Do not add a per-mode rule: the principle is one; only what "where it came from" holds differs by mode.
@@ -787,13 +787,13 @@ Planned uses (2026-10-09 / -10):
 
 1b and 2a set it at 11 / .22em, which `label.eyebrow` already folds in (11 / .04–.22em, §3), so this is not drift. Record coffee (5a) has none.
 
-**Stat** (`ScreenFrame` `stat`; Records only, 2a's count): the numeral in `display.sm` `color.text.accent` (2a: Instrument Serif 30 / .9, folded into `display.sm`), with "Cups" in `label.eyebrow` `color.text.muted` `gap.tight` (4) below it, right-aligned.
-- Its foot sits 20 above the rule, like `meta`.
-- It is **out of flow** (absolute, bottom-right), so the header height stays the title column's. Every tab's rule then sits at the same height (131 on iPhone 14), and a swipe at rest shows no step. In flow, the numeral's iOS natural box (39) pushed Records' rule 3 lower.
+**Stat** (`ScreenFrame` `stat`; Records only, 2a's count): the numeral in `display.sm` `color.text.accent` (2a: Instrument Serif 30 / .9, folded into `display.sm`), with "Cups" in `label.eyebrow` `color.text.muted` below it, right-aligned.
+- **Placement (revised on device, 2026-10-17)**: 8 (`space.8`) from the numeral's baseline to the label's cap top, and the pair (numeral cap top to label baseline) centred on the title's cap band. Both are measured from the text layouts. It used to be `gap.tight` (4) between line boxes, with its foot 20 above the rule. On iOS's natural boxes that came out as a 15 gap, with the pair about 9 above the title's cap band.
+- It is **out of flow** (absolute, right), in the standard and the compact header alike, so the header height stays the title column's (compact: the row's; 2026-10-17. In flow, the stat had made compact headers 14 taller). Every tab's rule then sits at the same height (131 on iPhone 14), and a swipe at rest shows no step. In flow, the numeral's iOS natural box (39) pushed Records' rule 3 lower.
 - The value goes through `Intl.NumberFormat` (1,247). Right-aligned, its right edge stays at 367.3 whatever the digit count. Measured at 147, 1,247 and 12,470:
   - numeral left edge 338.3 / 319.7 / 306;
   - the title ends at 127.3, so 12,470 still clears it by 179 expanded and 205 collapsed.
-  - Records is the only screen with a stat.
+  - Stats now also appear on compact headers: My beans, Finished bags, Add a bag, Add gear, Edit bag.
 
 ### Header collapse (2026-10-06)
 Every `ScreenFrame` with `scroll`: Records (standard header), and Log a cup and Tasting note (compact header, in the Record sheet).
@@ -904,23 +904,27 @@ Swiping horizontally moves between the four tab screens: Home → Records → Tr
 - Measured: the reveal starts 9 ms after an upward scroll begins and completes 340 ms later. A real flick decelerates for longer, so the bar is back first. A programmatic scroll (UIKit's fixed 326 ms) finishes about 20 ms ahead of it.
 
 **Current spec (base `FooterNav`)**: the tab bar spans the **full screen width on the bottom edge**, on `color.surface.raised`, with **no hard shadow**. Its `2px` ink top rule is the boundary: with the bar on the screen edge, that line does the separating work the shadow used to do.
-- **Row**: `size.tabBar.height` (**48** since 2026-10-12, was 60: on device there was too much room under the icons), with **the home-indicator inset less `space.8`** below it (34 − 8 = 26 on notched iPhones; 2026-10-15, on device: a little taller than 2026-10-12's inset less `space.14` (20), the row unchanged; the indicator, ~8 above the edge and 5 tall, stays clear). The 40 slot box sits centred, 4 above and below; the touch area is the whole row (≥ 44).
+- **Row**: `size.tabBar.height` (**56** since 2026-10-18, to carry the tab names; 48 from 2026-10-12, 60 before that), with **the home-indicator inset less `space.8`** below it (34 − 8 = 26 on notched iPhones; 2026-10-15, on device: a little taller than 2026-10-12's inset less `space.14` (20), the row unchanged; the indicator, ~8 above the edge and 5 tall, stays clear). The 40 slot box sits centred, 8 above and below; the touch area is the whole row (≥ 44). The bar is 2 + 56 + 26 = 84 on notched iPhones.
+- **Tab names (2026-10-18, ours, not synced with Design)**: under each tab glyph, its name in `textStyle.tabLabel` (Archivo 10 / 600, line 12, 0.2 tracking; 10 is the smallest size on the scale, as iOS's own tab labels), sentence case, `gap.tight` (4) below the glyph, in the glyph's colour (`component.tabBar.icon`: active blue, inactive `#9B8F87`), crossfading with it as the pager moves. Each glyph sits centred in a 20 box (`component.tabBar.glyph`; Profile's is 19) so the names share one baseline. Glyph + gap + name = 36, centred in the 40 slot box. The + has no name. It sits `component.tabBar.addLift` (`space.4`) above the block's centre (on device, centred, it read low: the tabs' weight is in the glyphs), so its centre is at 24 in the row, halfway between the block's (28) and the glyphs' (20). Only the drawing moves.
 - **Slots**: the icons sit inside the screen gutter: the two outer slots take `layout.gutter` (22) of padding on their outer side, then all five share the remaining width equally, so the icons are evenly spaced and the centre + sits exactly in the middle. The outer slots still reach the screen edge, so the gutter is part of their touch area (the icons move in; the touch areas do not shrink). Measured at 390pt: icon centres every 69 (56.7 / 126 / 195 / 264.3 / 333.3); touch areas Home 0–91.3 and Profile 298.7–390 (both start at the screen edge, 0pt), inner slots 69 wide, all 60 tall. Superseded: five equal 78pt slots with centres 39 … 351 (2026-10-05).
-- **Pressed** (§1, by surface): the tab icons are bare glyphs, so they scale to `state.pressed.scale` over `motion.press`. There is no square fill behind them any more. The + is an ink square, a surface whose fill has no darker tier, so it shows no visual change. Both give a light impact haptic. Measured: Home glyph 20 → 17.6 while held, its touch area fixed at 0–91.3 × 60; the + touch area fixed at 69.3 × 60. (Superseded 2026-10-06: a `state.pressed.surface` fill in the 60 × 40 / 68 × 40 slot box.)
+- **Pressed** (§1, by surface): the tab icons are bare glyphs, so they scale to `state.pressed.scale` over `motion.press`. There is no square fill behind them any more. The + is an ink square, a surface whose fill has no darker tier, so it scales too (§1 "no darker tier left"; 2026-10-18, it showed no change before). Both give a light impact haptic. Measured: Home glyph 20 → 17.6 while held, its touch area fixed at 0–91.3 × 60; the + touch area fixed at 69.3 × 60. (Superseded 2026-10-06: a `state.pressed.surface` fill in the 60 × 40 / 68 × 40 slot box.)
 - **No fade band** (removed on review, 2026-10-05): with the bar on the screen edge, the 30pt fade above the rule only covered the content just above the bar. The rule alone separates. Rebuilt tab screens keep `layout.empty.block` of room under their content.
 
 **Why it changed**: the source (6a / 8d, and in flow on 1b / 2a / 4a / 4b) draws a 90%-wide floating bar with `shadow.floating`. That spec was drawn against an empty screen. Over real content (a full Records list) the elevation read as noise and worked against the design, so the bar went full width and the shadow came off.
 
-**Superseded**: the 90% width, the 2px box outline, `shadow.floating`, the `space.4` side padding, and the fade band (`state.fade`, `layout.fade.top`). `state.fade` and `layout.fade.top` now have **no consumer**; `shadow.floating` keeps its §7 role for width-flexible primaries (the setup flow's 8c / 8o, `drift.md` D-33); they are kept as tokens pending a decision. `HardShadow` itself is still used by the primary `Button`, `StarRating`'s error state, and the FieldRow harness.
+**Superseded**: the 90% width, the 2px box outline, `shadow.floating`, the `space.4` side padding, and the fade band (`state.fade`, `layout.fade.top`). `state.fade` and `layout.fade.top` had **no consumer** and were removed from tokens.ts (2026-10-18); `shadow.floating` keeps its §7 role for width-flexible primaries (the setup flow's 8c / 8o, `drift.md` D-33). `HardShadow` itself is still used by the primary `Button`, `StarRating`'s error state, and the FieldRow harness.
 
-### Empty slot (base `EmptySlot`, 2026-10-05)
-**In-list form (2026-10-12)**: inside a list (the pickers' "Add a bag" / "Add gear", the search sheet's "Add \"Word\""), the add entry is **a row like the list's others** — the same height and padding — with a 24 `border.addSlot` dashed box holding a plus (`icon.xs`, ink) where the row's marker or checkbox sits, and the label in `title` (sentence case). It keeps dashed's one meaning, an add entry, at the size of the list's markers. It locks with the list at a cap (`border.addSlot.inert`, label `text.muted`). The standalone form (below) is for an entry on its own surface (5a's photo slot, 3d's "Add a bag").
+### Add button (base `AddButton`; was Empty slot / `EmptySlot`, 2026-10-05; a button since 2026-10-18)
+**A button like any other (decided 2026-10-18, Uryu)**: dashed means only an empty or not-started state (§8), so a pressable add entry takes the secondary button's surface, not a dashed slot.
 
-The `border.addSlot` slot as a component: always a button, full width. It is the row form from 3a, 3b, 3d, 5a, 5d and 5e.
-- **Anatomy**: `dashed.addSlot` frame (2px dashed ink) on a transparent ground, `inset.control` padding, then glyph → label → optional trailing tag, `space.12` apart. The glyph is `icon.md` by default (5a's camera); 3b's plus is `icon.sm`. The label is `label.caps` in ink. The tag is `label.caps` in `color.text.muted`, pushed to the right edge.
-- **Source fit**: 3x pads 14 / 16 (`inset.control` exactly); 5x pads 16, folded to it. The 10–11px glyph-label gap folds to `space.12`. The tag is `label.caps` on 3b and 3d; 5a, 5d and 5e set it at 11/600 (`drift.md` D-12).
-- **States**: default; **pressed**, where the fill darkens to `state.pressed.surface` (§1 Hard Rule); **disabled** (5d), where the frame drops to `dashed.addSlotInert` (`border.addSlot.inert`, formerly `border.empty.inert`), the glyph to `color.icon.muted` and the label to `color.text.secondary`. A disabled slot does not respond to press.
-- **Not part of this component**: the 76px square photo slot (3c), the 2a empty-list frame (not a button), and the "Try next — opens at 5 cups" teaser card (1b, 4a, 4b, 5c).
+**Standalone form** (an entry on its own surface: 3d's "Add a bag", Home's empty-shelf "Add a bag" / "Add gear", 5a's photo slot when it returns), full width:
+- **Anatomy**: a `2px solid` ink frame on `color.surface.ground` (§9 Buttons, `secondary`), `inset.control` padding, then glyph → label → optional trailing tag, `space.12` apart. The glyph is `icon.md` by default (5a's camera); 3b's plus is `icon.sm`. The label is `label.caps` in ink. The tag is `label.caps` in `color.text.muted`, pushed to the right edge. Left-aligned, unlike a centred secondary button: it carries a tag.
+- **States**: default; **pressed**, the fill darkens to `state.pressed.surface` (§1 Hard Rule); **disabled** (5d), as Button's: `border.muted` frame, glyph `color.icon.muted`, label `color.text.muted`; no press response.
+- **Source fit**: 3x pads 14 / 16 (`inset.control` exactly); 5x pads 16, folded to it. The 10–11px glyph-label gap folds to `space.12`. The mocks draw it dashed (3a, 3b, 3d, 5a, 5d, 5e): drift by decision, not to be redrawn here.
+
+**In-list form** (the pickers' "Add a bag" / "Add gear", the search sheet's "Add \"Word\""): **a row like the list's others** — the same height and padding, pressed like them — with an ink plus (`icon.sm`, no frame) in the 24 place where the row's marker or checkbox sits, and the label in `title` (sentence case), ink. No frame: a 2px box would read as an unselected marker. It locks with the list at a cap (plus and label `text.muted`). Was a 24 `border.addSlot` dashed box (2026-10-12).
+
+- **Not part of this component**: the 76px square photo slot (3c), the 2a empty-list frame (`dashed.emptyFrame`, not a button), and the "Try next — opens at 5 cups" teaser card (1b, 4a, 4b, 5c).
 
 ### Badge (base `Badge`, 2026-10-05)
 A chip that labels, never acts: square, filled, no border, `label.eyebrow` (2a's 11/700/.06em folds to it).
@@ -931,7 +935,7 @@ A chip that labels, never acts: square, filled, no border, `label.eyebrow` (2a's
 
 ### Record row (base `RecordRow`, 2026-10-05)
 The List row pattern above as a component (source 2a): a `size.thumbnail.list` placeholder thumbnail, then the content column (`title` with `name` truncation → inline Badges, `gap.row` apart → source in `body`, `color.text.secondary`, `meta` truncation → note in `body.sm`, muted, `note` truncation), then the fixed right column (`icon.fill.sm` star + `numeral.inline` rating over the `label.eyebrow` date).
-- **Spacing**: `space.14` between columns, `space.16` vertical padding, and a top hairline in `color.divider.hairlineStrong` (2a's #D8C9BF). The content column stacks `gap.tight` apart; the source's 5 folds to it.
+- **Spacing**: `space.14` between columns, `spacing.inset.listRow.v` (12; was `space.16`, Design Round 9) vertical padding. Only the list's **first** row draws the top hairline in `color.divider.hairlineStrong` (2a's #D8C9BF), the one line under the list's header (`first`). The content column stacks `gap.tight` apart; the source's 5 folds to it.
 - **§3.2 adjustment**: `numeral.inline` renders on its natural 28.6 box on iOS, 6.8 below the baseline, against the spec's 22px box with 3.5 below. The right column therefore stacks rating and date with **0** gap, not the source's 4. That puts the date 6.8 under the digits, against 7.5 in the source; with 4 it would be 10.8. `lineHeight` is untouched.
 - Informational: no press, no chevron. The detail screen does not exist yet. Photos show once they can be added (TODO).
 
@@ -949,7 +953,9 @@ Padding is `inset.control` (the source's 13 / 16 folds to it) and the gap is `sp
 
 **Mode switching (Record coffee, 2026-10-05)**: the rating persists across a switch (it is about the cup, not who made it). The conditional field set resets: it is keyed by mode and remounts. The photo slot persists. The conditional block's height animates with `motion.expand` (Animated, `Easing.bezier` on the token's control points), which is 5a's own mechanism, so the photo slot and footer slide rather than jump. LayoutAnimation was not used because it cannot take the token's bezier.
 
-**Intro line per mode (2026-10-05)**: the line under the header changes with the mode. I made it is 5a verbatim ("Marked fields are required — all of them start pre-filled.") and Packaged is 5e with one word changed ("Packaged cups skip brewing and café — two fields left."; the mock says "Bottled", see `drift.md` D-14). No mock has a Barista line, because 5d replaces it with the error summary. Barista's line was **written to 5e's pattern** (what the mode skips, then how many fields are left): "Cups made for you skip beans and brewing — two fields left." Every line names the cup by who made it, matching the "Who made it?" field, not by its vessel or where it came from ("Café cups" was rejected on review). The line **crossfades** with `motion.expand` (same duration and bezier as the field block), the outgoing line laid over the incoming one, inside the same height-animating wrapper. At 390pt I made it's and Packaged's lines fit one line; Barista's wraps to two since the intro became a block with padding (2026-10-11), and the block eases to the new height. (A bug cut it to one line instead: ExpandingBlock measured its content against the animated height; fixed 2026-10-11.)
+**Required bar (Design Round 9, 2026-10-18; base `RequiredBar`)**: replaces the intro line below, in all three modes (5e draws Packaged's; the others follow it). A `surface.muted` box (Round 9's "`surface.mutedStrong`" was Design's slip, confirmed 2026-10-18) in a 1.5 `border.muted` frame, padding `space.8` (the mock's 8 / 10 / 7, folded), `space.6` between its rows. Header: "Required" (`label.eyebrow`, ink), the sub-line (`body.sm`, `text.secondary`, one line; the mock's 11 / 500 folds to 12) and the live count "1/2" → "2/2" (`label.caps`; `text.muted` below full, green `text.success` once complete — confirmed by Design 2026-10-18). Under it one slot per required field (§1 Required marks), sharing the width `space.4` apart, 24 tall: filled = the mint `#CFDCC8` with an `icon.xs` check and the label (`label.eyebrow`) in `#4A6640`, beanFreshness's "drink now" pair; empty = `dashed.requiredSlot` (1.5 dashed `text.muted`, Design 2026-10-18), no fill, muted label. Status colours, not the active ink: the bar is not pressable. Sub-lines (Design's Round 9 copy check, 2026-10-18): Packaged "Packaged cups skip brewing & café" (5e, with D-14's rename); I made it "Pre-filled from your shelf" / with an empty shelf "Add a bag & gear once to pre-fill"; Barista "Cups made for you skip beans & brewing" (ours: Design proposed "Café cups skip beans & brewing" to match 5e's opening; Uryu kept the 2026-10-05 rule that every line names the cup by who made it, not where it came from, 2026-10-18). The sub-line crossfades on a mode switch as the intro line did. 5d's card still replaces the bar.
+
+~~**Intro line per mode (2026-10-05)**~~ (superseded by the Required bar, 2026-10-18): the line under the header changes with the mode. I made it is 5a verbatim ("Marked fields are required — all of them start pre-filled.") and Packaged is 5e with one word changed ("Packaged cups skip brewing and café — two fields left."; the mock says "Bottled", see `drift.md` D-14). No mock has a Barista line, because 5d replaces it with the error summary. Barista's line was **written to 5e's pattern** (what the mode skips, then how many fields are left): "Cups made for you skip beans and brewing — two fields left." Every line names the cup by who made it, matching the "Who made it?" field, not by its vessel or where it came from ("Café cups" was rejected on review). The line **crossfades** with `motion.expand` (same duration and bezier as the field block), the outgoing line laid over the incoming one, inside the same height-animating wrapper. At 390pt I made it's and Packaged's lines fit one line; Barista's wraps to two since the intro became a block with padding (2026-10-11), and the block eases to the new height. (A bug cut it to one line instead: ExpandingBlock measured its content against the animated height; fixed 2026-10-11.)
 
 ### Taste axis slider (base `AxisSlider`) — the one place this component is specified (current as of 2026-10-09)
 The input of Taste DNA, on 5b only. **Its display is a different component, AxisReadout** (next section). The two look different, so what can be operated is clear at a glance. A value the user entered must never be confused with one that came out of their records (§1 Colour roles: entered = brown, computed = neutral). Token sizes: §5 `size.axis.*`.
@@ -1061,8 +1067,8 @@ Three parts of 5b are drawn inline in `TastingNoteScreen` for now (display only)
 - **Flavour chip, multi-select**: three looks, all bordered surfaces that darken on press:
   - selected: `badge.bg.accent` + `border.accent`, `accentStrong` label;
   - unselected: `border.muted`, `secondary` label;
-  - Search opener: `border.addSlot` (2px dashed #6B5D55; was `border.track`, drift D-21), `muted` label.
-  - To report then: whether the dashed Search fits the dashed meaning (§8), and whether other screens have a multi-select set to share it with.
+  - Search opener: an action among the options, so a button's `2px solid` ink frame and an ink label (2026-10-18, §8: dashed is not "pressable"); told apart from the options' 1.5 `border.muted` by weight and colour. At the limit: `border.muted` frame, `muted` label. Was `border.addSlot` (2px dashed #6B5D55), and before that `border.track` (drift D-21).
+  - To report then: whether other screens have a multi-select set to share it with.
   - Rows: at 14 horizontal padding (the mock's) the chips stay 44 tall in 2 rows. 5 are shown, selected + unselected, plus Search (2026-10-08; `gaps.md` 3, 15).
   - Selected stays brown: an entered value (§1 Colour roles). Spec waits on the decisions in `components.md`.
 - **Cup summary row** (5b): `size.thumbnail.summary` thumbnail, name (`label`), one line of meta (`body.sm` muted), and the rating star + `numeral.inline` on the right.
@@ -1124,6 +1130,7 @@ Card per the Card pattern (`inset.container`, `gap.section`). Five `size.control
   - `secondary`: `color.surface.ground`, `2px solid` ink outline, `color.text.primary` label;
   - `text`: no fill, no frame, ink, **underlined** (§1 Tap affordance).
     - **Stacked under full-width buttons** (11a's Delete this cup; decided on device 2026-10-13): the text action takes a full-width **`size.tapTarget` (44) row**, label centred — as 11a's mock draws it. Sized to its label, it sat the footer gap (12) under the primary, minus the 5pt hard shadow. Applies to every such stack.
+    - **With a trailing glyph — a lead** (1b's See all, redrawn by Design 2026-10-18; was a `row` primary): `label.caps` then the arrow (`icon.sm`; the mock's 14 / 2.6 has no pair, `icon.sm` keeps its stroke), `gap.tight` apart, both `color.text.secondary`, **no underline**: it sits in the slot right of a section title, where §1 lets the underline go, and the arrow says "goes somewhere". Touch area padded to 44 with `hitSlop`. Beside "Recently sipped" it sits `space.2` below centre (optical, on device 2026-10-18): centred, its caps read high next to a mostly lowercase serif title, whose x-height centre is 3.2 under its cap centre. `text.secondary` departs from §1's "text actions are ink"; Design confirmed it (2026-10-18): never the blue `action` colour, which is only for primary actions and the active tab.
   - `quiet` (1.5 `border.muted`, no fill) was proposed and **dropped**: that is §1's look for an *unselected option*.
 - **`size`** (surfaced variants only): `full` (full width: **56 primary, 52 secondary**, so the secondary sits one step under the primary it stacks beneath) · `row` (44) · `compact` (40) · `small` (36, touch area padded to 44 with `hitSlop`, `gaps.md` 19).
   - 48 (8f, one use) is decided with 8f.
@@ -1280,3 +1287,18 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-14 — EmptySlot's label and glyph back to ink (as 3d), out of `text.placeholder`'s list.
 - 2026-10-15 — §9 Notice: one place on every screen, the bar's offset, also where the bar is covered.
 - 2026-10-15 — §9 Bottom bar: under the row, the inset less `space.8` (26), was `space.14` (20); the row and the icons' top room unchanged.
+- 2026-10-17 — Design Round 8 (15a / 15b): the Taste DNA stamp is a button (Badge `icon` "info", `icon.stamp` 14 / 2.4, gap 6, left padding −2; a 44 transparent hit wrapper, −6 on top / right / bottom; upright, no `rotation.sticker`; pressed = scale, its visible box is under 44). The sub-line under "My taste DNA" is gone (5c keeps its summary). It opens the info sheet (`DnaInfoSheet`): §9 Bottom sheet with `maxHeight` (`size.sheet.info.maxHeight` 0.78) and `swipeToClose` (the edge swipe's 25% / 300pt/s on the other axis). The progress box has no frame (on device: the mock's 2px ink frame read as a second button over "Got it"); `surface.ground` alone. Not built: the progress box's "N of 5 cups" row (Try next, V2), the DNA page and Profile chip (no such screens yet). Title in `display.sm` (sheet titles), not the mock's 34; "Got it" renders 56 (D-32).
+- 2026-10-17 — `ClearButton` (ours, not synced with Design): a one-line text field with text shows a × at its right end that empties it — BagForm's typed fields and `SearchField` (iOS's own clear button stays off). `close` glyph, `icon.sm`, `icon.muted`; a 44 square pulled back by the glyph's inset so the glyph ends on the field's edge; pressed = scale. Not on My words (multi-line).
+- 2026-10-18 — Unused tokens removed from tokens.ts: `state.fade` and `layout.fade.top` (the bar's fade band, gone since 2026-10-05), `color.text.onAction` (the primary label uses `color.action.fg`), `color.surface.mutedDark` and `opticalMargin.reset`. Tokens for screens not built yet (`size.switch`, `size.avatar`, `state.archived`, `shadow.floating` …) stay.
+- 2026-10-18 — The search sheet (Packaged's product, 5b's flavours) closes on a swipe down too (§9 Bottom sheet `swipeToClose`, as 15b), not only on Done or the dimmed page. Ours, not synced with Design.
+- 2026-10-18 — §9 Bottom sheet `full`: the sheet runs on behind the keyboard (its height added to the bottom padding), so the translucent keyboard shows `surface.raised`, not the dimmed page. On device.
+- 2026-10-18 — §9 Bottom bar: tab names under the glyphs (`textStyle.tabLabel`, 10 / 600, the glyph's colour); `size.tabBar.height` 48 → 56 to carry them, the inset under the row unchanged. The + stays unnamed. Ours, not synced with Design.
+- 2026-10-18 — §1 Pressed / §9 Bottom bar: the + scales when pressed, like the tab icons. It is ink, so §1's "no darker tier left" already called for scale; the old "no visual change" line predated that rule. It sits 4 higher than the block's centre (`component.tabBar.addLift`), on device.
+- 2026-10-18 — Design Round 9: app lists drop their item dividers (§9 List row): `spacing.inset.listRow` (12) on RecordRow, ShelfBlock, RadioList and CheckboxList; only a list's first row keeps the line under its header (RecordRow `first`). Home's "Manage my beans" loses its rule.
+- 2026-10-18 — Design Round 9: 5e's Required bar replaces the intro line in all three modes (§9, base `RequiredBar`, `component.requiredBar`, `dashed.requiredSlot`). Packaged's product is required (§1 Required marks): it gates Save with 5d's state, which now names what is missing ("Still needs a product", count and footer per field; ours, for Design).
+- 2026-10-18 — §9 Buttons: Home's See all is a text lead, as Design redrew 1b / 4a / 4b: `label.caps` + arrow in `text.secondary`, no fill, no frame, no underline (was a 44 `row` primary). `Button` `variant="text"` with `trailingIcon`.
+- 2026-10-18 — Design's Round 9 copy check applied: Required bar sub-lines (I made it with an empty shelf "Add a bag & gear once to pre-fill"; Design's Barista "Café cups…" not taken, see below), 5d's star hint "Tap a star — only you know how it tasted.", the product / two-field 5d copy kept. `dashed.requiredSlot` is `text.muted`; the bar ground (`surface.muted`), the muted count and See all's `text.secondary` are confirmed.
+- 2026-10-18 — Barista's sub-line stays "Cups made for you skip beans & brewing" (Uryu): every line names the cup by who made it (2026-10-05). Design's "Café cups…" not taken; to tell Design.
+- 2026-10-18 — §8: **dashed means only an empty or not-started state** (Uryu). Pressable add entries are buttons: §9 Empty slot becomes **Add button** (`AddButton`, a 2px solid ink frame on ground), the lists' add rows show a plain ink plus, 5b's Search opener a 2px solid ink frame. `dashed.addSlot` removed; `addSlotInert` → `dashed.emptyFrame`.
+- 2026-10-18 — §8: `divider.soft` stays dashed (Uryu): dashed's second use is the line that splits two parts of one block. The two uses: a frame = empty / not started, a line = two parts of one block.
+- 2026-10-18 — §1 Pressed: frameless whole rows take **`state.pressed.row`** (ink 6%, an overlay), full bleed to their container's edges (the screen, or the card's frame). RecordRow, ShelfBlock's Manage, My beans' card info and Finished bags, RadioList / CheckboxList / FieldRow rows. Framed controls keep `state.pressed.surface`.

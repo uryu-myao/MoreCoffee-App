@@ -10,6 +10,7 @@ import SegmentedControl from '../components/base/SegmentedControl';
 import StarRating from '../components/base/StarRating';
 import Text from '../components/base/Text';
 import PickerSheet from '../components/PickerSheet';
+import RequiredBar from '../components/RequiredBar';
 import SearchSheet from '../components/SearchSheet';
 import { useRecordDraft } from '../components/RecordDraft';
 import WhenMeta from '../components/WhenMeta';
@@ -44,18 +45,21 @@ const MAKERS = [
 const expandEasing = Easing.bezier(...motion.expand.controlPoints);
 
 /**
- * The intro line per mode, each naming who made the cup. I made it is 5a
- * verbatim. Packaged is 5e with "Bottled" → "Packaged" (drift.md D-14: the
- * rename wins over the mock). No mock has a Barista line (5d replaces it with
- * the error summary), so it is written to 5e's pattern.
+ * The Required bar's sub-line per mode (Design Round 9, 2026-10-18), each
+ * naming who made the cup. Packaged is 5e's with "Bottled" → "Packaged"
+ * (drift.md D-14: the rename wins over the mock). The other three: Design's
+ * Round 9 copy check (2026-10-18), "&" as 5e, under the ~40 characters the
+ * line has at 402pt.
  */
-/** I made it with an empty shelf (no bag or no gear): Design, 2026-10-11. */
-const INTRO_EMPTY_SHELF = 'Marked fields are required. Add a bag and your gear once — after that they start pre-filled.';
-
-const INTRO = {
-  made_it: 'Marked fields are required — all of them start pre-filled.',
-  barista: 'Cups made for you skip beans and brewing — two fields left.',
-  packaged: 'Packaged cups skip brewing and café — two fields left.',
+const BAR_NOTE = {
+  made_it: 'Pre-filled from your shelf',
+  /** I made it with an empty shelf (no bag or no gear). */
+  made_it_empty: 'Add a bag & gear once to pre-fill',
+  // Not Design's "Café cups…" (copy check, 2026-10-18): every line names the
+  // cup by who made it, not where it came from (decided 2026-10-05, upheld
+  // by Uryu 2026-10-18).
+  barista: 'Cups made for you skip beans & brewing',
+  packaged: 'Packaged cups skip brewing & café',
 };
 
 /**
@@ -71,51 +75,6 @@ export const RATING_COPY = {
   4: 'Would have again',
   5: 'One to remember',
 };
-
-/**
- * Crossfades from the previous line to the new one with the product's one
- * motion, so the copy eases with the field block instead of popping. The old
- * line sits over the new one while it fades out.
- */
-function IntroText({ text }) {
-  const [shown, setShown] = useState({ current: text, previous: null });
-  const fade = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    if (text === shown.current) return;
-    setShown({ current: text, previous: shown.current });
-    fade.setValue(0);
-    Animated.timing(fade, {
-      toValue: 1,
-      duration: motion.expand.duration,
-      easing: expandEasing,
-      useNativeDriver: true,
-    }).start(({ finished }) => {
-      if (finished) setShown((s) => ({ ...s, previous: null }));
-    });
-    // shown.current is read, not tracked: only a new text starts a fade.
-  }, [text, fade]);
-
-  return (
-    <View style={styles.introText}>
-      <Animated.View style={{ opacity: fade }}>
-        {/* Keyed by the copy: a new line gets a new text node. Updating the
-            node in place kept the old line's one-line height, so a longer
-            line was clipped instead of wrapping (found 2026-10-11). */}
-        <Text key={shown.current} variant="meta" color="muted">
-          {shown.current}
-        </Text>
-      </Animated.View>
-      {shown.previous ? (
-        <Animated.View style={[styles.introPrevious, { opacity: fade.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}>
-          <Text variant="meta" color="muted">
-            {shown.previous}
-          </Text>
-        </Animated.View>
-      ) : null}
-    </View>
-  );
-}
 
 function Section({ label, status, plain, children }) {
   return (
@@ -195,20 +154,23 @@ function BaristaFields({ defaults }) {
  * Packaged (design-missing.md 6, Design Round 7; built 2026-10-15): one
  * FieldRow, the product name as typed — brand included, no brand field.
  * It opens a search sheet over the user's own past products (most used
- * first), with Add "‹typed›" for a new one. Not pre-filled and not required
- * (a cup saves without it), so the heading has no mark (§1 Required marks).
- * Package and Bought at stay out (not at this stage).
+ * first), with Add "‹typed›" for a new one. Not pre-filled. Required since
+ * Design Round 9 (2026-10-18, 5e's Required bar), so the heading is marked:
+ * SET once named, REQUIRED in 5d's state, where the empty row takes 5d's
+ * error look (FieldRow error). Package and Bought at stay out (not at this
+ * stage).
  * TODO(copy): "Add a product" (5a's "Add a bag" pattern) and the sheet's
  * placeholder are ours, for Design.
  */
-function PackagedFields({ productName, onPickProduct }) {
+function PackagedFields({ productName, onPickProduct, missing }) {
+  const error = missing && !productName;
   return (
-    <Section label="Product" plain>
+    <Section label="Product" status={productName ? 'set' : error ? 'required' : undefined}>
       <View style={styles.card}>
         {productName ? (
           <FieldRow swatch icon="can" label="Product" value={productName} onPress={onPickProduct} />
         ) : (
-          <FieldRow swatch icon="can" label="Product" value="Add a product" placeholder onPress={onPickProduct} />
+          <FieldRow swatch icon="can" label="Product" value="Add a product" placeholder error={error} onPress={onPickProduct} />
         )}
       </View>
     </Section>
@@ -287,33 +249,45 @@ function useMinuteClock() {
 }
 
 /**
- * 5d in V1 (design/components.md "5d in V1"): Save pressed with no rating.
- * Rating only — the mock's café is out of scope. No "Keep as draft" (no
- * drafts in V1, gaps.md 30).
+ * 5d in V1 (design/components.md "5d in V1"): Save pressed with a required
+ * field empty — the rating, and since Round 9 Packaged's product (the bag and
+ * the method are never empty when required). The mock's café is out of
+ * scope. No "Keep as draft" (no drafts in V1, gaps.md 30).
  *
- * Copy: Design, 2026-10-11 (design-missing.md 11) — promises no draft, does
- * not count, does not repeat the star card's line.
+ * Copy: Design, 2026-10-11 (design-missing.md 11) for the rating — promises
+ * no draft, does not count, does not repeat the star card's line. The
+ * product's and the two-field wording follow it ("one" → "them"), confirmed
+ * in Design's Round 9 copy check (2026-10-18).
  */
-const MISSING_COPY = {
-  title: 'Still needs a rating',
-  body: "A cup can't be saved without one. What you've entered stays while you're here; closing loses it.",
-  footer: 'No rating yet.',
-};
-/** 5d's line under the stars (verbatim). */
-const STAR_HINT = "Tap a star — this is the one thing the app can't guess.";
+const NOUN = { rating: 'rating', product: 'product' };
+function missingCopy(fields) {
+  const nouns = fields.map((f) => NOUN[f.key] ?? f.label.toLowerCase());
+  return {
+    title: `Still needs ${nouns.map((n) => `a ${n}`).join(' and ')}`,
+    body: `A cup can't be saved without ${nouns.length > 1 ? 'them' : 'one'}. What you've entered stays while you're here; closing loses it.`,
+    footer: `No ${nouns.join(' or ')} yet.`,
+  };
+}
+/**
+ * 5d's line under the stars, only while the rating is missing. Design's Round
+ * 9 copy check (2026-10-18): 5d's "this is the one thing the app can't guess"
+ * stopped being true once the product is required too.
+ */
+const STAR_HINT = 'Tap a star — only you know how it tasted.';
 
 /** 5d's reminder card, in place of the intro block: the error set (§2 state.error). */
-function MissingCard() {
+function MissingCard({ fields }) {
+  const copy = missingCopy(fields);
   return (
     <HardShadow shadow={state.error.shadow}>
       <View style={styles.missingCard} accessibilityRole="alert">
         <Glyph name="alert" token={icon.md} color={state.error.text} />
         <View style={styles.missingText}>
           <Text variant="label" color={state.error.text}>
-            {MISSING_COPY.title}
+            {copy.title}
           </Text>
           <Text variant="bodySm" color="secondary">
-            {MISSING_COPY.body}
+            {copy.body}
           </Text>
         </View>
       </View>
@@ -322,16 +296,16 @@ function MissingCard() {
 }
 
 /** 5d's footer line: the count square, what is missing, "Go to first". */
-function MissingLine({ onGoToFirst }) {
+function MissingLine({ fields, onGoToFirst }) {
   return (
     <View style={styles.missingLine}>
       <View style={styles.missingCount}>
         <Text variant="labelCaps" color={color.surface.raised}>
-          1
+          {String(fields.length)}
         </Text>
       </View>
       <Text variant="meta" color={state.error.text} style={styles.missingLineText}>
-        {MISSING_COPY.footer}
+        {missingCopy(fields).footer}
       </Text>
       <Pressable onPress={onGoToFirst} accessibilityRole="button" hitSlop={GO_TO_FIRST_SLOP}>
         <Text variant="inlineAction" color="link">
@@ -345,7 +319,7 @@ function MissingLine({ onGoToFirst }) {
 const GO_TO_FIRST_SLOP = { top: space[16], bottom: space[16], left: space[8], right: space[8] };
 
 export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAddGear }) {
-  const { defaults, chooseBag, chooseGear, productName, setProductName, rating, setRating, mode: maker, setMode: setMaker, missing, save } = useRecordDraft();
+  const { defaults, chooseBag, chooseGear, productName, setProductName, rating, setRating, mode: maker, setMode: setMaker, required, missing, missingFields, save } = useRecordDraft();
   const db = useDatabase();
   // Stage 3's picker (decided 2026-10-11): the Bag / Method rows open the
   // shelf's open bags / gear for this cup. 'bag' | 'gear' | null.
@@ -377,8 +351,14 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
   const Fields = FIELD_SETS[maker];
   const scrollRef = useRef(null);
   // 5d: whenever the state starts (Save here, or a bounce back from 5b), bring
-  // the rating into view — the automatic "Go to first".
-  const goToFirst = useCallback(() => scrollRef.current?.scrollTo({ y: 0, animated: true }), []);
+  // the first missing field into view — the automatic "Go to first". The
+  // rating is at the top; the product, the only other one that can be
+  // missing, is the last section, so the end.
+  const firstMissing = missingFields[0]?.key;
+  const goToFirst = useCallback(() => {
+    if (firstMissing === 'product') scrollRef.current?.scrollToEnd({ animated: true });
+    else scrollRef.current?.scrollTo({ y: 0, animated: true });
+  }, [firstMissing]);
   useEffect(() => {
     if (missing) goToFirst();
   }, [missing, goToFirst]);
@@ -399,8 +379,8 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
         meta={<WhenMeta at={now} />}
         footer={
           <>
-            {missing ? <MissingLine onGoToFirst={goToFirst} /> : null}
-            {/* Always pressable: with no rating it shows 5d instead (§1, 2026-10-11). */}
+            {missing ? <MissingLine fields={missingFields} onGoToFirst={goToFirst} /> : null}
+            {/* Always pressable: with a required field empty it shows 5d instead (§1, 2026-10-11). */}
             <Button label="Save this cup" onPress={() => save({ withNote: true })} />
             {/* Opens the tasting note (5b), step 2 of 2 in this sheet. */}
             <Button variant="secondary" label="Add tasting note" trailingIcon="arrowRight" onPress={onAddNote} />
@@ -410,24 +390,22 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
           {/* 5d's card sits outside the expanding block, whose clip would cut
               its 4pt hard shadow. */}
           {missing ? (
-            <MissingCard />
+            <MissingCard fields={missingFields} />
           ) : (
             <ExpandingBlock>
-              {/* The intro line (decided 2026-10-11): on surface.raised, no frame,
-                  no leading square (5a's mock draws a 6pt accent square and no
-                  background). */}
-              <View style={styles.hint}>
-                <IntroText
-                text={maker === 'made_it' && !(defaults.bag && (defaults.brewer || defaults.grinder)) ? INTRO_EMPTY_SHELF : INTRO[maker]}
+              {/* The Required bar (Design Round 9, 5e), in place of the intro
+                  line, in every mode. */}
+              <RequiredBar
+                note={maker === 'made_it' && !(defaults.bag && (defaults.brewer || defaults.grinder)) ? BAR_NOTE.made_it_empty : BAR_NOTE[maker]}
+                slots={required}
               />
-              </View>
             </ExpandingBlock>
           )}
 
           {/* SET only once a star is tapped. The caption line is reserved while
               unrated, so the first tap does not grow the card. */}
           <Section label="How was it?" status={rating > 0 ? 'set' : missing ? 'required' : undefined}>
-            <StarRating value={rating} onChange={setRating} caption={RATING_COPY[rating] ?? ''} error={missing ? STAR_HINT : undefined} />
+            <StarRating value={rating} onChange={setRating} caption={RATING_COPY[rating] ?? ''} error={missing && rating === 0 ? STAR_HINT : undefined} />
           </Section>
 
           <Section label="Who made it?" status="set">
@@ -444,11 +422,12 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
               onPick={openPicker}
               productName={productName}
               onPickProduct={openProducts}
+              missing={missing}
             />
           </ExpandingBlock>
 
           {/* "Add a photo" is not shown at this stage (decided 2026-10-11):
-              there is no camera, and a dashed add slot that does nothing breaks
+              there is no camera, and an add button that does nothing breaks
               §1 Tap affordance. It returns with photos (5a's mock). */}
         </View>
       </ScreenFrame>
@@ -557,23 +536,6 @@ const styles = StyleSheet.create({
   },
   missingLineText: {
     flex: 1,
-  },
-  hint: {
-    // A column since the leading square went (D-46): in a row the text took
-    // the row's measured width and was clipped instead of wrapping.
-    backgroundColor: color.surface.raised,
-    paddingVertical: spacing.inset.control.v,
-    paddingHorizontal: spacing.inset.control.h,
-  },
-  introText: {
-    // Full width, so the outgoing line never re-wraps to the new one's width.
-    width: '100%',
-  },
-  introPrevious: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
   },
   section: {
     gap: spacing.gap.row,

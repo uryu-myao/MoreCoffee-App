@@ -38,6 +38,16 @@ const COLLAPSE = {
 };
 
 /**
+ * The stat's visible gap: the numeral's baseline to the label's cap top
+ * (revised on device, 2026-10-17). The source's gap.tight (4) sat between
+ * line boxes; on iOS's natural boxes that read as 15, too loose for one unit.
+ */
+const STAT_GAP = space[8];
+
+// A text line's foot (box bottom) to its baseline.
+const belowBaseline = (line) => line.height - line.ascender;
+
+/**
  * Screen shell (design-system.md §9): header block — optional leading control
  * (e.g. a close IconButton, as in 5a) above the display.lg title, optional
  * right-aligned meta — closed by a 2px ink rule, then the screen body, then an
@@ -57,11 +67,11 @@ const COLLAPSE = {
  *             never fades or moves on collapse; the title shrinks below it
  *   meta      optional information, right-aligned at the foot of the header
  *             (5b "Step 2 of 2 / Skippable"); fades out on collapse
- *   stat      optional { value, label }, right-aligned at the foot of the header
- *             in place of meta (2a's cup count): the numeral in display.sm
- *             accent over the label in label.eyebrow muted. On collapse the
- *             numeral keeps its size and settles on the title's baseline; the
- *             label fades out.
+ *   stat      optional { value, label }, right-aligned in place of meta (2a's
+ *             cup count): the numeral in display.sm accent over the label in
+ *             label.eyebrow muted, the pair centred on the title's cap band
+ *             (2026-10-17). On collapse the numeral keeps its size and
+ *             settles on the title's baseline; the label fades out.
  *   scroll    the page scrolls under a pinned header that collapses as it
  *             scrolls (title shrinks, rule rises; §9 Header collapse)
  *   footer    optional node in the footer panel at the end of the page; it sits at
@@ -124,6 +134,31 @@ export default function ScreenFrame({
     const capCentre = line.y + line.ascender - line.capHeight / 2;
     const next = Math.round((capCentre - line.height / 2 - line.y) * 10) / 10;
     setOptical((prev) => (prev === next ? prev : next));
+  };
+
+  // Stat placement (2026-10-17): the numeral's cap top to the label's
+  // baseline is centred on the title's cap band, STAT_GAP between them. Cap
+  // heights and box offsets are measured from the three text layouts, as the
+  // compact control's offset is. Hidden until placed, so it never jumps.
+  const statLines = useRef({});
+  const [statPlace, setStatPlace] = useState(null);
+  const onStatLine = (name) => (e) => {
+    const { lines } = e.nativeEvent;
+    // The title's cap band is its last line's (a user title may wrap).
+    const line = name === 'title' ? lines[lines.length - 1] : lines[0];
+    if (!line) return;
+    statLines.current[name] = line;
+    const { title: t, number: n, label: l } = statLines.current;
+    if (!t || !n || !l) return;
+    // Heights above the header's foot, where the rule starts.
+    const capCentre = styles.header.paddingBottom + belowBaseline(t) + t.capHeight / 2;
+    const labelBaseline = capCentre - (l.capHeight + STAT_GAP + n.capHeight) / 2;
+    const round = (v) => Math.round(v * 10) / 10;
+    const next = {
+      bottom: round(labelBaseline - belowBaseline(l)),
+      labelTop: round(STAT_GAP - belowBaseline(n) - (l.ascender - l.capHeight)),
+    };
+    setStatPlace((prev) => (prev && prev.bottom === next.bottom && prev.labelTop === next.labelTop ? prev : next));
   };
 
   const commit = () => {
@@ -240,15 +275,24 @@ export default function ScreenFrame({
     [chrome, scrollY]
   );
 
+  const onTitleText = compact ? onCompactTitleText : onBaseline('baseline');
   const titleText = (
     <Text
       variant="displayLg"
       truncate={userTitle ? 'name' : 'none'}
       accessibilityRole="header"
-      onTextLayout={compact ? onCompactTitleText : onBaseline('baseline')}>
+      onTextLayout={(e) => {
+        onTitleText?.(e);
+        // Always: a stat that arrives with later data (a count read from the
+        // database) finds the title already laid out, and it is not laid out again.
+        onStatLine('title')(e);
+      }}>
       {title}
     </Text>
   );
+
+  const statPlaced = [styles.stat, statPlace ? { bottom: statPlace.bottom } : styles.statUnplaced];
+  const statLabelPlaced = statPlace && { marginTop: statPlace.labelTop };
 
   // Compact (2026-10-07): the control and the title share one row on the left;
   // the meta is the standard right-aligned column. Same geometry as the
@@ -274,20 +318,22 @@ export default function ScreenFrame({
         ) : null}
       </View>
       {stat ? (
-        // Compact + stat (3c / 3a, 2026-10-11): the stat takes meta's right
-        // column — numeral over label, its foot 20 above the rule as meta's —
-        // and on collapse fades with it (no settling on the title's baseline:
-        // the compact title scales from its own row).
-        <Animated.View style={[styles.meta, anim && { opacity: anim.fade, transform: [{ translateY: anim.up }] }]}>
-          <Text variant="displaySm" color="accent">
-            {stat.value}
-          </Text>
-          <View style={styles.statLabel}>
-            <Text variant="labelEyebrow" color="muted">
-              {stat.label}
+        // Compact + stat (3c / 3a, 2026-10-11): the stat sits where the
+        // standard header's does — out of flow, centred on the title's cap
+        // band (2026-10-17) — and on collapse fades with the meta (no settling
+        // on the title's baseline: the compact title scales from its own row).
+        <View style={statPlaced}>
+          <Animated.View style={[styles.statStack, anim && { opacity: anim.fade, transform: [{ translateY: anim.up }] }]}>
+            <Text variant="displaySm" color="accent" onTextLayout={onStatLine('number')}>
+              {stat.value}
             </Text>
-          </View>
-        </Animated.View>
+            <View style={statLabelPlaced}>
+              <Text variant="labelEyebrow" color="muted" onTextLayout={onStatLine('label')}>
+                {stat.label}
+              </Text>
+            </View>
+          </Animated.View>
+        </View>
       ) : meta ? (
         <Animated.View style={[styles.meta, anim && { opacity: anim.fade, transform: [{ translateY: anim.up }] }]}>
           {meta}
@@ -323,14 +369,20 @@ export default function ScreenFrame({
         </Animated.View>
       </View>
       {stat ? (
-        <View style={styles.stat} onLayout={onPart('stat')}>
+        <View style={statPlaced} onLayout={onPart('stat')}>
           <Animated.View onLayout={onPart('number')} style={anim && { transform: [{ translateY: anim.stat }] }}>
-            <Text variant="displaySm" color="accent" onTextLayout={onBaseline('numberBaseline')}>
+            <Text
+              variant="displaySm"
+              color="accent"
+              onTextLayout={(e) => {
+                onBaseline('numberBaseline')?.(e);
+                onStatLine('number')(e);
+              }}>
               {stat.value}
             </Text>
           </Animated.View>
-          <Animated.View style={[styles.statLabel, anim && { opacity: anim.fade, transform: [{ translateY: anim.stat }] }]}>
-            <Text variant="labelEyebrow" color="muted">
+          <Animated.View style={[statLabelPlaced, anim && { opacity: anim.fade, transform: [{ translateY: anim.stat }] }]}>
+            <Text variant="labelEyebrow" color="muted" onTextLayout={onStatLine('label')}>
               {stat.label}
             </Text>
           </Animated.View>
@@ -451,19 +503,21 @@ const styles = StyleSheet.create({
   leading: {
     marginBottom: spacing.gap.row,
   },
-  // Out of flow, so the header height stays the title column's and the rule
-  // sits at the same height on every tab (a swipe shows no step). On iOS the
-  // display.sm numeral's natural box (39) would otherwise push it 3 lower.
-  // Its foot sits where meta's does: header padding + meta padding (8 + 12 =
-  // 20) above the rule.
+  // Out of flow, so the header height stays the title column's (standard or
+  // compact) and the rule sits at the same height on every tab (a swipe shows
+  // no step). On iOS the display.sm numeral's natural box (39) would otherwise
+  // push it 3 lower. `bottom` is measured (onStatLine): the pair centres on
+  // the title's cap band.
   stat: {
     position: 'absolute',
     right: layout.gutter,
-    bottom: space[8] + space[12],
     alignItems: 'flex-end',
   },
-  statLabel: {
-    marginTop: spacing.gap.tight,
+  statUnplaced: {
+    opacity: 0,
+  },
+  statStack: {
+    alignItems: 'flex-end',
   },
   meta: {
     alignItems: 'flex-end',

@@ -13,12 +13,26 @@ import Text from './base/Text';
  * its end. Past `span` the fill stays full. Colours by state
  * (component.beanFreshness, Design Round 7 / 14a).
  * Without a roast date nothing is drawn: no day, no state, no bar.
+ *
+ * sealed (3d, a bag not opened yet; 2026-10-17): in the bar's place, a
+ * sealed-bag glyph and "Sealed · clock starts when opened", with or without
+ * a roast date.
  */
 const { drinkFrom, drinkUntil, span } = FRESHNESS_TUNING;
 const BAND = { left: `${(drinkFrom / span) * 100}%`, width: `${((drinkUntil - drinkFrom) / span) * 100}%` };
 const meter = component.beanFreshness;
 
-export default function BeanFreshness({ roastedAt }) {
+export default function BeanFreshness({ roastedAt, sealed = false }) {
+  if (sealed) {
+    return (
+      <View style={styles.row}>
+        <Glyph name="sealed" token={icon.sm} color={meter.sealed.glyph} />
+        <Text variant="meterLabel" color={meter.sealed.label} style={styles.sealedLabel}>
+          Sealed · clock starts when opened
+        </Text>
+      </View>
+    );
+  }
   const f = freshnessOf(roastedAt);
   if (!f) return null;
   const tone = meter[f.state];
@@ -44,6 +58,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.gap.row,
+  },
+  sealedLabel: {
+    flexShrink: 1,
   },
   track: {
     flex: 1,

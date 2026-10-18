@@ -3,11 +3,12 @@ import { useRef } from 'react';
 import { Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TABS } from '../constants/navigation';
-import { color, component, layout, motion, shape, size, space, state } from '../theme/tokens';
+import { color, component, layout, motion, shape, size, space, spacing, state } from '../theme/tokens';
+import Text from './base/Text';
 import { AddCoffeeIcon, HomeIcon, ProfileIcon, RecordsIcon, TryNextIcon } from './icons/TabBarIcons';
 
 const ICONS = { home: HomeIcon, records: RecordsIcon, tryNext: TryNextIcon, profile: ProfileIcon };
-const { slot, addSlot } = component.tabBar;
+const { slot, addSlot, glyph, addLift, icon: iconColor } = component.tabBar;
 
 /**
  * Bottom bar (design-system.md §9, revised 2026-10-05) carrying the tab bar.
@@ -23,10 +24,17 @@ const { slot, addSlot } = component.tabBar;
  * and the centre + exactly in the middle; the outer slots' touch areas extend
  * through the gutter to the screen edge. The touch area is the whole slot.
  *
+ * Each tab names itself under its glyph (2026-10-18): tabLabel, gap.tight
+ * below the glyph, in the glyph's colour, so the active blue covers both.
+ * The + has no name (its accessibility label is "Log a cup"); it sits
+ * component.tabBar.addLift (4) above the block's centre, since the tabs'
+ * weight is in their glyphs. Only the drawing moves; the touch area doesn't.
+ *
  * Pressed (Hard Rule §1, by surface): the tab icons are bare glyphs, so they
- * scale to state.pressed.scale over motion.press. The + is an ink square, a
- * surface whose fill has no darker tier, so it shows no visual change (§1). Both
- * give a light impact haptic (a discrete press).
+ * scale to state.pressed.scale over motion.press (the name with them). The +
+ * is an ink square, a surface whose fill has no darker tier, so it scales too
+ * (§1, 2026-10-18; it used to show no change). Both give a light impact
+ * haptic (a discrete press).
  */
 /**
  * Room under the row: the home-indicator inset less space.8 (26 on notched
@@ -61,7 +69,11 @@ export default function FooterNav({ activeTab, position, hidden, onTabPress, onA
         label={label}
         selected={isActive}
         onPress={() => onTabPress(key)}>
-        {position ? <PagerIcon Icon={Icon} page={page} position={position} /> : <Icon isActive={isActive} />}
+        {position ? (
+          <PagerTab Icon={Icon} label={label} page={page} position={position} />
+        ) : (
+          <TabContent Icon={Icon} label={label} isActive={isActive} />
+        )}
       </Slot>
     );
   };
@@ -71,8 +83,10 @@ export default function FooterNav({ activeTab, position, hidden, onTabPress, onA
       <View style={[styles.bar, { paddingBottom: footerInset(insets) }]}>
         <View style={styles.row}>
           {TABS.slice(0, 2).map((t, i) => tab(t, i, ['start', null]))}
-          <Slot box={addSlot} role="button" label="Log a cup" onPress={onAddPress} feedback="none">
-            <AddCoffeeIcon />
+          <Slot box={addSlot} role="button" label="Log a cup" onPress={onAddPress}>
+            <View style={styles.add}>
+              <AddCoffeeIcon />
+            </View>
           </Slot>
           {TABS.slice(2).map((t, i) => tab(t, i, [null, 'end']))}
         </View>
@@ -83,14 +97,29 @@ export default function FooterNav({ activeTab, position, hidden, onTabPress, onA
 
 const pressEasing = Easing.bezier(...motion.press.controlPoints);
 
+/** A tab's glyph, centred in its 20 box, and its name under it, in one colour. */
+function TabContent({ Icon, label, isActive = false }) {
+  return (
+    <View style={styles.tab}>
+      <View style={styles.glyph}>
+        <Icon isActive={isActive} />
+      </View>
+      <Text variant="tabLabel" color={isActive ? iconColor.active : iconColor.inactive}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
 /**
  * The active state follows the pager continuously, not only on settle: the
- * active glyph is laid over the inactive one and its opacity tracks the pager
- * position (1 on its page, 0 one page away). Native driver, so it moves on the
- * UI thread with the drag. Opacity here is a crossfade between two states, not
- * press feedback, so the §1 no-opacity rule for pressed does not apply.
+ * active glyph and name are laid over the inactive ones and their opacity
+ * tracks the pager position (1 on its page, 0 one page away). Native driver,
+ * so it moves on the UI thread with the drag. Opacity here is a crossfade
+ * between two states, not press feedback, so the §1 no-opacity rule for
+ * pressed does not apply.
  */
-function PagerIcon({ Icon, page, position }) {
+function PagerTab({ Icon, label, page, position }) {
   const opacity = position.interpolate({
     inputRange: [page - 1, page, page + 1],
     outputRange: [0, 1, 0],
@@ -98,20 +127,19 @@ function PagerIcon({ Icon, page, position }) {
   });
   return (
     <View>
-      <Icon />
+      <TabContent Icon={Icon} label={label} />
       <Animated.View style={[StyleSheet.absoluteFill, { opacity }]}>
-        <Icon isActive />
+        <TabContent Icon={Icon} label={label} isActive />
       </Animated.View>
     </View>
   );
 }
 
-/** feedback: 'scale' (bare glyph) or 'none' (ink fill, no darker tier). */
-function Slot({ box, edge, role, label, selected, onPress, feedback = 'scale', children }) {
+/** Every slot scales when pressed: bare glyphs, and the + (ink, no darker tier). */
+function Slot({ box, edge, role, label, selected, onPress, children }) {
   const scale = useRef(new Animated.Value(1)).current;
   const scaleTo = (toValue) =>
     Animated.timing(scale, { toValue, duration: motion.press.duration, easing: pressEasing, useNativeDriver: true }).start();
-  const scales = feedback === 'scale';
 
   return (
     <Pressable
@@ -119,14 +147,14 @@ function Slot({ box, edge, role, label, selected, onPress, feedback = 'scale', c
         if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         onPress();
       }}
-      onPressIn={scales ? () => scaleTo(state.pressed.scale) : undefined}
-      onPressOut={scales ? () => scaleTo(1) : undefined}
+      onPressIn={() => scaleTo(state.pressed.scale)}
+      onPressOut={() => scaleTo(1)}
       accessibilityRole={role}
       accessibilityLabel={label}
       accessibilityState={role === 'tab' ? { selected } : undefined}
       style={[styles.slotTouch, edge === 'start' && styles.slotStart, edge === 'end' && styles.slotEnd]}>
       {/* Only the glyph scales; the Pressable (the touch area) never does. */}
-      <Animated.View style={[styles.slotBox, { width: box.w, height: box.h }, scales && { transform: [{ scale }] }]}>
+      <Animated.View style={[styles.slotBox, { width: box.w, height: box.h }, { transform: [{ scale }] }]}>
         {children}
       </Animated.View>
     </Pressable>
@@ -156,7 +184,7 @@ const styles = StyleSheet.create({
     flexBasis: 0,
     flexGrow: 1,
     alignItems: 'center',
-    // Centred in the 48 row: 4 above and below the 40 slot box (2026-10-12).
+    // Centred in the 56 row: 8 above and below the 40 slot box (2026-10-18).
     justifyContent: 'center',
   },
   slotStart: {
@@ -168,5 +196,16 @@ const styles = StyleSheet.create({
   slotBox: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  tab: {
+    alignItems: 'center',
+    gap: spacing.gap.tight,
+  },
+  glyph: {
+    height: glyph,
+    justifyContent: 'center',
+  },
+  add: {
+    transform: [{ translateY: -addLift }],
   },
 });

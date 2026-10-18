@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
-import { memo, useCallback, useEffect, useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { Keyboard, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AxisSlider from '../components/base/AxisSlider';
 import Button from '../components/base/Button';
@@ -17,7 +17,7 @@ import { useDatabase } from '../data/DatabaseProvider';
 import { listFlavourHistory } from '../data/repository';
 import { BUNDLED_FLAVOURS, FLAVOUR_LIMIT, normalizeFlavour } from '../constants/flavours';
 import { TASTE_AXES } from '../constants/tasteAxes';
-import { color, dashed, icon, layout, shape, size, space, spacing, state } from '../theme/tokens';
+import { color, icon, layout, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
 /**
@@ -91,11 +91,12 @@ const AxisRow = memo(function AxisRow({ axis, value, setAxis }) {
  * text.note, upright: no italics in the app). TODO: the keyboard's effect on the header
  * collapse gets its own round.
  */
-function MyWords({ noteRef, setNoteFilled }) {
+function MyWords({ noteRef, setNoteFilled, onFocus }) {
   const [text, setText] = useState(noteRef.current);
   return (
     <NoteField
       value={text}
+      onFocus={onFocus}
       onChangeText={(t) => {
         setText(t);
         // Lift only the empty ↔ non-empty change (for the Discard and save label).
@@ -131,12 +132,12 @@ function Chip({ label, on, search, locked, onPress }) {
             on && styles.chipOn,
             search && styles.chipSearch,
             // At the limit Search is locked like the other options (§1 Selection
-            // limit): the inert dashed frame, muted label, no press response.
+            // limit): a border.muted frame, muted label, no press response.
             locked && styles.chipSearchLocked,
             // Bordered chip = a surface → the fill darkens (§1 Pressed).
             pressed && !locked && styles.chipPressed,
           ]}>
-          <Text variant="labelCaps" color={on ? 'accentStrong' : search || locked ? 'muted' : 'secondary'}>
+          <Text variant="labelCaps" color={on ? 'accentStrong' : locked ? 'muted' : search ? 'primary' : 'secondary'}>
             {label}
           </Text>
         </View>
@@ -185,6 +186,28 @@ export default function TastingNoteScreen({ onBack }) {
       alive = false;
     };
   }, [db, searching]);
+
+  // My words focused (on device, 2026-10-17): the keyboard covered most of the
+  // field and the save buttons. Once the keyboard is up, scroll to the end, so
+  // the field and both buttons sit above it (the ScrollView's keyboard inset
+  // makes the end land on the keyboard's top). On the keyboard's arrival, not
+  // on focus: before then the inset is not there and the scroll would clamp.
+  const scrollRef = useRef(null);
+  const keyboardSub = useRef(null);
+  const revealActions = useCallback(() => {
+    const toEnd = () => scrollRef.current?.scrollToEnd({ animated: true });
+    if (Keyboard.isVisible()) {
+      toEnd();
+      return;
+    }
+    keyboardSub.current?.remove();
+    keyboardSub.current = Keyboard.addListener('keyboardDidShow', () => {
+      keyboardSub.current?.remove();
+      keyboardSub.current = null;
+      toEnd();
+    });
+  }, []);
+  useEffect(() => () => keyboardSub.current?.remove(), []);
   if (!defaults) return null;
   const saveOrGoBack = async (options) => {
     if ((await save(options)) === 'missing') onBack();
@@ -196,6 +219,7 @@ export default function TastingNoteScreen({ onBack }) {
       <ScreenFrame
         scroll
         compact
+        scrollRef={scrollRef}
         title="Tasting note"
         leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
         meta={
@@ -247,7 +271,7 @@ export default function TastingNoteScreen({ onBack }) {
 
         <View style={styles.section}>
           <SectionLabel variant="plain" label="My words" />
-          <MyWords noteRef={noteRef} setNoteFilled={setNoteFilled} />
+          <MyWords noteRef={noteRef} setNoteFilled={setNoteFilled} onFocus={revealActions} />
         </View>
 
         {/* 5b's buttons sit on the ground (no footer panel). The mock's 52pt
@@ -353,15 +377,16 @@ const styles = StyleSheet.create({
     borderColor: color.border.accent,
     backgroundColor: color.badge.bg.accent,
   },
-  // An entry for adding more: border.addSlot (2px ink dashed; the mock's
-  // 1.5px muted is drift D-21).
+  // An action among the options: a button's 2px solid ink frame and ink
+  // label (decided 2026-10-18, Uryu: dashed means only an empty or
+  // not-started state). Told apart from the options' 1.5 border.muted
+  // outline by weight and colour. Was border.addSlot (2px dashed #6B5D55).
   chipSearch: {
-    borderWidth: dashed.addSlot.width,
-    borderStyle: dashed.addSlot.style,
-    borderColor: dashed.addSlot.color,
+    borderWidth: shape.borderWidth.box,
+    borderColor: color.border.strong,
   },
   chipSearchLocked: {
-    borderColor: dashed.addSlotInert.color,
+    borderColor: color.border.muted,
   },
   chipPressed: {
     backgroundColor: state.pressed.surface,

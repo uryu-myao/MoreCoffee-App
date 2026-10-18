@@ -1,7 +1,10 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
-import Reanimated, { interpolate, useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Reanimated, { Easing as ReEasing, interpolate, useAnimatedKeyboard, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { scheduleOnRN } from 'react-native-worklets';
+import { ACTIVE_OFFSET_X, BACK_DISTANCE, BACK_VELOCITY, FAIL_OFFSET_Y } from '../../constants/edgeSwipe';
 import { SwipeBackHoldContext } from '../swipeBackHold';
 import { color, layout, motion, opticalMargin, shape, size, space, spacing } from '../../theme/tokens';
 
@@ -23,23 +26,34 @@ import { color, layout, motion, opticalMargin, shape, size, space, spacing } fro
  * (Reanimated useAnimatedKeyboard). When the keyboard goes, only the bottom
  * edge moves with it: the top stays put, so nothing jumps. The bottom padding
  * eases from 34 (home indicator) to gap.section while the keyboard is up.
+ * The sheet itself runs on to the screen's bottom, the keyboard's height
+ * added to its padding, so the translucent keyboard shows the sheet behind
+ * it, not the dimmed page (2026-10-18, on device).
  *
  * Otherwise the sheet wraps its content, up to the same top line (content that
  * is taller scrolls inside it).
  *
- * The handle is drawn as in 2b but does not drag (no mock shows dragging).
- * Tapping the dimmed page closes the sheet.
+ * The handle is drawn as in 2b. Tapping the dimmed page closes the sheet.
+ * With swipeToClose (15b's info sheet, Design Round 8), a swipe down closes it
+ * too: the sheet follows the finger and closes past 25% of its height or on a
+ * 300pt/s flick, else settles back — the edge swipe's tuning on the other
+ * axis (constants/edgeSwipe.js). A scroll view inside should be gesture
+ * handler's, so the two take turns; where it scrolls, it keeps the touch.
  *
  * Props
  *   visible   controlled; the sheet animates out before it unmounts
  *   onClose   scrim tap
  *   full      the full-height, keyboard-following form
+ *   maxHeight optional share of the window height the wrapping sheet stops
+ *             at (15b: size.sheet.info.maxHeight); never above the top line
+ *   swipeToClose  a swipe down calls onClose
  *   children
  */
 const expandEasing = Easing.bezier(...motion.expand.controlPoints);
+const settleEasing = ReEasing.bezier(...motion.expand.controlPoints); // a worklet, for the swipe's settle
 const PAGE_DIM = 1 - 0.45; // §9: the page behind drops to opacity 0.45
 
-export default function BottomSheet({ visible, onClose, full = false, children }) {
+export default function BottomSheet({ visible, onClose, full = false, maxHeight, swipeToClose = false, children }) {
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [mounted, setMounted] = useState(visible);
@@ -52,8 +66,14 @@ export default function BottomSheet({ visible, onClose, full = false, children }
   }, [mounted, swipeHold]);
   const progress = useRef(new Animated.Value(0)).current;
 
+  // The swipe's offset, on top of the slide. Back to 0 each time it opens.
+  const drag = useSharedValue(0);
+  const sheetHeight = useSharedValue(0);
   useEffect(() => {
-    if (visible) setMounted(true);
+    if (visible) {
+      drag.value = 0;
+      setMounted(true);
+    }
     Animated.timing(progress, {
       toValue: visible ? 1 : 0,
       duration: motion.expand.duration,
@@ -68,14 +88,37 @@ export default function BottomSheet({ visible, onClose, full = false, children }
   const followKeyboard = useAnimatedStyle(() =>
     full
       ? {
-          bottom: keyboard.height.value,
-          paddingBottom: interpolate(keyboard.height.value, [0, layout.screen.bottom], [layout.screen.bottom, spacing.gap.section], 'clamp'),
+          bottom: 0,
+          paddingBottom:
+            keyboard.height.value +
+            interpolate(keyboard.height.value, [0, layout.screen.bottom], [layout.screen.bottom, spacing.gap.section], 'clamp'),
         }
       : {}
   );
 
+  const dragStyle = useAnimatedStyle(() => ({ transform: [{ translateY: drag.value }] }));
+  const swipe = Gesture.Pan()
+    .enabled(swipeToClose)
+    .activeOffsetY(ACTIVE_OFFSET_X)
+    .failOffsetX([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
+    .onUpdate((e) => {
+      drag.value = Math.max(0, e.translationY);
+    })
+    .onEnd((e) => {
+      // The visible sheet: a full sheet's height includes the part behind the keyboard.
+      const shown = sheetHeight.value - (full ? keyboard.height.value : 0);
+      if (e.translationY > shown * BACK_DISTANCE || e.velocityY > BACK_VELOCITY) {
+        // The slide takes it out from where the finger left it.
+        scheduleOnRN(onClose);
+      } else {
+        drag.value = withTiming(0, { duration: motion.expand.duration, easing: settleEasing });
+      }
+    });
+
   if (!mounted) return null;
   const slide = { transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [height, 0] }) }] };
+  const topLine = height - insets.top - space[12];
+  const wrapMax = maxHeight == null ? topLine : Math.min(topLine, height * maxHeight);
 
   return (
     <View style={StyleSheet.absoluteFill}>
@@ -86,12 +129,17 @@ export default function BottomSheet({ visible, onClose, full = false, children }
         </Pressable>
       </Animated.View>
       <Animated.View style={[styles.slide, full && { top: insets.top + space[12] }, slide]} pointerEvents="box-none">
-        <Reanimated.View
-          style={[styles.sheet, full ? styles.sheetFull : { maxHeight: height - insets.top - space[12] }, followKeyboard]}
-          accessibilityViewIsModal>
-          <View style={styles.handle} />
-          {children}
-        </Reanimated.View>
+        <GestureDetector gesture={swipe}>
+          <Reanimated.View
+            style={[styles.sheet, full ? styles.sheetFull : { maxHeight: wrapMax }, followKeyboard, swipeToClose && dragStyle]}
+            onLayout={(e) => {
+              sheetHeight.value = e.nativeEvent.layout.height;
+            }}
+            accessibilityViewIsModal>
+            <View style={styles.handle} />
+            {children}
+          </Reanimated.View>
+        </GestureDetector>
       </Animated.View>
     </View>
   );

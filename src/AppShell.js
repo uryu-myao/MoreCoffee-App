@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, StyleSheet, View, useWindowDimensions } from 'react-native';
 import AddCoffeeOverlay from './components/AddCoffeeOverlay';
+import { DnaInfoHost } from './components/DnaInfoSheet';
 import { onShellRequest, requestOpenCup, requestTabReset } from './navigation';
 import DotTexture from './components/base/DotTexture';
 import FooterNav from './components/FooterNav';
@@ -108,6 +109,8 @@ export default function AppShell() {
       <ShellStack />
       {/* 13b: "‹cup› deleted." above the bar, over Records. */}
       <Notice />
+      {/* 15b: Home's Taste DNA stamp opens its sheet over the tabs and the bar. */}
+      <DnaInfoHost />
       <AddCoffeeOverlay
         visible={showAddCoffee}
         onClose={() => setShowAddCoffee(false)}

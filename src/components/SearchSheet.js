@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import BottomSheet from './base/BottomSheet';
 import Button from './base/Button';
 import SearchField from './base/SearchField';
@@ -24,7 +25,9 @@ import RadioList from './RadioList';
  *
  * Closing: "Done" beside the field (8l's slot; 8l says "Cancel", but picks
  * apply as they are made, so nothing is cancelled. TODO: copy to confirm with
- * Design) or a tap on the dimmed page.
+ * Design), a tap on the dimmed page, or a swipe down (BottomSheet
+ * swipeToClose, 2026-10-18). The list is gesture handler's ScrollView, so the
+ * list's scroll and the swipe take turns (as in BottomSheet).
  *
  * Props
  *   visible, onClose
@@ -83,7 +86,7 @@ export default function SearchSheet({
   };
 
   return (
-    <BottomSheet visible={visible} onClose={close} full>
+    <BottomSheet visible={visible} onClose={close} full swipeToClose>
       <View style={styles.header}>
         <SearchField value={query} onChangeText={setQuery} placeholder={placeholder} autoFocus={visible} />
         <Button variant="text" label="Done" onPress={close} />

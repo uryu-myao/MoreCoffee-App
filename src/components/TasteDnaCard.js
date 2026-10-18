@@ -1,76 +1,83 @@
-import { StyleSheet, View } from 'react-native';
+import { useRef } from 'react';
+import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { TASTE_AXES } from '../constants/tasteAxes';
-import { DNA_TUNING, bandOf } from '../data/tasteDna';
-import { color, rotation, shape, spacing } from '../theme/tokens';
+import { bandOf } from '../data/tasteDna';
+import { color, motion, shape, size, space, spacing, state as pressState } from '../theme/tokens';
 import AxisReadout from './base/AxisReadout';
 import Badge from './base/Badge';
 import Text from './base/Text';
 
 /**
- * Taste DNA card (1b / 4a / 4b: Home, the same card on all three; not
- * pressable). From the mock: "My taste DNA" (display.sm, accent) with the
- * state as a tilted sticker badge beside it, one line under it, then the four
- * axes — pole labels over an AxisReadout (§9; replaces the mock's dashed
+ * Taste DNA card (1b / 4a / 4b: Home, the same card on all three; the card
+ * itself is not pressable). From the mock: "My taste DNA" (display.sm,
+ * accent) with the state's stamp beside it, the header row centred, then the
+ * four axes — pole labels over an AxisReadout (§9; replaces the mock's dashed
  * display rail and needle).
  *
  * State, one for the whole profile (taste-dna.md item 4, option B):
  *   early   "Early signs" — Badge accent (the mock's #F1E3D6 / #8A4602; its
  *           1.5px border is left out: a Badge has none, §9)
  *   locked  "Locked in" — Badge selected (6a / 8f)
- *   none    no badge: nothing noted yet
+ *   none    no stamp: nothing noted yet
+ * The stamp is a button (DnaStamp, 15a): it opens 15b's info sheet.
+ * No line under the title (Design Round 8, 2026-10-17): what it said moved
+ * into the sheet's progress box (DnaInfoSheet).
  * The mock's footer "3 of 5 cups" is Try next's progress (V2): not shown.
  *
  * All four axes always show (Design 10b, option A, decided 2026-10-12): an
  * axis with nothing noted is AxisReadout's empty track with "Not noted yet"
  * on it, never a value of 50. The card's height never depends on what has
  * been noted (design-system.md §9 Taste axis readout).
- *
- * The line under the title:
- *   early   Design's copy (2026-10-11, D-47): the least-noted axes and the
- *           notes they still need — "Body needs 3 more notes to lock in.",
- *           "Body and Roast need 3 more notes each to lock in." (to lock in
- *           also when tied, decided 2026-10-12), "1 more note". Notes,
- *           not cups: a cup that skips an axis does not count for it.
- *   TODO(copy, PROVISIONAL): none and locked have no copy from Design yet.
  */
-const listNames = (names) => (names.length === 1 ? names[0] : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`);
-const notes = (n) => `${n} more ${n === 1 ? 'note' : 'notes'}`;
+const pressEasing = Easing.bezier(...motion.press.controlPoints);
 
-function earlyLine(dna) {
-  const short = TASTE_AXES.filter((a) => dna.axes[a.key].n > 0 && dna.axes[a.key].n === dna.fewest).map((a) => a.name);
-  const n = DNA_TUNING.lockIn - dna.fewest;
-  return short.length === 1 ? `${short[0]} needs ${notes(n)} to lock in.` : `${listNames(short)} need ${notes(n)} each to lock in.`;
-}
-
-const LINE = {
-  none: () => 'Note what you taste on a cup to start it.', // PROVISIONAL
-  early: earlyLine,
-  locked: (dna) => `From ${dna.cups} ${dna.cups === 1 ? 'cup' : 'cups'}.`, // PROVISIONAL: 8f's "From 147 cups"
-};
-
-/** The profile's state as 1b's tilted sticker (none: nothing). Shared with 5c. */
-export function DnaStateBadge({ state }) {
+/**
+ * The profile's state as a stamp that explains itself (15a, Design Round 8):
+ * the Badge with an ⓘ, upright (no rotation.sticker: a tilt reads as
+ * decoration, a straight shape as a control). Shared with 5c; none: nothing.
+ *
+ * Hit area: a transparent wrapper size.tapTarget (44) tall, 6 either side,
+ * pulled back by -6 on the top, right and bottom so the stamp stays where it
+ * was. Pressed: the stamp scales (§1: its visible box is under 44).
+ * Not for a status chip inside a card that is itself a link (Profile, 6):
+ * that one stays a plain Badge, so there is no button in a button.
+ */
+export function DnaStamp({ state, onPress }) {
+  const scale = useRef(new Animated.Value(1)).current;
   if (state === 'none') return null;
+  const label = state === 'locked' ? 'Locked in' : 'Early signs';
+  const scaleTo = (toValue) =>
+    Animated.timing(scale, { toValue, duration: motion.press.duration, easing: pressEasing, useNativeDriver: true }).start();
   return (
-    <View style={styles.sticker}>
-      <Badge label={state === 'locked' ? 'Locked in' : 'Early signs'} tone={state === 'locked' ? 'selected' : 'accent'} placement="standalone" />
-    </View>
+    <Pressable
+      onPress={onPress}
+      onPressIn={() => scaleTo(pressState.pressed.scale)}
+      onPressOut={() => scaleTo(1)}
+      style={styles.stampHit}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityHint="Explains your taste DNA">
+      <Animated.View style={{ transform: [{ scale }] }}>
+        <Badge label={label} tone={state === 'locked' ? 'selected' : 'accent'} placement="standalone" icon="info" />
+      </Animated.View>
+    </Pressable>
   );
 }
 
-export default function TasteDnaCard({ dna }) {
-  const line = LINE[dna.state](dna);
+/**
+ * Props
+ *   dna            the profile (loadTasteDna)
+ *   onStampPress   the stamp: open 15b's sheet
+ */
+export default function TasteDnaCard({ dna, onStampPress }) {
   return (
     <View style={styles.card}>
       <View style={styles.head}>
         <Text variant="displaySm" color="accent" style={styles.title}>
           My taste DNA
         </Text>
-        <DnaStateBadge state={dna.state} />
+        <DnaStamp state={dna.state} onPress={onStampPress} />
       </View>
-      <Text variant="body" color="muted">
-        {line}
-      </Text>
       <View style={styles.axes}>
         {TASTE_AXES.map((axis) => {
           const value = dna.axes[axis.key].value;
@@ -105,15 +112,20 @@ const styles = StyleSheet.create({
   },
   head: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.gap.section,
   },
   title: {
     flex: 1,
   },
-  sticker: {
-    transform: [{ rotate: `${rotation.sticker}deg` }],
+  stampHit: {
+    height: size.tapTarget,
+    justifyContent: 'center',
+    paddingHorizontal: space[6],
+    marginTop: -space[6],
+    marginRight: -space[6],
+    marginBottom: -space[6],
   },
   axes: {
     marginTop: spacing.gap.section,

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Keyboard, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, { Easing as REasing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -45,6 +45,13 @@ export default function AddCoffeeOverlay({ visible, onClose, onNavigate }) {
   const [second, setSecond] = useState(null);
   // 5c: the id of the cup just saved; 5c shows over the steps until the sheet closes.
   const [savedId, setSavedId] = useState(null);
+  // Saved with the keyboard up (My words focused: the save buttons take the tap,
+  // keyboardShouldPersistTaps "handled") — it came along onto 5c, which has no
+  // field (on device, 2026-10-18). Put it away as 5c comes in.
+  const onSaved = useCallback((id) => {
+    Keyboard.dismiss();
+    setSavedId(id);
+  }, []);
   const [onNote, setOnNote] = useState(false); // step 2 showing: edge swipe enabled
   const translateY = useRef(new Animated.Value(height)).current;
   const pos = useSharedValue(0); // 0 → Log a cup, 1 → Tasting note
@@ -153,7 +160,7 @@ export default function AddCoffeeOverlay({ visible, onClose, onNavigate }) {
       }>
       {/* The cup being recorded, shared by both steps; discarded when the sheet
           closes (it unmounts with it). Saving shows 5c over the steps. */}
-      <RecordDraftProvider onSaved={setSavedId}>
+      <RecordDraftProvider onSaved={onSaved}>
         <Reanimated.View style={[StyleSheet.absoluteFill, recordStyle]}>
           <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} onAddBag={openBag} onAddGear={openGear} />
         </Reanimated.View>

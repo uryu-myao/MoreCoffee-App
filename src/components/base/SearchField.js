@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { resolveTextStyle } from '../../theme/fonts';
 import { color, icon, shape, size, space, spacing, textStyle } from '../../theme/tokens';
+import ClearButton from './ClearButton';
 import Glyph from './Glyph';
 
 /**
@@ -14,6 +15,10 @@ import Glyph from './Glyph';
  * stretched to it, so iOS centres the line in a box that fits it. Sized by
  * padding alone, the input took the font's line box, which on an iPhone 16
  * Pro / 15 Pro Max cut the text's lower half (2026-10-15).
+ *
+ * With text, ClearButton's × at the right end (2026-10-17, ours) empties it;
+ * iOS's own clear button stays off (clearButtonMode never), so the × is drawn
+ * like the app's other glyphs.
  *
  * Props: value, onChangeText, placeholder, autoFocus, accessibilityLabel
  */
@@ -36,6 +41,7 @@ const SearchField = forwardRef(function SearchField({ value, onChangeText, place
         accessibilityLabel={accessibilityLabel ?? placeholder}
         style={styles.input}
       />
+      {value ? <ClearButton onPress={() => onChangeText('')} /> : null}
     </View>
   );
 });

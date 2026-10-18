@@ -17,10 +17,17 @@ import { insertCup, loadRecordDefaults } from '../data/repository';
  *   5b Save this cup            everything
  *   5b Save without the note    5a's part only — the one, explicit way to
  *                               drop the axes, flavour tags and My words
- * The rating is required on both steps. Save stays pressable (5d, decided
- * 2026-10-11): with no rating, save() saves nothing, sets `missing` and
- * returns 'missing'; 5a then shows 5d's state, and 5b goes back to 5a. Rating
- * a star ends it. A failed save is shown plainly and the sheet stays open
+ * Required fields, per mode (`required`, Design Round 9, 2026-10-18 — 5a's
+ * Required bar shows them):
+ *   made_it    the rating; the bag and the method too when the shelf fills
+ *              them (a required mark promises "always filled", §1 Required
+ *              marks, so with an empty shelf they are not required)
+ *   barista    the rating (café and drink can't be entered at this stage)
+ *   packaged   the rating and the product name (required since Round 9)
+ * They are required on both steps. Save stays pressable (5d, decided
+ * 2026-10-11): with any missing, save() saves nothing, sets `missing` and
+ * returns 'missing'; 5a then shows 5d's state, and 5b goes back to 5a.
+ * Filling the last one ends it. A failed save is shown plainly and the sheet stays open
  * with everything still entered (nothing is lost).
  *
  * My words is typed often, so its text lives in a ref (noteRef): the field
@@ -36,6 +43,16 @@ const RecordDraftContext = createContext(null);
 const EMPTY_DEFAULTS = { bag: null, brewer: null, grinder: null, cafe: null, store: null };
 const EMPTY_AXES = { acidity: null, body: null, roast: null, sweetness: null };
 
+/** [{ key, label, filled }] — what this cup needs before it can be saved (see above). */
+function requiredFields(mode, defaults, rating, productName) {
+  const fields = [{ key: 'rating', label: 'Rating', filled: rating > 0 }];
+  if (mode === 'made_it' && defaults?.bag && (defaults.brewer || defaults.grinder)) {
+    fields.push({ key: 'bag', label: 'Bag', filled: true }, { key: 'method', label: 'Method', filled: true });
+  }
+  if (mode === 'packaged') fields.push({ key: 'product', label: 'Product', filled: Boolean(productName) });
+  return fields;
+}
+
 export function RecordDraftProvider({ onSaved, children }) {
   const db = useDatabase();
   const [defaults, setDefaults] = useState(null);
@@ -48,9 +65,11 @@ export function RecordDraftProvider({ onSaved, children }) {
   const noteRef = useRef('');
   const [noteFilled, setNoteFilled] = useState(false);
   const [missing, setMissing] = useState(false);
+  const required = useMemo(() => requiredFields(mode, defaults, rating, productName), [mode, defaults, rating, productName]);
+  const missingFields = useMemo(() => required.filter((f) => !f.filled), [required]);
   useEffect(() => {
-    if (rating > 0) setMissing(false);
-  }, [rating]);
+    if (missingFields.length === 0) setMissing(false);
+  }, [missingFields]);
   const saving = useRef(false);
 
   useEffect(() => {
@@ -93,7 +112,7 @@ export function RecordDraftProvider({ onSaved, children }) {
 
   const save = useCallback(
     async ({ withNote }) => {
-      if (rating === 0) {
+      if (missingFields.length > 0) {
         setMissing(true);
         return 'missing';
       }
@@ -137,7 +156,7 @@ export function RecordDraftProvider({ onSaved, children }) {
         saving.current = false;
       }
     },
-    [axes, db, defaults, flavours, mode, onSaved, productName, rating]
+    [axes, db, defaults, flavours, missingFields, mode, onSaved, productName, rating]
   );
 
   const saveRef = useRef(null);
@@ -163,10 +182,12 @@ export function RecordDraftProvider({ onSaved, children }) {
       noteRef,
       setNoteFilled,
       hasTastingInput,
+      required,
       missing,
+      missingFields,
       save,
     }),
-    [axes, defaults, flavours, hasTastingInput, missing, mode, productName, rating, save, setAxis, toggleFlavour, chooseBag, chooseGear]
+    [axes, defaults, flavours, hasTastingInput, missing, missingFields, mode, productName, rating, required, save, setAxis, toggleFlavour, chooseBag, chooseGear]
   );
   return <RecordDraftContext.Provider value={value}>{children}</RecordDraftContext.Provider>;
 }
