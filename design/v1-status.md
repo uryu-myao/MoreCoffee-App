@@ -10,6 +10,8 @@ Scope test (2026-10-11): can Uryu use it every day himself? His cups are mostly 
 
 **Not now**: 2b · 8l · 3b · 3e · 8f · 8g · 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6a · 6b · 6c · 6d · Barista. The Profile and Try next tabs stay placeholders (decided before release).
 
+**Next to fall due (recorded 2026-10-20): 2b (sort) and 8l (search)**, the next deadline we set ourselves after the five-bag problem. Dogfood has a few dozen cups today, so scrolling 2a still reaches them; at two a day that is several hundred within three months, and older cups stop being reachable. Home (1b / 4a / 4b) is already done, so this is the next thing to review.
+
 Status: **done** (built from the mock, checked on the simulator) · **partial** · **not started** · **out** (decided outside V1).
 
 ## Screens
@@ -32,7 +34,7 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 3b My gear / 3e Edit gear | not now | not started | the only way to rename generic gear (`gaps.md` 25) |
 | 3d My beans | **yes** | **done** | open bags, "Day N", Finish bag (no confirm, no undo at this stage), Add a bag → 3c. Card tap (3g) and Finished bags (3f) not at this stage |
 | 3g Edit bag / 3f Finished bags | **yes, minimal (2026-10-14)**: 3f first, then 3g | **3f done** (entry at 3d's foot, rows, Reopen, the 5 / 5 line, the reopened notice); **3g done** (minimal: name, roaster, roasted on, opened on; limits; freshness; Delete; from a 3d card) | 3f's Reopen is the recovery for Finish (gaps 17 / 18), which stays unconfirmed; questions to Design: design-missing.md 27–38 |
-| 6a / 6b / 6c Profile | not now | not started (placeholder) | 6a is 8f's entry point |
+| 6a / 6b / 6c Profile | not now | not started (placeholder) | 6a is 8f's entry point. The placeholder carries an interim "Export my log (JSON)" (2026-10-20): every table to the share sheet, until 6b designs export / backup |
 | 6d Edit profile | not now | not started | |
 | 8f My taste DNA | not now | not started | needs the shift history (`dna_change`, stored) and Design's answers (8f's two contradictions) |
 | 8g How my DNA is built | not now | not started | copy to adjust for V1 (`gaps.md` 31) |

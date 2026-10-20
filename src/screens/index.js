@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
+import { Alert } from 'react-native';
+import Button from '../components/base/Button';
 import { useDatabase } from '../data/DatabaseProvider';
+import { shareExport } from '../data/export';
 import { countCups, onCupsChanged } from '../data/repository';
 import HomeTabScreen from './HomeTabScreen';
 import PlaceholderScreen from './PlaceholderScreen';
@@ -14,11 +17,6 @@ import RecordsScreen from './RecordsScreen';
 // Each tab carries its mock's eyebrow verbatim: 1b "MoreCoffee", 6a
 // "Morecoffee" (both render uppercase), 8d "Based on 147 cups" with the real
 // count.
-const placeholder = (title, eyebrow) =>
-  function Placeholder() {
-    return <PlaceholderScreen title={title} eyebrow={eyebrow} />;
-  };
-
 const countFormat = new Intl.NumberFormat();
 
 function TryNextPlaceholder() {
@@ -36,9 +34,36 @@ function TryNextPlaceholder() {
   return <PlaceholderScreen title="Try next" eyebrow={eyebrow} />;
 }
 
+/**
+ * Profile, still 6a's placeholder, carries the interim export (2026-10-20):
+ * every table as one JSON file to the share sheet (data/export.ts). 6b designs
+ * export / backup under Profile; until then this is the only way out.
+ * TODO(design): 6b replaces this button; label and failure copy are ours.
+ */
+function ProfilePlaceholder() {
+  const db = useDatabase();
+  const [busy, setBusy] = useState(false);
+  const onExport = async () => {
+    setBusy(true);
+    try {
+      await shareExport(db);
+    } catch (error) {
+      console.error('[export] failed', error);
+      Alert.alert("Couldn't export", String(error?.message ?? error));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <PlaceholderScreen title="Profile" eyebrow="Morecoffee">
+      <Button variant="secondary" label="Export my log (JSON)" disabled={busy} onPress={onExport} />
+    </PlaceholderScreen>
+  );
+}
+
 export const SCREEN_COMPONENTS = {
   home: HomeTabScreen,
   records: RecordsScreen,
   tryNext: TryNextPlaceholder,
-  profile: placeholder('Profile', 'Morecoffee'),
+  profile: ProfilePlaceholder,
 };

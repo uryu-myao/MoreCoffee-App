@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { AppState, Platform, StyleSheet, View } from 'react-native';
 import Text from '../components/base/Text';
 import ScreenFrame from '../screens/ScreenFrame';
 import { spacing } from '../theme/tokens';
@@ -59,6 +59,23 @@ export default function DatabaseProvider({ children }) {
       cancelled = true;
     };
   }, []);
+
+  // Checkpoint on the way to the background (2026-10-20). The app is never
+  // closed cleanly and the WAL stays far under SQLite's 1000-page auto
+  // checkpoint, so the rows lived only in morecoffee.db-wal (the .db stayed a
+  // 4 KB header for weeks). iOS backs up all three files together and replays
+  // the WAL on restore, so nothing was lost — but folding the WAL in before
+  // iOS suspends us (and backs up) leaves morecoffee.db complete on its own.
+  // A busy checkpoint just does less; the next one catches up.
+  useEffect(() => {
+    if (!state.db || Platform.OS === 'web') return undefined;
+    const db = state.db;
+    const sub = AppState.addEventListener('change', (next) => {
+      if (next !== 'background') return;
+      db.execAsync('PRAGMA wal_checkpoint(TRUNCATE)').catch((error) => console.error('[db] checkpoint failed', error));
+    });
+    return () => sub.remove();
+  }, [state.db]);
 
   if (state.error) {
     // TODO(design): error states are undesigned (gaps.md 6); this is the
