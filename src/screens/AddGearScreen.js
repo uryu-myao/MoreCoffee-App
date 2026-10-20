@@ -1,5 +1,6 @@
+import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Platform, StyleSheet, View } from 'react-native';
 import Button from '../components/base/Button';
 import IconButton from '../components/base/IconButton';
 import Text from '../components/base/Text';
@@ -41,7 +42,12 @@ export default function AddGearScreen({ onBack }) {
 
   const total = (owned ?? 0) + selected.length;
   const left = GEAR_LIMIT - total;
-  const toggle = (name) => setSelected((prev) => (prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]));
+  const toggle = (name) => {
+    const adding = !selected.includes(name);
+    // §1 Selection limit: a light impact the moment the cap is reached, once.
+    if (adding && total + 1 === GEAR_LIMIT && Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSelected((prev) => (prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]));
+  };
 
   const save = async () => {
     try {
@@ -74,7 +80,14 @@ export default function AddGearScreen({ onBack }) {
           ) : null}
         </View>
       }>
-      <CheckboxList items={GEAR_TYPES} selected={selected} locked={owned == null || left <= 0} onToggle={toggle} />
+      <CheckboxList
+        items={GEAR_TYPES}
+        selected={selected}
+        locked={owned == null || left <= 0}
+        // A shelf already full: nothing here to deselect, so say what the footer says.
+        lockedHint={n === 0 ? 'No slots left.' : undefined}
+        onToggle={toggle}
+      />
     </ScreenFrame>
   );
 }

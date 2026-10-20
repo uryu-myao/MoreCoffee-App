@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Easing, StyleSheet, View } from 'react-native';
 import Button from '../components/base/Button';
 import FieldRow from '../components/base/FieldRow';
 import Glyph from '../components/base/Glyph';
 import HardShadow from '../components/base/HardShadow';
 import IconButton from '../components/base/IconButton';
+import InlineAction from '../components/base/InlineAction';
 import SectionLabel from '../components/base/SectionLabel';
 import SegmentedControl from '../components/base/SegmentedControl';
 import StarRating from '../components/base/StarRating';
@@ -307,16 +308,10 @@ function MissingLine({ fields, onGoToFirst }) {
       <Text variant="meta" color={state.error.text} style={styles.missingLineText}>
         {missingCopy(fields).footer}
       </Text>
-      <Pressable onPress={onGoToFirst} accessibilityRole="button" hitSlop={GO_TO_FIRST_SLOP}>
-        <Text variant="inlineAction" color="link">
-          Go to first
-        </Text>
-      </Pressable>
+      <InlineAction label="Go to first" onPress={onGoToFirst} />
     </View>
   );
 }
-// inlineAction's ~13pt line padded out to the 44pt tap target.
-const GO_TO_FIRST_SLOP = { top: space[16], bottom: space[16], left: space[8], right: space[8] };
 
 export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAddGear }) {
   const { defaults, chooseBag, chooseGear, productName, setProductName, rating, setRating, mode: maker, setMode: setMaker, required, missing, missingFields, save } = useRecordDraft();

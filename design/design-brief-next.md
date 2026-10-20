@@ -67,7 +67,15 @@ Items for Design's next request, gathered as they come. Send together; group B i
 - **5a / 5e intro line**: on `color.surface.raised`, no frame, no leading square (drift D-46).
 
 ## Drift not yet sent
-- D-7 to D-16 (never part of group A): see `drift.md`.
+- **D-7 to D-16** (never part of group A; written out 2026-10-20 so the brief stands alone). Each is a mock-side fix; the token side already holds the right value. D-10 and D-11 are withdrawn and not asked.
+  - **D-7** · 4a / 4b: letter-spacing written `0.16em` → `.16em`. Same value; notation only, for diffing.
+  - **D-8** · 5d: body copy at `12.5px` (3 uses) → `body.sm` (12). No fractional size exists elsewhere.
+  - **D-9** · 8m: body copy at `13.5px` (3 uses) → `body` (14). Same.
+  - **D-12** · 5a / 5d / 5e: the "Optional" tag in the Add a photo slot is 11 / 600 / .06em caps → `label.caps` (12 / 700), as 3b / 3d's slot tags.
+  - **D-13** · 5a / 5d / 5e: space between form sections is 16 / 20 (5a, 5e) and 18 (5d) → `gap.section` (12). 20 is `gap.axis`, the taste axes' own rhythm.
+  - **D-14** · 5e: intro line says "Bottled cups…" → **"Packaged cups…"** (the 2026-10-04 rename; the sample is a can). Built that way.
+  - **D-15** · 5e: "Bought at" shows "¥180" → **store name only**. There is no price in the data model, on purpose. Built that way.
+  - **D-16** · 2a: every row's source line has the same density → **by mode**: I made it = roaster · process; Barista = place only; Packaged = brand only. Only what the data holds is shown. Built that way.
 - D-43: 3g's caption still points at 3d's removed "Edit" → "From 3d → tap a card".
 
 ## Still waiting for Design's reports

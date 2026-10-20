@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import DashedRule from '../components/base/DashedRule';
 import Glyph from '../components/base/Glyph';
 import IconButton from '../components/base/IconButton';
+import InlineAction from '../components/base/InlineAction';
 import PhotoPlaceholder from '../components/base/PhotoPlaceholder';
 import Text from '../components/base/Text';
 import { formatDay } from '../constants/dates';
@@ -35,9 +36,6 @@ import ScreenFrame from './ScreenFrame';
  * notice says "‹name› reopened." (the verb is ours). Rows don't open 3g:
  * finished bags aren't edited (2026-10-14).
  */
-// inlineAction's ~13pt line padded out to size.tapTarget (44), as 5d's Go to first.
-const REOPEN_SLOP = { top: space[16], bottom: space[16], left: space[8], right: space[8] };
-
 export default function FinishedBagsScreen({ onBack }) {
   const db = useDatabase();
   const [data, setData] = useState(null); // { bags, open }
@@ -116,18 +114,13 @@ export default function FinishedBagsScreen({ onBack }) {
                   No cups
                 </Text>
               )}
-              <Pressable
+              <InlineAction
+                label="Reopen bag"
                 onPress={() => reopen(bag)}
                 disabled={full}
-                accessibilityRole="button"
-                accessibilityState={{ disabled: full }}
                 accessibilityLabel={`Reopen ${bag.name}`}
-                hitSlop={REOPEN_SLOP}
-                style={styles.reopen}>
-                <Text variant={full ? 'inlineActionOff' : 'inlineAction'} color={full ? 'muted' : 'link'}>
-                  Reopen bag
-                </Text>
-              </Pressable>
+                style={styles.reopen}
+              />
             </View>
           </View>
         ))}

@@ -28,12 +28,17 @@ import Text from './base/Text';
  *   items     [{ name, label?, hint? }] — name is the key; label is shown (defaults to name)
  *   selected  names checked
  *   locked    true at the cap: unchecked rows can't be checked
+ *   lockedHint what a screen reader adds on a locked row (§1 Selection
+ *             limit). Defaults to §1's "deselect one" line; pass another
+ *             when nothing can be deselected (3a with a full shelf)
  *   onToggle  (name) => void
  *   add       optional { label, onPress }: the add row
  *   framed    false when the container draws the frame (the search sheet's
  *             list scrolls inside a fixed frame)
  */
-export default function CheckboxList({ items, selected, locked = false, onToggle, add, framed = true }) {
+const LIMIT_HINT = 'Limit reached — deselect one to choose another.';
+
+export default function CheckboxList({ items, selected, locked = false, lockedHint = LIMIT_HINT, onToggle, add, framed = true }) {
   if (items.length === 0 && !add) return null;
   return (
     <View style={framed && styles.frame}>
@@ -48,6 +53,7 @@ export default function CheckboxList({ items, selected, locked = false, onToggle
             accessibilityRole="checkbox"
             accessibilityState={{ checked: on, disabled: off }}
             accessibilityLabel={item.hint ? `${item.label ?? item.name}, ${item.hint}` : item.label ?? item.name}
+            accessibilityHint={off ? lockedHint : undefined}
             style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
             <View style={[styles.box, on && styles.boxOn, off && styles.boxOff]}>
               {on ? <Glyph name="check" token={icon.xs} color={color.text.onInverse} /> : null}
@@ -70,6 +76,7 @@ export default function CheckboxList({ items, selected, locked = false, onToggle
           accessibilityRole="button"
           accessibilityState={{ disabled: locked }}
           accessibilityLabel={add.label}
+          accessibilityHint={locked ? lockedHint : undefined}
           style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
           <View style={styles.addMark}>
             <Glyph name="plus" token={icon.sm} color={locked ? color.text.muted : color.text.primary} />

@@ -411,11 +411,9 @@ The old display axis's parts `axis.rail.derived`, `axis.needle` (12 × 30) and `
 | `tabBar.addSlot` | `68 × 40` | The centre add slot |
 | `tabBar.icon.active` | alias `color.action.bg` (`#067BC2`) | the current tab's fill glyph |
 | `tabBar.icon.inactive` | `#9B8F87` | 6 screens / 23 uses. No in-role sibling to merge into: the fill-icon role otherwise holds only the rating gold |
-| `tabBar.icon.accentInactive` | `#C6BBD3` | 5 screens / 10 uses. The calendar glyph's two binding marks |
-| `tabBar.icon.accentActive` | alias `color.text.primary` | the same marks when Try next is active (8d) |
 | `tabBar.add` | `color.surface.inverse` square, `color.text.onInverse` plus | 44 × 34 glyph, square (no radius) |
 
-**Review trigger — `tabBar.icon.accentInactive` (`#C6BBD3`)**: its only referent today is the calendar glyph's binding marks, and that calendar is a placeholder standing in for the Try next icon. When the Try next icon and its colours are designed, check whether anything still uses this token. If nothing does, remove it (and `accentActive` with it) rather than leaving it in the set.
+**Removed 2026-10-20 — `tabBar.icon.accentInactive` (`#C6BBD3`) and `accentActive`**: they coloured the calendar glyph's binding marks, a placeholder for the Try next icon. The Try next icon that replaced it (icon-footer-trynext.svg, 2026-10-10) is one fill, so nothing used them (drift D-45). This was the review trigger written here; it fired.
 
 ---
 
@@ -1302,3 +1300,5 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-18 — §8: **dashed means only an empty or not-started state** (Uryu). Pressable add entries are buttons: §9 Empty slot becomes **Add button** (`AddButton`, a 2px solid ink frame on ground), the lists' add rows show a plain ink plus, 5b's Search opener a 2px solid ink frame. `dashed.addSlot` removed; `addSlotInert` → `dashed.emptyFrame`.
 - 2026-10-18 — §8: `divider.soft` stays dashed (Uryu): dashed's second use is the line that splits two parts of one block. The two uses: a frame = empty / not started, a line = two parts of one block.
 - 2026-10-18 — §1 Pressed: frameless whole rows take **`state.pressed.row`** (ink 6%, an overlay), full bleed to their container's edges (the screen, or the card's frame). RecordRow, ShelfBlock's Manage, My beans' card info and Finished bags, RadioList / CheckboxList / FieldRow rows. Framed controls keep `state.pressed.surface`.
+- 2026-10-20 — `tabBar.icon.accentInactive` / `accentActive` removed (D-45; the review trigger under §2 Component-specific anatomies, C. `tabBar`, fired).
+- 2026-10-20 — T-6 pass 1 (§1 against the code, `todo.md`): base `InlineAction` for the bare text actions (5d's Go to first, 3f's Reopen bag), which now scale when pressed (§1 Pressed: surface-less); 3a's gear limit gives the light impact at the cap and its locked rows the screen-reader hint (§1 Selection limit), through CheckboxList's `lockedHint`, which 5b's search sheet now carries too.

@@ -552,9 +552,6 @@ export const component = {
     icon: {
       active: color.action.bg,
       inactive: '#9B8F87',
-      /** the calendar glyph's binding marks */
-      accentInactive: '#C6BBD3',
-      accentActive: color.text.primary,
     },
     /** the add button: ink square with a ground-coloured plus */
     add: { background: color.surface.inverse, mark: color.text.onInverse },

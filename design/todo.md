@@ -63,3 +63,20 @@ Out of V1's scope (the capture → Taste DNA loop only). Kept so the idea is not
 
 ## T-6. Check §1 against the code at the final polish (recorded 2026-10-10)
 5b's "5 of 5" did not turn accent at the limit although §1 says so (fixed 2026-10-10). Before release, go through §1 rule by rule and confirm each is implemented.
+
+**Pass 1, 2026-10-20** (live code only; the retired screens left out). Grepped where a rule is mechanical, read where it is behaviour.
+
+Holds: Shape (no radius on containers; the two radii are the axis dot and the star's press disc, both radial), border widths and styles, hard shadows only, two families, no 400, no italics, motion only through `motion.*`, press never by opacity (the opacity uses are fades), header collapse (controls stay, information fades), warning haptic on 5b's locked Search, 3c's Open / Add without opening when full, 3a's Save 0 items; selection haptic on StarRating and the axis; 5b's limit (accent count, light impact once, locked hint); disabled markers `border.muted` (CheckboxList, RadioList); `state.pressed.row` on every whole row (sheets go through RadioList); a screen-reader role on every Pressable; row chevrons (RecordRow).
+
+Written but not built:
+1. ~~**3a's selection limit (8)**~~ **fixed 2026-10-20**: no light impact when the cap is reached, and the locked rows carry no hint ("Limit reached — deselect one to choose another"). 5b has both (RecordDraft, TastingNoteScreen); CheckboxList has neither. Fix: AddGearScreen's light impact at the cap; CheckboxList's `lockedHint` (§1's line by default, so 5b's search sheet rows get it too; "No slots left." when a full shelf leaves nothing to deselect).
+2. ~~**Bare text actions don't scale on press**~~ **fixed 2026-10-20**: 5d's "Go to first" (RecordCoffeeScreen) and 3f's "Reopen bag" (FinishedBagsScreen) are Pressables around `inlineAction` text with no feedback. §1 Pressed: surface-less → scale. `Button variant="text"` already does it. Fix: both now use the new base `InlineAction` (scales over `motion.press`).
+
+Spec questions (not code):
+3. **3a's count "turns accent at the limit"**: the compact header's stat numeral is always `displaySm` accent, so the rule cannot show there. Design: drop it for header stats, or give the stat an off-limit colour.
+4. **Text action colour contradicts itself**: §1 Tap affordance says text actions are ink; §3 (`text.inlineAction`) pairs them with `color.text.link` (blue), and the code follows §3. Which wins?
+5. **5b's locked hint words** ("Limit reached, 5 of 5. Deselect a flavour to choose another.") differ from §1's ("Limit reached — deselect one to choose another"). Fine as long as §1's is read as the meaning, not the copy.
+
+Not yet due (§1 says so itself): light impact on Button, FieldRow and the other pressables waits for their Step 4 spec; no spec in `components.md` turns it on yet. Focus applies nowhere on iOS.
+
+Not covered by pass 1, to do by eye at the final polish: Colour roles value by value, and Required marks per mode.
