@@ -40,6 +40,27 @@ First read from the screens (2026-10-11), then decided by Uryu the same day. The
 9. **The bag's roast level does not feed the Roast axis**: it is the roaster's claim, the axis is the drinker's perception.
 10. **Thresholds**: 5 cups = Try next (V2, not shown in V1); 10 = lock-in (D-47).
 
+## Properties the arithmetic keeps (verified 2026-10-19, `npm run check:dna`)
+
+Checked on every commit with `check:schema` (`scripts/check-dna.ts`, run by the pre-commit hook).
+
+1. **Time alone never moves the profile.** Exponential decay divides the numerator and the denominator of the weighted average, `Σ(w · v) / Σ(w)`, by the same factor, so the passing of time alone does not move the profile. The profile changes only when a cup is logged, deleted, or has its date edited.
+   - **This depends on the shape of the decay.** Switching to a linear decay, or to a window such as "the last N days only", breaks it, and the profile then moves every day. A weight floor (clamp), or rounding or normalising the weights, breaks it the same way. When the decay is changed, the check fails, so the change cannot go unnoticed. (Verified: a 0.01 weight floor, a 730-day window, linear decay, weights rounded to 0.001 and hyperbolic decay each fail it; a one-day shift moved the values by 1e-3 to 1e-2, too little for anyone to notice by eye.)
+   - **This is what makes 8f's "shifted N days ago" possible**: because the profile only moves when cups are recorded, "the day it last moved" is a well-defined date.
+   - Floating point: shifting "today" by 1 / 30 / 365 days moves a value by at most ~1e-13, far below the 0.1 the snapshots keep.
+2. **Every axis value stays within 0–100.** A weighted average never leaves the range of its inputs, however large the weights or the cup count. Words sit at 0 / 25 / 50 / 75 / 100 and the 1/3 cap only scales them by a factor ≤ 1, so they cannot push a value out either. Floating point can land one ulp outside (100.00000000000003 with the cap applied); nothing displays or rounds it differently (`bandOf` gives the last step, snapshots round to 100).
+3. **Band edges**: 0 is the first step (Very bright), 100 the last (Very bitter); every value falls in exactly one band, edges belonging to the band above (12.5 → Bright).
+
+**Not a property, a behaviour to watch (2026-10-19, numbers only)**: a cup a year old weighs 1/16.6 of today's at the 90-day half-life, but enough of them still outweigh a few recent cups. 100 cups a year ago at 0 against 5 cups in the last month at 100, all 4★:
+
+| Half-life | 1-year weight | Profile | Old cups' share | Recent cups needed to reach 50 |
+|---|---|---|---|---|
+| 90 days | 1/16.6 | 42.6 | 57% | 7 |
+| 60 days | 1/68 | 74.1 | 26% | 2 |
+| 45 days | 1/277 | 91.7 | 8% | 1 |
+
+With the old cups spread over 335–365 days instead, the old share is 60% / 30% / 10%; with the old cups at 3★ and the new at 5★, 31% / 10% / 3%. Input for a dogfood decision, not a change.
+
 ## What the screens say (2026-10-11)
 
 ## Read from the screens

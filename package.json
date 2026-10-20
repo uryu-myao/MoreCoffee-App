@@ -8,6 +8,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "check:schema": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-schema.ts",
+    "check:dna": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-dna.ts",
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
