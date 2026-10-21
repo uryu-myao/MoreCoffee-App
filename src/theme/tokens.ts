@@ -27,7 +27,6 @@ export const color = {
     placeholder: '#9B8F87',
     accent: '#9E5202',
     accentStrong: '#8A4602',
-    link: '#05639C',
     success: '#4A6640',
     onInverse: '#F4EDEA',
   },
@@ -124,8 +123,8 @@ export const state = {
      */
     row: 'rgba(39, 61, 34, 0.06)',
     /**
-     * action.bg fill. Same value as color.text.link but a separate role (fill vs
-     * link text) — cf. border.subtle and texture sharing #E4D6CC. Never merge.
+     * action.bg fill. Same value as the former color.text.link (removed
+     * 2026-10-20), kept as its own role.
      */
     action: '#05639C',
     /**
@@ -201,7 +200,8 @@ export const textStyle = {
    */
   tabLabel:      { fontFamily: 'Archivo', fontSize: 10, fontWeight: '600', lineHeight: 12, letterSpacing: 0.2 },
   /**
-   * The only "this word is tappable" expression. Pair with color.text.link.
+   * The only "this word is tappable" expression. Pair with color.text.primary
+   * (ink; Design 2026-10-20 — blue means "in force", not "pressable").
    * textDecorationColor is a separate RN prop — verify it inherits the text color.
    * lineHeight UNDECLARED · 0.08em x 11
    */

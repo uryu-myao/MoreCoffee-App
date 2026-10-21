@@ -58,7 +58,7 @@ export default function TextPage() {
           <Text variant="label" color="accent">accent</Text>
           <Text variant="label" color="accentStrong">accentStrong</Text>
           <Text variant="label" color="success">success</Text>
-          <Text variant="inlineAction" color="link">inlineAction · link</Text>
+          <Text variant="inlineAction">inlineAction · primary</Text>
         </HarnessCase>
       </HarnessGroup>
     </HarnessPage>

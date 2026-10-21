@@ -1,5 +1,21 @@
 # Design response — design-missing.md
 
+## T-6 pass 1 — reply (2026-10-20)
+
+### A. Spec questions
+1. **3a's count: (a).** The header stat is a running total, not a selection count, so the §1 rule doesn't apply to it. The rule still covers inline counts like "5 of 5" and "3 of 3 picked". On 3a, the light impact and the locked-row hint mark the limit.
+2. **Ink wins.** §1 Tap affordance (2026-10-09) is the later rule. In §1 Colour roles, blue means "in force", not "pressable". Update §3 so `text.inlineAction` pairs with `color.text.primary` instead of `color.text.link`. 5d "Go to first" and 3f "Reopen bag" become ink and underlined.
+   - `color.text.link` has no remaining text-action use; keep the token only if something else still uses it.
+3. **Yes.** §1's line sets the meaning, not fixed copy. Each screen's hint must say two things: the limit is reached, and deselecting one frees a choice. 5b's line is OK.
+
+### B. Built without a mock
+4. **Rewrite as "No slots left. Remove gear from My gear to free one."** A screen-reader hint should give a way out, the same as §1's hint does. The footer's "0 slots left" stays.
+5. **InlineAction: OK, added to components.md.**
+   - Colour is ink, per item 2.
+   - Off state: `inlineActionOff` in `text.muted`. Use it only where the screen says why.
+   - Pressed: scale only. Touch area: 44pt via hitSlop.
+6. Noted.
+
 ## Round 9 copy check — reply (2026-10-18)
 
 ### A. Required bar sub-line

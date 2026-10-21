@@ -419,6 +419,15 @@ The bundled list is the starting point for 5b's flavour tags (never a whitelist;
 - **Not in 3g**: "Finish bag". It stays on the 3d card; 3g's "Delete this bag" erases, which is a different act.
 - Both destructive rows set their label in brown (#9E5202), an action in brown. The same open point as D-27: destructive actions have no look of their own yet.
 
+## InlineAction (base, confirmed by Design 2026-10-20)
+
+- **What it is**: the bare text action, a reusable part. It is used by 5d "Go to first" and 3f "Reopen bag".
+- **Look**: `text.inlineAction` in `color.text.primary` (ink), underlined. It is never blue (blue = in force) and never brown (brown = entered value). See §1 Tap affordance.
+- **Pressed**: it has no surface, so the text scales to `state.pressed.scale` over `motion.press`.
+- **Touch area**: hitSlop pads it to `size.tapTarget` (44).
+- **Disabled**: `text.inlineActionOff` (no underline) in `color.text.muted`. Use it only where the screen states why, e.g. 3f's "5 / 5" line.
+- **Not this part**: a full-width text Button row (11a) and a lead with an arrow (1b See all) are `Button` `text` variants.
+
 ## Estimate
 
 | scope | items |

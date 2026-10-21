@@ -96,7 +96,7 @@ export default function TokenSheet() {
             <Text style={[resolveTextStyle(textStyle.meta), styles.muted]}>
               {`${name} — ${specLine(t)}`}
             </Text>
-            <Text style={[resolveTextStyle(t), name === 'inlineAction' ? styles.link : styles.ink]}>
+            <Text style={[resolveTextStyle(t), styles.ink]}>
               {SAMPLE[name]}
             </Text>
           </View>
@@ -155,9 +155,6 @@ const styles = StyleSheet.create({
   },
   muted: {
     color: color.text.muted,
-  },
-  link: {
-    color: color.text.link,
   },
   colorRow: {
     flexDirection: 'row',

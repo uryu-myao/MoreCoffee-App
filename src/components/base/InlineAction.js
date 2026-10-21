@@ -5,8 +5,10 @@ import Text from './Text';
 
 /**
  * Inline action (2026-10-20): a text-only action set in text.inlineAction
- * (11 caps, underlined) and color.text.link, beside other text — 5d's
- * "Go to first", 3f's "Reopen bag" (§3 text.inlineAction).
+ * (11 caps, underlined) and color.text.primary, beside other text — 5d's
+ * "Go to first", 3f's "Reopen bag" (§3 text.inlineAction). Ink, never blue
+ * (blue = in force) or brown (an entered value): §1 Tap affordance, Design
+ * 2026-10-20.
  *
  *   pressed   surface-less, so the text scales to state.pressed.scale over
  *             motion.press (§1 Pressed); the touch area does not shrink
@@ -36,7 +38,7 @@ export default function InlineAction({ label, onPress, disabled = false, accessi
       accessibilityState={{ disabled }}
       accessibilityLabel={accessibilityLabel}>
       <Animated.View style={{ transform: [{ scale }] }}>
-        <Text variant={disabled ? 'inlineActionOff' : 'inlineAction'} color={disabled ? 'muted' : 'link'}>
+        <Text variant={disabled ? 'inlineActionOff' : 'inlineAction'} color={disabled ? 'muted' : 'primary'}>
           {label}
         </Text>
       </Animated.View>

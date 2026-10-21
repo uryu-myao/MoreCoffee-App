@@ -228,9 +228,9 @@ Non-negotiable, and each one is a measured fact rather than a preference.
 - **At the limit, the unselected options lock.**
   - They take the disabled look: label `color.text.muted`, checkbox border `color.border.muted`. 5b's Search opener locks too.
   - Locked options do not respond: no press feedback, no haptic (§1 Pressed: disabled does not respond).
-  - To a screen reader they are disabled, with the hint "Limit reached — deselect one to choose another".
+  - To a screen reader they are disabled, with the hint "Limit reached — deselect one to choose another". **The line sets the meaning, not the copy (2026-10-20)**: each screen's hint says the limit is reached and how to free a choice, in its own words (5b: "Limit reached, 5 of 5. Deselect a flavour to choose another."; 3a with a full shelf: "No slots left. Remove gear from My gear to free one.").
 - **Selected options stay live.** Deselecting one unlocks the rest at once.
-- **The count explains it**: at the limit it turns `color.text.accent` ("5 of 5", "3 of 3 picked", "8 / 8 Selected").
+- **The count explains it**: at the limit an inline count turns `color.text.accent` ("5 of 5", "3 of 3 picked"). **Not a header stat (2026-10-20)**: 3a's "8 / 8 Selected" is the compact header's running total, always accent; there the light impact and the locked-row hint mark the limit.
 - **A light impact at the moment the limit is reached, once.** "Now locked" reaches the user wherever they are looking. A press on a locked option stays silent.
   - **Exception, 5b's locked Search opener (2026-10-10)**: a press gives the **warning** haptic. Search opens a sheet rather than choosing an option, and a press that opens nothing gave no sign at all. Settled 2026-10-11: actions warn, options stay silent (§1 Haptics).
 - Why lock rather than allow the tap and then refuse: an option that looks pressable but will not select is a small failure each time.
@@ -283,7 +283,7 @@ Grouped by role. Every hex is a value that qualified **inside that role** (≥3 
 | `color.text.placeholder` | `#9B8F87` | **an empty field's invitation** (added 2026-10-12, decided on device: `text.secondary` read like an entered value): every placeholder (3c's fields incl. Bean name's "e.g. Ethiopia Guji", the search field, 5b's My words), 5a's "Add a bag" / "Add gear" rows. ~~and the label and glyph of an add slot~~ — **an add slot (`EmptySlot`) is ink again (2026-10-14, Uryu: as 3d draws it); it is an action, not an empty field.** The tab bar's inactive grey; 3.08:1 on raised, the 3:1 floor. Settles D-38 |
 | `color.text.accent` | `#9E5202` | 19 screens; section eyebrows, brand emphasis |
 | `color.text.accentStrong` | `#8A4602` | 4 screens; paired with `accent`, used on tinted grounds |
-| `color.text.link` | `#05639C` | 4 screens |
+| ~~`color.text.link`~~ | ~~`#05639C`~~ | **Removed 2026-10-20**: its use was text actions, which are ink (§1 Tap affordance; Design's T-6 reply). Blue stays as `color.action.bg` / `state.pressed.action` (in force) |
 | `color.text.success` | `#4A6640` | 5 screens; "set", "done" confirmations |
 | `color.text.onInverse` | `#F4EDEA` | text on `#273D22` grounds |
 
@@ -354,7 +354,7 @@ Not in the shipped screens. Promoted because the pressed state appears in every 
 | token | value | applies to | why this value |
 |---|---|---|---|
 | `state.pressed.surface` | alias of `color.surface.muted` (`#E4D6CC`) | raised, ground and transparent-over-raised fills | `surface.sunken` was the semantic first choice but sits only ΔE00 3.16 below ground, too faint for the secondary button. `surface.muted` reads clearly from both raised (ΔE00 9.40) and ground (6.18). Ink stays at 8.32:1 and `badge.fg.neutral` at 5.48:1. `text.muted` (FieldRow meta) drops to 4.45:1, just under AA for 12px, but only while a finger is down. No new hex |
-| `state.pressed.action` | `#05639C` | the `color.action.bg` fill | No existing fill token is a darker action blue. Reuses the value of `color.text.link` as a separate role (fill vs link text), the same precedent as `border.subtle` / `texture` sharing `#E4D6CC`. ΔE00 9.19 below `#067BC2`; white label contrast rises from 4.55 to 6.42:1 |
+| `state.pressed.action` | `#05639C` | the `color.action.bg` fill | No existing fill token is a darker action blue. Reuses the value of the former `color.text.link` (removed 2026-10-20) as its own role, the same precedent as `border.subtle` / `texture` sharing `#E4D6CC`. ΔE00 9.19 below `#067BC2`; white label contrast rises from 4.55 to 6.42:1 |
 | `state.pressed.scale` | `0.88` | surface-less elements (bare glyphs) | Added 2026-10-06. ~0.95 is imperceptible on a 20–24px line or fill glyph; 0.88 reads clearly (a 20px glyph becomes 17.6). Visual only: the touch area never scales |
 
 ### Texture
@@ -476,7 +476,7 @@ Measured from the font file (Instrument Serif, per 1000):
 
 **`text.weekday` shares family, size and weight with `label.eyebrow` but is a separate style**: its content is already a single uppercase letter so it carries no `text-transform`, and its letter spacing is 0.20 against 1.60 — an 8× difference — to keep a single glyph optically centred. Deliberately distinct, not a variant.
 
-**`text.inlineAction`** (3f "Reopen bag", 5d "Go to first") defines the underline that §1 Tap affordance now applies to **every** text-only action (2026-10-09). This style is its 11px caps instance; other text actions keep their own size and take only the underline. It pairs with `color.text.link`, which qualifies independently on 4 screens. Two screens is a reflection of how many screens have inline actions so far. In RN, `textDecorationLine: 'underline'` is supported; `textDecorationColor` is a separate property — confirm it inherits the text colour, and add it to the token if it does not.
+**`text.inlineAction`** (3f "Reopen bag", 5d "Go to first") defines the underline that §1 Tap affordance now applies to **every** text-only action (2026-10-09). This style is its 11px caps instance; other text actions keep their own size and take only the underline. It pairs with `color.text.primary` (ink, §1 Tap affordance; Design 2026-10-20: blue means "in force", not "pressable". It paired with `color.text.link` until then). Two screens is a reflection of how many screens have inline actions so far. In RN, `textDecorationLine: 'underline'` is supported; `textDecorationColor` is a separate property — confirm it inherits the text colour, and add it to the token if it does not.
 
 ### 3.1 Truncation policy (resolves `gaps.md` item 1 — confirmed by design 2026-10-04)
 
@@ -1302,3 +1302,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-18 — §1 Pressed: frameless whole rows take **`state.pressed.row`** (ink 6%, an overlay), full bleed to their container's edges (the screen, or the card's frame). RecordRow, ShelfBlock's Manage, My beans' card info and Finished bags, RadioList / CheckboxList / FieldRow rows. Framed controls keep `state.pressed.surface`.
 - 2026-10-20 — `tabBar.icon.accentInactive` / `accentActive` removed (D-45; the review trigger under §2 Component-specific anatomies, C. `tabBar`, fired).
 - 2026-10-20 — T-6 pass 1 (§1 against the code, `todo.md`): base `InlineAction` for the bare text actions (5d's Go to first, 3f's Reopen bag), which now scale when pressed (§1 Pressed: surface-less); 3a's gear limit gives the light impact at the cap and its locked rows the screen-reader hint (§1 Selection limit), through CheckboxList's `lockedHint`, which 5b's search sheet now carries too.
+- 2026-10-20 — Design's T-6 reply: text actions are ink, so §3 pairs `text.inlineAction` with `color.text.primary` and `color.text.link` is removed (no other use; blue stays as the in-force fill). §1 Selection limit: the accent count is for inline counts, not header stats (3a); the screen-reader hint's line sets the meaning, not the copy. `InlineAction` added to `components.md` (Design).

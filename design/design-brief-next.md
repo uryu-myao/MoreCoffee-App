@@ -55,6 +55,7 @@ Items for Design's next request, gathered as they come. Send together; group B i
 - **3c's Bean name error**: pressed with no name, the field takes 5d's vocabulary (label "Bean name · required" and the underline in the error colour). No mock draws an inline input error. Is this within the existing error set, or did we invent something?
 - **Intro block**: 5a's opening line now has a surface (`color.surface.raised`, no frame); other explanation lines have none. Should other screens' opening explanations get the same?
 - **D-46's side effect**: the removed square was the example of "Marked". The section labels still carry the mark; you may want another way to show it.
+- **3a's full-shelf hint** (Design 2026-10-20: "No slots left. Remove gear from My gear to free one."): V1 has no way to remove gear. 3b / 3e are not at this stage, and Home's My gear (4a) only lists. Keep the line for when 3b exists, or word it for V1?
 
 - **Taste DNA copy (decided rules in brief)**:
   - **1b's "N more cups to lock it in" (D-47)**: lock-in is **10**, counted **per axis**; the profile locks in when every axis with a record has 10. "N more" counts the axis with the fewest records. Try next's 5 is a separate threshold (V2, not shown in V1).

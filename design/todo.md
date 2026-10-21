@@ -72,10 +72,10 @@ Written but not built:
 1. ~~**3a's selection limit (8)**~~ **fixed 2026-10-20**: no light impact when the cap is reached, and the locked rows carry no hint ("Limit reached — deselect one to choose another"). 5b has both (RecordDraft, TastingNoteScreen); CheckboxList has neither. Fix: AddGearScreen's light impact at the cap; CheckboxList's `lockedHint` (§1's line by default, so 5b's search sheet rows get it too; "No slots left." when a full shelf leaves nothing to deselect).
 2. ~~**Bare text actions don't scale on press**~~ **fixed 2026-10-20**: 5d's "Go to first" (RecordCoffeeScreen) and 3f's "Reopen bag" (FinishedBagsScreen) are Pressables around `inlineAction` text with no feedback. §1 Pressed: surface-less → scale. `Button variant="text"` already does it. Fix: both now use the new base `InlineAction` (scales over `motion.press`).
 
-Spec questions (not code):
-3. **3a's count "turns accent at the limit"**: the compact header's stat numeral is always `displaySm` accent, so the rule cannot show there. Design: drop it for header stats, or give the stat an off-limit colour.
-4. **Text action colour contradicts itself**: §1 Tap affordance says text actions are ink; §3 (`text.inlineAction`) pairs them with `color.text.link` (blue), and the code follows §3. Which wins?
-5. **5b's locked hint words** ("Limit reached, 5 of 5. Deselect a flavour to choose another.") differ from §1's ("Limit reached — deselect one to choose another"). Fine as long as §1's is read as the meaning, not the copy.
+Spec questions (not code), **answered by Design 2026-10-20** (`design-response-next.md`, T-6 pass 1 — reply):
+3. ~~**3a's count "turns accent at the limit"**~~ **(a): the rule is for inline counts, not header stats.** the compact header's stat numeral is always `displaySm` accent, so the rule cannot show there. Design: drop it for header stats, or give the stat an off-limit colour.
+4. ~~**Text action colour contradicts itself**~~ **Ink wins; InlineAction is ink, `color.text.link` removed.** §1 Tap affordance says text actions are ink; §3 (`text.inlineAction`) pairs them with `color.text.link` (blue), and the code follows §3. Which wins?
+5. ~~**5b's locked hint words**~~ **Meaning, not copy; 5b's line stays.** ("Limit reached, 5 of 5. Deselect a flavour to choose another.") differ from §1's ("Limit reached — deselect one to choose another"). Fine as long as §1's is read as the meaning, not the copy.
 
 Not yet due (§1 says so itself): light impact on Button, FieldRow and the other pressables waits for their Step 4 spec; no spec in `components.md` turns it on yet. Focus applies nowhere on iOS.
 
