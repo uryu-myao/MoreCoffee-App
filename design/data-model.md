@@ -33,6 +33,15 @@ A versioned `schema_migrations (version, name, applied_at)` table, not a single 
 - Enumerations: `TEXT` with a `CHECK (col IN (...))`. `schema.ts` holds the same list, and the TS types are unions of it.
 - References: `ON DELETE SET NULL`. Deleting a bean or a place never deletes the cups that mention it.
 
+## WAL and backups (found 2026-10-20)
+
+The database runs in WAL mode (`migrate.ts`). It lives at `Documents/SQLite/morecoffee.db` (expo-sqlite's default directory), which iCloud and Finder backups include. Nothing sets `NSURLIsExcludedFromBackupKey`.
+
+- **The app is never closed cleanly, so the WAL never reaches SQLite's automatic checkpoint (1000 pages).** In dogfood the rows lived only in `morecoffee.db-wal`, and `morecoffee.db` stayed a 4 KB header for weeks.
+- **So `DatabaseProvider` runs `PRAGMA wal_checkpoint(TRUNCATE)` every time the app goes to the background.** That folds the WAL into `morecoffee.db` before iOS suspends the app (and before a backup can run), and leaves the WAL empty. Checked on a copy of the dogfood database: `.db` went from 4 KB to 80 KB, `-wal` to 0, and every cup was still there.
+- **Do not remove it.** Without it, `morecoffee.db` alone is close to empty and the cups exist only in `-wal`. A restore gets them back only if `-wal` comes back with the `.db` and from the same moment. Anything that takes the `.db` alone (a copy, a tool, a backup taken mid-write) gets almost nothing.
+- **A failed checkpoint never stops the app**: the next background tries again. How a failure gets noticed is open (`todo.md`).
+
 ---
 
 ## Tables

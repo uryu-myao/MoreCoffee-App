@@ -80,3 +80,10 @@ Spec questions (not code), **answered by Design 2026-10-20** (`design-response-n
 Not yet due (§1 says so itself): light impact on Button, FieldRow and the other pressables waits for their Step 4 spec; no spec in `components.md` turns it on yet. Focus applies nowhere on iOS.
 
 Not covered by pass 1, to do by eye at the final polish: Colour roles value by value, and Required marks per mode.
+
+## T-7. A failed WAL checkpoint goes unnoticed (recorded 2026-10-21)
+`DatabaseProvider`'s background checkpoint (`data-model.md`, WAL and backups) fails two ways, and neither can be seen on a release build:
+- **It throws** (I/O error, closed database): caught and sent to `console.error`, which a release build shows to no one.
+- **It is busy** (another statement holds the database): `PRAGMA wal_checkpoint` does not throw. It returns a row (`busy`, `log`, `checkpointed`) with `busy = 1`, and `execAsync` throws that row away. Nothing is logged at all.
+
+The app must not stop either way: the next background tries again. Proposal, waiting for a decision: read the row (`getFirstAsync`), log `busy = 1` as well as errors, and keep the last problem (time, kind) in a small file under Documents. The Export JSON then carries it, so Uryu sees it in the file he already takes. No migration and no new dependency.
