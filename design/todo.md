@@ -92,3 +92,22 @@ The app must not stop either way: the next background tries again.
 - **Can busy repeat every time? No.** One connection serves the app. No statement stays open (no `prepareAsync`, no `getEachAsync`). Saves use `withExclusiveTransactionAsync`, which opens its own connection and closes it in `finally` after a few milliseconds. Busy needs a save still running at the instant the app goes to the background.
 - **What busy returns** (node:sqlite, a read left open on another connection): `{ busy: 1, log: 7, checkpointed: 7 }`, no throw. Once the read ends: `{ busy: 0, log: 0, checkpointed: 0 }`.
 - **The export sees the WAL.** It reads through SQLite (`SELECT *` on the app's connection), not by copying the file, and SQLite reads include `-wal`. Same test: with 5 rows only in `-wal`, a second connection reads 5; a copy of the `.db` alone has no table at all.
+
+## T-8. Profile's placeholder carries two interim entries (recorded 2026-10-21)
+Until 6a is built, Profile's placeholder (`screens/index.js`) holds:
+- **"My taste DNA"** → 8f (2026-10-21). 6a's Taste DNA card is its real entry.
+- **"Export my log (JSON)"** (2026-10-20). 6b's export / backup is its real home.
+
+**When 6a is built, move both**: 8f's entry into 6a's card, the export to wherever 6a / 6b put it. Neither may be dropped with the placeholder.
+
+## T-9. 8f's "What you keep saying" waits for 8h (recorded 2026-10-21)
+The block counts **My words** (what the user wrote; `components.md`, Words), not flavour tags (picked from a fixed set). It is not shown until 8h and My words' counts exist. Flavour tags are not a stand-in: under that heading they would pass picked category words off as the user's own words.
+- **Keep for then**: tapping a word opens 8l on the Words scope with that word typed (8l is built, 2026-10-21).
+- A separate "flavours I pick most" block is a question for Design (`design-brief-next.md`, 8f follow-ups); if drawn, it sits beside My words' block once 8h exists, not in its place.
+
+## T-10. Pressable blocks: one design pass (recorded 2026-10-21, Uryu)
+Pressable blocks and rows were each settled on their own, so the app and the boards differ: 2a's cup rows, Home's Recently sipped rows, 2c's "Feeds my taste DNA", 8l's results, 3d's cards, the shelf's Manage row; and 8f's "Last shift", a framed block that is not pressable. Uryu wants one treatment designed for all of them together.
+- **Sent as**: `design-brief-next.md`, "Pressable blocks: one treatment across the app" (the inventory, board vs built, and the rules in force).
+- **Until Design answers**: build as listed there; no screen gets its own treatment in the meantime.
+- **When the answer comes**: apply it to every row of the inventory in one change, and update §1 Tap affordance / §8 / D-48 / D-49.
+

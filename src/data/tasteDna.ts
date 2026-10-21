@@ -207,3 +207,30 @@ export function dnaCupFromRow(row: {
     flavours: JSON.parse(row.flavours),
   };
 }
+
+/** One axis that crossed into another band (taste-dna.md "Shifts"): band indexes 0–4. */
+export type AxisShift = { axis: AxisKey; from: number; to: number };
+export type DnaShift = { at: number; axes: AxisShift[] };
+
+/**
+ * 8f's last shift: the latest cup (by logged time) whose stored change moved
+ * an axis into another band (bandOf), read from cups.dna_change, never
+ * recomputed (taste-dna.md item 5). An axis noted for the first time (before
+ * null) has no band to leave, so it is not a shift. Rows newest first.
+ */
+export function lastShift(rows: readonly { logged_at: number; dna_change: string }[]): DnaShift | null {
+  for (const row of rows) {
+    const change = JSON.parse(row.dna_change) as DnaChange;
+    const axes: AxisShift[] = [];
+    for (const axis of AXES) {
+      const before = change.before[axis].value;
+      const after = change.after[axis].value;
+      if (before == null || after == null) continue;
+      const from = bandOf(before);
+      const to = bandOf(after);
+      if (from !== to) axes.push({ axis, from, to });
+    }
+    if (axes.length) return { at: row.logged_at, axes };
+  }
+  return null;
+}

@@ -1,6 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type { Bag, CupMode, Gear, GearCategory, Place, Row } from './schema';
-import { changeOf, computeDna, dnaCupFromRow, type Dna } from './tasteDna';
+import { changeOf, computeDna, dnaCupFromRow, lastShift, type Dna, type DnaShift } from './tasteDna';
 
 /**
  * The reference rows Record coffee pre-fills its field sets with. Until the
@@ -81,6 +81,24 @@ export async function loadTasteDna(db: SQLiteDatabase): Promise<Dna> {
     'SELECT rating, logged_at, axis_acidity, axis_body, axis_roast, axis_sweetness, flavours FROM cups ORDER BY logged_at, id'
   );
   return computeDna(rows.map(dnaCupFromRow), Date.now(), settings?.reset_at ?? null);
+}
+
+/**
+ * 8f (My taste DNA): the profile, and the last shift from the stored
+ * changes of the cups counted since the reset (computeDna's rule: a cup
+ * logged before reset_at is left out).
+ */
+export async function loadDnaPage(db: SQLiteDatabase): Promise<{ dna: Dna; shift: DnaShift | null }> {
+  const settings = await db.getFirstAsync<{ reset_at: number | null }>('SELECT reset_at FROM settings');
+  const resetAt = settings?.reset_at ?? null;
+  const [dna, rows] = await Promise.all([
+    loadTasteDna(db),
+    db.getAllAsync<{ logged_at: number; dna_change: string }>(
+      'SELECT logged_at, dna_change FROM cups WHERE dna_change IS NOT NULL AND (? IS NULL OR logged_at >= ?) ORDER BY logged_at DESC, id DESC',
+      [resetAt, resetAt]
+    ),
+  ]);
+  return { dna, shift: lastShift(rows) };
 }
 
 /** One cup as 2c shows it: every stored field, with its place names. */

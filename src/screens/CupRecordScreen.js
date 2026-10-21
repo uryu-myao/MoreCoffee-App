@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import AxisReadout from '../components/base/AxisReadout';
 import Badge from '../components/base/Badge';
 import FieldRow from '../components/base/FieldRow';
@@ -15,7 +15,8 @@ import { FLAVOUR_LIMIT } from '../constants/flavours';
 import { TASTE_AXES } from '../constants/tasteAxes';
 import { useDatabase } from '../data/DatabaseProvider';
 import { getCup, onCupsChanged } from '../data/repository';
-import { color, icon, layout, shape, space, spacing } from '../theme/tokens';
+import { requestPush } from '../navigation';
+import { color, icon, layout, shape, space, spacing, state } from '../theme/tokens';
 import { RATING_COPY } from './RecordCoffeeScreen';
 import ScreenFrame from './ScreenFrame';
 
@@ -36,7 +37,10 @@ import ScreenFrame from './ScreenFrame';
  *   - share (no mock says what it shares; gaps.md 32)
  *   - the photo area (no camera in V1; a placeholder is Design's: design-missing.md 6)
  *   - "22 clicks" and "My default brewer" (gaps.md 33)
- * "Feeds my taste DNA" is plain lines, not the mock's dashed link (D-48).
+ * "Feeds my taste DNA" opens 8f (D-48, restored 2026-10-21 with 8f). A whole
+ * block, so a chevron by its heading (§1 Tap affordance), and the pressed
+ * fill bleeds to the screen's edges (state.pressed.row). Not the mock's
+ * dashed frame: §8 keeps dashed for empty states.
  *
  * "Where it sat" draws this cup's own values: AxisReadout's entered (brown)
  * tone — the only place it is used (§9).
@@ -225,12 +229,19 @@ export default function CupRecordScreen({ id, onBack, onEdit }) {
           </View>
         ) : null}
 
-        <View style={styles.section}>
-          <Text variant="labelCaps" color="accent">
-            Feeds my taste DNA
-          </Text>
+        <Pressable
+          onPress={() => requestPush({ name: 'dna' })}
+          accessibilityRole="button"
+          accessibilityHint="Opens My taste DNA"
+          style={({ pressed }) => [styles.section, styles.feeds, pressed && styles.feedsPressed]}>
+          <View style={styles.feedsHead}>
+            <Text variant="labelCaps" color="accent">
+              Feeds my taste DNA
+            </Text>
+            <Glyph name="chevronRight" token={icon.md} color={color.text.primary} />
+          </View>
           <DnaChangeLines change={change} />
-        </View>
+        </Pressable>
       </View>
     </ScreenFrame>
   );
@@ -265,6 +276,21 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: spacing.gap.row,
+  },
+  // Out to the screen's edges, padded back in: the content stays put.
+  feeds: {
+    marginHorizontal: -layout.gutter,
+    paddingHorizontal: layout.gutter,
+    paddingVertical: spacing.gap.row,
+    marginVertical: -spacing.gap.row,
+  },
+  feedsPressed: {
+    backgroundColor: state.pressed.row,
+  },
+  feedsHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   card: {
     borderWidth: shape.borderWidth.box,

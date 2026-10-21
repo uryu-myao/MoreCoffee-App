@@ -65,6 +65,42 @@ export function DnaStamp({ state, onPress }) {
 }
 
 /**
+ * The four axes as the card draws them: pole labels over an AxisReadout.
+ * Shared with 8f, which adds each axis's band name under its readout
+ * (`bands`; meta, muted, as 8f): the step names of tasteAxes.js, from the
+ * same value, so a name can't disagree with its bar. An axis with nothing
+ * noted has no band line: its readout already says "Not noted yet".
+ */
+export function DnaAxes({ dna, bands = false, style }) {
+  return (
+    <View style={[styles.axisList, style]}>
+      {TASTE_AXES.map((axis) => {
+        const value = dna.axes[axis.key].value;
+        const band = value == null ? null : axis.steps[bandOf(value)];
+        return (
+          <View key={axis.key} style={styles.axis}>
+            <View style={styles.poles}>
+              <Text variant="labelCaps" color="muted">
+                {axis.from}
+              </Text>
+              <Text variant="labelCaps" color="muted">
+                {axis.to}
+              </Text>
+            </View>
+            <AxisReadout value={value} accessibilityLabel={`${axis.from} to ${axis.to}, ${band ?? 'not noted'}`} />
+            {bands && band ? (
+              <Text variant="meta" color="muted" importantForAccessibility="no" accessibilityElementsHidden>
+                {band}
+              </Text>
+            ) : null}
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+/**
  * Props
  *   dna            the profile (loadTasteDna)
  *   onStampPress   the stamp: open 15b's sheet
@@ -78,25 +114,7 @@ export default function TasteDnaCard({ dna, onStampPress }) {
         </Text>
         <DnaStamp state={dna.state} onPress={onStampPress} />
       </View>
-      <View style={styles.axes}>
-        {TASTE_AXES.map((axis) => {
-          const value = dna.axes[axis.key].value;
-          const band = value == null ? null : axis.steps[bandOf(value)];
-          return (
-            <View key={axis.key} style={styles.axis}>
-              <View style={styles.poles}>
-                <Text variant="labelCaps" color="muted">
-                  {axis.from}
-                </Text>
-                <Text variant="labelCaps" color="muted">
-                  {axis.to}
-                </Text>
-              </View>
-              <AxisReadout value={value} accessibilityLabel={`${axis.from} to ${axis.to}, ${band ?? 'not noted'}`} />
-            </View>
-          );
-        })}
-      </View>
+      <DnaAxes dna={dna} style={styles.axes} />
     </View>
   );
 }
@@ -129,6 +147,8 @@ const styles = StyleSheet.create({
   },
   axes: {
     marginTop: spacing.gap.section,
+  },
+  axisList: {
     gap: spacing.gap.axis,
   },
   axis: {

@@ -7,7 +7,8 @@
  *                        opens the Record sheet (1b "Record a coffee")
  *   requestPush(entry)   ShellStack pushes a screen over everything, the
  *                        bottom bar included: { name: 'beans' | 'addBag' |
- *                        'addGear' } from Home, { name: 'editCup', cup } from 2c
+ *                        'addGear' } from Home, { name: 'editCup', cup } from 2c,
+ *                        { name: 'dna' } (8f) from Profile and 2c
  *   requestCloseCup()    Records closes its open cup (after a delete in 11a)
  *   requestNotice(text)  AppShell shows 13b's one-line notice above the bar
  *   requestDnaInfo(dna)  AppShell shows 15b's Taste DNA info sheet over the

@@ -4,6 +4,7 @@ import Button from '../components/base/Button';
 import { useDatabase } from '../data/DatabaseProvider';
 import { shareExport } from '../data/export';
 import { countCups, onCupsChanged } from '../data/repository';
+import { requestPush } from '../navigation';
 import HomeTabScreen from './HomeTabScreen';
 import PlaceholderScreen from './PlaceholderScreen';
 import RecordsScreen from './RecordsScreen';
@@ -35,10 +36,13 @@ function TryNextPlaceholder() {
 }
 
 /**
- * Profile, still 6a's placeholder, carries the interim export (2026-10-20):
- * every table as one JSON file to the share sheet (data/export.ts). 6b designs
- * export / backup under Profile; until then this is the only way out.
- * TODO(design): 6b replaces this button; label and failure copy are ours.
+ * Profile, still 6a's placeholder, carries two interim entries until 6a is
+ * built (todo.md T-8: both move then):
+ *   - "My taste DNA" opens 8f (2026-10-21), 6a's Taste DNA card's place.
+ *   - the export (2026-10-20): every table as one JSON file to the share
+ *     sheet (data/export.ts). 6b designs export / backup under Profile; until
+ *     then this is the only way out.
+ *     TODO(design): 6b replaces this button; label and failure copy are ours.
  */
 function ProfilePlaceholder() {
   const db = useDatabase();
@@ -56,6 +60,7 @@ function ProfilePlaceholder() {
   };
   return (
     <PlaceholderScreen title="Profile" eyebrow="Morecoffee">
+      <Button variant="secondary" label="My taste DNA" onPress={() => requestPush({ name: 'dna' })} />
       <Button variant="secondary" label="Export my log (JSON)" disabled={busy} onPress={onExport} />
     </PlaceholderScreen>
   );

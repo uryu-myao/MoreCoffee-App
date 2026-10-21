@@ -8,7 +8,7 @@ Scope test (2026-10-11): can Uryu use it every day himself? His cups are mostly 
 
 **In scope since 2026-10-14, after the above**: 3f (minimal: list + Reopen bag), then 3g (minimal: name, roaster, roasted on). Questions: design-missing.md 27–38.
 
-**Not now**: 3b · 3e · 8f · 8g · 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6a · 6b · 6c · 6d · Barista. The Profile and Try next tabs stay placeholders (decided before release).
+**Not now**: 3b · 3e · 8g · 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6a · 6b · 6c · 6d · Barista. The Profile and Try next tabs stay placeholders (decided before release).
 
 **Next to fall due (recorded 2026-10-20): 2b (sort) and 8l (search)**, the next deadline we set ourselves after the five-bag problem. Dogfood has a few dozen cups today, so scrolling 2a still reaches them; at two a day that is several hundred within three months, and older cups stop being reachable. Home (1b / 4a / 4b) is already done, so this is the next thing to review.
 
@@ -29,14 +29,14 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 1b / 4a / 4b Home | **yes** | **done** | greeting, cups total + this week strip, Record a coffee, Taste DNA card, recently sipped (→ 2c, See all → Records), My gear / My beans. Not shown: Try next box (V2), the slow-start line (no rule) |
 | 2a Records | yes | **partial** | grouped list, count; rows open 2c; the search field opens 8l, the filter button 2b (2026-10-21). Not: the category chips (All / I made it / Barista / Packaged — the mock's "Ready-to-drink" is the old name), scheduled after 8f (Uryu, 2026-10-21). They are a real filter, so Design's Round 10, 16 / 18 (no "in force" look, "Done" with no count) go back to Design then |
 | 2b Sort sheet | **yes (2026-10-21, with 8l)** | **built, not yet seen on device** | four sorts, four groups, Reset, Done; not remembered. Undrawn parts per Design's Round 10 reply (14–18); 14's I made it tail is ours, in the next brief |
-| 2c Record (one cup) | **yes** (decided 2026-10-11) | **done** | the pencil opens 11a; share, photo, "22 clicks" / "My default brewer" not shown |
+| 2c Record (one cup) | **yes** (decided 2026-10-11) | **done** | the pencil opens 11a; "Feeds my taste DNA" opens 8f (D-48, 2026-10-21); share, photo, "22 clicks" / "My default brewer" not shown |
 | 11a Edit cup · 11b Delete · 11c Bag picker | **yes** (approved 2026-10-13) | **done** | bag, method, date & time, My words; "As logged" read only; delete with 11b's sheet; the date wins over the bag. Round 4 built: the discard sheet on leaving with changes, "No bag" / "No brewer" / "No grinder", a finished own bag marked. Packaged / Barista: no shelf block until design-missing 6 |
 | 3b My gear / 3e Edit gear | not now | not started | the only way to rename generic gear (`gaps.md` 25) |
 | 3d My beans | **yes** | **done** | open bags, "Day N", Finish bag (no confirm, no undo at this stage), Add a bag → 3c. Card tap (3g) and Finished bags (3f) not at this stage |
 | 3g Edit bag / 3f Finished bags | **yes, minimal (2026-10-14)**: 3f first, then 3g | **3f done** (entry at 3d's foot, rows, Reopen, the 5 / 5 line, the reopened notice); **3g done** (minimal: name, roaster, roasted on, opened on; limits; freshness; Delete; from a 3d card) | 3f's Reopen is the recovery for Finish (gaps 17 / 18), which stays unconfirmed; questions to Design: design-missing.md 27–38 |
-| 6a / 6b / 6c Profile | not now | not started (placeholder) | 6a is 8f's entry point. The placeholder carries an interim "Export my log (JSON)" (2026-10-20): every table to the share sheet, until 6b designs export / backup |
+| 6a / 6b / 6c Profile | not now | not started (placeholder) | 6a is 8f's entry point. The placeholder carries an interim "My taste DNA" (8f, 2026-10-21) and an interim "Export my log (JSON)" (2026-10-20): every table to the share sheet, until 6b designs export / backup |
 | 6d Edit profile | not now | not started | |
-| 8f My taste DNA | not now | not started | needs the shift history (`dna_change`, stored) and Design's answers (8f's two contradictions) |
+| 8f My taste DNA | **yes (2026-10-21)** | **built, not yet seen on device** | stamp (ⓘ → 15b), "From N cups · shifted N days ago", four axes with band names, Last shift (band names + date, no cause). From Profile's placeholder and 2c's "Feeds my taste DNA". Not: the summary line (Round 10, D12), "What you keep saying" (waits for 8h, T-9), the footer (8g / 8d out of V1) |
 | 8g How my DNA is built | not now | not started | copy to adjust for V1 (`gaps.md` 31) |
 | 8n / 8c / 8o First setup | not now | not started | `settings.setup_done` ready; 8o reuses the Bag form |
 | 8a / 9a / 9b Welcome | out of the token set | not started | designed separately |

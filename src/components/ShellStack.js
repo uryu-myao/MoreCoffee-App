@@ -5,6 +5,7 @@ import EditBagScreen from '../screens/EditBagScreen';
 import EditCupScreen from '../screens/EditCupScreen';
 import FinishedBagsScreen from '../screens/FinishedBagsScreen';
 import MyBeansScreen from '../screens/MyBeansScreen';
+import TasteDnaScreen from '../screens/TasteDnaScreen';
 import { ScreenBackdropContext } from '../screens/ScreenFrame';
 import { cupTitle } from '../constants/cups';
 import { onPushRequest, requestCloseCup, requestNotice } from '../navigation';
@@ -31,6 +32,7 @@ import PushedScreen from './PushedScreen';
  *   addGear   3a
  *   editCup   11a ({ cup }); a delete also closes the cup in Records and
  *             shows 13b's notice ("‹title› deleted.")
+ *   dna       8f, from Profile and 2c's "Feeds my taste DNA"
  */
 export default function ShellStack() {
   const [stack, setStack] = useState([]);
@@ -69,6 +71,8 @@ export default function ShellStack() {
         return <FinishedBagsScreen onBack={goBack} />;
       case 'addGear':
         return <AddGearScreen onBack={goBack} />;
+      case 'dna':
+        return <TasteDnaScreen onBack={goBack} />;
       case 'addBag':
         return (
           <AddBagScreen
