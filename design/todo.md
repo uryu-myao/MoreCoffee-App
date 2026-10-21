@@ -86,4 +86,9 @@ Not covered by pass 1, to do by eye at the final polish: Colour roles value by v
 - **It throws** (I/O error, closed database): caught and sent to `console.error`, which a release build shows to no one.
 - **It is busy** (another statement holds the database): `PRAGMA wal_checkpoint` does not throw. It returns a row (`busy`, `log`, `checkpointed`) with `busy = 1`, and `execAsync` throws that row away. Nothing is logged at all.
 
-The app must not stop either way: the next background tries again. Proposal, waiting for a decision: read the row (`getFirstAsync`), log `busy = 1` as well as errors, and keep the last problem (time, kind) in a small file under Documents. The Export JSON then carries it, so Uryu sees it in the file he already takes. No migration and no new dependency.
+The app must not stop either way: the next background tries again.
+
+**Done 2026-10-21, narrowed**: the row is read (`getFirstAsync`), and `busy = 1` goes to `console.error` like a thrown error. Nothing is written to a file or carried in the export. One failed checkpoint does no harm: the next background retries, and the backup holds `.db` and `-wal` together. Checked:
+- **Can busy repeat every time? No.** One connection serves the app. No statement stays open (no `prepareAsync`, no `getEachAsync`). Saves use `withExclusiveTransactionAsync`, which opens its own connection and closes it in `finally` after a few milliseconds. Busy needs a save still running at the instant the app goes to the background.
+- **What busy returns** (node:sqlite, a read left open on another connection): `{ busy: 1, log: 7, checkpointed: 7 }`, no throw. Once the read ends: `{ busy: 0, log: 0, checkpointed: 0 }`.
+- **The export sees the WAL.** It reads through SQLite (`SELECT *` on the app's connection), not by copying the file, and SQLite reads include `-wal`. Same test: with 5 rows only in `-wal`, a second connection reads 5; a copy of the `.db` alone has no table at all.

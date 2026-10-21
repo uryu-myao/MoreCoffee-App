@@ -66,13 +66,20 @@ export default function DatabaseProvider({ children }) {
   // 4 KB header for weeks). iOS backs up all three files together and replays
   // the WAL on restore, so nothing was lost — but folding the WAL in before
   // iOS suspends us (and backs up) leaves morecoffee.db complete on its own.
-  // A busy checkpoint just does less; the next one catches up.
+  // A busy checkpoint just does less; the next one catches up. Busy does not
+  // throw: the pragma returns a row (busy, log, checkpointed) with busy = 1,
+  // so the row is read (todo.md T-7). Neither failure stops the app.
   useEffect(() => {
     if (!state.db || Platform.OS === 'web') return undefined;
     const db = state.db;
     const sub = AppState.addEventListener('change', (next) => {
       if (next !== 'background') return;
-      db.execAsync('PRAGMA wal_checkpoint(TRUNCATE)').catch((error) => console.error('[db] checkpoint failed', error));
+      db.getFirstAsync('PRAGMA wal_checkpoint(TRUNCATE)').then(
+        (row) => {
+          if (row?.busy) console.error('[db] checkpoint busy', row);
+        },
+        (error) => console.error('[db] checkpoint failed', error)
+      );
     });
     return () => sub.remove();
   }, [state.db]);
