@@ -178,6 +178,8 @@ export const textStyle = {
   noticeName:    { fontFamily: 'Archivo', fontSize: 14, fontWeight: '700', lineHeight: 21 },
   notice:        { fontFamily: 'Archivo', fontSize: 14, fontWeight: '600', lineHeight: 21 },
   bodySm:        { fontFamily: 'Archivo', fontSize: 12, fontWeight: '500', lineHeight: 18 },
+  /** bodySm with tabular numerals: 8l's result heading, whose count changes as you type (Design Round 10, 19). */
+  bodySmTabular: { fontFamily: 'Archivo', fontSize: 12, fontWeight: '500', lineHeight: 18, fontVariant: ['tabular-nums'] },
   meta:          { fontFamily: 'Archivo', fontSize: 12, fontWeight: '600', lineHeight: 17 },
   /** lineHeight UNDECLARED · 0.08em x 12 */
   labelCaps:     { fontFamily: 'Archivo', fontSize: 12, fontWeight: '700', letterSpacing: 0.96, textTransform: 'uppercase' },

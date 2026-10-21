@@ -1,5 +1,37 @@
 # Design response — design-missing.md
 
+## Round 10 — E. Records sort (2b) and search (8l) (2026-10-21)
+
+**2b — Sort & group**
+
+14. **Cups with no roaster or brewer: OK to put them last.**
+    - Headings are named by what the cup is, not by what it lacks: **"Packaged"** and **"Barista"**, one group each, in that order after the real groups.
+    - Barista cups do not group by café in V1, because café can't be entered yet. Revisit once it can.
+    - Under the "Roaster A–Z" sort, the same cups go after Z: Packaged first, then Barista.
+15. **Sort with group: OK as proposed.**
+    - Inside a group, cups follow the sort.
+    - Groups are ordered by their first cup under that sort.
+    - Month groups follow the date direction.
+    - With Group by Month, a rating sort orders cups inside each month; the months stay in date order.
+16. **Filter icon: leave it unchanged in V1.** 2b always shows its current choice when opened, and 2a's section headings already show the grouping. Drop `gaps.md` 16 until a real filter exists.
+17. **Marker: the square radio, as proposed.** All single-select rows use one marker. The board's check mark is drift.
+18. **The button reads "Done".** With no filter the number gives no information. Use `Button` primary, full width. The count returns once a filter can change the result.
+
+**8l — Search**
+
+19. **Result headings.** body.sm, `text.secondary`, with the count in tabular numerals. "q" stands for the typed text, curly-quoted.
+    - Words: `9 cups say “q”` (as drawn). With one result: `1 cup says “q”`.
+    - Beans: `5 cups of “q”`.
+    - Gear: `4 cups brewed with “q”`.
+    - 4★ on, field empty: `12 cups rated 4★ and up`.
+    - 4★ on, with text: add ` · 4★ and up` to the end of the line, e.g. `3 cups say “juicy” · 4★ and up`.
+    - No results: `Nothing matches “q”`. Nothing goes under it: no illustration, no suggestions.
+    - Field empty and 4★ off: no heading and no list. Show only the scope row.
+20. **Words: search flavour tags as well, as proposed.** Words means "what I noted about the cup". A tag match counts the same as a match in the note, and each cup is counted once.
+21. **Gear: hide the scope until 3b / 3e.** A scope that can never find anything reads as broken. Words and Beans stay. Add Gear back when gear can be renamed.
+22. **Recent searches: leave them out of V1.** Session-only recents would be empty on every open, so the block would show up as empty most of the time.
+23. **4★ and up: OK.** It is a switch that combines with any scope, and the test is rating ≥ 4. Rows show whole stars ("4"). The board's "4.5" is drift.
+
 ## T-6 pass 1 — reply (2026-10-20)
 
 ### A. Spec questions

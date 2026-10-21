@@ -10,6 +10,8 @@ const SHAPES = {
   chevronRight: [<Path key="p" d="M9 6l6 6-6 6" />],
   chevronLeft: [<Path key="p" d="M15 6l-6 6 6 6" />],
   close: [<Path key="p" d="M6 6l12 12M18 6L6 18" />],
+  // 2a's filter button (opens 2b), verbatim; drawn at icon.md (18 / 2.2) as in 2a.
+  filter: [<Path key="p" d="M4 6h16M7 12h10M10 18h4" />],
   plus: [<Path key="a" d="M12 6v12" />, <Path key="b" d="M6 12h12" />],
   alert: [<Path key="a" d="M12 7v6" />, <Path key="b" d="M12 16.5h.01" />],
   // 15a's ⓘ on a status stamp (Design Round 8), verbatim.

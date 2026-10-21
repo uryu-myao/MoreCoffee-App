@@ -345,7 +345,7 @@ Plus, globally:
 - A filter that is applied is a state in force now, so by §1 Colour roles it is **blue**.
 - Whether a count goes with it (e.g. how many filters) is undecided.
 
-**Status**: recorded, not designed or built.
+**Status**: recorded, not designed or built. **Dropped until a real filter exists (Design Round 10, 16, 2026-10-21)**: V1 has no filter (2b is sort and group only), 2b shows its current choice when opened, and 2a's group headings show the grouping. It is drawn when a real filter comes.
 
 ---
 

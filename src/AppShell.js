@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, StyleSheet, View, useWindowDimensions } from 'react-native';
 import AddCoffeeOverlay from './components/AddCoffeeOverlay';
 import { DnaInfoHost } from './components/DnaInfoSheet';
+import { SortSheetHost } from './components/SortSheet';
 import { onShellRequest, requestOpenCup, requestTabReset } from './navigation';
 import DotTexture from './components/base/DotTexture';
 import FooterNav from './components/FooterNav';
@@ -111,6 +112,8 @@ export default function AppShell() {
       <Notice />
       {/* 15b: Home's Taste DNA stamp opens its sheet over the tabs and the bar. */}
       <DnaInfoHost />
+      {/* 2b: Records' filter button opens Sort & group over the tabs and the bar. */}
+      <SortSheetHost />
       <AddCoffeeOverlay
         visible={showAddCoffee}
         onClose={() => setShowAddCoffee(false)}

@@ -8,7 +8,7 @@ Scope test (2026-10-11): can Uryu use it every day himself? His cups are mostly 
 
 **In scope since 2026-10-14, after the above**: 3f (minimal: list + Reopen bag), then 3g (minimal: name, roaster, roasted on). Questions: design-missing.md 27–38.
 
-**Not now**: 2b · 8l · 3b · 3e · 8f · 8g · 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6a · 6b · 6c · 6d · Barista. The Profile and Try next tabs stay placeholders (decided before release).
+**Not now**: 3b · 3e · 8f · 8g · 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6a · 6b · 6c · 6d · Barista. The Profile and Try next tabs stay placeholders (decided before release).
 
 **Next to fall due (recorded 2026-10-20): 2b (sort) and 8l (search)**, the next deadline we set ourselves after the five-bag problem. Dogfood has a few dozen cups today, so scrolling 2a still reaches them; at two a day that is several hundred within three months, and older cups stop being reachable. Home (1b / 4a / 4b) is already done, so this is the next thing to review.
 
@@ -27,8 +27,8 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 3a Add gear | yes | **partial (minimal)** | 8c's generic list. Not: catalogue, search, models, "Not listed" |
 | Bag / gear picker (no mock) | yes | **done** | from 5a |
 | 1b / 4a / 4b Home | **yes** | **done** | greeting, cups total + this week strip, Record a coffee, Taste DNA card, recently sipped (→ 2c, See all → Records), My gear / My beans. Not shown: Try next box (V2), the slow-start line (no rule) |
-| 2a Records | yes | **partial** | grouped list, count; rows open 2c. No sort (2b), no search (8l) |
-| 2b Sort sheet | not now | not started | |
+| 2a Records | yes | **partial** | grouped list, count; rows open 2c; the search field opens 8l, the filter button 2b (2026-10-21). Not: the category chips (All / I made it / Barista / Packaged — the mock's "Ready-to-drink" is the old name), scheduled after 8f (Uryu, 2026-10-21). They are a real filter, so Design's Round 10, 16 / 18 (no "in force" look, "Done" with no count) go back to Design then |
+| 2b Sort sheet | **yes (2026-10-21, with 8l)** | **built, not yet seen on device** | four sorts, four groups, Reset, Done; not remembered. Undrawn parts per Design's Round 10 reply (14–18); 14's I made it tail is ours, in the next brief |
 | 2c Record (one cup) | **yes** (decided 2026-10-11) | **done** | the pencil opens 11a; share, photo, "22 clicks" / "My default brewer" not shown |
 | 11a Edit cup · 11b Delete · 11c Bag picker | **yes** (approved 2026-10-13) | **done** | bag, method, date & time, My words; "As logged" read only; delete with 11b's sheet; the date wins over the bag. Round 4 built: the discard sheet on leaving with changes, "No bag" / "No brewer" / "No grinder", a finished own bag marked. Packaged / Barista: no shelf block until design-missing 6 |
 | 3b My gear / 3e Edit gear | not now | not started | the only way to rename generic gear (`gaps.md` 25) |
@@ -44,7 +44,7 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 7a / 7b Notifications | not now | not started | |
 | 8h My words | not V1 (no word management; `gaps.md` 27) | not started | |
 | 8i Reminders · 8j Feedback · 8m Language | not now | not started | |
-| 8l Records search | not now | not started | |
+| 8l Records search | **yes (2026-10-21, with 2b)** | **built, not yet seen on device** | Words (My words + flavour tags) / Beans, 4★ and up; Gear hidden until 3b / 3e; results open 2c. No recent searches. Undrawn parts per Design's Round 10 reply (19–23); two headings are ours, in the next brief |
 | 8d / 8e Try next | **out (V2)** | placeholder tab | |
 
 ## The four V1-path gaps

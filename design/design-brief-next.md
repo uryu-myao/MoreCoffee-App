@@ -64,6 +64,13 @@ Items for Design's next request, gathered as they come. Send together; group B i
   - **6a's labels ("Acidity high", "Body light", "Roast light")** differ from the band names (Bright, Light-bodied, Light roast). Match them, or is 6a a summary that may differ?
   - **6b's Reset line ("Only the profile is rebuilt")**: Reset now means "count from this day"; the profile builds up again from that day, it is not rebuilt from the old cups.
 
+## Round 10 follow-ups (built 2026-10-21; please check)
+- **14, I made it cups with no roaster / no brewer.** Your "Packaged" / "Barista" headings name the cup's type, but an I made it cup can lack both too: a bag may have no roaster (Round 7, 41), and a cup logged from an empty shelf requires no bag or gear. It is neither Packaged nor Barista. Built (Uryu): it keeps **"No roaster" / "No brewer"** and comes first of the three tail groups (then Packaged, then Barista); under "Roaster A–Z" the same order after Z. OK, or another heading?
+- **19, two headings you didn't name.** Built as:
+  - no results with 4★ on: `Nothing matches “q” · 4★ and up` (your " · 4★ and up" rule applied here too, since 4★ narrowed it);
+  - 4★ on, field empty, no 4★ cups: `No cups rated 4★ and up`.
+  OK?
+
 ## Decisions that change mocked parts (2026-10-11)
 - **5a / 5e intro line**: on `color.surface.raised`, no frame, no leading square (drift D-46).
 

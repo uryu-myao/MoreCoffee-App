@@ -513,6 +513,8 @@ export type CupListItem = {
   rating: number;
   mode: CupMode;
   note: string | null;
+  /** Flavour tags, parsed: 8l's Words search reads them with the note. */
+  flavours: string[];
   drink_type: string | null;
   bean_name: string | null;
   bean_roaster: string | null;
@@ -547,12 +549,13 @@ export async function cupOrdinal(db: SQLiteDatabase, id: number): Promise<number
 
 /** Every cup, newest first (by when it was drunk, then by insertion). */
 export async function listCups(db: SQLiteDatabase): Promise<CupListItem[]> {
-  return db.getAllAsync<CupListItem>(
-    `SELECT c.id, c.logged_at, c.rating, c.mode, c.note, c.drink_type,
+  const rows = await db.getAllAsync<CupListItem>(
+    `SELECT c.id, c.logged_at, c.rating, c.mode, c.note, c.flavours, c.drink_type,
             c.bean_name, c.bean_roaster, c.bean_process, c.brew_method, c.grinder,
             c.product_name, p.name AS place_name
        FROM cups c
        LEFT JOIN places p ON p.id = c.place_id
       ORDER BY c.logged_at DESC, c.id DESC`
   );
+  return rows.map((row) => ({ ...row, flavours: JSON.parse(row.flavours as unknown as string) }));
 }

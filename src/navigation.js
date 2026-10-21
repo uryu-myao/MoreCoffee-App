@@ -12,6 +12,8 @@
  *   requestNotice(text)  AppShell shows 13b's one-line notice above the bar
  *   requestDnaInfo(dna)  AppShell shows 15b's Taste DNA info sheet over the
  *                        tabs and the bar (Home's stamp)
+ *   requestSortSheet(r)  AppShell shows 2b over the tabs and the bar (2a's
+ *                        filter button): { sort, group, onApply }
  */
 const cupListeners = new Set();
 const shellListeners = new Set();
@@ -67,6 +69,17 @@ export function requestDnaInfo(dna) {
 export function onDnaInfoRequest(listener) {
   dnaInfoListeners.add(listener);
   return () => dnaInfoListeners.delete(listener);
+}
+
+const sortSheetListeners = new Set();
+
+export function requestSortSheet(request) {
+  sortSheetListeners.forEach((l) => l(request));
+}
+
+export function onSortSheetRequest(listener) {
+  sortSheetListeners.add(listener);
+  return () => sortSheetListeners.delete(listener);
 }
 
 export function requestShell(request) {

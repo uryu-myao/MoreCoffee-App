@@ -19,9 +19,13 @@ import Text from './Text';
  *   options   [{ value, label }]
  *   value     selected option value
  *   onChange  (value) => void
+ *   toggle    optional { label, on, onToggle }: one more chip after the
+ *             options, on or off by itself (8l's "4★ and up" beside the
+ *             scopes, 2026-10-21). Same look; pressing it when on turns it
+ *             off, so it responds in both states.
  *   testOnly_pressedValue   force the pressed look on one option (dev harness)
  */
-export default function SegmentedControl({ options, value, onChange, testOnly_pressedValue }) {
+export default function SegmentedControl({ options, value, onChange, toggle, testOnly_pressedValue }) {
   // TODO: disabled chip state is undesigned (gaps.md 4).
   return (
     <View style={styles.group} accessibilityRole="radiogroup">
@@ -41,6 +45,18 @@ export default function SegmentedControl({ options, value, onChange, testOnly_pr
           </Pressable>
         );
       })}
+      {toggle ? (
+        <Pressable
+          onPress={toggle.onToggle}
+          accessibilityRole="switch"
+          accessibilityState={{ checked: toggle.on }}
+          accessibilityLabel={toggle.label}
+          style={({ pressed }) => [styles.chip, toggle.on ? styles.chipOn : pressed && styles.chipPressed]}>
+          <Text variant="labelCaps" color={toggle.on ? color.badge.fg.selected : color.badge.fg.neutral}>
+            {toggle.label}
+          </Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }

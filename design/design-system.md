@@ -464,6 +464,7 @@ Measured from the font file (Instrument Serif, per 1000):
 | `label` | 15 | 700 | 未找到 | — | — | 15/700, 13/700, 14/700, 12/700 | 17 screens / 106 uses |
 | `body` | 14 | 500 | 21 | — | — | 14/500 (1.5/1.55/1.6), 13/500, 13.5/500, 15/500/1.6 | 12 screens / 26 uses |
 | `body.sm` | 12 | 500 | 18 | — | — | 12/500 (1.4/1.5), 12.5/500/1.45 | 26 screens / 85 uses |
+| `body.sm.tabular` | 12 | 500 | 18 | — | — | none (Design Round 10, 19, 2026-10-21) | `body.sm` with tabular numerals: 8l's result heading, whose count changes as you type |
 | `meta` | 12 | 600 | 17 | — | — | 12/600, 13/600, 11/600, 14/600, 16/600, 12.5/600 | 11 screens / 49 uses |
 | `label.caps` | 12 | 700 | 未找到 | 0.96 | uppercase | 12/.06–.12em, 13/.06–.12em | 22 screens / 93 uses |
 | `label.eyebrow` | 10 | 700 | 未找到 | 1.60 | uppercase | 10/.08–.16em, 11/.04–.22em, 9/.1–.12em | 28 screens / 235 uses |
@@ -1303,3 +1304,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-20 — `tabBar.icon.accentInactive` / `accentActive` removed (D-45; the review trigger under §2 Component-specific anatomies, C. `tabBar`, fired).
 - 2026-10-20 — T-6 pass 1 (§1 against the code, `todo.md`): base `InlineAction` for the bare text actions (5d's Go to first, 3f's Reopen bag), which now scale when pressed (§1 Pressed: surface-less); 3a's gear limit gives the light impact at the cap and its locked rows the screen-reader hint (§1 Selection limit), through CheckboxList's `lockedHint`, which 5b's search sheet now carries too.
 - 2026-10-20 — Design's T-6 reply: text actions are ink, so §3 pairs `text.inlineAction` with `color.text.primary` and `color.text.link` is removed (no other use; blue stays as the in-force fill). §1 Selection limit: the accent count is for inline counts, not header stats (3a); the screen-reader hint's line sets the meaning, not the copy. `InlineAction` added to `components.md` (Design).
+- 2026-10-21 — Design's Round 10 reply (E, 2b / 8l): §3 `text.bodySmTabular` (`body.sm` + tabular numerals) for 8l's result heading; drift D-57 (2b's check mark → square radio), D-58 ("Show 3 cups" → "Done"), D-59 (8l's "4.5" → whole stars); `gaps.md` 16 dropped until a real filter exists.
