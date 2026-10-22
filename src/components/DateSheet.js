@@ -18,8 +18,10 @@ import Text from './base/Text';
  *
  * Header: the field's label (label.eyebrow, muted) and "Done" (text button) on
  * the right — the slot beside a sheet title already says "action" (§1).
- * The day changes as the wheels turn; Done (or the dimmed page) closes. With
- * no value yet the wheels start on today, and Done takes it.
+ * The day changes as the wheels turn; Done, the dimmed page or a swipe down
+ * closes (2026-10-22). TODO: check on device that the wheels keep their
+ * vertical drags and the swipe starts only outside them. With no value yet
+ * the wheels start on today, and Done takes it.
  * TODO: no way to clear a picked date yet; no mock shows one.
  *
  * Props
@@ -39,7 +41,7 @@ export default function DateSheet({ visible, onClose, label, value, minimum, max
   }, [visible, value]);
 
   return (
-    <BottomSheet visible={visible} onClose={onClose}>
+    <BottomSheet visible={visible} onClose={onClose} swipeToClose>
       <View style={styles.header}>
         {/* The sheet's title in display.sm, as the picker's (decided 2026-10-12). */}
         <Text variant="displaySm" color="primary">

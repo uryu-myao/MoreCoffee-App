@@ -137,7 +137,7 @@ function AsLogged({ cup }) {
  */
 function DeleteSheet({ visible, onClose, cup, dropsLockIn, onDelete }) {
   return (
-    <BottomSheet visible={visible} onClose={onClose}>
+    <BottomSheet visible={visible} onClose={onClose} swipeToClose>
       <Text variant="displaySm" color="primary">
         Delete this cup?
       </Text>

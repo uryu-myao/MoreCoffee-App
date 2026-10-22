@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { spacing } from '../theme/tokens';
 import BottomSheet from './base/BottomSheet';
 import Button from './base/Button';
@@ -17,6 +18,9 @@ import RadioList from './RadioList';
  * Each section is one RadioList with an optional eyebrow (Method: Brewer /
  * Grinder). A pick applies at once; with `closeOnPick` (one
  * section) it also closes. The list scrolls when taller than the sheet.
+ * Closing: "Done", a tap on the dimmed page, or a swipe down (BottomSheet
+ * swipeToClose, 2026-10-22, as 2b / 5b's search / 15b). The list is gesture
+ * handler's ScrollView, so the list's scroll and the swipe take turns.
  *
  * Props
  *   visible, onClose
@@ -26,7 +30,7 @@ import RadioList from './RadioList';
  */
 export default function PickerSheet({ visible, onClose, label, sections, closeOnPick = false }) {
   return (
-    <BottomSheet visible={visible} onClose={onClose}>
+    <BottomSheet visible={visible} onClose={onClose} swipeToClose>
       <View style={styles.header}>
         <Text variant="displaySm" color="primary">
           {label}

@@ -193,7 +193,7 @@ export default function EditGearScreen({ gear, onBack, onRemoved, guardLeave }) 
         }}
       />
       {/* gaps.md 18: 11b's sheet, as 3g's delete. */}
-      <BottomSheet visible={sheet === 'remove'} onClose={() => setSheet(null)}>
+      <BottomSheet visible={sheet === 'remove'} onClose={() => setSheet(null)} swipeToClose>
         <Text variant="displaySm" color="primary">
           {`Remove this ${kind}?`}
         </Text>

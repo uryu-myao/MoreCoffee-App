@@ -16,7 +16,7 @@ import Text from './base/Text';
  */
 export default function DiscardSheet({ visible, onClose, body, onDiscard }) {
   return (
-    <BottomSheet visible={visible} onClose={onClose}>
+    <BottomSheet visible={visible} onClose={onClose} swipeToClose>
       <Text variant="displaySm" color="primary">
         Discard your changes?
       </Text>

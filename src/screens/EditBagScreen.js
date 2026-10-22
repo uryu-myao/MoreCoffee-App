@@ -231,7 +231,7 @@ export default function EditBagScreen({ bag, onBack, onDeleted, guardLeave }) {
         }}
       />
       {/* 36: 11b's sheet with "bag". */}
-      <BottomSheet visible={sheet === 'delete'} onClose={() => setSheet(null)}>
+      <BottomSheet visible={sheet === 'delete'} onClose={() => setSheet(null)} swipeToClose>
         <Text variant="displaySm" color="primary">
           Delete this bag?
         </Text>

@@ -34,7 +34,8 @@ import { color, layout, motion, opticalMargin, shape, size, space, spacing } fro
  * is taller scrolls inside it).
  *
  * The handle is drawn as in 2b. Tapping the dimmed page closes the sheet.
- * With swipeToClose (15b's info sheet, Design Round 8), a swipe down closes it
+ * With swipeToClose (15b's info sheet, Design Round 8; every sheet in the app
+ * since 2026-10-22, as each draws the handle), a swipe down closes it
  * too: the sheet follows the finger and closes past 25% of its height or on a
  * 300pt/s flick, else settles back — the edge swipe's tuning on the other
  * axis (constants/edgeSwipe.js). A scroll view inside should be gesture
