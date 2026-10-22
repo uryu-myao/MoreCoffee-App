@@ -101,6 +101,19 @@ export async function loadDnaPage(db: SQLiteDatabase): Promise<{ dna: Dna; shift
   return { dna, shift: lastShift(rows) };
 }
 
+/**
+ * 6a's personal card: every bag ever added (finished ones too, beside the
+ * all-time cup count) and every cup's time (the first gives "Logging
+ * since", all of them the week streak).
+ */
+export async function loadProfile(db: SQLiteDatabase): Promise<{ bags: number; cupTimes: number[] }> {
+  const [bags, cups] = await Promise.all([
+    db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM bags'),
+    db.getAllAsync<{ logged_at: number }>('SELECT logged_at FROM cups ORDER BY logged_at'),
+  ]);
+  return { bags: bags?.n ?? 0, cupTimes: cups.map((c) => c.logged_at) };
+}
+
 /** One cup as 2c shows it: every stored field, with its place names. */
 export type CupRecord = Row<'cups'> & {
   place_name: string | null;

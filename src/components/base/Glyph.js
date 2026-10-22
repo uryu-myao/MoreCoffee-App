@@ -36,6 +36,10 @@ const SHAPES = {
     <Path key="c" d="M3 20.5h15" />,
   ],
   star: [<Path key="p" d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />],
+  // 6a's My shelf rows and 6b's Export my cups (2026-10-21), verbatim.
+  dripper: [<Path key="a" d="M5 4h11l-1 6a5 5 0 0 1-9 0z" />, <Path key="b" d="M16 5h2.5a2.5 2.5 0 0 1 0 5H16" />, <Path key="c" d="M4 20h13" />],
+  beanBag: [<Path key="a" d="M6 3h12v5a6 6 0 0 1-2 4.5V21H8v-8.5A6 6 0 0 1 6 8z" />, <Path key="b" d="M9 7h6" />],
+  download: [<Path key="a" d="M12 4v11" />, <Path key="b" d="M7 11l5 5 5-5" />, <Path key="c" d="M4 20h16" />],
   // beanFreshness's clock (3d / 4b), verbatim.
   clock: [<Circle key="c" cx="12" cy="12" r="9" />, <Path key="p" d="M12 7v5l3.5 2" />],
   // 3g's Delete this bag (the bin), verbatim.

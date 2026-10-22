@@ -44,9 +44,10 @@ import ScreenFrame from './ScreenFrame';
  * The shift is read from the stored changes (taste-dna.md item 5), so its
  * "to" band can differ from today's: the profile is computed on read.
  */
-const cupsLabel = (n) => (n === 1 ? '1 cup' : `${n} cups`);
+export const cupsLabel = (n) => (n === 1 ? '1 cup' : `${n} cups`);
 
-function shiftedLabel(at) {
+/** "shifted 4 days ago" (8f); 6a puts "last " before it. */
+export function shiftedLabel(at) {
   const days = daysSince(at);
   return days <= 0 ? 'shifted today' : days === 1 ? 'shifted 1 day ago' : `shifted ${days} days ago`;
 }

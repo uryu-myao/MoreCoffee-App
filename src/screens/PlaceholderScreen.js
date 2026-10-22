@@ -9,7 +9,7 @@ import ScreenFrame from './ScreenFrame';
  * empty state is designed when the screen itself is rebuilt.
  *
  * `children` sit under the line: interim tools that need a home before their
- * screen is designed (Profile's export, 2026-10-20).
+ * screen is designed (Profile's export, 2026-10-20 to 2026-10-21; unused now).
  */
 export default function PlaceholderScreen({ title, eyebrow, leading, children }) {
   return (

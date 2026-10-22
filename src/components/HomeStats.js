@@ -43,6 +43,29 @@ export function weekStart(now) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate() - monday).getTime();
 }
 
+/**
+ * Weeks in a row with at least one cup, Monday-first as the strip above
+ * (6a's "Week streak"; the rule is ours, 2026-10-21: no board gives one).
+ * Counts back from this week; while this week has no cup yet it counts from
+ * last week, so the streak doesn't drop to 0 every Monday. 0 when neither
+ * this week nor last has a cup.
+ */
+export function weekStreak(cupTimes, now) {
+  const weeks = new Set(cupTimes.map((t) => weekStart(t)));
+  const back = (ms) => {
+    const d = new Date(ms);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() - 7).getTime();
+  };
+  let week = weekStart(now);
+  if (!weeks.has(week)) week = back(week);
+  let n = 0;
+  while (weeks.has(week)) {
+    n += 1;
+    week = back(week);
+  }
+  return n;
+}
+
 export default function HomeStats({ total, cupTimes, now }) {
   const start = weekStart(now);
   const today = startOfDay(new Date(now));

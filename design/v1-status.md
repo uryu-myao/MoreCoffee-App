@@ -8,7 +8,7 @@ Scope test (2026-10-11): can Uryu use it every day himself? His cups are mostly 
 
 **In scope since 2026-10-14, after the above**: 3f (minimal: list + Reopen bag), then 3g (minimal: name, roaster, roasted on). Questions: design-missing.md 27–38.
 
-**Not now**: 3b · 3e · 8g · 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6a · 6b · 6c · 6d · Barista. The Profile and Try next tabs stay placeholders (decided before release).
+**Not now**: 3b · 3e · 8g · 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6b · 6c · 6d · Barista. The Try next tab stays a placeholder (decided before release); Profile is 6a's upper part (2026-10-21).
 
 **Next to fall due (recorded 2026-10-20): 2b (sort) and 8l (search)**, the next deadline we set ourselves after the five-bag problem. Dogfood has a few dozen cups today, so scrolling 2a still reaches them; at two a day that is several hundred within three months, and older cups stop being reachable. Home (1b / 4a / 4b) is already done, so this is the next thing to review.
 
@@ -34,7 +34,7 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 3b My gear / 3e Edit gear | not now | not started | the only way to rename generic gear (`gaps.md` 25) |
 | 3d My beans | **yes** | **done** | open bags, "Day N", Finish bag (no confirm, no undo at this stage), Add a bag → 3c. Card tap (3g) and Finished bags (3f) not at this stage |
 | 3g Edit bag / 3f Finished bags | **yes, minimal (2026-10-14)**: 3f first, then 3g | **3f done** (entry at 3d's foot, rows, Reopen, the 5 / 5 line, the reopened notice); **3g done** (minimal: name, roaster, roasted on, opened on; limits; freshness; Delete; from a 3d card) | 3f's Reopen is the recovery for Finish (gaps 17 / 18), which stays unconfirmed; questions to Design: design-missing.md 27–38 |
-| 6a / 6b / 6c Profile | not now | not started (placeholder) | 6a is 8f's entry point. The placeholder carries an interim "My taste DNA" (8f, 2026-10-21) and an interim "Export my log (JSON)" (2026-10-20): every table to the share sheet, until 6b designs export / backup |
+| 6a / 6b / 6c Profile | **6a upper part: yes (2026-10-21)** | **6a upper part built, not yet seen on device**; 6b / 6c not started | personal card without name / avatar / badge (6d): "Logging since" over Cups / Bags / Week streak (our rule); Taste DNA card → 8f (band-name Badges, no summary); My shelf: My gear (information only until 3b), My beans → 3d; 6b's "Export my cups" row alone under My data (T-8). Not: Edit (6d), My words (8h), "1 stale" |
 | 6d Edit profile | not now | not started | |
 | 8f My taste DNA | **yes (2026-10-21)** | **built, not yet seen on device** | stamp (ⓘ → 15b), "From N cups · shifted N days ago", four axes with band names, Last shift (band names + date, no cause). From Profile's placeholder and 2c's "Feeds my taste DNA". Not: the summary line (Round 10, D12), "What you keep saying" (waits for 8h, T-9), the footer (8g / 8d out of V1) |
 | 8g How my DNA is built | not now | not started | copy to adjust for V1 (`gaps.md` 31) |

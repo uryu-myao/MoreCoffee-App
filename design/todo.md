@@ -100,6 +100,8 @@ Until 6a is built, Profile's placeholder (`screens/index.js`) holds:
 
 **When 6a is built, move both**: 8f's entry into 6a's card, the export to wherever 6a / 6b put it. Neither may be dropped with the placeholder.
 
+**Updated 2026-10-21 (6a's upper part)**: 8f's entry becomes 6a's Taste DNA card. The export is the only way to get the data out, so it must never be dropped. 6a's upper part has no place for it, so it moves to an interim row under 6a: 6b's own "My data / Export my cups" row, built alone (built 2026-10-21; the placeholder is gone). **When 6b is built, the export joins the rest of 6b's My data (Backup, …) in its final form.**
+
 ## T-9. 8f's "What you keep saying" waits for 8h (recorded 2026-10-21)
 The block counts **My words** (what the user wrote; `components.md`, Words), not flavour tags (picked from a fixed set). It is not shown until 8h and My words' counts exist. Flavour tags are not a stand-in: under that heading they would pass picked category words off as the user's own words.
 - **Keep for then**: tapping a word opens 8l on the Words scope with that word typed (8l is built, 2026-10-21).
