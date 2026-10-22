@@ -113,3 +113,11 @@ Pressable blocks and rows were each settled on their own, so the app and the boa
 - **Until Design answers**: build as listed there; no screen gets its own treatment in the meantime.
 - **When the answer comes**: apply it to every row of the inventory in one change, and update §1 Tap affordance / §8 / D-48 / D-49.
 
+
+## T-11. The grind setting is held back in three places (recorded 2026-10-22, planner)
+Grind is not in V1, and three parts wait on it. **They move together**: whoever builds grind starts here, not by finding each one alone.
+- **`cups.grind_setting`**: the column exists (a V1.5 column, `schema.ts`), with no input on 5a or 11a.
+- **2c's "22 clicks"**: not shown (`data-model.md`, the addendum; open).
+- **3e's "My settings note"**: not built. Its line, "Prefills the grind field when you pick this grinder", promises a field V1 doesn't have. `gear.settings_note` exists, unused.
+
+When grind is built: the input (5a / 11a), 2c's line, and 3e's note with its prefill, in one change.

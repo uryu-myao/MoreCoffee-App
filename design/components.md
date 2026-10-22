@@ -35,7 +35,7 @@ Pressed, focus, tap affordance, the selection limit and the disabled look of opt
 | 6 | Flavour chip, multi-select | 5b (6) | inline | selected · unselected · Search opener (2px solid ink frame since 2026-10-18; was `border.addSlot`) | selected, unselected; at the limit, disabled (§1) | — |
 | 7 | Checkbox list, multi-select | 3a (5 rows, cap 8: "3 / 8 Selected · 5 slots left") · 8c (5 rows, cap 3: "2 of 3 picked") | not started | row + 24px checkbox; 8c tints the selected row `#FFF8F1` | selected, unselected, count; at the limit, disabled (§1) | — |
 | 8 | Checkbox | 3a (5) · 8c (5); all 24 (`size.checkbox`) | not started | checked fill: **ink on 3a, action blue on 8c** (drift, `drift.md` D-19) | checked, unchecked; disabled (§1) | — |
-| 9 | Toggle switch | 8 uses / 4 screens: 3e (1, 62×34, on = ink) · 8i (4) 8j (2) 8m (1), all 52×30, on = action blue | not started | one; 3e is drift in size and on-colour (`drift.md` D-20) | on, off; role switch (§1 Tap affordance) | disabled |
+| 9 | Toggle switch | 8 uses / 4 screens: 3e (1, 62×34, on = ink) · 8i (4) 8j (2) 8m (1), all 52×30, on = action blue | **built 2026-10-22** (`base/Switch`, first on 3e) | one; 3e is drift in size and on-colour (`drift.md` D-20) | on, off; role switch (§1 Tap affordance) | disabled |
 | 10 | Weekday selector | 8i (7) | not started | option form at 44 (§1; the mock is 39) | selected (ink), unselected; uncapped (no count); disabled (§1) | — |
 | 11 | FieldRow | 5a 5d 5e (10 rows) | component | swatch · icon · plain · divided | default, pressed, error (5d) | disabled; **empty value** (no default to pre-fill); loading (MapKit lookup) |
 | 12 | Star rating (`StarRating`) | 5a 5d 5e | component | — | unrated, rated, pressed (disc), error (5d), caption | disabled / read-only |

@@ -20,6 +20,8 @@ import Text from './base/Text';
  * value uses `title`. Entered text is text.primary, placeholders
  * text.placeholder (2026-10-12). Bean name's example is Uryu's (2026-10-12).
  *
+ * Field is exported: 3e (Edit gear) builds its Name and Maker from it.
+ *
  * A typed field with text shows ClearButton's × at the underline's right end
  * (2026-10-17, ours): it empties the field.
  *
@@ -75,7 +77,7 @@ export default function BagForm({
   );
 }
 
-function Field({ label, value = '', placeholder, onChangeText, editable = true, autoFocus = false, error = false }) {
+export function Field({ label, value = '', placeholder, onChangeText, editable = true, autoFocus = false, error = false }) {
   const [focused, setFocused] = useState(false);
   return (
     <View style={styles.field}>

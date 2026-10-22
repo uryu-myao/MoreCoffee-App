@@ -105,6 +105,22 @@ Uryu wants pressable blocks designed together, not screen by screen. Today each 
 
 **What we need back**: the pressable block's frame (or none), its sign (chevron, arrow, or other) and where it sits, its pressed state; the not-pressable framed block; and which of the seven above change. Built as listed until then.
 
+## 3b / 3e follow-ups (built 2026-10-22; please check)
+- **3e is minimal.** Built: Name (required), Maker, the default switch (brewer / grinder only), Remove, Save. Not built: the photo (no camera yet, as 3g), Category, Added on, My settings note.
+  - **Category is not editable**: a cup holds its gear as brewer or grinder, so moving a grinder to "Kettle" would break the cups logged with it. 3a adds only those two. Should 3e show the category at all (as text), or is "My default grinder" enough to say what it is?
+  - **My settings note** promises "Prefills the grind field when you pick this grinder", and V1 has no grind field. It comes with the grind setting (`todo.md` T-11).
+- **The default switch turns off** (Uryu): no default is a fair state, and a switch that won't move looks broken. Removing the default passes it to nothing: 5a's Method starts empty until the user picks another. Built at `size.switch` (D-20).
+- **Remove asks first** (gaps.md 18, 11b's sheet as 3g's delete). Our copy:
+  - title `Remove this grinder?`;
+  - `It's removed from My gear for good. Your 12 logged cups keep its name.` (no cups: the first sentence alone);
+  - for the default only: `It's your default grinder, so new cups start without one until you choose another.`;
+  - `Remove from my gear` / `Keep it`.
+  Then back to 3b with 13b's notice, verb **"removed"** (`Comandante C40 removed.`; 13b draws "deleted", 3f uses "reopened"). OK?
+- **"Edits apply to the N cups already logged with it."** Gear is used for a long time: one grinder can carry 100+ cups, and a rename rewrites the name on all of them. The line fits at 3–4 digits. Is it warning enough at 183 cups, or should a large N read differently?
+- **3e's header: Back, not ×** (as 3g; 3e draws ×). A pushed edit screen leaves the way it came.
+- **3b's kettle / scale line** is the category alone, as 4a (never on a cup, so no "not used yet"). 3b draws "Kettle · not used yet". V1 can't add either yet.
+- **Name's placeholder** when emptied is the category ("Grinder"), then the required error on Save. OK?
+
 ## Decisions that change mocked parts (2026-10-11)
 - **5a / 5e intro line**: on `color.surface.raised`, no frame, no leading square (drift D-46).
 

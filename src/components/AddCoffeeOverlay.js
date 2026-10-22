@@ -43,6 +43,13 @@ export default function AddCoffeeOverlay({ visible, onClose, onNavigate }) {
   const [mounted, setMounted] = useState(false);
   // The second page: 5b ('note'), 3c minimal ('bag') or 3a minimal ('gear'), all pushed from 5a.
   const [second, setSecond] = useState(null);
+  // Each push of 3c / 3a starts a fresh screen. The page stays mounted under
+  // 5a after Back (for the slide), so without a new key the next "Add gear"
+  // reopened the last one: its picks still checked and its shelf count read
+  // at its first open — a second Save added the same gear again, or was
+  // refused at "6 / 8" on a shelf already near full (device, 2026-10-22).
+  // 5b keeps its key: its note is the cup's draft.
+  const [pushes, setPushes] = useState(0);
   // 5c: the id of the cup just saved; 5c shows over the steps until the sheet closes.
   const [savedId, setSavedId] = useState(null);
   // Saved with the keyboard up (My words focused: the save buttons take the tap,
@@ -95,6 +102,7 @@ export default function AddCoffeeOverlay({ visible, onClose, onNavigate }) {
   };
   const push = (page) => {
     setSecond(page);
+    setPushes((n) => n + 1);
     setOnNote(true);
     toStep(1);
   };
@@ -171,9 +179,9 @@ export default function AddCoffeeOverlay({ visible, onClose, onNavigate }) {
                 {second === 'note' ? (
                   <TastingNoteScreen onBack={backToRecord} />
                 ) : second === 'bag' ? (
-                  <AddBagScreen onBack={backToRecord} />
+                  <AddBagScreen key={pushes} onBack={backToRecord} />
                 ) : (
-                  <AddGearScreen onBack={backToRecord} />
+                  <AddGearScreen key={pushes} onBack={backToRecord} />
                 )}
               </SwipeBackHoldContext.Provider>
             </Reanimated.View>

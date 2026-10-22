@@ -97,7 +97,7 @@ export default function HomeTabScreen() {
                 ))}
               </View>
             ) : null}
-            <ShelfBlock onManageBeans={() => push('beans')} onAddBag={() => push('addBag')} onAddGear={() => push('addGear')} />
+            <ShelfBlock onManageBeans={() => push('beans')} onManageGear={() => push('gear')} onAddBag={() => push('addBag')} onAddGear={() => push('addGear')} />
           </View>
         ) : null}
       </ScreenFrame>

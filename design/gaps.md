@@ -517,11 +517,13 @@ The user sees the past rewritten.
 
 ---
 
-## 25. Gear added from the generic list has generic names (added 2026-10-10)
+## 25. Gear added from the generic list has generic names (added 2026-10-10) — RESOLVED 2026-10-22 by 3e
 
 **What**: 3a (minimal) adds gear from 8c's generic list, so 5a's Method reads e.g. "Pour-over dripper · Hand grinder", not a model ("Hario V60 02 · Comandante C40"). Accepted for stage 2.
 
 **Way out**: none yet. 3e (Edit gear), where a name could be changed, is **not built**. Models arrive with the full 3a or 3e.
+
+**RESOLVED 2026-10-22**: 3e (minimal) renames gear, and the cups logged with it take the new name. Gear added from 3a still starts generic until renamed.
 
 ---
 

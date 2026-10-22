@@ -285,6 +285,48 @@ export async function countGear(db: SQLiteDatabase): Promise<number> {
   return row?.n ?? 0;
 }
 
+/** What 3e needs beside the gear: how many cups were logged with it. */
+export async function gearUse(db: SQLiteDatabase, id: number): Promise<number> {
+  const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM cups WHERE brewer_id = ? OR grinder_id = ?', [id, id]);
+  return row?.n ?? 0;
+}
+
+/** What 3e (minimal) edits. Category is not editable: cups hold gear as brewer or grinder. */
+export type GearEdit = { name: string; maker: string | null; isDefault: boolean };
+
+/**
+ * Save 3e. As updateBag: the cups logged with the gear carry its name as a
+ * copy (brew_method / grinder), rewritten in the same transaction ("Edits
+ * apply to the N cups already logged with it"). Turning the default on
+ * takes it from the category's other gear (one default per category, a
+ * partial unique index); turning it off leaves the category with none, so
+ * 5a's Method starts empty (Uryu, 2026-10-22).
+ */
+export async function updateGear(db: SQLiteDatabase, id: number, edit: GearEdit): Promise<void> {
+  await db.withExclusiveTransactionAsync(async (tx) => {
+    const gear = await tx.getFirstAsync<Gear>('SELECT * FROM gear WHERE id = ?', [id]);
+    if (!gear) throw new Error('This gear is no longer on your shelf.');
+    if (edit.isDefault) await tx.runAsync('UPDATE gear SET is_default = 0 WHERE category = ? AND id != ?', [gear.category, id]);
+    await tx.runAsync('UPDATE gear SET name = ?, maker = ?, is_default = ? WHERE id = ?', [edit.name, edit.maker, edit.isDefault ? 1 : 0, id]);
+    await tx.runAsync('UPDATE cups SET brew_method = ? WHERE brewer_id = ?', [edit.name, id]);
+    await tx.runAsync('UPDATE cups SET grinder = ? WHERE grinder_id = ?', [edit.name, id]);
+  });
+  notifyShelfChanged();
+  notifyCupsChanged();
+}
+
+/**
+ * Remove gear (3e). Its cups keep their copy of its name; only their link
+ * goes (brewer_id / grinder_id → NULL by the foreign key). A removed default
+ * is not passed on to other gear: that would change the next cup without
+ * the user choosing it (Uryu, 2026-10-22).
+ */
+export async function removeGear(db: SQLiteDatabase, id: number): Promise<void> {
+  await db.runAsync('DELETE FROM gear WHERE id = ?', [id]);
+  notifyShelfChanged();
+  notifyCupsChanged();
+}
+
 /**
  * Add gear (3a minimal). The first gear of a category becomes its default, so
  * 5a's Method fills at once. One transaction; refuses past `limit`. Returns

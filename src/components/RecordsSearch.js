@@ -17,7 +17,7 @@ import Text from './base/Text';
  *
  *   header   SearchField (focused on open) and "Cancel" (Button text), over a
  *            2px ink rule, as 8l's
- *   scopes   SegmentedControl Words / Beans (Gear hidden until 3b / 3e),
+ *   scopes   SegmentedControl Words / Beans / Gear (Gear back with 3b / 3e),
  *            with "4★ and up" as its toggle chip (it combines with any scope)
  *   heading  body.sm with tabular numerals, text.secondary: "9 cups say
  *            "juicy"" (searchHeading; Design Round 10, 19). Nothing under

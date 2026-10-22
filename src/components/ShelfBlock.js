@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import BeanFreshness from './BeanFreshness';
 import { useDatabase } from '../data/DatabaseProvider';
+import { GEAR_CATEGORY, GEAR_LIMIT, onCups } from '../constants/gear';
 import { OPEN_BAG_LIMIT, listGearWithUse, listShelfBags, onCupsChanged, onShelfChanged } from '../data/repository';
 import { color, icon, shape, size, space, spacing, state } from '../theme/tokens';
 import Badge from './base/Badge';
@@ -23,8 +24,8 @@ import Text from './base/Text';
  *
  * My gear (4a): every piece of gear, defaults first — name with a "Default"
  * badge, "Brewer · 2 cups" / "· not used yet". A kettle or scale is never on
- * a cup, so its line is the category alone. "Manage my gear" → 3b is not at
- * this stage: not shown. No gear: an "Add gear" AddButton → 3a.
+ * a cup, so its line is the category alone. Then "Manage my gear  N / 8" →
+ * 3b (2026-10-22), as My beans'. No gear: an "Add gear" AddButton → 3a.
  *
  * No item dividers (Design Round 9, 2026-10-18): rows are set apart by
  * spacing.inset.listRow alone, and "Manage my beans" sits under the last row
@@ -33,11 +34,9 @@ import Text from './base/Text';
  * Thumbnails are FieldRow's swatch (size.field.height, 46): 4a / 4b draw 44,
  * which has no token (drift D-51).
  *
- * Props: onManageBeans, onAddBag, onAddGear
+ * Props: onManageBeans, onManageGear, onAddBag, onAddGear
  */
-const CATEGORY = { brewer: 'Brewer', grinder: 'Grinder', kettle: 'Kettle', scale: 'Scale' };
-
-export default function ShelfBlock({ onManageBeans, onAddBag, onAddGear }) {
+export default function ShelfBlock({ onManageBeans, onManageGear, onAddBag, onAddGear }) {
   const db = useDatabase();
   const [tab, setTab] = useState('beans');
   const [shelf, setShelf] = useState(null);
@@ -64,7 +63,7 @@ export default function ShelfBlock({ onManageBeans, onAddBag, onAddGear }) {
         <Tab label="My gear" on={tab === 'gear'} onPress={() => setTab('gear')} />
         <Tab label="My beans" on={tab === 'beans'} onPress={() => setTab('beans')} first={false} />
       </View>
-      <View style={styles.card}>{tab === 'beans' ? <Beans bags={shelf.bags} onManage={onManageBeans} onAdd={onAddBag} /> : <Gear gear={shelf.gear} onAdd={onAddGear} />}</View>
+      <View style={styles.card}>{tab === 'beans' ? <Beans bags={shelf.bags} onManage={onManageBeans} onAdd={onAddBag} /> : <Gear gear={shelf.gear} onManage={onManageGear} onAdd={onAddGear} />}</View>
     </View>
   );
 }
@@ -109,11 +108,10 @@ function Beans({ bags, onManage, onAdd }) {
   );
 }
 
-function Gear({ gear, onAdd }) {
+function Gear({ gear, onManage, onAdd }) {
   if (!gear.length) return <AddButton icon="plus" iconToken={icon.sm} label="Add gear" onPress={onAdd} />;
-  return gear.map((g) => {
-    const used = g.category === 'brewer' || g.category === 'grinder';
-    const line = used ? `${CATEGORY[g.category]} · ${g.cups ? `${g.cups} ${g.cups === 1 ? 'cup' : 'cups'}` : 'not used yet'}` : CATEGORY[g.category];
+  const rows = gear.map((g) => {
+    const line = onCups(g.category) ? `${GEAR_CATEGORY[g.category]} · ${g.cups ? `${g.cups} ${g.cups === 1 ? 'cup' : 'cups'}` : 'not used yet'}` : GEAR_CATEGORY[g.category];
     return (
       <View key={g.id} style={styles.row}>
         <PhotoPlaceholder size={size.field.height} />
@@ -131,6 +129,12 @@ function Gear({ gear, onAdd }) {
       </View>
     );
   });
+  return (
+    <>
+      {rows}
+      <Manage label="Manage my gear" count={`${gear.length} / ${GEAR_LIMIT}`} onPress={onManage} />
+    </>
+  );
 }
 
 /**

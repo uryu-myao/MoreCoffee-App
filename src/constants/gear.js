@@ -12,3 +12,9 @@ export const GEAR_TYPES = [
 
 /** At most this much gear on the shelf (3a "3 / 8 Selected · 5 slots left"). */
 export const GEAR_LIMIT = 8;
+
+/** A category as the shelf names it (4a "Brewer · 2 cups", 3b, 3e). */
+export const GEAR_CATEGORY = { brewer: 'Brewer', grinder: 'Grinder', kettle: 'Kettle', scale: 'Scale' };
+
+/** Gear a cup can hold (brewer_id / grinder_id): only these count cups or take a default. */
+export const onCups = (category) => category === 'brewer' || category === 'grinder';

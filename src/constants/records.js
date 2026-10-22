@@ -101,13 +101,13 @@ export function arrangeCups(cups, sort, group, monthFormat) {
   return list;
 }
 
-// Gear is hidden until 3b / 3e let gear be renamed: with only the generic
-// names, it finds nothing and reads as broken (Design Round 10, 21). Its
-// search and heading stay below; adding { value: 'gear', label: 'Gear' }
-// back is all it takes.
+// Gear was hidden until 3b / 3e let gear be renamed (Design Round 10, 21);
+// back 2026-10-22. Gear added from 3a keeps its generic name ("Hand
+// grinder") until it is renamed in 3e, so a model finds it only after that.
 export const SCOPES = [
   { value: 'words', label: 'Words' },
   { value: 'beans', label: 'Beans' },
+  { value: 'gear', label: 'Gear' },
 ];
 
 /** The whole word around a match in free text: "so jui" → "juicy". */
@@ -133,7 +133,7 @@ function firstMatch(values, q) {
  *   words  My words (the whole word around the match) and the flavour tags
  *          (Design Round 10, 20); a cup matching both is listed once.
  *   beans  bean name, roaster
- *   gear   brewer, grinder (hidden from SCOPES until 3b / 3e)
+ *   gear   brewer, grinder
  * fourUp (4★ and up): a switch, rating ≥ 4, with any scope (Design Round
  * 10, 23). With no query it lists every 4★+ cup, untagged. Matching is a
  * plain case-insensitive substring.
@@ -166,7 +166,7 @@ export function searchCups(cups, { query, scope, fourUp }) {
  * The result heading (Design Round 10, 19; "q" is the typed text, curly-quoted):
  *   words  "9 cups say "q"" / "1 cup says "q""
  *   beans  "5 cups of "q""
- *   gear   "4 cups brewed with "q"" (scope hidden for now)
+ *   gear   "4 cups brewed with "q""
  *   4★ on, field empty  "12 cups rated 4★ and up"
  *   4★ on, with text    the line + " · 4★ and up"
  *   no results          "Nothing matches "q""

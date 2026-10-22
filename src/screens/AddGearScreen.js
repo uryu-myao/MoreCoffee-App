@@ -86,8 +86,7 @@ export default function AddGearScreen({ onBack }) {
         locked={owned == null || left <= 0}
         // A shelf already full: nothing here to deselect, so say how to free a
         // slot (Design 2026-10-20).
-        // TODO(design): V1 has no way to remove gear (3b / 3e not now, gaps.md 25),
-        // so "My gear" here points at Home's list, which can't remove anything yet.
+        // Removed in 3e, reached from My gear (3b, 2026-10-22).
         lockedHint={n === 0 ? 'No slots left. Remove gear from My gear to free one.' : undefined}
         onToggle={toggle}
       />

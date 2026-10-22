@@ -3,8 +3,10 @@ import AddBagScreen from '../screens/AddBagScreen';
 import AddGearScreen from '../screens/AddGearScreen';
 import EditBagScreen from '../screens/EditBagScreen';
 import EditCupScreen from '../screens/EditCupScreen';
+import EditGearScreen from '../screens/EditGearScreen';
 import FinishedBagsScreen from '../screens/FinishedBagsScreen';
 import MyBeansScreen from '../screens/MyBeansScreen';
+import MyGearScreen from '../screens/MyGearScreen';
 import TasteDnaScreen from '../screens/TasteDnaScreen';
 import { ScreenBackdropContext } from '../screens/ScreenFrame';
 import { cupTitle } from '../constants/cups';
@@ -30,6 +32,9 @@ import PushedScreen from './PushedScreen';
  *   editBag   3g ({ bag }), from a 3d card; a delete returns to 3d with
  *             13b's notice
  *   addGear   3a
+ *   gear      3b, from Home's "Manage my gear" and Profile's My gear
+ *   editGear  3e ({ gear }), from a 3b row; a removal returns to 3b with
+ *             13b's notice ("‹name› removed.")
  *   editCup   11a ({ cup }); a delete also closes the cup in Records and
  *             shows 13b's notice ("‹title› deleted.")
  *   dna       8f, from Profile and 2c's "Feeds my taste DNA"
@@ -71,6 +76,20 @@ export default function ShellStack() {
         return <FinishedBagsScreen onBack={goBack} />;
       case 'addGear':
         return <AddGearScreen onBack={goBack} />;
+      case 'gear':
+        return <MyGearScreen onBack={goBack} onAddGear={() => push({ name: 'addGear' })} onEditGear={(gear) => push({ name: 'editGear', gear })} />;
+      case 'editGear':
+        return (
+          <EditGearScreen
+            gear={entry.gear}
+            onBack={goBack}
+            guardLeave={guardLeave}
+            onRemoved={(name) => {
+              pop('editGear');
+              requestNotice({ name, verb: 'removed' });
+            }}
+          />
+        );
       case 'dna':
         return <TasteDnaScreen onBack={goBack} />;
       case 'addBag':
