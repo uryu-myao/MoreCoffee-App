@@ -31,8 +31,8 @@ export const sortLabel = (key) => SORTS.find((s) => s.key === key).label;
  * café can't be entered yet). An I made it cup can have neither too (a bag
  * with no roaster; a cup logged from an empty shelf, which requires no bag
  * or gear). It is neither of those, so it keeps "No roaster" / "No brewer"
- * and comes first of the three (Uryu, 2026-10-21).
- * TODO(design): not yet seen by Design; goes in the next brief.
+ * and comes first of the three (Uryu, 2026-10-21; Design Round 11, A: OK,
+ * the same order after Z).
  */
 const TAIL = { none: 1, packaged: 2, barista: 3 };
 const tailKey = (cup) => (cup.mode === 'made_it' ? 'none' : cup.mode);
@@ -172,7 +172,7 @@ export function searchCups(cups, { query, scope, fourUp }) {
  *   no results          "Nothing matches "q""
  * Two cases Design doesn't name are ours: no results with 4★ on also gets
  * " · 4★ and up" (it narrowed the search), and 4★ alone with no cups reads
- * "No cups rated 4★ and up". TODO(design): confirm both.
+ * "No cups rated 4★ and up". Design OK'd both (Round 11, A).
  */
 export function searchHeading(count, { query, scope, fourUp }) {
   const q = query.trim();

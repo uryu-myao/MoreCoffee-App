@@ -64,7 +64,7 @@ Items for Design's next request, gathered as they come. Send together; group B i
 - **8l's matched text, now in `RecordRow`.** Your C4 moved 8l's results onto 2a's row, which has no place for the outline tag that shows what matched (Round 10, 19 / 20). Kept, after the mode badge, on a Badge's fill and padding (it labels, never acts; an outline inside a pressable row reads as an option, §1), but in the user's own case and shrinking to one line, since it is the user's text (a Badge holds fixed copy in caps). OK, or another place?
 
 ## Answered by Design's Round 11 (moved out 2026-10-23)
-Round 10 follow-ups (14, 19), 8f follow-ups, pressable blocks (`todo.md` T-10), the 3a full-shelf hint, and 8f's three contradictions with 6a's labels: answered in `design-response-next.md`, "Round 11". Not built yet.
+Round 10 follow-ups (14, 19), 8f follow-ups, pressable blocks (`todo.md` T-10), the 3a full-shelf hint, and 8f's three contradictions with 6a's labels: answered in `design-response-next.md`, "Round 11". Built 2026-10-23.
 
 ## 3b / 3e follow-ups
 Moved to `design-brief-round-12.md`, B (2026-10-23).

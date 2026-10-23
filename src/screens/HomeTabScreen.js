@@ -26,7 +26,8 @@ import ScreenFrame from './ScreenFrame';
  *   - "Recently sipped" (display.sm) with "See all" (→ Records) and the three
  *     latest cups as list rows (title, mode badge, rating, date) → their 2c
  *   - My gear / My beans
- * Not shown: Try next's box (V2), the line under the counts (no rule yet).
+ * Not shown: Try next's box (V2), the line under the counts (dropped for V1,
+ * Design Round 10, C10).
  *
  * Screens opened from Home — 3d (Manage my beans), 3c (Add a bag), 3a (Add
  * gear) — are pushed over Home and the bottom bar (ShellStack; their mocks

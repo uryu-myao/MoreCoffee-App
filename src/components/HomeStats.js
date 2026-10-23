@@ -17,8 +17,9 @@ import Text from './base/Text';
  * Panel: surface.sunken. "Cups total" sits space.12 above the numeral (D-34;
  * §4: serif ink sets its own space).
  *
- * Not shown: the line under the block ("A slow start is still a start."),
- * one sentence with no rule for when it applies — Design (design-missing.md).
+ * No line under the block: "A slow start is still a start." is dropped for
+ * V1 (Design Round 10, C10). The counts and the strip already say how the
+ * week is going; a line with no rule would only repeat them.
  *
  * Props: total, cupTimes (logged_at of this week's cups), now
  */
