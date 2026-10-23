@@ -1,6 +1,6 @@
 # Design brief — Round 11 (sent 2026-10-21)
 
-**Status**: answered in full, with Round 10 A–D (`design-response-next.md`, "Round 11"). Built 2026-10-23 (C: `todo.md` T-10; B / D: Taste DNA; Round 10 C10: the line is dropped). One follow-up of ours (8l's matched text) is in `design-brief-next.md`. D4 changed after the answer (Round 12, 2). Before the reply, Uryu decided the personal card is shown (D2): "Logging since" over Cups / Bags / Week streak, no identity row.
+**Status**: answered in full, with Round 10 A–D (`design-response-next.md`, "Round 11"). Built 2026-10-23 (C: `todo.md` T-10; B / D: Taste DNA; Round 10 C10: the line is dropped). Two reports of ours (8l's matched text dropped; 6a's summary size) are in `design-brief-next.md`. D4 changed after the answer (Round 12, 2). Before the reply, Uryu decided the personal card is shown (D2): "Logging since" over Cups / Bags / Week streak, no identity row.
 
 Four groups, A–D. Reply under "Round 11" in `design-response-next.md`, numbered as in this brief.
 

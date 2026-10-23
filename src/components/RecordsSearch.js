@@ -27,9 +27,10 @@ import Text from './base/Text';
  *            groups). The first row draws the hairline under the heading.
  *
  * Each row is 2a's (title, mode badge, source, note, rating over date,
- * chevron), with the text that matched after the badge (RecordRow's
- * `match`). 8l's own row (title, "date · method · rating", an outline tag)
- * is gone with its frame.
+ * chevron). 8l's own row (title, "date · method · rating", an outline tag
+ * with the text that matched) is gone with its frame. The matched text is
+ * not shown (Uryu, 2026-10-23): beside the mode badge it read as a second
+ * badge, and the row's own lines already hold most matches.
  *
  * Props: cups (listCups), onOpen(id), onCancel
  */
@@ -70,7 +71,7 @@ export default function RecordsSearch({ cups, onOpen, onCancel }) {
             </Text>
             {found.length ? (
               <View>
-                {found.map(({ cup, match }, i) => {
+                {found.map(({ cup }, i) => {
                   const { title, source } = cupTitle(cup);
                   return (
                     <RecordRow
@@ -78,7 +79,6 @@ export default function RecordsSearch({ cups, onOpen, onCancel }) {
                       first={i === 0}
                       title={title}
                       badges={[MODE_BADGE[cup.mode]]}
-                      match={match ?? undefined}
                       source={source}
                       note={tidyNote(cup.note) || undefined}
                       rating={cup.rating}

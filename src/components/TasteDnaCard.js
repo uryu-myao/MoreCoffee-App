@@ -168,8 +168,9 @@ const styles = StyleSheet.create({
     minHeight: size.tapTarget + spacing.inset.container.v,
     marginHorizontal: -spacing.inset.container.h,
     paddingHorizontal: spacing.inset.container.h,
+    // Down to the frame, with no padding of its own: the label sits in the
+    // middle of the fill, as much room over it as under it.
     marginBottom: -spacing.inset.container.v,
-    paddingBottom: spacing.inset.container.v,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

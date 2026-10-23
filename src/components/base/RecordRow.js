@@ -31,16 +31,10 @@ import Text from './Text';
  *   note     optional tasting note — `note` truncation (3 lines)
  *   rating   1–5, shown as the serif numeral beside a rating star
  *   date     preformatted date label
- *   match    optional: the text a search matched (8l), after the badges. A
- *            Badge's fill and padding, since it labels and never acts (§1: an
- *            outline would read as an option); but the text keeps its case
- *            and shrinks to one line, since it is the user's (a Badge holds
- *            fixed copy in caps). TODO(design): 8l drew it as an outline tag
- *            in a framed list; Round 11, C moved 8l to this row.
  *   onPress  opens the cup (2c)
  *   first    the list's first row, under its header: draws the hairline
  */
-export default function RecordRow({ title, badges = [], source, note, rating, date, match, onPress, first = false }) {
+export default function RecordRow({ title, badges = [], source, note, rating, date, onPress, first = false }) {
   return (
     <Pressable
       onPress={onPress}
@@ -48,7 +42,7 @@ export default function RecordRow({ title, badges = [], source, note, rating, da
       accessibilityRole={onPress ? 'button' : undefined}
       style={({ pressed }) => [styles.touch, pressed && styles.pressed]}
       accessible
-      accessibilityLabel={[title, ...badges.map((b) => b.label), match, source, `${rating} of 5`, date].filter(Boolean).join(', ')}>
+      accessibilityLabel={[title, ...badges.map((b) => b.label), source, `${rating} of 5`, date].filter(Boolean).join(', ')}>
       <View style={[styles.row, first && styles.first]}>
         {/* TODO(photos): show photo_uri here once photos can be added. */}
         <PhotoPlaceholder size={size.thumbnail.list} />
@@ -57,18 +51,11 @@ export default function RecordRow({ title, badges = [], source, note, rating, da
           <Text variant="title" truncate="name">
             {title}
           </Text>
-          {badges.length || match ? (
+          {badges.length ? (
             <View style={styles.badges}>
               {badges.map((b) => (
                 <Badge key={b.label} label={b.label} tone={b.tone} />
               ))}
-              {match ? (
-                <View style={styles.match}>
-                  <Text variant="meta" color={color.badge.fg.neutral} numberOfLines={1}>
-                    {match}
-                  </Text>
-                </View>
-              ) : null}
             </View>
           ) : null}
           {source ? (
@@ -133,14 +120,6 @@ const styles = StyleSheet.create({
   badges: {
     flexDirection: 'row',
     gap: spacing.gap.row,
-  },
-  match: {
-    flexShrink: 1,
-    minWidth: 0,
-    alignSelf: 'flex-start',
-    paddingVertical: spacing.badge.inline.v,
-    paddingHorizontal: spacing.badge.inline.h,
-    backgroundColor: color.badge.bg.neutral,
   },
   side: {
     flexShrink: 0,

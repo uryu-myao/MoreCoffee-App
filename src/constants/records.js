@@ -129,7 +129,8 @@ function firstMatch(values, q) {
 
 /**
  * 8l: the cups matching the query in a scope, newest first, each with the
- * text that matched (the row's tag): [{ cup, match }].
+ * text that matched: [{ cup, match }]. The results don't show `match`
+ * (Uryu, 2026-10-23; RecordsSearch).
  *   words  My words (the whole word around the match) and the flavour tags
  *          (Design Round 10, 20); a cup matching both is listed once.
  *   beans  bean name, roaster

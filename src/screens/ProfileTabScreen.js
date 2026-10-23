@@ -34,8 +34,9 @@ import { cupsLabel, dnaSummary, shiftedLabel } from './TasteDnaScreen';
  *                one framed block that is pressable). Its stamp is a plain
  *                Badge, no ⓘ, no tap of its own: no button in a button
  *                (Design Round 8). Under the heading, the summary line
- *                (dnaSummary, Round 10, D12) at display.xs: 6a draws it 27,
- *                which has no style (8f's is display.lg). Then the band
+ *                (dnaSummary, Round 10, D12) at display.sm: 6a draws it 27,
+ *                which has no style; display.xs (24) read too small on
+ *                device (Uryu, 2026-10-23). Then the band
  *                names 8f uses, one per noted axis, as Badges (Round 11, D6),
  *                and "Built from N cups · last shifted N days ago".
  *   My shelf     My gear "N of 8" (6a's "of 3" contradicts 3a / 4a, gaps.md
@@ -125,7 +126,7 @@ function DnaLink({ dna, shift }) {
           </View>
         </View>
         {summary ? (
-          <Text variant="displayXs" color="primary">
+          <Text variant="displaySm" color="primary">
             {summary}
           </Text>
         ) : null}
