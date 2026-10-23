@@ -19,9 +19,9 @@ import Text from './base/Text';
  * Header: the field's label (label.eyebrow, muted) and "Done" (text button) on
  * the right — the slot beside a sheet title already says "action" (§1).
  * The day changes as the wheels turn; Done, the dimmed page or a swipe down
- * closes (2026-10-22). TODO: check on device that the wheels keep their
- * vertical drags and the swipe starts only outside them. With no value yet
- * the wheels start on today, and Done takes it.
+ * closes (2026-10-22). The wheels keep their vertical drags; the swipe starts
+ * only outside them (checked on device, 2026-10-23). With no value yet the
+ * wheels start on today, and Done takes it.
  * TODO: no way to clear a picked date yet; no mock shows one.
  *
  * Props

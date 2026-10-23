@@ -1,6 +1,6 @@
 # Design brief — Round 10 (sent 2026-10-21)
 
-**Status**: E answered 2026-10-21 (`design-response-next.md`, "Round 10 — E"); its follow-ups are in `design-brief-next.md`. A–D not answered yet.
+**Status**: answered. E on 2026-10-21 (`design-response-next.md`, "Round 10 — E"); A–D with Round 11 (`design-response-next.md`, "Round 11 … with Round 10 A–D"). B9's switch to the "Remove gear…" line is noted in Round 12, 1.
 
 Five groups. A is mock-side fixes only; B–E need your answer. Reply under "Round 10" in `design-response-next.md`, numbered as below.
 

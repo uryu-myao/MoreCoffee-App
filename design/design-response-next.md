@@ -1,5 +1,79 @@
 # Design response — design-missing.md
 
+## Round 11 (2026-10-21), with Round 10 A–D
+
+### Round 10 A. Drift
+1–8 and D-56: **all OK as built.** The mock side follows the tokens.
+
+### Round 10 B. 3a's full-shelf hint
+9. **V1 line: "Limit reached. All 8 gear slots are in use."** It offers no way out, because V1 has none. Switch to the "Remove gear…" line when 3b / 3e ship.
+
+### Round 10 C. 1b's line under the counts
+10. **(b) Drop it for V1.** The counts and the strip already say how the week is going, and a line with no rule would only repeat them.
+
+### Round 10 D. 8f
+11. **"Medium sweet" is right.** The band comes from the value. The summary's "lightly sweet" was board drift.
+12. **Summary rule (D12):**
+    - The summary is built from band names only. Leave out flavour words and My words: "juicy" came from My words, which are not in V1.
+    - Take the noted axes, drop any in the middle band (Medium …), and keep the two farthest from 50.
+    - Order them by distance from 50. The first word is capitalised, the rest are lowercase, joined by ", ". Example: "Bright, light-bodied".
+    - If one axis is left, show that one band. If none is left, or nothing is noted, show no line.
+13. **They match.** 6a uses 8f's band names ("Bright · Light-bodied · Light roast"). One axis, one wording, everywhere.
+
+### A. Round 10 follow-ups
+- **14: OK.** For I made it cups that lack a roaster or a brewer, keep "No roaster" / "No brewer". Order: No roaster / No brewer, then Packaged, then Barista. The same order applies after Z.
+- **19: both OK.** "Nothing matches “q” · 4★ and up" and "No cups rated 4★ and up".
+
+### B. 8f follow-ups
+- **"Flavours I pick most": yes, as its own block.**
+  - Placement: right under the four axes, before "What you keep saying".
+  - Content: heading "Flavours I pick most" (label.caps), then the top 4 tags with their counts. Use the same row style as "What you keep saying", e.g. "Peach 12".
+  - The block is hidden until a tag has been picked.
+  - Once 8h exists, both blocks show: picked words first, said words second. Each has a one-line sub-heading so they can't be read as one list: "From the flavour list" and "In my own words" (body.sm, `text.secondary`).
+- **Last shift copy: OK.** Band names and the date only. The app never guesses a cause.
+- **8f with nothing noted:** add one line under "From 0 cups": **"Rate a cup and note one taste to start."** No illustration.
+- **Header stamp: OK at the card's size.** No new style.
+- **Home → 8f: yes.** Add a pressable row at the foot of Home's Taste DNA card: **"Open my taste DNA ›"**. It uses the row treatment in C (chevron at the end, pressed fill out to the card's inner frame). The card itself stays not pressable, so the stamp is still the only other button in it. This is the same pattern as 3d's "Finished bags".
+
+### C. Pressable blocks: one treatment
+The rule: **the chevron is the only sign that a block opens something.** Frame and fill say "pressable" only on controls (Button, chips, slots), never on a block of content.
+
+- **Pressable row or block**
+  - Frame: no frame of its own.
+  - Sign: a chevron › in `text.secondary`, 16, at the row's end. On a one-line row it is centred vertically. On a multi-line block it sits on the heading line.
+  - Pressed: `state.pressed.row`, filled out to the container's edges (to the screen on a list, to the inner frame inside a card).
+- **Framed block that is not pressable:** a 2px ink frame on `surface.raised`, with no chevron and no pressed state. Buttons inside it keep their own control look.
+- **Framed block that is pressable** (only Profile's Taste DNA card): the same frame plus a chevron on its heading line, and the pressed fill inside the frame. The chevron is the only difference from a non-pressable card.
+- Dashed lines never mean pressable (§8, unchanged).
+
+The seven places:
+1. 2a: no change; built is right.
+2. Home Recently sipped: no change.
+3. 2c "Feeds my taste DNA": **put the › on the heading line at the row's end** (Turn 16b). Keep no frame.
+- Existing → arrows (2c, 3d "Finished bags", Home shelf) become the 16 `text.secondary` chevron. Mock: Turn 16.
+4. 8l results: **drop the 2px frame** and use `RecordRow` exactly as 2a does. Per-row frames are the noise Round 9 removed.
+5. 3d: no change.
+6. Home shelf "Manage my beans": no change.
+7. 5a / 5d / 5e field rows: no change.
+
+Not pressable:
+- 8f "Last shift" stays a plain section with no frame. #FFF8F1 is board drift.
+- 2c "Where it sat" and Home's DNA card keep their frame with no chevron.
+
+### D. 6a
+1. **When 8h comes, My words gets its own heading, "My words".** It does not sit under "My shelf", which means gear and beans only.
+2. OK.
+3. OK.
+4. **Week streak: OK as written.**
+5. **Bags: OK**, counting every bag ever added.
+6. **OK.**
+   - Band names shown as Badges.
+   - Add the summary line per D12 above.
+   - The card follows C's "framed block that is pressable": chevron on the heading line.
+7. OK, "N of 8".
+8. OK, "N of 5" only.
+9. **OK**, with the line "N cups as JSON, notes included".
+
 ## Round 10 — E. Records sort (2b) and search (8l) (2026-10-21)
 
 **2b — Sort & group**

@@ -55,71 +55,16 @@ Items for Design's next request, gathered as they come. Send together; group B i
 - **3c's Bean name error**: pressed with no name, the field takes 5d's vocabulary (label "Bean name · required" and the underline in the error colour). No mock draws an inline input error. Is this within the existing error set, or did we invent something?
 - **Intro block**: 5a's opening line now has a surface (`color.surface.raised`, no frame); other explanation lines have none. Should other screens' opening explanations get the same?
 - **D-46's side effect**: the removed square was the example of "Marked". The section labels still carry the mark; you may want another way to show it.
-- **3a's full-shelf hint** (Design 2026-10-20: "No slots left. Remove gear from My gear to free one."): V1 has no way to remove gear. 3b / 3e are not at this stage, and Home's My gear (4a) only lists. Keep the line for when 3b exists, or word it for V1?
 
 - **Taste DNA copy (decided rules in brief)**:
   - **1b's "N more cups to lock it in" (D-47)**: lock-in is **10**, counted **per axis**; the profile locks in when every axis with a record has 10. "N more" counts the axis with the fewest records. Try next's 5 is a separate threshold (V2, not shown in V1).
-  - **8f contradicts itself**: the summary says "lightly sweet", the Sweetness axis says "Medium sweet". Which is right?
-  - **8f's summary sentence ("Bright, juicy, lightly sweet")**: from which axes and which words is it built? "juicy" is neither a band name nor a bundled word.
-  - **6a's labels ("Acidity high", "Body light", "Roast light")** differ from the band names (Bright, Light-bodied, Light roast). Match them, or is 6a a summary that may differ?
   - **6b's Reset line ("Only the profile is rebuilt")**: Reset now means "count from this day"; the profile builds up again from that day, it is not rebuilt from the old cups.
 
-## Round 10 follow-ups (built 2026-10-21; please check)
-- **14, I made it cups with no roaster / no brewer.** Your "Packaged" / "Barista" headings name the cup's type, but an I made it cup can lack both too: a bag may have no roaster (Round 7, 41), and a cup logged from an empty shelf requires no bag or gear. It is neither Packaged nor Barista. Built (Uryu): it keeps **"No roaster" / "No brewer"** and comes first of the three tail groups (then Packaged, then Barista); under "Roaster A–Z" the same order after Z. OK, or another heading?
-- **19, two headings you didn't name.** Built as:
-  - no results with 4★ on: `Nothing matches “q” · 4★ and up` (your " · 4★ and up" rule applied here too, since 4★ narrowed it);
-  - 4★ on, field empty, no 4★ cups: `No cups rated 4★ and up`.
-  OK?
+## Answered by Design's Round 11 (moved out 2026-10-23)
+Round 10 follow-ups (14, 19), 8f follow-ups, pressable blocks (`todo.md` T-10), the 3a full-shelf hint, and 8f's three contradictions with 6a's labels: answered in `design-response-next.md`, "Round 11". Not built yet.
 
-## 8f follow-ups (built 2026-10-21; please answer)
-- **"Flavours I pick most" as its own block?** 8f's "What you keep saying" counts My words (written; 8h), so it waits for 8h. How often each flavour tag is picked is worth seeing too, but it is a different thing (picked from a fixed set, not written). Should 8f show it under its own heading? If so: heading and copy, where it sits, and how it stands next to "What you keep saying" once 8h exists (both will show).
-- **Last shift's copy**: band names with the date: "Sweetness moved from Lightly sweet to Medium sweet on Oct 17." The cause ("after three naturals in August") is not built: no rule, and the app doesn't guess. OK? (Its frame is in "Pressable blocks" below.)
-- **8f with nothing noted.** The page is "From 0 cups" over four empty axes ("Not noted yet"), with no stamp (state none). Does it need a line, or is that enough?
-- **Header stamp.** 8f draws a smaller stamp (9px on `surface.inverse`, Round 8). Built with the card's stamp size: there is no 9px style. OK, or a style for it?
-- **Home's Taste DNA card does not lead to 8f** (1b / 4a / 4b draw it with no tap; only the stamp is a button, which opens 15b). Making the card a link would put a button (the stamp) inside a button, which Round 8 avoids on Profile's card. 8f is reached from Profile and 2c. Should Home lead there too, and how?
-
-## Pressable blocks: one treatment across the app (to design; gathered 2026-10-21, Uryu)
-Uryu wants pressable blocks designed together, not screen by screen. Today each one was settled on its own, from rules written after the boards were drawn, so the built app and the boards differ in several places. Please design **one treatment** for a pressable block or row, and the look of a **framed block that is not pressable** beside it, so the two can't be confused.
-
-**Rules in force that the treatment must keep (or tell us which to change):**
-- §1 Tap affordance: three means say "pressable", none of them colour: a whole row → a **chevron** at its end; text alone → an **underline**; a part with a surface → its **frame or fill**.
-- §8 (2026-10-18): dashed means only an empty or not-started state (a frame), or two parts of one block (a line). **It never says "you can press this."** `border.addSlot` was removed for that reason.
-- §1 Pressed (2026-10-18): a frameless whole row fills with `state.pressed.row` (ink 6%) out to its container's edges.
-- Round 9 (2026-10-18): app lists have no item dividers; only the line under a list's header stays.
-
-**Where they are, board vs built:**
-
-| # | screen | block | board | built | note |
-|---|---|---|---|---|---|
-| 1 | 2a Records | each cup row (→ 2c) | no chevron, no sign it opens | chevron at the row's end; full-bleed pressed fill | D-49 |
-| 2 | 1b / 4a / 4b Home | Recently sipped rows (→ 2c) | as 2a | the same row as 2a (`RecordRow`) | — |
-| 3 | 2c Record | "Feeds my taste DNA" (→ 8f) | 1.5 dashed frame, → arrow on the right | no frame; › by the heading; full-bleed pressed fill | D-48: the dashed frame clashes with §8 |
-| 4 | 8l Search | result rows (→ 2c) | in a 2px frame, no chevron | 2px frame kept; chevron added | as D-49 |
-| 5 | 3d My beans | a bag card's upper half (→ 3g); "Finished bags" (→ 3f) | — | chevron; pressed fill to the card's frame | D-29 |
-| 6 | Home shelf | "Manage my beans  2 / 5  ›" | — | chevron; pressed fill to the card's frame | — |
-| 7 | 5a / 5d / 5e | field rows (Bag, Method… → pickers) | chevron | chevron | the board's own use |
-
-**Framed, not pressable** (the treatment must read differently):
-- 8f "Last shift": the board draws a 1.5 dashed `border.muted` box on #FFF8F1 (no token). Built as a plain section with no frame (§8).
-- 2c "Where it sat", Home's Taste DNA card: 2px ink frame on `surface.raised`; only the Taste DNA stamp inside is a button (Round 8).
-
-**What we need back**: the pressable block's frame (or none), its sign (chevron, arrow, or other) and where it sits, its pressed state; the not-pressable framed block; and which of the seven above change. Built as listed until then.
-
-## 3b / 3e follow-ups (built 2026-10-22; please check)
-- **3e is minimal.** Built: Name (required), Maker, the default switch (brewer / grinder only), Remove, Save. Not built: the photo (no camera yet, as 3g), Category, Added on, My settings note.
-  - **Category is not editable**: a cup holds its gear as brewer or grinder, so moving a grinder to "Kettle" would break the cups logged with it. 3a adds only those two. Should 3e show the category at all (as text), or is "My default grinder" enough to say what it is?
-  - **My settings note** promises "Prefills the grind field when you pick this grinder", and V1 has no grind field. It comes with the grind setting (`todo.md` T-11).
-- **The default switch turns off** (Uryu): no default is a fair state, and a switch that won't move looks broken. Removing the default passes it to nothing: 5a's Method starts empty until the user picks another. Built at `size.switch` (D-20).
-- **Remove asks first** (gaps.md 18, 11b's sheet as 3g's delete). Our copy:
-  - title `Remove this grinder?`;
-  - `It's removed from My gear for good. Your 12 logged cups keep its name.` (no cups: the first sentence alone);
-  - for the default only: `It's your default grinder, so new cups start without one until you choose another.`;
-  - `Remove from my gear` / `Keep it`.
-  Then back to 3b with 13b's notice, verb **"removed"** (`Comandante C40 removed.`; 13b draws "deleted", 3f uses "reopened"). OK?
-- **"Edits apply to the N cups already logged with it."** Gear is used for a long time: one grinder can carry 100+ cups, and a rename rewrites the name on all of them. The line fits at 3–4 digits. Is it warning enough at 183 cups, or should a large N read differently?
-- **3e's header: Back, not ×** (as 3g; 3e draws ×). A pushed edit screen leaves the way it came.
-- **3b's kettle / scale line** is the category alone, as 4a (never on a cup, so no "not used yet"). 3b draws "Kettle · not used yet". V1 can't add either yet.
-- **Name's placeholder** when emptied is the category ("Grinder"), then the required error on Save. OK?
+## 3b / 3e follow-ups
+Moved to `design-brief-round-12.md`, B (2026-10-23).
 
 ## Decisions that change mocked parts (2026-10-11)
 - **5a / 5e intro line**: on `color.surface.raised`, no frame, no leading square (drift D-46).
@@ -134,7 +79,7 @@ Uryu wants pressable blocks designed together, not screen by screen. Today each 
   - **D-14** · 5e: intro line says "Bottled cups…" → **"Packaged cups…"** (the 2026-10-04 rename; the sample is a can). Built that way.
   - **D-15** · 5e: "Bought at" shows "¥180" → **store name only**. There is no price in the data model, on purpose. Built that way.
   - **D-16** · 2a: every row's source line has the same density → **by mode**: I made it = roaster · process; Barista = place only; Packaged = brand only. Only what the data holds is shown. Built that way.
-- D-43: 3g's caption still points at 3d's removed "Edit" → "From 3d → tap a card".
+- D-43: moved to `design-brief-round-12.md`, A3.
 
 ## Still waiting for Design's reports
-- D-37 (dashed underline = optional?), D-38 (placeholder colour, and now the entered-text colour), D-39 (setup footer 38), and 6a's "My shelf" heading: see `design-brief-closing.md`.
+- D-37 (dashed underline = optional?), D-38 (placeholder colour, and now the entered-text colour), D-39 (setup footer 38): see `design-brief-closing.md` §3; listed again in Round 12. Its §4 (6a's "My shelf" heading) is answered by Round 11, D1.
