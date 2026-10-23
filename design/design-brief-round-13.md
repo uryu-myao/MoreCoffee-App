@@ -1,16 +1,18 @@
-# Design brief — Round 13 (draft, not sent)
+# Design brief — Round 13 (sent 2026-10-23)
 
 Round 13 · responds to design-response-next.md Round 12
 
-**Status**: draft; not sent.
+**Status**: sent 2026-10-23; no reply yet.
 
-Four groups, A–D. Reply under "Round 13" in `design-response-next.md`, numbered as in this brief. Only A1 and B4 ask for an answer; the rest are reports.
+Five groups, A–E. Reply under "Round 13" in `design-response-next.md`, numbered as in this brief. A1 and E ask for answers; B, C and D are reports.
 
 **Scope reminder**: this is what Uryu needs to log his own coffee every day, not a version for other people.
 
 ## A. Round 12: what we built (2026-10-23)
 
-1. **3e's category: built, but not under the title. OK?** It reads "Grinder" / "Brewer" / "Kettle" / "Scale" in body.sm, `text.secondary`, as you said. It sits at the top of the body, just above the card, not under the header title: 3e's header is the compact one (Back and the title on one row), and its collapse is measured from that one row, so there is no line under the title to put it in. OK there, or does the header need a second line?
+1. **Question: 3e's category sits at the top of the body, not under the header title. Is that OK, or should the header take a second line?**
+   - Why: 3e's header is the compact one (Back and the title on one row), and its collapse is measured from that one row, so there is no line under the title to put it in. A second line means changing the compact header, which every Record-flow and pushed screen shares (5a, 5b, 2c, 11a, 3a–3g, 8f).
+   - What is built: "Grinder" / "Brewer" / "Kettle" / "Scale" in body.sm, `text.secondary`, as you said, just above the card. Checked on device by Uryu (2026-10-23).
 2. **Built as you answered**:
    - 9: the default line reads "It's your default grinder. New cups start without one until you pick another."
    - 10: one wording at any count, grouped from 1,000, tabular numerals. Also on 3g's "Edits apply to the N cups already logged from this bag." and on the cup counts in 3e's remove sheet and 3g's delete sheet, so one screen never shows "1000" beside "1,000".
@@ -29,8 +31,11 @@ Round 12's "Earlier open items" came from our `design-brief-next.md`. Those item
 Three of your new answers differ from the earlier ones that are built. Uryu decided each one on its merits, not on which answer came last: changing something already built needs a reason the new answer is better. We have since cleaned the file, and added a check to `ways-of-working.md` ("Before sending a brief") so it does not happen again.
 
 1. **An axis with nothing noted: kept as built (Round 2, 10b).**
-   - It stays the bare track with "Not noted yet" centred on it. No "—" and no "Fills in as you note each taste." line.
-   - The same rule holds on every screen: Home, 8f, 5c, and a cup's own values on 2c / 11a ("Not noted"). An empty axis has no reason to look different from one screen to the next.
+   - It stays the bare track with words centred on it. No "—" and no "Fills in as you note each taste." line.
+   - The words differ on purpose, because these are two different states. "Yet" promises the gap will fill.
+     - **A profile's empty axis** (Home, 8f, 5c): **"Not noted yet"**. Nothing noted so far; noting it on a later cup fills it.
+     - **A cup's own empty axis** (2c, 11a): **"Not noted"**. That cup was logged without it, and a cup's axes can't be edited, so it never fills.
+   - This is now written in §9 (Taste axis readout, Value null) so the two words aren't later "fixed" into one.
 2. **5c's copy: three of the four parts are kept; the summary's length is adopted.**
    - **First value: kept, "Starts at Bright"** (your Round 1). "First reading: Bright" is the language of an observation log, not this product's voice. "Starts at" says where the value was placed on the axis, which is what happened.
    - **Phrases: kept, "lighter-bodied" / "fuller-bodied"** (your Round 1). You solved the two "light" poles with nouns then ("-bodied", "roasts"). "Lighter in body" solves the same problem another way. Nothing was wrong with the first solution, so we have no reason to solve it again.
@@ -40,7 +45,8 @@ Three of your new answers differ from the earlier ones that are built. Uryu deci
    - **Nothing moved: kept, "Your Taste DNA stays where it was — nothing on this cup moves it."** "Saved." repeats what 5c's title "Noted." already says: the cup is saved.
 3. **Lock-in: kept in notes. Our brief said "cups"; that was our error coming back to us.**
    - Our stale item read "1b's 'N more cups to lock it in'", and your Round 12 answer used our word. The rule (your Round 1, item 13) counts **notes**: an axis's count grows only with cups that note that axis, and a cup that skips an axis does not count for it. So "N more cups" would be wrong whenever a cup skips an axis.
-   - It stays in notes, as your Round 1 adopted copy has it ("Body needs 3 more notes to lock in.", "1 more note"). Where the app shows it today, 15b's progress box, it reads "Body needs 3 more notes." / "Body and Roast need 3 more notes each." / "1 more note.", without "to lock in": the sheet's text above it already says what the notes are for. Home shows no lock-in line in V1.
+   - It stays in notes, as your Round 1 adopted copy has it: "Body needs 3 more notes to lock in." / "Body and Roast need 3 more notes each to lock in." / "1 more note".
+   - **One correction on our side.** The app shows this line in 15b's progress box (Home shows no lock-in line in V1). Your Round 8 wrote it there without "to lock in" ("Body and Roast need 9 more notes each."), and we built it that way on 2026-10-18 without telling you it differed from the 2026-10-12 decision. Uryu put "to lock in" back (2026-10-23): the line should say what the count is for on its own, not lean on the sheet's paragraph above it, whose copy is still provisional. Please use this form on 15b's board too.
 
 ## C. D-38, the placeholder colour: kept, with the contrast gap recorded
 
@@ -65,3 +71,31 @@ Each is a mock-side fix; the token side already holds the right value. D-10 and 
 - **D-14** · 5e: intro line says "Bottled cups…" → **"Packaged cups…"** (the 2026-10-04 rename; the sample is a can). Built that way.
 - **D-15** · 5e: "Bought at" shows "¥180" → **store name only**. There is no price in the data model, on purpose. Built that way.
 - **D-16** · 2a: every row's source line has the same density → **by mode**: I made it = roaster · process; Barista = place only; Packaged = brand only. Only what the data holds is shown. Built that way.
+
+## E. 2a's category chips (we build them next)
+
+The chips under 2a's search row (your 2a board: All / I made it / Barista / Ready-to-drink; see E1 for the last name) come next. They are the first real filter on 2a. Here is what we plan to build, and what we need from you.
+
+1. **What we build. Tell us if any of it is wrong.**
+   - **Labels**: All / I made it / Barista / **Packaged**. "Ready-to-drink" is the old name (the 2026-10-04 rename, as D-14).
+   - **One at a time, All by default.** A chip shows only the cups of that type.
+   - **Built with `SegmentedControl`**, as 8l's scope row (ink fill when selected, 44 tall), not the board's 25-tall outline chips. A control must be 44 tall (§1; `gaps.md` 3), and 8l already has this row.
+   - **The chip and 2b combine**: the chip picks the cups, then 2b's sort and group arrange them.
+   - **Each launch starts from All**, as 2b's sort starts from Newest first (not stored).
+   - **8l doesn't take the chip.** Search has its own scopes and searches every cup.
+   - **Barista stays.** A Barista cup can be logged today (with no café or drink yet), so the chip has cups to find.
+2. **Your Round 10, 16 and 18, again.** When you answered them, no chips existed; you tied both to "until a real filter exists". The chips are a real filter. Here is where they go, then how we read 16 and 18.
+   - **2a, top to bottom, as built today**: the header ("The archive" / "Records", the "N Cups" stat on the right) over its 2px ink rule; the search row (the "Search my cups" field, then the 44 filter button on the right, which opens 2b); then the list, grouped (month headings by default, the sort's name on the right of each).
+   - **The chips go between the search row and the list**, as your 2a board draws them: one row, full width, All / I made it / Barista / Packaged, the same row 8l uses for Words / Beans / Gear (8l, under its search field, is the closest picture of it). The list under it shows only the chip's type.
+   - **2b does not change**: it still holds Sort (Newest first, Oldest first, Highest rated, Roaster A–Z) and Group (Month, Brew method, Roaster, None), and opens over 2a as now. The chips are not in it.
+   - We read:
+     - 16: the filter button stays as it is. The reason: the filter lives in the chips on 2a, which show which one is on; the button opens 2b, which still holds no filter.
+     - 18: 2b's button stays "Done", with no count. The reason: nothing in 2b changes how many cups there are; only the chips do, and they apply at once, with no button.
+   - OK, or did you mean the count and the "in force" look for this case? If you need to see it drawn before answering, say so, and we will build the chips first and ask again.
+3. **The header's "N Cups" with a chip on.** The total, or the cups shown under it? We would show the cups shown, so the number always matches the list. Which one?
+4. **A chip with no cups: please write the line under it.** For example, Packaged with no Packaged cup logged yet.
+   - **What it is**: not an error and not an empty search. It means "you haven't logged this type yet". Nothing is wrong.
+   - **The four chips stay**: all four always show, so none of them moves when one has no cups. The line goes where the list would be.
+   - **The reason differs by type**: no Barista cup means you haven't logged a café drink; no Packaged cup means you haven't logged a can or bottle; no I made it cup means you haven't logged a brew at home. One line for all, or one for each type: your call.
+   - **Tone: please choose.** Either state the fact only (as 8l's "Nothing matches “q”"), or invite logging one. Note that V1 can't log a café or drink on a Barista cup yet (only the type), so an invitation for Barista promises less than it seems.
+   - **Length**: one line at 390pt, in body.sm or body, `text.secondary`, as 8l's heading. No illustration and no button (as 8l's "Nothing matches").

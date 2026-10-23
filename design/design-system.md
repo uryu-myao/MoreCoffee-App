@@ -1068,6 +1068,9 @@ The display of computed values: 1b / 4a / 4b (the profile), 5c (the change after
   - It reads weakly, so the copy under the axis carries the movement ("Moved 6 points brighter"; `gaps.md` 13).
 - Built 2026-10-11: `axis.rail.derived`, `axis.needle.derived`, `dashed.track` and the `derived` mode of `AxisSlider` are removed, with their dev pages. `axis.ghost` / `axis.delta` removed too (decided 2026-10-11): §9's ghost and delta above use other tokens. **Value null**: see below.
 - **Value null** (nothing noted on that axis; Design 10b, decided 2026-10-12): the bare track with **"Not noted yet" centred on it** (a profile, `computed`; on one cup's own values, `entered` — 2c, 11a — **"Not noted"**: they can't change, so no "yet"; 2026-10-14), on a `surface.raised` patch padded `space.8` each side, so the gap reads as "no value", never "balanced". Every readout sits in a 17pt slot (`meta`'s line height) with the track centred, so filled and empty rows are the same height.
+  - **The two words are two states, not a wobble. Do not unify them** (confirmed 2026-10-23, Round 13, B1). "Yet" promises the gap will fill.
+    - **A profile's empty axis** (Home, 8f, 5c) = **"Not noted yet"**: nothing noted so far; a later cup that notes it fills it.
+    - **A cup's own empty axis** (2c, 11a) = **"Not noted"**: this cup was logged without it, and a cup's axes can't be edited, so it never fills.
 - **The Taste DNA card always shows all four axes; its height does not change with what has been noted.** Home is re-read every time it is shown, and a card that grew with each newly noted axis would move everything below it. **Option B was rejected for this** (only noted axes, with one line naming the rest; Design 10d / 10e): it is shorter at first, but it grows up to three times. Do not switch to it because empty axes "say nothing" — keeping them is what keeps the page still.
 
 ### Component catalog — pending (Step 4, logged 2026-10-06)

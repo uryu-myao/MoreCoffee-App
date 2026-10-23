@@ -23,8 +23,11 @@ import Text from './base/Text';
  * used to sit under the card's title. No frame (on device, 2026-10-17): the
  * mock's 2px ink frame made it read as a second button over "Got it".
  *   early   the least-noted axes and the notes they still need — "Body needs
- *           3 more notes.", "Body and Roast need 9 more notes each." (15b's
- *           wording: the sheet already says what the notes are for)
+ *           3 more notes to lock in.", "Body and Roast need 9 more notes each
+ *           to lock in." (design-missing.md 13, 2026-10-12). Round 8's 15b
+ *           dropped "to lock in"; put back 2026-10-23 (Uryu): the line says
+ *           what the count is for on its own, not leaning on the paragraph
+ *           above, whose copy is still provisional.
  *   locked  "From 147 cups." (8f; PROVISIONAL, as on the card before)
  * TODO(V2): the box's first row, "3 of 5 cups" + five cup glyphs, is Try
  * next's threshold — not shown at this stage (design-missing.md 13), so the
@@ -39,7 +42,7 @@ const notes = (n) => `${n} more ${n === 1 ? 'note' : 'notes'}`;
 function earlyProgress(dna) {
   const short = TASTE_AXES.filter((a) => dna.axes[a.key].n > 0 && dna.axes[a.key].n === dna.fewest).map((a) => a.name);
   const n = DNA_TUNING.lockIn - dna.fewest;
-  return short.length === 1 ? `${short[0]} needs ${notes(n)}.` : `${listNames(short)} need ${notes(n)} each.`;
+  return short.length === 1 ? `${short[0]} needs ${notes(n)} to lock in.` : `${listNames(short)} need ${notes(n)} each to lock in.`;
 }
 
 /**
