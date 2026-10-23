@@ -14,8 +14,11 @@ import Text from './base/Text';
  *                "nothing moved" (no separate wording).
  *   first value  "Starts at ‹step name›": a position, not a direction. A
  *                one-cup profile is that cup's value, so a step always exists.
- *   summary      "This cup pushed you ‹phrases›." — moved axes only (never a
- *                first value), joined with "and" / commas and a final "and".
+ *   summary      "This cup pushed you ‹phrases›." — the two axes that moved
+ *                most (never a first value), joined with "and" (Design Round
+ *                12; Uryu kept the phrases below). The rest go unnamed: each
+ *                moved axis has its own line under it. Ties keep the axes'
+ *                order.
  *   nothing      "Your Taste DNA stays where it was — nothing on this cup
  *                moves it."
  */
@@ -27,6 +30,8 @@ const PHRASE = {
   roast: { low: 'toward lighter roasts', high: 'toward darker roasts' },
   sweetness: { low: 'less sweet', high: 'sweeter' },
 };
+
+const SUMMARY_AXES = 2;
 
 export const NOTHING_MOVED = 'Your Taste DNA stays where it was — nothing on this cup moves it.';
 
@@ -57,10 +62,10 @@ export function changeLines(change) {
 
 /** "This cup pushed you brighter and lighter-bodied." — or null when no axis moved. */
 export function changeSummary(lines) {
-  const phrases = lines.filter((l) => l.phrase).map((l) => l.phrase);
+  // lines come largest first, so the first two phrases are the two largest moves.
+  const phrases = lines.filter((l) => l.phrase).slice(0, SUMMARY_AXES).map((l) => l.phrase);
   if (!phrases.length) return null;
-  const joined = phrases.length === 1 ? phrases[0] : `${phrases.slice(0, -1).join(', ')} and ${phrases[phrases.length - 1]}`;
-  return `This cup pushed you ${joined}.`;
+  return `This cup pushed you ${phrases.join(' and ')}.`;
 }
 
 /** 2c: the summary (when something moved), then one line per axis. */

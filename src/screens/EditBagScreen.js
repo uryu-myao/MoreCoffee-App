@@ -38,11 +38,14 @@ import ScreenFrame from './ScreenFrame';
  * Under the card: "Delete this bag" (1.5 border.muted frame, as 3g) with
  * "For a bag added by mistake" (Round 6). No Finish here: Finish is 3d's.
  * Footer: Save changes, and "Edits apply to the N cups already logged from
- * this bag." when there are any (35).
+ * this bag." when there are any (35). Counts are grouped from 1,000 and
+ * tabular, as 3e's (Design Round 12, 10).
  * Leaving with changes asks first (Round 4's sheet; the bag's own body).
  * Delete: 11b's sheet with "bag" (Round 6, 36); back to 3d with 13b's
  * notice.
  */
+const countFormat = new Intl.NumberFormat('en-US');
+
 export default function EditBagScreen({ bag, onBack, onDeleted, guardLeave }) {
   const db = useDatabase();
   const [form, setForm] = useState({ name: bag.name, roaster: bag.roaster ?? '', roastedAt: bag.roasted_at });
@@ -137,8 +140,8 @@ export default function EditBagScreen({ bag, onBack, onDeleted, guardLeave }) {
           <View style={styles.footer}>
             <Button label="Save changes" onPress={save} />
             {use.cups > 0 ? (
-              <Text variant="bodySm" color="secondary" style={styles.centred}>
-                {`Edits apply to the ${use.cups === 1 ? 'cup' : `${use.cups} cups`} already logged from this bag.`}
+              <Text variant="bodySmTabular" color="secondary" style={styles.centred}>
+                {`Edits apply to the ${use.cups === 1 ? 'cup' : `${countFormat.format(use.cups)} cups`} already logged from this bag.`}
               </Text>
             ) : null}
           </View>
@@ -237,7 +240,7 @@ export default function EditBagScreen({ bag, onBack, onDeleted, guardLeave }) {
         </Text>
         <Text variant="body" color="secondary">
           {use.cups > 0
-            ? `It's removed from My beans for good. Your ${cupsWord === '1 cup' ? 'logged cup keeps' : `${use.cups} logged cups keep`} its details.`
+            ? `It's removed from My beans for good. Your ${cupsWord === '1 cup' ? 'logged cup keeps' : `${countFormat.format(use.cups)} logged cups keep`} its details.`
             : "It's removed from My beans for good."}
         </Text>
         {bag.opened_at != null ? (

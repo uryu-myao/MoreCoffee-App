@@ -18,7 +18,13 @@ import ScreenFrame from './ScreenFrame';
 /**
  * 3e — Edit gear (minimal, 2026-10-22), from a 3b row. Built as 3g.
  *
- * Header: compact, Back (as 3g; 3e draws ×), "N / Cups logged" in the stat.
+ * Header: compact, Back (as 3g; 3e draws ×; Design Round 12, 11: OK),
+ * "N / Cups logged" in the stat.
+ * Category: a plain line, body.sm text.secondary ("Grinder", "Brewer", …;
+ * Design Round 12, 7): 3e must say what the gear is, a kettle or scale
+ * having no default row. TODO(design): Design put it under the header
+ * title; the compact header has no line under its title (its collapse is
+ * measured from the one row), so it opens the body, over the card.
  * Card (2px ink frame on raised, D-6's gap.section): Name (required, BagForm's
  * Field and its "· required" error), Maker ("Optional"); then, for a brewer
  * or grinder, under a dashed rule (it splits one block, §8) "My default
@@ -32,13 +38,17 @@ import ScreenFrame from './ScreenFrame';
  *   - My settings note: its line promises to prefill the grind field, which
  *     V1 has no input for (todo.md T-11).
  * Under the card: "Remove from my gear" (3g's delete row; D-30 ink label) with
- * "Frees 1 slot". It asks first in 11b's sheet (gaps.md 18); TODO(design):
- * the sheet's copy and the notice's "removed" are ours. Back to 3b with 13b's
- * notice. A removed default passes to nothing.
+ * "Frees 1 slot". It asks first in 11b's sheet (gaps.md 18); the copy and
+ * the notice's "removed" are ours, OK'd (Design Round 12, 9), with Design's
+ * default line. Back to 3b with 13b's notice. A removed default passes to
+ * nothing.
  * Footer: Save changes, and "Edits apply to the N cups already logged with
- * it." when there are any: a rename rewrites their copies (updateGear).
+ * it." when there are any: a rename rewrites their copies (updateGear). One
+ * wording at any N, grouped from 1,000, tabular (Design Round 12, 10).
  * Leaving with changes asks first (DiscardSheet).
  */
+const countFormat = new Intl.NumberFormat('en-US');
+
 export default function EditGearScreen({ gear, onBack, onRemoved, guardLeave }) {
   const db = useDatabase();
   const [form, setForm] = useState({ name: gear.name, maker: gear.maker ?? '', isDefault: Boolean(gear.is_default) });
@@ -107,7 +117,7 @@ export default function EditGearScreen({ gear, onBack, onRemoved, guardLeave }) 
     }
   };
 
-  const cupsWord = cups === 1 ? 'cup' : `${cups} cups`;
+  const cupsWord = cups === 1 ? 'cup' : `${countFormat.format(cups)} cups`;
   return (
     <View style={styles.screen}>
       <ScreenFrame
@@ -120,13 +130,16 @@ export default function EditGearScreen({ gear, onBack, onRemoved, guardLeave }) 
           <View style={styles.footer}>
             <Button label="Save changes" onPress={save} />
             {cups > 0 ? (
-              <Text variant="bodySm" color="secondary" style={styles.centred}>
+              <Text variant="bodySmTabular" color="secondary" style={styles.centred}>
                 {`Edits apply to the ${cupsWord} already logged with it.`}
               </Text>
             ) : null}
           </View>
         }>
         <View style={styles.body}>
+          <Text variant="bodySm" color="secondary" style={styles.category}>
+            {GEAR_CATEGORY[gear.category]}
+          </Text>
           <View style={styles.card}>
             <Field
               label="Name"
@@ -199,12 +212,12 @@ export default function EditGearScreen({ gear, onBack, onRemoved, guardLeave }) 
         </Text>
         <Text variant="body" color="secondary">
           {cups > 0
-            ? `It's removed from My gear for good. Your ${cups === 1 ? 'logged cup keeps' : `${cups} logged cups keep`} its name.`
+            ? `It's removed from My gear for good. Your ${cups === 1 ? 'logged cup keeps' : `${countFormat.format(cups)} logged cups keep`} its name.`
             : "It's removed from My gear for good."}
         </Text>
         {gear.is_default ? (
           <Text variant="body" color="secondary">
-            {`It's your default ${kind}, so new cups start without one until you choose another.`}
+            {`It's your default ${kind}. New cups start without one until you pick another.`}
           </Text>
         ) : null}
         <View style={styles.sheetActions}>
@@ -222,6 +235,10 @@ const styles = StyleSheet.create({
   },
   body: {
     gap: space[20],
+  },
+  // Pulled up so it sits with the card, not a section of its own.
+  category: {
+    marginBottom: -(space[20] - spacing.gap.row),
   },
   card: {
     borderWidth: shape.borderWidth.box,

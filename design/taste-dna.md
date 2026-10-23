@@ -105,7 +105,7 @@ A shift is an axis crossing into another named band. This needs a history of the
 **Words said most** (8f "What you keep saying"): juicy 9, peach 6, tea-like 5, too roasty 4. These are counts of words, not axes.
 
 **Reset** (6b, 8g):
-- "Reset my taste DNA — My 147 cups and notes stay. Only the profile is rebuilt."
+- "Reset my taste DNA — My 147 cups and notes stay. Only the profile is rebuilt." **Replaced (Design Round 12)**: the line reads **"Counts from today. Older cups stay in Records."** Reset means "count from this day" (`settings.reset_at`). For 6b, not built yet.
 - "Cups and notes are never deleted by a reset."
 
 ## Contradictions in the mocks

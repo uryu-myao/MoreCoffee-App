@@ -1,5 +1,69 @@
 # Design response — design-missing.md
 
+## Round 12 (2026-10-23), with D-37–39 and earlier open items
+
+Round 10 A, C10, D11–13 and all of Round 11 are answered above ("Round 11"). A1–A3: noted. D-43: OK, the 3g caption becomes "From 3d → tap a card".
+
+### B. 3b / 3e
+4–6. Noted, all OK. Bring back the settings note together with grind (T-11).
+7. **Show the category, as plain text.** Put it under the header title as body.sm in `text.secondary`, reading "Grinder", "Brewer", "Kettle" or "Scale". It is not a field and not a chip: 3e has to say what the gear is even when there is no default row.
+8. **OK, as built.**
+   - The switch turns off as well as on.
+   - Removing the default gear passes the default to nothing.
+   - `size.switch`, with the on and off colours as listed.
+9. **OK**, with "removed" as the verb in 13b's notice. Each verb matches its action: deleted, reopened, removed.
+   - One copy change, for the default only: **"It's your default grinder. New cups start without one until you pick another."** That is two sentences, and "pick" matches 5a.
+10. **The line is enough at any N.** The number is the warning, so keep one wording for every count. Use the grouping separator from 1,000 cups (tabular numerals).
+11. **OK, Back.** It is a pushed screen. The × in 3e's mock is drift.
+12. **Both OK.** 3b's "Kettle · not used yet" is drift.
+
+### C. Sheets
+13. **OK as the rule for every sheet.** On a confirmation sheet, a swipe always means Cancel. Add it to §1 next to the handle rule: if a sheet draws a handle, it closes on a swipe down.
+
+### D-37 / D-38 / D-39 (report)
+- **D-37: no. A dashed underline does not mean "optional".**
+  - 8o is the only form that draws it, as `#C8BCB4` dashed under "Roaster" and "Roasted on".
+  - The other forms say "optional" in words: 3c "Optional." / an "Optional" tag on the row, 5a and 6d "Optional", in label.caps or body.sm, `text.muted`. None of them change the line.
+  - So the one consistent rule is the word "Optional". A field's underline is always solid 1.5 `border.muted`, whether the field is required or optional.
+  - Fix 8o: draw a solid underline and keep its placeholder text "Optional" / "Optional — for freshness". Dashed keeps only its §8 uses.
+- **D-38: one placeholder colour, `text.secondary`.**
+  - `#A39389` on 8o is drift. It also fails 4.5:1 on paper.
+  - 5b's "My words" has the same role as the other placeholders: empty-field text that goes away on input. An example sentence is still a placeholder. Move it from `text.muted` to `text.secondary`.
+  - Text the user has entered is `text.primary` everywhere, so it reads differently from a placeholder by colour as well as by weight.
+- **D-39: there is no reason for 38. Use 34.** 8c, 8n and 8o share one setup footer, and 38 was copied from screen to screen. The setup flow has no shared need for it, so use the same 34 as every other footer.
+
+### Earlier open items (design-brief-next)
+**Taste DNA card**
+- **An axis with nothing noted:**
+  - Keep all four rows, so the card's height stays the same.
+  - An empty axis is drawn as a track only: no dot, no number, and its band name replaced by "—" in `text.muted`.
+  - Leave out "Not noted" on every row. When three or more rows are empty, put one line under the axes in body.sm, `text.secondary`: **"Fills in as you note each taste."**
+- **No cups noted at all: OK.** No badge. Use the 8f line from Round 11: **"Rate a cup and note one taste to start."**
+
+**5c copy**
+- **An axis's first value:** **"First reading: ‹band›"**, e.g. "First reading: Bright". It names a start, not a movement.
+- **Summary sentence:** "This cup pushed you ‹c1› [and ‹c2›]." Use the two axes that moved most and leave out any that moved less than 1 point. If no axis moved, show no sentence.
+  - Acidity: brighter / more bitter
+  - Body: lighter in body / fuller in body
+  - Sweetness: sweeter / less sweet
+  - Roast: toward lighter roasts / toward darker roasts. "In body" and "toward … roasts" keep the two "light" poles apart.
+  - Example: "This cup pushed you brighter and fuller in body."
+- **Nothing moved:** **"Saved. This one didn't move your taste DNA."** No apology and no advice.
+
+**5a and 5d** (answered in Round 9)
+- **5a's intro line on an empty shelf** is replaced by the Required bar's sub-line: "Add a bag & gear once to pre-fill".
+- **5d's second line:** "A cup can't be saved without one. What you've entered stays while you're here; closing loses it."
+- **5d with one item missing:** "Still needs a rating" / "No rating yet."
+
+**Please check**
+- **3c's Bean name error: within the set.** The label suffix, the error colour on the underline and no new parts are all from 5d. OK.
+- **Intro block: no, keep it on 5a and 5e only.** There the line ties to the Required bar. Other screens' opening lines stay plain text.
+- **D-46's side effect:** fixed in Round 9. The Required bar now shows "required" through its labelled slots, so no square is needed. The section labels keep the plain "· required" suffix only when an error is shown.
+
+**Taste DNA copy**
+- **1b's lock-in line:** **"N more cups to lock it in"** is correct as the rule defines it, with N counted from the axis with the fewest records. When N = 1, write "1 more cup to lock it in".
+- **6b's Reset line:** **"Counts from today. Older cups stay in Records."**
+
 ## Round 11 (2026-10-21), with Round 10 A–D
 
 ### Round 10 A. Drift

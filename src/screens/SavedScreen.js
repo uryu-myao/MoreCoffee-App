@@ -31,7 +31,8 @@ import ScreenFrame from './ScreenFrame';
  *     never noted is the empty track with "Not noted yet".
  *   - "Where it sat before": the legend for the ghost, when there is one
  *   - the summary sentence, under the title: "This cup pushed you ‹phrases›."
- *     (moved axes only; Design's phrase table, design-missing.md 12). Kept
+ *     (the two largest moves; Design's phrase table, design-missing.md 12,
+ *     and Round 12). Kept
  *     when Round 8 removed the card's sub-line: it's this cup's result, not
  *     an explanation
  *   - Try next's "4 of 5 cups" and "One more cup and Try next opens up" are

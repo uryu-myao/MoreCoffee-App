@@ -623,6 +623,18 @@ The user sees the past rewritten.
 
 ---
 
+## 36. Placeholder text is under the contrast floor (added 2026-10-23)
+
+**What**: `color.text.placeholder` (#9B8F87) is 3.08:1 on raised, under the 4.5:1 that body-size text needs. Design (Round 12, D-38) asked for `text.secondary` (#5C5049).
+
+**Why it stays**: with `text.secondary`, a placeholder could not be told from an entered value on device (Uryu, 2026-10-12, checked again 2026-10-23), so it was kept.
+
+**Root cause**: D-44 / item 26: a field's placeholder and its value share `title` (16 / 700), so only colour tells them apart. A 16 / 500 style for the field's text may fix both: the placeholder could then take `text.secondary`.
+
+**Status**: decided together with item 26 at the final polish. Nothing changes now.
+
+---
+
 ## Step 4 device verification — RESOLVED (2026-10-04)
 
 The base component library (Step 4) was checked in the web harness during the build. These items needed a real device and were confirmed on device by the author under Expo SDK 57.

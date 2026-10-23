@@ -1,6 +1,6 @@
 # Design brief — Round 12 (sent 2026-10-23)
 
-**Status**: sent; no reply yet.
+**Status**: answered (`design-response-next.md`, "Round 12"), with D-37 / 38 / 39 and four earlier items that were answered twice (our stale `design-brief-next.md`; Uryu kept the earlier answers except the 5c summary's two axes, reasons in Round 13). Built 2026-10-23.
 
 Three groups, A–C. Reply under "Round 12" in `design-response-next.md`, numbered as in this brief.
 
