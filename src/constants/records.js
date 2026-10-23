@@ -3,8 +3,22 @@
  * listCups reads. Everything runs in memory: a few hundred cups a year.
  *
  * Neither the sort nor the search is remembered: each launch starts from
- * the defaults (data-model.md, V1 migration scope g).
+ * the defaults (data-model.md, V1 migration scope g). Nor is 2a's category.
  */
+import { MODE_LABEL } from './cups';
+
+/**
+ * 2a's category chips (built 2026-10-23; Round 13, E1): All, then one per
+ * mode, in 5a's maker order. The board's "Ready-to-drink" is Packaged (the
+ * 2026-10-04 rename). One at a time; All shows every cup.
+ */
+export const CATEGORIES = [{ value: 'all', label: 'All' }, ...Object.entries(MODE_LABEL).map(([value, label]) => ({ value, label }))];
+export const DEFAULT_CATEGORY = 'all';
+
+/** The cups of one category, in the order given; All returns the list as is. */
+export function cupsInCategory(cups, category) {
+  return category === 'all' ? cups : cups.filter((cup) => cup.mode === category);
+}
 
 export const SORTS = [
   { key: 'newest', label: 'Newest first' },

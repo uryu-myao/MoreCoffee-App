@@ -2,10 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import Glyph from '../components/base/Glyph';
 import IconButton from '../components/base/IconButton';
+import SegmentedControl from '../components/base/SegmentedControl';
 import RecordRow from '../components/base/RecordRow';
 import Text from '../components/base/Text';
 import RecordsSearch from '../components/RecordsSearch';
-import { DEFAULT_GROUP, DEFAULT_SORT, arrangeCups, sortLabel } from '../constants/records';
+import { CATEGORIES, DEFAULT_CATEGORY, DEFAULT_GROUP, DEFAULT_SORT, arrangeCups, cupsInCategory, sortLabel } from '../constants/records';
 import { useDatabase } from '../data/DatabaseProvider';
 import { listCups, onCupsChanged } from '../data/repository';
 import { MODE_BADGE, cupTitle, tidyNote } from '../constants/cups';
@@ -34,7 +35,18 @@ import ScreenFrame from './ScreenFrame';
  * A row pushes the cup (2c, CupRecordScreen) over the list, which stays
  * mounted: Back, a swipe from the left edge, or the Records icon returns to it.
  * 2c's pencil asks ShellStack for 11a (over the bottom bar); a delete there
- * closes the cup here. Not built here: the category chips (All / I made it / …).
+ * closes the cup here.
+ *
+ * Under the search row, the category chips (2a; built 2026-10-23, Design
+ * Round 13, E1 asked): All / I made it / Barista / Packaged, one at a time,
+ * 8l's SegmentedControl (44 tall; the board's 25-tall outline chips are
+ * under the tap target). The chip picks the cups; 2b's sort and group then
+ * arrange them. Each launch starts from All (not stored, as the sort). All
+ * four always show, so none moves when one has no cups. 8l ignores the chip.
+ *   TODO(design): Round 13, E3 — the header's "N Cups" stays the total for
+ *   now; we proposed the cups shown.
+ *   TODO(design): Round 13, E4 — a chip with no cups: the line is ours,
+ *   provisional, until Design writes it.
  *
  * Row content follows the data model, degrading by mode (drift.md D-16):
  *   title   made_it → bean name · barista → drink · packaged → product name
@@ -53,8 +65,10 @@ export default function RecordsScreen() {
   const [cups, setCups] = useState(null);
   const [openId, setOpenId] = useState(null);
   const [order, setOrder] = useState({ sort: DEFAULT_SORT, group: DEFAULT_GROUP });
+  const [category, setCategory] = useState(DEFAULT_CATEGORY);
   const [searching, setSearching] = useState(false);
-  const groups = useMemo(() => (cups ? arrangeCups(cups, order.sort, order.group, monthFormat) : null), [cups, order]);
+  const shown = useMemo(() => (cups ? cupsInCategory(cups, category) : null), [cups, category]);
+  const groups = useMemo(() => (shown ? arrangeCups(shown, order.sort, order.group, monthFormat) : null), [shown, order]);
 
   const load = useCallback(() => {
     listCups(db).then(setCups, (error) => {
@@ -108,12 +122,20 @@ export default function RecordsScreen() {
             </Pressable>
             <IconButton icon="filter" accessibilityLabel="Sort and group" onPress={() => requestSortSheet({ sort: order.sort, group: order.group, onApply: setOrder })} />
           </View>
+          <View style={styles.chips}>
+            <SegmentedControl options={CATEGORIES} value={category} onChange={setCategory} />
+          </View>
           <View style={styles.list}>
             {cups && cups.length === 0 ? (
               // TODO(design): no empty state is designed (gaps.md 5); the plainest
               // honest placeholder until one is.
               <Text variant="body" color="muted">
                 No cups logged yet.
+              </Text>
+            ) : shown && shown.length === 0 ? (
+              // TODO(design): Round 13, E4. Provisional: the fact only.
+              <Text variant="body" color="muted">
+                No cups of this type yet.
               </Text>
             ) : null}
             {groups
@@ -170,6 +192,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.gap.row,
     marginBottom: spacing.gap.section,
+  },
+  // 8l's gap from its scope row to the results.
+  chips: {
+    marginBottom: space[16],
   },
   // 2a's idle search field: SearchField's frame at 2a's 44 (size.tapTarget,
   // beside the 44 filter button), the placeholder in body.
