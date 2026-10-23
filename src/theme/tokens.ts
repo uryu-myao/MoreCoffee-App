@@ -559,6 +559,13 @@ export const component = {
     add: { background: color.surface.inverse, mark: color.text.onInverse },
   },
   requiredBar,
+  /**
+   * The chevron that says a whole row or block opens something
+   * (design-system.md §1 Tap affordance; Design Round 11, C, 2026-10-23).
+   * It is the only sign: a block's frame or fill never says "pressable".
+   * One size and colour on every row and block.
+   */
+  chevron: { icon: icon.sm, color: color.text.secondary },
 } as const;
 
 export const tokens = {

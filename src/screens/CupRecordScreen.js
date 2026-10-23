@@ -3,6 +3,7 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import AxisReadout from '../components/base/AxisReadout';
 import Badge from '../components/base/Badge';
 import FieldRow from '../components/base/FieldRow';
+import Chevron from '../components/base/Chevron';
 import Glyph from '../components/base/Glyph';
 import IconButton from '../components/base/IconButton';
 import SectionLabel from '../components/base/SectionLabel';
@@ -238,7 +239,7 @@ export default function CupRecordScreen({ id, onBack, onEdit }) {
             <Text variant="labelCaps" color="accent">
               Feeds my taste DNA
             </Text>
-            <Glyph name="chevronRight" token={icon.md} color={color.text.primary} />
+            <Chevron />
           </View>
           <DnaChangeLines change={change} />
         </Pressable>

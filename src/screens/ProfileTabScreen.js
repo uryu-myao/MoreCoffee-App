@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import Badge from '../components/base/Badge';
 import DashedRule from '../components/base/DashedRule';
-import Glyph from '../components/base/Glyph';
+import Chevron from '../components/base/Chevron';
 import MenuRow from '../components/base/MenuRow';
 import Text from '../components/base/Text';
 import { weekStreak } from '../components/HomeStats';
@@ -14,7 +14,7 @@ import { shareExport } from '../data/export';
 import { OPEN_BAG_LIMIT, countGear, countOpenBags, loadDnaPage, loadProfile, onCupsChanged, onShelfChanged } from '../data/repository';
 import { bandOf } from '../data/tasteDna';
 import { requestPush } from '../navigation';
-import { color, dashed, icon, layout, shape, space, spacing, state } from '../theme/tokens';
+import { color, dashed, layout, shape, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 import { cupsLabel, shiftedLabel } from './TasteDnaScreen';
 
@@ -49,7 +49,10 @@ import { cupsLabel, shiftedLabel } from './TasteDnaScreen';
  *
  * Each section: label.eyebrow heading (muted) over a 2px ink frame on raised;
  * rows are MenuRow.
- * TODO(design): the pressable blocks' treatment is pending (todo.md T-10).
+ * Pressable blocks follow Design Round 11, C (todo.md T-10): MenuRow's rows
+ * end in the shared chevron; the Taste DNA card is the app's one framed
+ * block that is pressable (chevron on its heading line, the pressed fill
+ * inside the frame).
  */
 const sinceFormat = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' });
 
@@ -99,35 +102,40 @@ function DnaLink({ dna, shift }) {
   const bands = TASTE_AXES.filter((a) => dna.axes[a.key].value != null).map((a) => a.steps[bandOf(dna.axes[a.key].value)]);
   const stamp = dna.state === 'none' ? null : dna.state === 'locked' ? 'Locked in' : 'Early signs';
   const meta = [`Built from ${cupsLabel(dna.cups)}`, shift ? `last ${shiftedLabel(shift.at)}` : null].filter(Boolean).join(' · ');
+  // Round 11, C: the one framed block that is pressable. The frame is the
+  // View, so the pressed fill (state.pressed.row, laid over raised) stays
+  // inside it.
   return (
-    <Pressable
-      onPress={() => requestPush({ name: 'dna' })}
-      accessibilityRole="button"
-      accessibilityLabel={['My taste DNA', stamp, bands.join(', '), meta].filter(Boolean).join(', ')}
-      style={({ pressed }) => [styles.frame, styles.dna, pressed && styles.pressed]}>
-      <View style={styles.dnaHead}>
-        <Text variant="labelEyebrow" color="muted">
-          My taste DNA
-        </Text>
-        {stamp ? <Badge label={stamp} tone={dna.state === 'locked' ? 'selected' : 'accent'} placement="standalone" /> : null}
-        <View style={styles.chevron}>
-          <Glyph name="chevronRight" token={icon.md} color={color.text.primary} />
-        </View>
-      </View>
-      {bands.length ? (
-        <>
-          <DashedRule token={dashed.dividerSoft} />
-          <View style={styles.bands}>
-            {bands.map((b) => (
-              <Badge key={b} label={b} tone="neutral" placement="standalone" />
-            ))}
+    <View style={styles.frame}>
+      <Pressable
+        onPress={() => requestPush({ name: 'dna' })}
+        accessibilityRole="button"
+        accessibilityLabel={['My taste DNA', stamp, bands.join(', '), meta].filter(Boolean).join(', ')}
+        style={({ pressed }) => [styles.dna, pressed && styles.rowPressed]}>
+        <View style={styles.dnaHead}>
+          <Text variant="labelEyebrow" color="muted">
+            My taste DNA
+          </Text>
+          {stamp ? <Badge label={stamp} tone={dna.state === 'locked' ? 'selected' : 'accent'} placement="standalone" /> : null}
+          <View style={styles.chevron}>
+            <Chevron />
           </View>
-        </>
-      ) : null}
-      <Text variant="bodySm" color="secondary">
-        {meta}
-      </Text>
-    </Pressable>
+        </View>
+        {bands.length ? (
+          <>
+            <DashedRule token={dashed.dividerSoft} />
+            <View style={styles.bands}>
+              {bands.map((b) => (
+                <Badge key={b} label={b} tone="neutral" placement="standalone" />
+              ))}
+            </View>
+          </>
+        ) : null}
+        <Text variant="bodySm" color="secondary">
+          {meta}
+        </Text>
+      </Pressable>
+    </View>
   );
 }
 
@@ -216,8 +224,8 @@ const styles = StyleSheet.create({
     borderColor: color.border.strong,
     backgroundColor: color.surface.raised,
   },
-  pressed: {
-    backgroundColor: state.pressed.surface,
+  rowPressed: {
+    backgroundColor: state.pressed.row,
   },
   since: {
     paddingVertical: spacing.inset.container.v,

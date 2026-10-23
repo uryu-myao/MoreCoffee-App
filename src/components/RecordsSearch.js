@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { color, icon, layout, shape, space, spacing, state } from '../theme/tokens';
+import { color, layout, shape, space, spacing } from '../theme/tokens';
 import { SCOPES, searchCups, searchHeading } from '../constants/records';
-import { cupTitle } from '../constants/cups';
+import { MODE_BADGE, cupTitle, tidyNote } from '../constants/cups';
 import Button from './base/Button';
-import Glyph from './base/Glyph';
+import RecordRow from './base/RecordRow';
 import SearchField from './base/SearchField';
 import SegmentedControl from './base/SegmentedControl';
 import Text from './base/Text';
@@ -22,27 +22,18 @@ import Text from './base/Text';
  *   heading  body.sm with tabular numerals, text.secondary: "9 cups say
  *            "juicy"" (searchHeading; Design Round 10, 19). Nothing under
  *            "Nothing matches".
- *   results  one 2px frame on raised; newest first, flat (8l draws no groups)
+ *   results  2a's RecordRow, unframed (Design Round 11, C4: per-row frames
+ *            are the noise Round 9 removed); newest first, flat (8l draws no
+ *            groups). The first row draws the hairline under the heading.
  *
- * Result row (8l's): title, then "date · method · rating" (meta, muted),
- * then the text that matched in an outline tag, and a chevron (§1: a whole
- * row is pressable → chevron; 8l has none, as D-49 for 2a). Set as
- * RadioList's rows: title / meta and inset.listRow, no item dividers (Design
- * Round 9). 8l sets the title 15 / 700 and the meta 12 / 500; the tag's
- * 11 / 700 lowercase label has no style, so `meta` stands in (words are
- * shown as typed, so no caps style fits).
+ * Each row is 2a's (title, mode badge, source, note, rating over date,
+ * chevron), with the text that matched after the badge (RecordRow's
+ * `match`). 8l's own row (title, "date · method · rating", an outline tag)
+ * is gone with its frame.
  *
  * Props: cups (listCups), onOpen(id), onCancel
  */
 const dayFormat = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
-
-function resultLines(cup) {
-  const { title } = cupTitle(cup);
-  const where = cup.mode === 'made_it' ? cup.brew_method : cup.mode === 'barista' ? cup.place_name : null;
-  const name = cup.mode === 'made_it' && cup.bean_name && cup.bean_process ? `${title} · ${cup.bean_process}` : title;
-  const meta = [dayFormat.format(new Date(cup.logged_at)), where, cup.rating != null ? String(cup.rating) : null].filter(Boolean).join(' · ');
-  return { name, meta };
-}
 
 export default function RecordsSearch({ cups, onOpen, onCancel }) {
   const insets = useSafeAreaInsets();
@@ -78,33 +69,22 @@ export default function RecordsSearch({ cups, onOpen, onCancel }) {
               {searchHeading(found.length, search)}
             </Text>
             {found.length ? (
-              <View style={styles.frame}>
-                {found.map(({ cup, match }) => {
-                  const { name, meta } = resultLines(cup);
+              <View>
+                {found.map(({ cup, match }, i) => {
+                  const { title, source } = cupTitle(cup);
                   return (
-                    <Pressable
+                    <RecordRow
                       key={cup.id}
+                      first={i === 0}
+                      title={title}
+                      badges={[MODE_BADGE[cup.mode]]}
+                      match={match ?? undefined}
+                      source={source}
+                      note={tidyNote(cup.note) || undefined}
+                      rating={cup.rating}
+                      date={dayFormat.format(new Date(cup.logged_at))}
                       onPress={() => onOpen(cup.id)}
-                      accessibilityRole="button"
-                      accessibilityLabel={[name, meta, match].filter(Boolean).join(', ')}
-                      style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-                      <View style={styles.text}>
-                        <Text variant="title" color="primary" truncate="name">
-                          {name}
-                        </Text>
-                        <Text variant="meta" color="muted" truncate="meta">
-                          {meta}
-                        </Text>
-                      </View>
-                      {match ? (
-                        <View style={styles.tag}>
-                          <Text variant="meta" color="secondary" numberOfLines={1}>
-                            {match}
-                          </Text>
-                        </View>
-                      ) : null}
-                      <Glyph name="chevronRight" token={icon.md} color={color.text.primary} />
-                    </Pressable>
+                    />
                   );
                 })}
               </View>
@@ -141,33 +121,5 @@ const styles = StyleSheet.create({
   },
   results: {
     gap: spacing.gap.row,
-  },
-  frame: {
-    borderWidth: shape.borderWidth.box,
-    borderColor: color.border.strong,
-    backgroundColor: color.surface.raised,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space[12],
-    paddingVertical: spacing.inset.listRow.v,
-    paddingHorizontal: spacing.inset.listRow.h,
-  },
-  pressed: {
-    backgroundColor: state.pressed.row,
-  },
-  text: {
-    flex: 1,
-    minWidth: 0,
-    gap: spacing.gap.tight,
-  },
-  tag: {
-    flexShrink: 1,
-    maxWidth: '40%',
-    paddingVertical: space[6],
-    paddingHorizontal: space[8],
-    borderWidth: shape.borderWidth.divider,
-    borderColor: color.border.muted,
   },
 });

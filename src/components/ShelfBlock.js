@@ -7,7 +7,7 @@ import { OPEN_BAG_LIMIT, listGearWithUse, listShelfBags, onCupsChanged, onShelfC
 import { color, icon, shape, size, space, spacing, state } from '../theme/tokens';
 import Badge from './base/Badge';
 import AddButton from './base/AddButton';
-import Glyph from './base/Glyph';
+import Chevron from './base/Chevron';
 import PhotoPlaceholder from './base/PhotoPlaceholder';
 import Text from './base/Text';
 
@@ -152,7 +152,7 @@ function Manage({ label, count, onPress }) {
         <Text variant="labelCaps" color="muted">
           {count}
         </Text>
-        <Glyph name="chevronRight" token={icon.md} color={color.icon.default} />
+        <Chevron />
       </View>
     </Pressable>
   );

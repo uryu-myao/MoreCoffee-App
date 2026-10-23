@@ -39,7 +39,7 @@ Pressed, focus, tap affordance, the selection limit and the disabled look of opt
 | 10 | Weekday selector | 8i (7) | not started | option form at 44 (§1; the mock is 39) | selected (ink), unselected; uncapped (no count); disabled (§1) | — |
 | 11 | FieldRow | 5a 5d 5e (10 rows) | component | swatch · icon · plain · divided | default, pressed, error (5d) | disabled; **empty value** (no default to pre-fill); loading (MapKit lookup) |
 | 12 | Star rating (`StarRating`) | 5a 5d 5e | component | — | unrated, rated, pressed (disc), error (5d), caption | disabled / read-only |
-| 13 | List row (`RecordRow`) | 1b 2a 4a 4b (+ 2b skeleton backdrop) | component | with / without note | default | **loading / skeleton** (2b's is a dimmed backdrop, not a designed state) |
+| 13 | List row (`RecordRow`) | 1b 2a 4a 4b 8l (+ 2b skeleton backdrop) | component | with / without note · with a search match (8l, 2026-10-23) | default | **loading / skeleton** (2b's is a dimmed backdrop, not a designed state) |
 | 14 | Cup summary row | 5b (1) | inline | — | default | — |
 | 15 | Badge | inline 30 / standalone 18 | component | tones neutral · accent · success · info · selected; sticker rotation (E-4) | static | — (not pressable) |
 | 16 | Section heading (`SectionLabel`) | ~25 screens | component | marked · plain | set, pre-filled, required, missing, optional, count | — |

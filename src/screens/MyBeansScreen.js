@@ -4,7 +4,7 @@ import Badge from '../components/base/Badge';
 import Button from '../components/base/Button';
 import DashedRule from '../components/base/DashedRule';
 import AddButton from '../components/base/AddButton';
-import Glyph from '../components/base/Glyph';
+import Chevron from '../components/base/Chevron';
 import IconButton from '../components/base/IconButton';
 import PhotoPlaceholder from '../components/base/PhotoPlaceholder';
 import Text from '../components/base/Text';
@@ -122,7 +122,7 @@ export default function MyBeansScreen({ onBack, onAddBag, onFinished, onEditBag 
                   </View>
                   <BeanFreshness roastedAt={bag.roasted_at} sealed={!bag.opened_at} />
                 </View>
-                <Glyph name="chevronRight" token={icon.md} color={color.icon.default} />
+                <Chevron />
               </Pressable>
               <DashedRule token={dashed.dividerSoft} />
               {/* Not opened yet: "Open this bag" in Finish bag's place (2026-10-12),
@@ -157,7 +157,7 @@ export default function MyBeansScreen({ onBack, onAddBag, onFinished, onEditBag 
                   {`${finished} archived — still counted in my taste DNA`}
                 </Text>
               </View>
-              <Glyph name="chevronRight" token={icon.md} color={color.icon.default} />
+              <Chevron />
             </View>
           </Pressable>
         ) : null}

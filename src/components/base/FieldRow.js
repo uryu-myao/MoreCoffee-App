@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { color, icon, shape, size, space, spacing, state } from '../../theme/tokens';
+import Chevron from './Chevron';
 import Glyph from './Glyph';
 import PhotoPlaceholder from './PhotoPlaceholder';
 import Text from './Text';
@@ -41,7 +42,6 @@ export default function FieldRow({
   testOnly_pressed,
 }) {
   const hasSwatch = swatch || Boolean(iconName);
-  const ink = error ? state.error.text : color.icon.default;
 
   return (
     <Pressable
@@ -79,7 +79,8 @@ export default function FieldRow({
         ) : null}
       </View>
 
-      {readOnly ? null : <Glyph name="chevronRight" token={icon.md} color={ink} />}
+      {/* The shared chevron (Round 11, C); the error state recolours the whole row. */}
+      {readOnly ? null : <Chevron color={error ? state.error.text : undefined} />}
     </Pressable>
   );
 }

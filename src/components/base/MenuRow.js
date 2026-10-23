@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { color, icon, space, spacing, state } from '../../theme/tokens';
+import Chevron from './Chevron';
 import Glyph from './Glyph';
 import Text from './Text';
 
@@ -45,7 +46,7 @@ export default function MenuRow({ icon: glyph, label, sub, value, onPress, disab
           {value}
         </Text>
       ) : null}
-      {pressable ? <Glyph name="chevronRight" token={icon.md} color={color.text.primary} /> : null}
+      {pressable ? <Chevron /> : null}
     </Pressable>
   );
 }

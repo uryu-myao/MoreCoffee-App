@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import AddButton from '../components/base/AddButton';
 import Badge from '../components/base/Badge';
-import Glyph from '../components/base/Glyph';
+import Chevron from '../components/base/Chevron';
 import IconButton from '../components/base/IconButton';
 import PhotoPlaceholder from '../components/base/PhotoPlaceholder';
 import Text from '../components/base/Text';
 import { GEAR_CATEGORY, GEAR_LIMIT, onCups } from '../constants/gear';
 import { useDatabase } from '../data/DatabaseProvider';
 import { listGearWithUse, onCupsChanged, onShelfChanged } from '../data/repository';
-import { color, icon, layout, size, space, spacing, state } from '../theme/tokens';
+import { icon, layout, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
 /**
@@ -82,7 +82,7 @@ export default function MyGearScreen({ onBack, onAddGear, onEditGear }) {
                     {gearLine(g)}
                   </Text>
                 </View>
-                <Glyph name="chevronRight" token={icon.md} color={color.icon.default} />
+                <Chevron />
               </View>
             </Pressable>
           ))}

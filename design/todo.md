@@ -107,11 +107,12 @@ The block counts **My words** (what the user wrote; `components.md`, Words), not
 - **Keep for then**: tapping a word opens 8l on the Words scope with that word typed (8l is built, 2026-10-21).
 - A separate "flavours I pick most" block is a question for Design (`design-brief-next.md`, 8f follow-ups); if drawn, it sits beside My words' block once 8h exists, not in its place.
 
-## T-10. Pressable blocks: one design pass (recorded 2026-10-21, Uryu)
+## T-10. Pressable blocks: one design pass (recorded 2026-10-21, Uryu) — DONE 2026-10-23
 Pressable blocks and rows were each settled on their own, so the app and the boards differ: 2a's cup rows, Home's Recently sipped rows, 2c's "Feeds my taste DNA", 8l's results, 3d's cards, the shelf's Manage row; and 8f's "Last shift", a framed block that is not pressable. Uryu wants one treatment designed for all of them together.
 - **Sent as**: `design-brief-next.md`, "Pressable blocks: one treatment across the app" (the inventory, board vs built, and the rules in force).
-- **Answered**: Design Round 11, C (`design-response-next.md`). The chevron is the only sign a block opens something (16, `text.secondary`); 2c's › moves to the heading line's end; 8l's results drop the 2px frame and become `RecordRow`; → arrows become the chevron; Profile's Taste DNA card is the one framed pressable block. Not built yet.
-- **To do**: apply it to every row of the inventory in one change (3b's rows and 6a's My gear row included, built since), and update §1 Tap affordance / §8 / D-48 / D-49.
+- **Answered**: Design Round 11, C (`design-response-next.md`). The chevron is the only sign a block opens something (16, `text.secondary`); 2c's › moves to the heading line's end; 8l's results drop the 2px frame and become `RecordRow`; → arrows become the chevron; Profile's Taste DNA card is the one framed pressable block.
+- **Built 2026-10-23**: `component.chevron` / base `Chevron` on every row of the inventory, plus 3b's rows and 6a's My gear row; §1 Tap affordance, D-48 and D-49 updated. 8l's matched text is RecordRow's `match` (a Badge's fill, the user's case), ours: TODO(design) in the next brief.
+- **Closed.**
 
 
 ## T-11. The grind setting is held back in three places (recorded 2026-10-22, planner)

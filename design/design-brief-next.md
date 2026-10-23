@@ -60,6 +60,9 @@ Items for Design's next request, gathered as they come. Send together; group B i
   - **1b's "N more cups to lock it in" (D-47)**: lock-in is **10**, counted **per axis**; the profile locks in when every axis with a record has 10. "N more" counts the axis with the fewest records. Try next's 5 is a separate threshold (V2, not shown in V1).
   - **6b's Reset line ("Only the profile is rebuilt")**: Reset now means "count from this day"; the profile builds up again from that day, it is not rebuilt from the old cups.
 
+## Round 11 follow-ups (built 2026-10-23; please check)
+- **8l's matched text, now in `RecordRow`.** Your C4 moved 8l's results onto 2a's row, which has no place for the outline tag that shows what matched (Round 10, 19 / 20). Kept, after the mode badge, on a Badge's fill and padding (it labels, never acts; an outline inside a pressable row reads as an option, §1), but in the user's own case and shrinking to one line, since it is the user's text (a Badge holds fixed copy in caps). OK, or another place?
+
 ## Answered by Design's Round 11 (moved out 2026-10-23)
 Round 10 follow-ups (14, 19), 8f follow-ups, pressable blocks (`todo.md` T-10), the 3a full-shelf hint, and 8f's three contradictions with 6a's labels: answered in `design-response-next.md`, "Round 11". Not built yet.
 
