@@ -83,22 +83,50 @@ export async function loadTasteDna(db: SQLiteDatabase): Promise<Dna> {
   return computeDna(rows.map(dnaCupFromRow), Date.now(), settings?.reset_at ?? null);
 }
 
+/** How many flavour tags "Flavours I pick most" lists (Design Round 11, B). */
+export const TOP_FLAVOURS = 4;
+
 /**
- * 8f (My taste DNA): the profile, and the last shift from the stored
- * changes of the cups counted since the reset (computeDna's rule: a cup
- * logged before reset_at is left out).
+ * The flavour tags picked most, from the cups' lists (newest cup first):
+ * [{ name, count }], at most `n`. Ties go to the tag picked most recently.
  */
-export async function loadDnaPage(db: SQLiteDatabase): Promise<{ dna: Dna; shift: DnaShift | null }> {
+export function topFlavours(lists: string[][], n = TOP_FLAVOURS): { name: string; count: number }[] {
+  const seen = new Map<string, { name: string; count: number; at: number }>();
+  lists.forEach((list, at) => {
+    for (const name of list) {
+      const entry = seen.get(name);
+      if (entry) entry.count += 1;
+      else seen.set(name, { name, count: 1, at });
+    }
+  });
+  return [...seen.values()]
+    .sort((a, b) => b.count - a.count || a.at - b.at)
+    .slice(0, n)
+    .map(({ name, count }) => ({ name, count }));
+}
+
+/**
+ * 8f (My taste DNA): the profile, the last shift from the stored changes,
+ * and the flavour tags picked most, all from the cups counted since the
+ * reset (computeDna's rule: a cup logged before reset_at is left out).
+ */
+export async function loadDnaPage(
+  db: SQLiteDatabase
+): Promise<{ dna: Dna; shift: DnaShift | null; flavours: { name: string; count: number }[] }> {
   const settings = await db.getFirstAsync<{ reset_at: number | null }>('SELECT reset_at FROM settings');
   const resetAt = settings?.reset_at ?? null;
-  const [dna, rows] = await Promise.all([
+  const [dna, rows, picks] = await Promise.all([
     loadTasteDna(db),
     db.getAllAsync<{ logged_at: number; dna_change: string }>(
       'SELECT logged_at, dna_change FROM cups WHERE dna_change IS NOT NULL AND (? IS NULL OR logged_at >= ?) ORDER BY logged_at DESC, id DESC',
       [resetAt, resetAt]
     ),
+    db.getAllAsync<{ flavours: string }>(
+      "SELECT flavours FROM cups WHERE flavours != '[]' AND (? IS NULL OR logged_at >= ?) ORDER BY logged_at DESC, id DESC",
+      [resetAt, resetAt]
+    ),
   ]);
-  return { dna, shift: lastShift(rows) };
+  return { dna, shift: lastShift(rows), flavours: topFlavours(picks.map((r) => JSON.parse(r.flavours) as string[])) };
 }
 
 /**

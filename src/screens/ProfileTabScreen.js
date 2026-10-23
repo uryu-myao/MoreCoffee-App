@@ -16,7 +16,7 @@ import { bandOf } from '../data/tasteDna';
 import { requestPush } from '../navigation';
 import { color, dashed, layout, shape, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
-import { cupsLabel, shiftedLabel } from './TasteDnaScreen';
+import { cupsLabel, dnaSummary, shiftedLabel } from './TasteDnaScreen';
 
 /**
  * 6a — Profile, the upper part (2026-10-21). 6b (the lower part: DNA
@@ -30,20 +30,22 @@ import { cupsLabel, shiftedLabel } from './TasteDnaScreen';
  *                (Design Round 11, D2). What V1 has: "Logging since ‹month› ·
  *                N weeks" (the first cup) over Cups / Bags / Week streak.
  *                Bags: every bag ever added. Week streak: ours (weekStreak).
- *   Taste DNA    a link to 8f, the whole card (6a). Its stamp is a plain
+ *   Taste DNA    a link to 8f, the whole card (6a; Design Round 11, C: the
+ *                one framed block that is pressable). Its stamp is a plain
  *                Badge, no ⓘ, no tap of its own: no button in a button
- *                (Design Round 8). No summary line (Round 10, D12). The
- *                board's "Acidity high / Body light / Roast light" are the
- *                band names 8f uses, one per noted axis, as Badges (fill, no
- *                frame: outline chips would read as options in a button)
- *                until Round 10, D13 is answered. Then "Built from N cups ·
- *                last shifted N days ago".
+ *                (Design Round 8). Under the heading, the summary line
+ *                (dnaSummary, Round 10, D12) at display.xs: 6a draws it 27,
+ *                which has no style (8f's is display.lg). Then the band
+ *                names 8f uses, one per noted axis, as Badges (Round 11, D6),
+ *                and "Built from N cups · last shifted N days ago".
  *   My shelf     My gear "N of 8" (6a's "of 3" contradicts 3a / 4a, gaps.md
  *                24) → 3b (2026-10-22); My beans "N of 5" → 3d
  *                (every bag on the shelf, opened or not: "On the shelf",
  *                Design Round 7, 18; no "1 stale": staleness isn't built).
  *                My words is 8h's, out of V1: not shown, so the heading now
  *                holds gear and beans only, which "shelf" means (§1 Words).
+ *                When 8h comes, My words gets its own heading, "My words"
+ *                (Design Round 11, D1).
  *   My data      6b's "Export my cups" row, alone (todo.md T-8): the only way
  *                to get the data out. JSON of every table, not 6b's CSV.
  *
@@ -101,6 +103,7 @@ function PersonalCard({ profile, now }) {
 function DnaLink({ dna, shift }) {
   const bands = TASTE_AXES.filter((a) => dna.axes[a.key].value != null).map((a) => a.steps[bandOf(dna.axes[a.key].value)]);
   const stamp = dna.state === 'none' ? null : dna.state === 'locked' ? 'Locked in' : 'Early signs';
+  const summary = dnaSummary(dna);
   const meta = [`Built from ${cupsLabel(dna.cups)}`, shift ? `last ${shiftedLabel(shift.at)}` : null].filter(Boolean).join(' · ');
   // Round 11, C: the one framed block that is pressable. The frame is the
   // View, so the pressed fill (state.pressed.row, laid over raised) stays
@@ -110,7 +113,7 @@ function DnaLink({ dna, shift }) {
       <Pressable
         onPress={() => requestPush({ name: 'dna' })}
         accessibilityRole="button"
-        accessibilityLabel={['My taste DNA', stamp, bands.join(', '), meta].filter(Boolean).join(', ')}
+        accessibilityLabel={['My taste DNA', stamp, summary, bands.join(', '), meta].filter(Boolean).join(', ')}
         style={({ pressed }) => [styles.dna, pressed && styles.rowPressed]}>
         <View style={styles.dnaHead}>
           <Text variant="labelEyebrow" color="muted">
@@ -121,6 +124,11 @@ function DnaLink({ dna, shift }) {
             <Chevron />
           </View>
         </View>
+        {summary ? (
+          <Text variant="displayXs" color="primary">
+            {summary}
+          </Text>
+        ) : null}
         {bands.length ? (
           <>
             <DashedRule token={dashed.dividerSoft} />

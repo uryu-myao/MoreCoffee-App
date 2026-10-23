@@ -21,7 +21,8 @@ import ScreenFrame from './ScreenFrame';
  *   - HomeStats: cups total, this week (count + strip)
  *   - "Record a coffee" (primary) → the Record sheet, as the bar's +
  *   - the Taste DNA card; its stamp opens 15b's sheet (over the bar, so
- *     AppShell hosts it: DnaInfoHost)
+ *     AppShell hosts it: DnaInfoHost); its foot row "Open my taste DNA ›"
+ *     opens 8f (Design Round 11, B)
  *   - "Recently sipped" (display.sm) with "See all" (→ Records) and the three
  *     latest cups as list rows (title, mode badge, rating, date) → their 2c
  *   - My gear / My beans
@@ -70,7 +71,7 @@ export default function HomeTabScreen() {
           <View style={styles.body}>
             <HomeStats total={data.total} cupTimes={data.week} now={data.now} />
             <Button label="Record a coffee" onPress={() => requestShell({ record: true })} />
-            <TasteDnaCard dna={data.dna} onStampPress={() => requestDnaInfo(data.dna)} />
+            <TasteDnaCard dna={data.dna} onStampPress={() => requestDnaInfo(data.dna)} onOpen={() => push('dna')} />
             {data.recent.length ? (
               <View>
                 <View style={styles.recentHead}>

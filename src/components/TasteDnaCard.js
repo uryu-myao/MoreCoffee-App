@@ -5,11 +5,13 @@ import { bandOf } from '../data/tasteDna';
 import { color, motion, shape, size, space, spacing, state as pressState } from '../theme/tokens';
 import AxisReadout from './base/AxisReadout';
 import Badge from './base/Badge';
+import Chevron from './base/Chevron';
 import Text from './base/Text';
 
 /**
  * Taste DNA card (1b / 4a / 4b: Home, the same card on all three; the card
- * itself is not pressable). From the mock: "My taste DNA" (display.sm,
+ * itself is not pressable: Design Round 11, C's framed block that is not
+ * pressable, since its stamp is a button). From the mock: "My taste DNA" (display.sm,
  * accent) with the state's stamp beside it, the header row centred, then the
  * four axes — pole labels over an AxisReadout (§9; replaces the mock's dashed
  * display rail and needle).
@@ -23,6 +25,10 @@ import Text from './base/Text';
  * No line under the title (Design Round 8, 2026-10-17): what it said moved
  * into the sheet's progress box (DnaInfoSheet).
  * The mock's footer "3 of 5 cups" is Try next's progress (V2): not shown.
+ * With onOpen, the card's foot is a row, "Open my taste DNA ›" → 8f (Design
+ * Round 11, B): label.caps and the shared chevron, its pressed fill out to
+ * the card's frame (sides and bottom), as the shelf's Manage rows. A row,
+ * not the card, so the stamp stays the card's only other button.
  *
  * All four axes always show (Design 10b, option A, decided 2026-10-12): an
  * axis with nothing noted is AxisReadout's empty track with "Not noted yet"
@@ -104,8 +110,9 @@ export function DnaAxes({ dna, bands = false, style }) {
  * Props
  *   dna            the profile (loadTasteDna)
  *   onStampPress   the stamp: open 15b's sheet
+ *   onOpen         the foot row: open 8f
  */
-export default function TasteDnaCard({ dna, onStampPress }) {
+export default function TasteDnaCard({ dna, onStampPress, onOpen }) {
   return (
     <View style={styles.card}>
       <View style={styles.head}>
@@ -115,6 +122,14 @@ export default function TasteDnaCard({ dna, onStampPress }) {
         <DnaStamp state={dna.state} onPress={onStampPress} />
       </View>
       <DnaAxes dna={dna} style={styles.axes} />
+      {onOpen ? (
+        <Pressable onPress={onOpen} accessibilityRole="button" style={({ pressed }) => [styles.open, pressed && styles.openPressed]}>
+          <Text variant="labelCaps" color="primary">
+            Open my taste DNA
+          </Text>
+          <Chevron />
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -147,6 +162,20 @@ const styles = StyleSheet.create({
   },
   axes: {
     marginTop: spacing.gap.section,
+  },
+  open: {
+    marginTop: spacing.gap.section,
+    minHeight: size.tapTarget + spacing.inset.container.v,
+    marginHorizontal: -spacing.inset.container.h,
+    paddingHorizontal: spacing.inset.container.h,
+    marginBottom: -spacing.inset.container.v,
+    paddingBottom: spacing.inset.container.v,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  openPressed: {
+    backgroundColor: pressState.pressed.row,
   },
   axisList: {
     gap: spacing.gap.axis,
