@@ -15,6 +15,16 @@ import { MODE_LABEL } from './cups';
 export const CATEGORIES = [{ value: 'all', label: 'All' }, ...Object.entries(MODE_LABEL).map(([value, label]) => ({ value, label }))];
 export const DEFAULT_CATEGORY = 'all';
 
+/**
+ * A chip with no cups (Design Round 13, E4): one line per type, the fact
+ * only, no invitation to log one ("yet" says the list will fill).
+ */
+export const CATEGORY_EMPTY = {
+  made_it: 'No home brews yet.',
+  barista: 'No café cups yet.',
+  packaged: 'No cans or bottles yet.',
+};
+
 /** The cups of one category, in the order given; All returns the list as is. */
 export function cupsInCategory(cups, category) {
   return category === 'all' ? cups : cups.filter((cup) => cup.mode === category);

@@ -1,5 +1,41 @@
 # Design response — design-missing.md
 
+## Round 13 (2026-10-23)
+
+### A. Round 12 build
+1. **OK, the category stays at the top of the body.** Keep the shared compact header as it is. The category describes the item, not the screen, so it sits fine just above the card. The mock follows the build.
+2–3. Noted.
+4. **Noted.** The mock fixes (D-37, D-39, the › chevrons on 2c / 3d / Home's shelf) and D-7 to D-16 go into the next export.
+
+### B. Items answered twice
+All three are **agreed: keep what is built.**
+- Empty axis: "Not noted yet" for a profile, "Not noted" for a cup. The two different words are right.
+- 5c: "Starts at …", "-bodied", and the "Your Taste DNA stays where it was" line. My Round 12 versions are withdrawn.
+- Lock-in: counted in notes. "Cups" was wrong.
+
+### C. D-38
+**Agreed.** Keep `text.placeholder` until D-44, and decide both at the final polish.
+
+### D. Reports
+Noted. Dropping 8l's matched tag is fine: the row's lines carry the match. 6a at `display.sm` is fine.
+
+### E. 2a's category chips
+1. **All OK as listed.**
+   - Labels: All / I made it / Barista / Packaged.
+   - `SegmentedControl`, 44 tall, the same row as 8l's.
+   - One at a time. Each launch starts from All.
+   - The chips and 2b combine. 8l doesn't take the chip.
+   - One addition: when switching chips, keep the list's scroll position at the top. Each chip shows a different list.
+2. **Your reading is right for both.**
+   - 16: the filter button stays plain. The selected chip is the "in force" sign, and it sits in view on 2a. 2b still holds no filter.
+   - 18: "Done" with no count. 2b still can't change how many cups there are.
+3. **The cups shown.** "N Cups" counts the list under it, so the header and the list always agree. The label doesn't change. The chip above the list says what is counted.
+4. **One line per type, stating the fact only.** No invitation: V1 can't fully log a Barista cup yet, and the + button already says how to log. "Yet" says the list will fill.
+   - I made it: **"No home brews yet."**
+   - Barista: **"No café cups yet."**
+   - Packaged: **"No cans or bottles yet."**
+   - Style: body, `text.secondary`, placed where the first row would be. The header shows "0 Cups".
+
 ## Round 12 (2026-10-23), with D-37–39 and earlier open items
 
 Round 10 A, C10, D11–13 and all of Round 11 are answered above ("Round 11"). A1–A3: noted. D-43: OK, the 3g caption becomes "From 3d → tap a card".

@@ -23,6 +23,18 @@ export const ScreenBackdropContext = createContext(true);
 export const ScrollChromeContext = createContext(null);
 
 /**
+ * The scrolling page's movement, for pinned (sticky) blocks (2a's chips and
+ * group headings, 2026-10-24). Scroll variants only; null otherwise.
+ *   under    how far the content has moved up under the rule (Animated).
+ *            While the header collapses the rule rises with the content, so
+ *            this stays 0; it grows once the header is fully collapsed. A
+ *            block at page y reaches the rule once this passes y.
+ *   pageTop  the page's top in the screen's coordinates (Animated): where
+ *            AlignedDotTexture lines a pinned block's dots up with the page's.
+ */
+export const ContentScrollContext = createContext(null);
+
+/**
  * Header collapse (design-system.md §9 Header collapse). Two tunables:
  *   titleScale  the title's collapsed scale. displayLg shrinks to displaySm's
  *               size (40 → 30), the scale's next display step, not a new size.
@@ -250,6 +262,20 @@ export default function ScreenFrame({
     };
   }, [compact, distance, full, geo, optical, scrollY]);
 
+  // The content's own movement under the rule: the scroll offset less the
+  // collapse (ContentScrollContext).
+  // The page's top on screen: the ScrollView's resting top less the scroll
+  // offset (the collapse moves the ScrollView up and its content down by the
+  // same amount, so they cancel).
+  const [scrollerTop, setScrollerTop] = useState(0);
+  const contentScroll = useMemo(
+    () => ({
+      under: anim ? Animated.subtract(scrollY, anim.shift) : scrollY,
+      pageTop: Animated.add(Animated.multiply(scrollY, -1), scrollerTop),
+    }),
+    [anim, scrollY, scrollerTop]
+  );
+
   // Footer hide / reveal (tab screens): report the scroll direction. Any
   // upward movement reveals at once. The top and bottom bounce are ignored.
   const lastY = useRef(0);
@@ -443,13 +469,17 @@ export default function ScreenFrame({
         keyboardShouldPersistTaps="handled"
         onLayout={(e) => {
           sizes.current.layout = e.nativeEvent.layout.height;
+          const at = e.nativeEvent.layout.y;
+          setScrollerTop((prev) => (prev === at ? prev : at));
           updateRange();
         }}
         onContentSizeChange={(w, h) => {
           sizes.current.content = h;
           updateRange();
         }}>
-        <Animated.View style={[styles.scrollPage, anim && { transform: [{ translateY: anim.shift }] }]}>{page}</Animated.View>
+        <Animated.View style={[styles.scrollPage, anim && { transform: [{ translateY: anim.shift }] }]}>
+          <ContentScrollContext.Provider value={contentScroll}>{page}</ContentScrollContext.Provider>
+        </Animated.View>
         {anim ? <View style={{ height: distance }} /> : null}
       </Animated.ScrollView>
     </View>

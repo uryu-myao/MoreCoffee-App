@@ -22,9 +22,10 @@ import ScreenFrame from './ScreenFrame';
  * "N / Cups logged" in the stat.
  * Category: a plain line, body.sm text.secondary ("Grinder", "Brewer", …;
  * Design Round 12, 7): 3e must say what the gear is, a kettle or scale
- * having no default row. TODO(design): Design put it under the header
- * title; the compact header has no line under its title (its collapse is
- * measured from the one row), so it opens the body, over the card.
+ * having no default row. It opens the body, over the card: the compact
+ * header has no line under its title (its collapse is measured from the
+ * one row). Design OK'd it there (Round 13, A1): it describes the item, not
+ * the screen.
  * Card (2px ink frame on raised, D-6's gap.section): Name (required, BagForm's
  * Field and its "· required" error), Maker ("Optional"); then, for a brewer
  * or grinder, under a dashed rule (it splits one block, §8) "My default

@@ -2,7 +2,7 @@
 
 Round 13 · responds to design-response-next.md Round 12
 
-**Status**: sent 2026-10-23; no reply yet.
+**Status**: answered in full (`design-response-next.md`, "Round 13"). A1 OK as built; B and C agreed, Design's Round 12 versions withdrawn; E1–E4 built 2026-10-23 (E1 adds: switching chips starts the list from the top; E3 the cups shown; E4 one line per type).
 
 Five groups, A–E. Reply under "Round 13" in `design-response-next.md`, numbered as in this brief. A1 and E ask for answers; B, C and D are reports.
 

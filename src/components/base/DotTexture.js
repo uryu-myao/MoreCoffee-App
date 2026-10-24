@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import { StyleSheet } from 'react-native';
+import { memo, useMemo } from 'react';
+import { Animated, StyleSheet } from 'react-native';
 import Svg, { Circle, Defs, Pattern, Rect } from 'react-native-svg';
 import { texture } from '../../theme/tokens';
 
@@ -29,3 +29,32 @@ function DotTexture() {
 }
 
 export default memo(DotTexture);
+
+/**
+ * The same texture inside an opaque block that moves over the page (2a's
+ * pinned chips and headings, 2026-10-24), so the block hides what passes
+ * under it yet reads as the page itself. `y` is the block's top in the
+ * page's coordinates (an Animated value, from the screen's top); the
+ * pattern moves back by y mod one tile, so its dots land on the page's.
+ * The block must start at the page's left edge and clip (overflow hidden):
+ * the pattern overhangs it by one tile below. The block keeps its own
+ * surface.ground fill under the dots.
+ */
+export function AlignedDotTexture({ y }) {
+  const back = useMemo(() => Animated.multiply(Animated.modulo(y, dot.tileHeight), -1), [y]);
+  return (
+    <Animated.View pointerEvents="none" style={[styles.aligned, { transform: [{ translateY: back }] }]}>
+      <DotTexture />
+    </Animated.View>
+  );
+}
+
+const styles = StyleSheet.create({
+  aligned: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: -dot.tileHeight,
+  },
+});
