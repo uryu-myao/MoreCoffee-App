@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+// RNGH 3: the old ScrollView, which takes turns with the sheet's swipe (a
+// legacy Gesture.Pan) as before. Moves to the new one with the gestures.
+import { LegacyScrollView as ScrollView } from 'react-native-gesture-handler';
 import BottomSheet from './base/BottomSheet';
 import Button from './base/Button';
 import SearchField from './base/SearchField';

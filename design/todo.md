@@ -122,3 +122,11 @@ Grind is not in V1, and three parts wait on it. **They move together**: whoever 
 - **3e's "My settings note"**: not built. Its line, "Prefills the grind field when you pick this grinder", promises a field V1 doesn't have. `gear.settings_note` exists, unused.
 
 When grind is built: the input (5a / 11a), 2c's line, and 3e's note with its prefill, in one change.
+
+## T-12. Gestures still use Gesture Handler's legacy API (recorded 2026-10-24, SDK 58)
+
+Expo SDK 58 brought react-native-gesture-handler 3, which deprecates the `Gesture.Pan()` / `Gesture.Tap()` builder API in favour of hooks (`usePanGesture`, `useTapGesture`). The builder still works in 3.x (`GestureDetector` hands legacy gestures to its legacy detector), so the upgrade kept it.
+
+- **Where**: PushedScreen (edge swipe back), AddCoffeeOverlay (edge swipe), BottomSheet (swipe to close), AxisSlider (pan + tap, `Gesture.Exclusive`).
+- **Coupled**: the sheets' lists (PickerSheet, SearchSheet, DnaInfoSheet) import `LegacyScrollView`, which takes turns with the legacy sheet swipe as before. Move them to the new `ScrollView` in the same change as BottomSheet's gesture.
+- **When**: before Gesture Handler removes the builder, or with the next gesture work. One change, checked on device (each swipe, the slider, and a sheet's list scrolling against its swipe).
