@@ -23,7 +23,7 @@ import Text from './Text';
  *             options, on or off by itself (8l's "4★ and up" beside the
  *             scopes, 2026-10-21). Same look; pressing it when on turns it
  *             off, so it responds in both states.
- *   compact   optional: inset.controlCompact and gap.tight, so a row of
+ *   compact   optional: inset.controlCompact and gap.controlCompact, so a row of
  *             four holds one line on narrow phones (2a's category chips, 2b's
  *             Group by; Uryu, 2026-10-26). 32 tall, with a hit-slop above and
  *             below back to 44 (size.tapTarget); never narrower than 44.
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     gap: spacing.gap.row,
   },
   groupCompact: {
-    gap: spacing.gap.tight,
+    gap: spacing.gap.controlCompact,
   },
   chip: {
     // The chip owns its height (padding + content) and centres the label in it.

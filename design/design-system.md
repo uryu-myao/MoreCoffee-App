@@ -562,12 +562,13 @@ Each default is the step the most-used value in that axis folds into.
 |---|---|---|
 | `inset.container` | `{ v: space.14, h: space.16 }` | v: 380 uses, 14px leads · h: 110 uses, 16px leads (40%) |
 | `inset.control` | `{ v: space.14, h: space.16 }` | v: 82 uses, 15/14px (72%) · h: 76 uses, 16px (86%) |
-| `inset.controlCompact` | `{ v: space.8, h: space.8 }` | added 2026-10-26 (Uryu), not from the source: a `SegmentedControl` row that should hold one line on narrow phones (2a's category chips, 2b's Group by), with `gap.tight` between chips and a 44 minimum width. 32 tall, hit-slop `inset.control.v − inset.controlCompact.v` (6) above and below back to 44 |
+| `inset.controlCompact` | `{ v: space.8, h: space.8 }` | added 2026-10-26 (Uryu), not from the source: a `SegmentedControl` row that should hold one line on narrow phones (2a's category chips, 2b's Group by), with `gap.controlCompact` (6) between chips and a 44 minimum width. 32 tall, hit-slop `inset.control.v − inset.controlCompact.v` (6) above and below back to 44 |
 | `badge.inline` | `{ v: space.4, h: space.8 }` | 30 uses — chips that sit **inside a list row** |
 | `badge.standalone` | `{ v: space.8, h: space.12 }` | 18 uses — chips that sit **alone on a surface** |
 | `gap.tight` | `space.4` | within one meaning unit (label + value, heading + caption) — the 2–6px band |
 | `gap.row` | `space.8` | between items — the 9px band |
 | `gap.section` | `space.12` | between sections, between cards, **and inside an enclosed surface** (measured mode of bordered cards and sheets) |
+| `gap.controlCompact` | `space.6` | added 2026-10-26 (Uryu): **between compact chips only** (`inset.controlCompact`). Horizontal; `tight` read cramped, `row` pushes 2b's Group by off one line at 402pt |
 | `gap.axis` | `space.20` | **taste-axis groups only** — an internal rhythm of the `axis` component, not a general-purpose gap |
 | `margin.container` | **no default** | see below |
 
@@ -1333,3 +1334,4 @@ One line per change to this document or to the token values, with the reason.
 - 2026-10-26 — §9 Screen shell: the header's 2px ink rule is gone (Uryu, tried on device): every `ScreenFrame` header and 8l's search header end open on their padding. Its 2pt goes too, so everything below the header sits 2 higher (Records 133 → 131, the Record sheet 122 → 120 to the foot); the collapse is unchanged (the ScrollView alone moves up). The footer panel's top rule stays. Ours, not in the board (queued for Design).
 - 2026-10-26 — `SegmentedControl` `compact` (Uryu): new `inset.controlCompact` (`{ v: space.14, h: space.6 }`), `gap.tight` between chips, each chip at least 44 wide (`size.tapTarget`); still 44 tall. Used by 2a's category chips (row 304 wide: one line from 375pt; was 393, two lines even at 430pt) and 2b's Group by (333: one line from 390pt; was 425). Widths from Archivo Bold's advances at `label.caps`, not yet measured on device. 5a's maker chips and 8l's scopes keep `inset.control`.
 - 2026-10-26 — `inset.controlCompact` → `{ v: space.8, h: space.8 }` (Uryu, on device: h 6 too tight, v 14 too tall). The compact chip is 32 tall with a 6 hit-slop above and below (44 target). 2a's chips: row 317, one line from 375pt. 2b's Group by: 349, one line from 402pt (390 / 393 wrap one chip).
+- 2026-10-26 — Compact chips: new `gap.controlCompact` (`space.6`) between them, was `gap.tight` (Uryu: a little more room). 2a's row 323 (one line from 375pt), 2b's Group by 355 (from 402pt).

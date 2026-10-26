@@ -260,6 +260,12 @@ export const spacing = {
     section: space[12],
     /** taste-axis groups only — an internal rhythm of the axis component */
     axis:    space[20],
+    /**
+     * between compact chips only (inset.controlCompact; Uryu, 2026-10-26):
+     * tight (4) read cramped; row (8) would push 2b's Group by off one line
+     * at 402pt.
+     */
+    controlCompact: space[6],
   },
   /**
    * margin.container has NO default: 66 uses across 13 values, mode = 20%.
