@@ -40,9 +40,9 @@ import ScreenFrame, { ContentScrollContext } from './ScreenFrame';
  *
  * Under the search row, the category chips (2a; built 2026-10-23, Design
  * Round 13, E): All / I made it / Barista / Packaged, one at a time,
- * 8l's SegmentedControl (44 tall; the board's 25-tall outline chips are
- * under the tap target), compact so the four hold one line from 375pt
- * (Uryu, 2026-10-26). The chip picks the cups; 2b's sort and group then
+ * 8l's SegmentedControl, compact (Uryu, 2026-10-26): 32 tall with a hit-slop
+ * to the 44 target (the board's 25-tall outline chips are under it), the
+ * four on one line from 375pt. The chip picks the cups; 2b's sort and group then
  * arrange them. Each launch starts from All (not stored, as the sort). All
  * four always show, so none moves when one has no cups. 8l ignores the chip.
  *   - Switching chips starts the list again from the top: each chip shows

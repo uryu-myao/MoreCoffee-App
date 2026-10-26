@@ -231,11 +231,11 @@ export const spacing = {
     control:   { v: space[14], h: space[16] },
     /**
      * A control row that should hold one line on narrow phones (Uryu,
-     * 2026-10-26): 2a's category chips, 2b's Group by. v stays control's
-     * (44 tall, size.tapTarget); h 6 fits Month / Brew method / Roaster /
-     * None in one line from 390pt.
+     * 2026-10-26): 2a's category chips, 2b's Group by. 32 tall; a hit-slop
+     * of control.v − controlCompact.v above and below keeps the 44 target
+     * (size.tapTarget). h 6 was too tight on device.
      */
-    controlCompact: { v: space[14], h: space[6] },
+    controlCompact: { v: space[8], h: space[8] },
     /**
      * A row in an app list (Design Round 9, 2026-10-18): lists have no item
      * dividers, so the padding alone sets the rhythm (the list's gap is 0).

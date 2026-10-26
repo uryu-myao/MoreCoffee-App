@@ -25,13 +25,20 @@ import Text from './Text';
  *             off, so it responds in both states.
  *   compact   optional: inset.controlCompact and gap.tight, so a row of
  *             four holds one line on narrow phones (2a's category chips, 2b's
- *             Group by; Uryu, 2026-10-26). Still 44 tall; a chip is never
- *             narrower than 44 (size.tapTarget). Wraps as before past that.
+ *             Group by; Uryu, 2026-10-26). 32 tall, with a hit-slop above and
+ *             below back to 44 (size.tapTarget); never narrower than 44.
+ *             Wraps as before past that.
  *   testOnly_pressedValue   force the pressed look on one option (dev harness)
  */
+// The compact chip is shorter than the regular one (44) by twice this, so a
+// hit-slop of it above and below gives back the 44 target.
+const COMPACT_SLOP = spacing.inset.control.v - spacing.inset.controlCompact.v;
+const COMPACT_HIT_SLOP = { top: COMPACT_SLOP, bottom: COMPACT_SLOP };
+
 export default function SegmentedControl({ options, value, onChange, toggle, compact, testOnly_pressedValue }) {
   // TODO: disabled chip state is undesigned (gaps.md 4).
   const chip = [styles.chip, compact && styles.chipCompact];
+  const hitSlop = compact ? COMPACT_HIT_SLOP : undefined;
   return (
     <View style={[styles.group, compact && styles.groupCompact]} accessibilityRole="radiogroup">
       {options.map((opt) => {
@@ -42,6 +49,7 @@ export default function SegmentedControl({ options, value, onChange, toggle, com
             onPress={() => onChange(opt.value)}
             accessibilityRole="radio"
             accessibilityState={{ checked: on }}
+            hitSlop={hitSlop}
             testOnly_pressed={opt.value === testOnly_pressedValue}
             style={({ pressed }) => [chip, on ? styles.chipOn : pressed && styles.chipPressed]}>
             <Text variant="labelCaps" color={on ? color.badge.fg.selected : color.badge.fg.neutral}>
@@ -53,6 +61,7 @@ export default function SegmentedControl({ options, value, onChange, toggle, com
       {toggle ? (
         <Pressable
           onPress={toggle.onToggle}
+          hitSlop={hitSlop}
           accessibilityRole="switch"
           accessibilityState={{ checked: toggle.on }}
           accessibilityLabel={toggle.label}

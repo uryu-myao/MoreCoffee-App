@@ -101,7 +101,7 @@ Plus, globally:
 
 **Resolved for the mock's chips (2026-10-08)**: horizontal padding back to the mock's 14 (`space.14`) keeps the five chips at 44 tall in **2 rows** at 390pt. Display rule decided with it: selected + unselected = 5 chips, plus Search. Longer words can still make 3 rows (item 15).
 
-**Status (2026-10-04)** for the maker chips (`SegmentedControl`): height is resolved by `inset.control` (44px, no hit-slop). Selected is the 5a ink fill. Pressed follows the §1 Hard Rule. Disabled is still undesigned. The 3f / 2b chips remain open under OQ-13.
+**Status (2026-10-04)** for the maker chips (`SegmentedControl`): height is resolved by `inset.control` (44px, no hit-slop). `compact` chips (2a's categories, 2b's Group by; 2026-10-26) are 32 tall with a 6 hit-slop above and below. Selected is the 5a ink fill. Pressed follows the §1 Hard Rule. Disabled is still undesigned. The 3f / 2b chips remain open under OQ-13.
 
 ---
 
