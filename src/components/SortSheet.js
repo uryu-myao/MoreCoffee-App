@@ -20,7 +20,8 @@ import RadioList from './RadioList';
  *   Sort by  eyebrow (accent, as 2b) over a RadioList of the four orders,
  *            with its square marker like every single-select row (Design
  *            Round 10, 17: 2b's check mark is the drift)
- *   Group by eyebrow over a SegmentedControl: Month / Brew method / Roaster / None
+ *   Group by eyebrow over a SegmentedControl (compact: one line from 390pt,
+ *   Uryu, 2026-10-26): Month / Brew method / Roaster / None
  *   Done     primary. 2b draws "Show 3 cups"; with no filter the number is
  *            always the total, so it returns with filters (Design Round 10, 18)
  *
@@ -59,7 +60,7 @@ export default function SortSheet({ visible, onClose, sort, group, onApply }) {
         <Text variant="labelEyebrow" color="accent">
           Group by
         </Text>
-        <SegmentedControl options={GROUPS} value={pick.group} onChange={(value) => setPick((p) => ({ ...p, group: value }))} />
+        <SegmentedControl compact options={GROUPS} value={pick.group} onChange={(value) => setPick((p) => ({ ...p, group: value }))} />
       </View>
       <Button
         variant="primary"

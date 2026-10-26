@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { color, shape, spacing, state } from '../../theme/tokens';
+import { color, shape, size, spacing, state } from '../../theme/tokens';
 import Text from './Text';
 
 /**
@@ -23,12 +23,17 @@ import Text from './Text';
  *             options, on or off by itself (8l's "4★ and up" beside the
  *             scopes, 2026-10-21). Same look; pressing it when on turns it
  *             off, so it responds in both states.
+ *   compact   optional: inset.controlCompact and gap.tight, so a row of
+ *             four holds one line on narrow phones (2a's category chips, 2b's
+ *             Group by; Uryu, 2026-10-26). Still 44 tall; a chip is never
+ *             narrower than 44 (size.tapTarget). Wraps as before past that.
  *   testOnly_pressedValue   force the pressed look on one option (dev harness)
  */
-export default function SegmentedControl({ options, value, onChange, toggle, testOnly_pressedValue }) {
+export default function SegmentedControl({ options, value, onChange, toggle, compact, testOnly_pressedValue }) {
   // TODO: disabled chip state is undesigned (gaps.md 4).
+  const chip = [styles.chip, compact && styles.chipCompact];
   return (
-    <View style={styles.group} accessibilityRole="radiogroup">
+    <View style={[styles.group, compact && styles.groupCompact]} accessibilityRole="radiogroup">
       {options.map((opt) => {
         const on = opt.value === value;
         return (
@@ -38,7 +43,7 @@ export default function SegmentedControl({ options, value, onChange, toggle, tes
             accessibilityRole="radio"
             accessibilityState={{ checked: on }}
             testOnly_pressed={opt.value === testOnly_pressedValue}
-            style={({ pressed }) => [styles.chip, on ? styles.chipOn : pressed && styles.chipPressed]}>
+            style={({ pressed }) => [chip, on ? styles.chipOn : pressed && styles.chipPressed]}>
             <Text variant="labelCaps" color={on ? color.badge.fg.selected : color.badge.fg.neutral}>
               {opt.label}
             </Text>
@@ -51,7 +56,7 @@ export default function SegmentedControl({ options, value, onChange, toggle, tes
           accessibilityRole="switch"
           accessibilityState={{ checked: toggle.on }}
           accessibilityLabel={toggle.label}
-          style={({ pressed }) => [styles.chip, toggle.on ? styles.chipOn : pressed && styles.chipPressed]}>
+          style={({ pressed }) => [chip, toggle.on ? styles.chipOn : pressed && styles.chipPressed]}>
           <Text variant="labelCaps" color={toggle.on ? color.badge.fg.selected : color.badge.fg.neutral}>
             {toggle.label}
           </Text>
@@ -67,6 +72,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.gap.row,
   },
+  groupCompact: {
+    gap: spacing.gap.tight,
+  },
   chip: {
     // The chip owns its height (padding + content) and centres the label in it.
     // Chips in one row stretch to the tallest (row default alignItems: stretch);
@@ -80,6 +88,11 @@ const styles = StyleSheet.create({
     borderWidth: shape.borderWidth.divider,
     borderColor: color.border.muted,
     backgroundColor: color.badge.bg.raised,
+  },
+  chipCompact: {
+    minWidth: size.tapTarget,
+    paddingVertical: spacing.inset.controlCompact.v,
+    paddingHorizontal: spacing.inset.controlCompact.h,
   },
   chipPressed: {
     backgroundColor: state.pressed.surface,
