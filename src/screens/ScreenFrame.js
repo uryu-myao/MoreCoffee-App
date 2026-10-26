@@ -25,10 +25,10 @@ export const ScrollChromeContext = createContext(null);
 /**
  * The scrolling page's movement, for pinned (sticky) blocks (2a's chips and
  * group headings, 2026-10-24). Scroll variants only; null otherwise.
- *   under    how far the content has moved up under the rule (Animated).
- *            While the header collapses the rule rises with the content, so
- *            this stays 0; it grows once the header is fully collapsed. A
- *            block at page y reaches the rule once this passes y.
+ *   under    how far the content has moved up under the header's foot
+ *            (Animated). While the header collapses the foot rises with the
+ *            content, so this stays 0; it grows once the header is fully
+ *            collapsed. A block at page y reaches the foot once this passes y.
  *   pageTop  the page's top in the screen's coordinates (Animated): where
  *            AlignedDotTexture lines a pinned block's dots up with the page's.
  */
@@ -42,7 +42,7 @@ export const ContentScrollContext = createContext(null);
  *               the stat's label, the compact date) fade out. They never scale:
  *               ×0.75 would take them to 7.5–9px.
  * The distance is derived, not tuned: the collapsed title (or the compact row)
- * starts at the safe-area top and the rule follows 1:1 with the content.
+ * starts at the safe-area top and the header's foot follows 1:1 with the content.
  */
 const COLLAPSE = {
   titleScale: textStyle.displaySm.fontSize / textStyle.displayLg.fontSize,
@@ -62,8 +62,8 @@ const belowBaseline = (line) => line.height - line.ascender;
 /**
  * Screen shell (design-system.md §9): header block — optional leading control
  * (e.g. a close IconButton, as in 5a) above the display.lg title, optional
- * right-aligned meta — closed by a 2px ink rule, then the screen body, then an
- * optional footer. layout.gutter is the only horizontal padding.
+ * right-aligned meta — open at its foot (no rule since 2026-10-26), then the
+ * screen body, then an optional footer. layout.gutter is the only horizontal padding.
  *
  * layout.screen.top / .bottom are measured from the screen edge, as in the
  * source frames, so they already contain the status bar / home indicator; they
@@ -85,7 +85,7 @@ const belowBaseline = (line) => line.height - line.ascender;
  *             (2026-10-17). On collapse the numeral keeps its size and
  *             settles on the title's baseline; the label fades out.
  *   scroll    the page scrolls under a pinned header that collapses as it
- *             scrolls (title shrinks, rule rises; §9 Header collapse)
+ *             scrolls (title shrinks, foot rises; §9 Header collapse)
  *   footer    optional node in the footer panel at the end of the page; it sits at
  *             the bottom when the content is short and follows it when it is long
  *   trailing  compact only: a control at the row's right end (2c's edit
@@ -162,7 +162,7 @@ export default function ScreenFrame({
     statLines.current[name] = line;
     const { title: t, number: n, label: l } = statLines.current;
     if (!t || !n || !l) return;
-    // Heights above the header's foot, where the rule starts.
+    // Heights above the header's foot.
     const capCentre = styles.header.paddingBottom + belowBaseline(t) + t.capHeight / 2;
     const labelBaseline = capCentre - (l.capHeight + STAT_GAP + n.capHeight) / 2;
     const round = (v) => Math.round(v * 10) / 10;
@@ -238,7 +238,7 @@ export default function ScreenFrame({
   const anim = useMemo(() => {
     if (!(distance > 0)) return null;
     // Collapsed amount in points, clamped to [0, distance]: linear in scroll
-    // offset, so the rule stays glued to the content under the finger.
+    // offset, so the header's foot stays glued to the content under the finger.
     const shift = scrollY.interpolate({ inputRange: [0, distance], outputRange: [0, distance], extrapolate: 'clamp' });
     const lerp = (to) => shift.interpolate({ inputRange: [0, full], outputRange: [0, to] });
     return {
@@ -262,7 +262,7 @@ export default function ScreenFrame({
     };
   }, [compact, distance, full, geo, optical, scrollY]);
 
-  // The content's own movement under the rule: the scroll offset less the
+  // The content's own movement under the header: the scroll offset less the
   // collapse (ContentScrollContext).
   // The page's top on screen: the ScrollView's resting top less the scroll
   // offset (the collapse moves the ScrollView up and its content down by the
@@ -322,9 +322,9 @@ export default function ScreenFrame({
 
   // Compact (2026-10-07): the control and the title share one row on the left;
   // the meta is the standard right-aligned column. Same geometry as the
-  // standard header otherwise (padding, rule, meta 20 above the rule).
+  // standard header otherwise (padding, meta 20 above the foot).
   const header = compact ? (
-    <View style={[styles.header, headerTop, scroll && styles.headerNoRule]}>
+    <View style={[styles.header, headerTop]}>
       <View style={[styles.compactRow, trailing && styles.compactRowFull]} onLayout={onPart('row')}>
         {leading ? (
           <Animated.View onLayout={onPart('leading')} style={{ transform: [{ translateY: anim ? anim.leading : optical }] }}>
@@ -367,7 +367,7 @@ export default function ScreenFrame({
       ) : null}
     </View>
   ) : (
-    <View style={[styles.header, headerTop, scroll && styles.headerNoRule]}>
+    <View style={[styles.header, headerTop]}>
       <View style={styles.titleColumn} onLayout={onPart('column')}>
         {/* A control: stays put, fully visible and pressable while collapsing. */}
         {leading ? (
@@ -445,10 +445,10 @@ export default function ScreenFrame({
     );
   }
 
-  // Scroll variants: the header (rule included) is pinned and collapses; the
-  // ScrollView starts below the rule and clips there, so content passes
-  // beneath the rule, never beside it. As the header collapses by `shift`, the
-  // rule and the ScrollView move up by it (the ScrollView reaches `distance`
+  // Scroll variants: the header is pinned and collapses; the ScrollView starts
+  // at the header's foot and clips there, so content passes beneath the
+  // header, never beside it. As the header collapses by `shift`, the
+  // ScrollView moves up by it (the ScrollView reaches `distance`
   // past the screen bottom to stay flush) and the content inside moves back
   // down by it, so the content still tracks the finger 1:1. A spacer of
   // `distance` keeps the end of the content reachable.
@@ -456,7 +456,6 @@ export default function ScreenFrame({
     <View style={rootStyle}>
       {texture}
       {header}
-      <Animated.View style={[styles.rule, anim && { transform: [{ translateY: anim.up }] }]} />
       <Animated.ScrollView
         ref={scrollRef}
         style={[styles.scroller, anim && { marginBottom: -distance, transform: [{ translateY: anim.up }] }]}
@@ -503,28 +502,18 @@ const styles = StyleSheet.create({
   scrollPage: {
     flexGrow: 1,
   },
-  // Scroll variants draw the rule as its own view so it can rise with the
-  // collapse while the header box keeps its height.
-  headerNoRule: {
-    borderBottomWidth: 0,
-  },
-  rule: {
-    height: shape.borderWidth.box,
-    backgroundColor: color.border.strong,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     gap: space[14],
     paddingHorizontal: layout.gutter,
-    // The title-to-rule distance is this padding, not line-box leftover. The
+    // The title-to-foot distance is this padding, not line-box leftover. The
     // title renders on Instrument Serif's natural box (§3.2), which ends at the
     // descender line, 12.4 below the baseline at 40. 12.4 + 8 = 20.4 from the
-    // baseline to the rule, matching the source (40px box + 14px padding).
+    // baseline to the foot, the source's distance to its rule (40px box + 14px
+    // padding). The rule itself is gone (Uryu, 2026-10-26): an open header.
     paddingBottom: space[8],
-    borderBottomWidth: shape.borderWidth.box,
-    borderBottomColor: color.border.strong,
   },
   titleColumn: {
     flexShrink: 1,
@@ -534,7 +523,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.gap.row,
   },
   // Out of flow, so the header height stays the title column's (standard or
-  // compact) and the rule sits at the same height on every tab (a swipe shows
+  // compact) and the foot sits at the same height on every tab (a swipe shows
   // no step). On iOS the display.sm numeral's natural box (39) would otherwise
   // push it 3 lower. `bottom` is measured (onStatLine): the pair centres on
   // the title's cap band.
@@ -551,9 +540,9 @@ const styles = StyleSheet.create({
   },
   meta: {
     alignItems: 'flex-end',
-    // The source sits the meta 6 above a header foot that was 14 above the rule
+    // The source sits the meta 6 above a header foot that was 14 above its rule
     // (20 in all). The header padding is now 8, so the meta takes 12 to stay 20
-    // above the rule — its baseline lands 2.1 above the title's, as in the source.
+    // above the foot — its baseline lands 2.1 above the title's, as in the source.
     paddingBottom: space[12],
   },
   compactRow: {

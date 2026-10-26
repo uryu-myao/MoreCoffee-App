@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { color, layout, shape, space, spacing } from '../theme/tokens';
+import { layout, space, spacing } from '../theme/tokens';
 import { SCOPES, searchCups, searchHeading } from '../constants/records';
 import { MODE_BADGE, cupTitle, tidyNote } from '../constants/cups';
 import Button from './base/Button';
@@ -15,8 +15,8 @@ import Text from './base/Text';
  * Cancel brings 2a back. Nothing about a search is kept: no recent
  * searches in V1 (Design Round 10, 22).
  *
- *   header   SearchField (focused on open) and "Cancel" (Button text), over a
- *            2px ink rule, as 8l's
+ *   header   SearchField (focused on open) and "Cancel" (Button text); open
+ *            at its foot, as every header since 2026-10-26 (8l drew a rule)
  *   scopes   SegmentedControl Words / Beans / Gear (Gear back with 3b / 3e),
  *            with "4★ and up" as its toggle chip (it combines with any scope)
  *   heading  body.sm with tabular numerals, text.secondary: "9 cups say
@@ -106,8 +106,6 @@ const styles = StyleSheet.create({
     gap: spacing.gap.row,
     paddingHorizontal: layout.gutter,
     paddingBottom: space[14],
-    borderBottomWidth: shape.borderWidth.box,
-    borderBottomColor: color.border.strong,
   },
   body: {
     flex: 1,

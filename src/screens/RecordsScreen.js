@@ -50,7 +50,7 @@ import ScreenFrame, { ContentScrollContext } from './ScreenFrame';
  *     list; "0 Cups" on an empty chip (E3).
  *   - A chip with no cups: one line for its type, the fact only, where the
  *     first row would be, body text.secondary (E4; CATEGORY_EMPTY).
- *   - Pinned (Uryu, 2026-10-24): the chips stay under the rule, and each
+ *   - Pinned (Uryu, 2026-10-24): the chips stay under the header, and each
  *     group heading under the chips until the next one pushes it up
  *     (pinFrom, below). Without it the chips scroll away and can't be
  *     switched from deep in the list.
@@ -64,7 +64,7 @@ import ScreenFrame, { ContentScrollContext } from './ScreenFrame';
 
 
 /**
- * Pinned blocks (Uryu, 2026-10-24): the chips stay under the rule once the
+ * Pinned blocks (Uryu, 2026-10-24): the chips stay under the header once the
  * list scrolls past them, and each group's heading stays under the chips
  * until the next heading pushes it up; scrolling back, both return with the
  * content. Built on ScreenFrame's ContentScrollContext (RN's
@@ -151,7 +151,7 @@ function RecordGroup({ group, sort, top, listY, onOpen }) {
   );
 }
 
-/** The chips' band: pins under the rule once reached (it never unpins). */
+/** The chips' band: pins under the header once reached (it never unpins). */
 function PinnedChips({ category, onChange, onMeasure }) {
   const scroll = useContext(ContentScrollContext);
   const [y, setY] = useState(null);
