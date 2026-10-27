@@ -40,7 +40,8 @@ import { cupsLabel, dnaSummary, shiftedLabel } from './TasteDnaScreen';
  *                names 8f uses, one per noted axis, as Badges (Round 11, D6),
  *                and "Built from N cups · last shifted N days ago".
  *   My shelf     My gear "N of 8" (6a's "of 3" contradicts 3a / 4a, gaps.md
- *                24) → 3b (2026-10-22); My beans "N of 5" → 3d
+ *                24) and My beans "N of 5" → Gear & beans (17c / 17d,
+ *                Round 14) on that side
  *                (every bag on the shelf, opened or not: "On the shelf",
  *                Design Round 7, 18; no "1 stale": staleness isn't built).
  *                My words is 8h's, out of V1: not shown, so the heading now
@@ -204,8 +205,8 @@ export default function ProfileTabScreen() {
           <PersonalCard profile={data.profile} now={data.now} />
           <DnaLink dna={data.page.dna} shift={data.page.shift} />
           <Section title="My shelf" caption="The shelf is what keeps a log down to 15 seconds.">
-            <MenuRow icon="dripper" label="My gear" value={`${data.gear} of ${GEAR_LIMIT}`} onPress={() => requestPush({ name: 'gear' })} />
-            <MenuRow icon="beanBag" label="My beans" value={`${data.bags} of ${OPEN_BAG_LIMIT}`} onPress={() => requestPush({ name: 'beans' })} />
+            <MenuRow icon="dripper" label="My gear" value={`${data.gear} of ${GEAR_LIMIT}`} onPress={() => requestPush({ name: 'shelf', side: 'gear' })} />
+            <MenuRow icon="beanBag" label="My beans" value={`${data.bags} of ${OPEN_BAG_LIMIT}`} onPress={() => requestPush({ name: 'shelf', side: 'beans' })} />
           </Section>
           <Section title="My data">
             <MenuRow

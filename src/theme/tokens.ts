@@ -230,8 +230,11 @@ export const spacing = {
     container: { v: space[14], h: space[16] },
     control:   { v: space[14], h: space[16] },
     /**
-     * A control row that should hold one line on narrow phones (Uryu,
-     * 2026-10-26): 2a's category chips, 2b's Group by. 32 tall; a hit-slop
+     * Use for: chip rows that must hold one line (Design Round 15, F3).
+     * Everything else keeps inset.control at 44 (5a's maker chips, 8l's
+     * scopes). Pair with gap.controlCompact.
+     * Added 2026-10-26 (Uryu) for 2a's category chips and 2b's Group by,
+     * which took two lines on narrow phones. 32 tall; a hit-slop
      * of control.v − controlCompact.v above and below keeps the 44 target
      * (size.tapTarget). h 6 was too tight on device.
      */
@@ -261,7 +264,8 @@ export const spacing = {
     /** taste-axis groups only — an internal rhythm of the axis component */
     axis:    space[20],
     /**
-     * between compact chips only (inset.controlCompact; Uryu, 2026-10-26):
+     * Use for: between the chips of a row that must hold one line, with
+     * inset.controlCompact (Design Round 15, F3). Uryu, 2026-10-26:
      * tight (4) read cramped; row (8) would push 2b's Group by off one line
      * at 402pt.
      */
@@ -295,8 +299,18 @@ export const size = {
   button: { primary: 56, row: 44, compact: 40, small: 36 },
   control: { row: 52 },
   field: { height: 46 },
-  /** list: the list row (2a). summary: the one-cup summary row (5b). */
-  thumbnail: { list: 66, summary: 40 },
+  /**
+   * list: the list row (2a). summary: the one-cup summary row (5b).
+   * compact: Home's shelf rows (Round 14, 17a / 17b; settles D-51 for Home).
+   */
+  thumbnail: { list: 66, summary: 40, compact: 44 },
+  /**
+   * Home's shelf rows, the status column on the right (Round 14, 17a / 17b):
+   * the mini freshness bar's width, and the column's least width. The column
+   * hugs its text past this (2026-10-27): "Last · 6 days ago" and "Last · Apr
+   * 12, 2025" measure 90 and 101 in bodySm, so a fixed 84 would not hold them.
+   */
+  statusColumn: 84,
   avatar: 88,
   /**
    * tabBar.height: the bar's row above the home-indicator inset. 56 since
@@ -572,6 +586,19 @@ export const component = {
     add: { background: color.surface.inverse, mark: color.text.onInverse },
   },
   requiredBar,
+  /**
+   * Home's shelf: which of the two sides is open (Round 14, 17a / 17b). Two
+   * square-ended bars at the left of the action row, not dots: the open side
+   * longer and in ink, so width says it as well as colour. The mock moves
+   * them over 0.2s; there is no 200 motion, so they take motion.expand (a
+   * change between states), not press.
+   */
+  pageIndicator: {
+    height: size.meter.track,
+    gap: space[4],
+    active: { w: 24, color: color.text.primary },
+    inactive: { w: 10, color: color.border.muted },
+  },
   /**
    * The chevron that says a whole row or block opens something
    * (design-system.md §1 Tap affordance; Design Round 11, C, 2026-10-23).

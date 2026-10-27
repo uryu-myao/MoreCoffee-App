@@ -1,45 +1,68 @@
-import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import BeanFreshness from './BeanFreshness';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { FreshnessTrack } from './BeanFreshness';
+import ShelfTabs, { useShelfPager } from './ShelfTabs';
 import { useDatabase } from '../data/DatabaseProvider';
-import { GEAR_CATEGORY, GEAR_LIMIT, onCups } from '../constants/gear';
-import { OPEN_BAG_LIMIT, listGearWithUse, listShelfBags, onCupsChanged, onShelfChanged } from '../data/repository';
-import { color, icon, shape, size, space, spacing, state } from '../theme/tokens';
-import Badge from './base/Badge';
+import { FRESHNESS_WORDS, freshnessOf } from '../data/freshness';
+import { listGearWithUse, listShelfBags, onCupsChanged, onShelfChanged } from '../data/repository';
+import { formatLastUsed } from '../constants/dates';
+import { GEAR_CATEGORY, onCups } from '../constants/gear';
+import { color, component, icon, layout, motion, shape, size, space, spacing } from '../theme/tokens';
 import AddButton from './base/AddButton';
-import Chevron from './base/Chevron';
+import Badge from './base/Badge';
+import Button from './base/Button';
 import PhotoPlaceholder from './base/PhotoPlaceholder';
 import Text from './base/Text';
 
 /**
- * Home's My gear / My beans (4a / 4b): two folder tabs over one card.
+ * Home's My gear / My beans (Round 14, 17a / 17b; was 4a / 4b's box with
+ * folder tabs).
  *
- * Tabs: the selected one on surface.raised with ink text, joined to the card;
- * the other on badge.bg.neutral with muted text (4a / 4b). label.caps.
+ * Heading: ShelfTabs, with the live counts. Under it the two sides as pages
+ * side by side, swiped or opened by their tab: the page is the screen less
+ * three gutters (402 → 336), space.20 apart, so the closed side peeks
+ * 2 × gutter − 20 (24) at the screen's edge, cut straight. Gear snaps to the
+ * left gutter, beans to the right one, so the peek is the same on both. The
+ * open tab follows the scroll past the midpoint. A swipe stops at the ends
+ * (the bounce stays inside, the mock's overscroll contain).
  *
- * My beans (4b): open bags, newest opened first — thumbnail, name, "roaster ·
- * 250 g", and beanFreshness under it ("Day 7 · drink now" and its bar, from
- * the roast date; nothing without one; gaps.md 8, decided 2026-10-14). Then "Manage my beans  N / 5" →
- * 3d. No bag: an "Add a bag" AddButton (3d's vocabulary) → 3c.
+ * Three rows a side, all alike (68: the 44 thumbnail and space.12 above and
+ * below): thumbnail, name (label, one line: §3.1's shelf exception, Design
+ * Round 15, B3) over one line (bodySm, muted), and a status
+ * column at the right. Only the first row has a rule over it
+ * (divider.hairlineStrong), which the open tab's underline lands on. Not
+ * pressable: Home shows them; the whole list is one tap away.
+ *   gear   "Brewer" (and a "Default" badge); status "2 cups" / "Last ·
+ *          today", or "Not used" / "Add to a cup". A kettle or scale is never
+ *          on a cup, so its status is empty (2026-10-27: "Add to a cup" would
+ *          promise what can't be done). Used with no date: the count alone.
+ *          Default first, then the most used.
+ *   beans  "Roaster · 250 g"; status the freshness word over a short bar
+ *          (component.beanFreshness, as 3d: Design Round 7 / 14a's colours;
+ *          Round 14's table was an error, Design Round 15, B1). A sealed bag:
+ *          "Sealed" alone; an opened bag with no roast date: an empty column
+ *          (Round 15, B2). Past peak, then drink now, then resting, the
+ *          oldest roast first in each; then no roast date, then sealed,
+ *          oldest added first.
+ * The status column is at least size.statusColumn wide (the bar) and grows
+ * with its text (2026-10-27; the longer "Last · …" forms don't fit 84).
  *
- * My gear (4a): every piece of gear, defaults first — name with a "Default"
- * badge, "Brewer · 2 cups" / "· not used yet". A kettle or scale is never on
- * a cup, so its line is the category alone. Then "Manage my gear  N / 8" →
- * 3b (2026-10-22), as My beans'. No gear: an "Add gear" AddButton → 3a.
+ * Under the pages: the page indicator (component.pageIndicator) and "See all
+ * gear & beans ›", which opens Gear & beans on the open side.
+ * An empty side: its add button (Add gear → 3a, Add a bag → 3c), as before.
  *
- * No item dividers (Design Round 9, 2026-10-18): rows are set apart by
- * spacing.inset.listRow alone, and "Manage my beans" sits under the last row
- * with no rule, as 4a / 4b draw it.
- *
- * Thumbnails are FieldRow's swatch (size.field.height, 46): 4a / 4b draw 44,
- * which has no token (drift D-51).
- *
- * Props: onManageBeans, onManageGear, onAddBag, onAddGear
+ * Props: onSeeAll(side), onAddBag, onAddGear
  */
-export default function ShelfBlock({ onManageBeans, onManageGear, onAddBag, onAddGear }) {
+const ROWS = 3;
+
+export default function ShelfBlock({ onSeeAll, onAddBag, onAddGear }) {
   const db = useDatabase();
-  const [tab, setTab] = useState('beans');
   const [shelf, setShelf] = useState(null);
+  const { width } = useWindowDimensions();
+  const page = width - 3 * layout.gutter;
+  // The farthest the pages scroll: beans' right edge on the right gutter.
+  const end = 2 * page + space[20] + 2 * layout.gutter - width;
+  const { side, progress, select, scrollProps } = useShelfPager(end);
 
   useEffect(() => {
     const load = () =>
@@ -57,144 +80,152 @@ export default function ShelfBlock({ onManageBeans, onManageGear, onAddBag, onAd
   }, [db]);
 
   if (!shelf) return null;
+  const pageStyle = [styles.page, { width: page }];
   return (
     <View>
-      <View style={styles.tabs} accessibilityRole="tablist">
-        <Tab label="My gear" on={tab === 'gear'} onPress={() => setTab('gear')} />
-        <Tab label="My beans" on={tab === 'beans'} onPress={() => setTab('beans')} first={false} />
+      <ShelfTabs active={side} progress={progress} counts={{ gear: shelf.gear.length, beans: shelf.bags.length }} onSelect={select} />
+      <Animated.ScrollView
+        {...scrollProps}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        snapToOffsets={[0, end]}
+        decelerationRate="fast"
+        disableIntervalMomentum
+        style={styles.pages}
+        contentContainerStyle={styles.pagesContent}>
+        <View style={pageStyle}>
+          {shelf.gear.length ? (
+            homeGear(shelf.gear).map((g, i) => <GearRow key={g.id} gear={g} first={i === 0} />)
+          ) : (
+            <AddButton icon="plus" iconToken={icon.sm} label="Add gear" onPress={onAddGear} />
+          )}
+        </View>
+        <View style={pageStyle}>
+          {shelf.bags.length ? (
+            homeBeans(shelf.bags).map((b, i) => <BeanRow key={b.id} bag={b} first={i === 0} />)
+          ) : (
+            <AddButton icon="plus" iconToken={icon.sm} label="Add a bag" onPress={onAddBag} />
+          )}
+        </View>
+      </Animated.ScrollView>
+      <View style={styles.foot}>
+        <PageIndicator side={side} />
+        <Button variant="text" label="See all gear & beans" trailingIcon="chevronRight" onPress={() => onSeeAll(side)} />
       </View>
-      <View style={styles.card}>{tab === 'beans' ? <Beans bags={shelf.bags} onManage={onManageBeans} onAdd={onAddBag} /> : <Gear gear={shelf.gear} onManage={onManageGear} onAdd={onAddGear} />}</View>
     </View>
   );
 }
 
-function Tab({ label, on, onPress, first = true }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="tab"
-      accessibilityState={{ selected: on }}
-      style={({ pressed }) => [styles.tab, !first && styles.tabNext, on ? styles.tabOn : styles.tabOff, pressed && !on && styles.pressed]}>
-      <Text variant="labelCaps" color={on ? 'primary' : 'muted'}>
-        {label}
-      </Text>
-    </Pressable>
-  );
+/** Default first, then the most used (a stable sort keeps 3b's order in a tie). */
+function homeGear(gear) {
+  return [...gear].sort((a, b) => b.is_default - a.is_default || b.cups - a.cups).slice(0, ROWS);
 }
 
-function Beans({ bags, onManage, onAdd }) {
-  if (!bags.length) return <AddButton icon="plus" iconToken={icon.sm} label="Add a bag" onPress={onAdd} />;
-  return (
-    <>
-      {bags.map((bag) => (
-        // 4b: the bag row, then its freshness under it (nothing without a roast date).
-        <View key={bag.id} style={styles.bag}>
-          <View style={styles.bagTop}>
-            <PhotoPlaceholder size={size.field.height} />
-            <View style={styles.text}>
-              <Text variant="label" truncate="name">
-                {bag.name}
-              </Text>
-              <Text variant="bodySm" color="muted" truncate="meta">
-                {[bag.roaster, bag.size_g ? `${bag.size_g} g` : null, bag.opened_at ? null : 'Not opened yet'].filter(Boolean).join(' · ') || ' '}
-              </Text>
-            </View>
-          </View>
-          <BeanFreshness roastedAt={bag.roasted_at} />
-        </View>
-      ))}
-      <Manage label="Manage my beans" count={`${bags.length} / ${OPEN_BAG_LIMIT}`} onPress={onManage} />
-    </>
-  );
+/** What to drink first (Round 14; Round 15, B2 for the last two). */
+const DRINK_ORDER = { pastPeak: 0, drinkNow: 1, resting: 2 };
+function homeBeans(bags) {
+  const rank = (b) => (!b.opened_at ? 4 : b.roasted_at == null ? 3 : DRINK_ORDER[freshnessOf(b.roasted_at).state]);
+  return [...bags]
+    .sort((a, b) => rank(a) - rank(b) || (a.roasted_at ?? 0) - (b.roasted_at ?? 0) || a.id - b.id)
+    .slice(0, ROWS);
 }
 
-function Gear({ gear, onManage, onAdd }) {
-  if (!gear.length) return <AddButton icon="plus" iconToken={icon.sm} label="Add gear" onPress={onAdd} />;
-  const rows = gear.map((g) => {
-    const line = onCups(g.category) ? `${GEAR_CATEGORY[g.category]} · ${g.cups ? `${g.cups} ${g.cups === 1 ? 'cup' : 'cups'}` : 'not used yet'}` : GEAR_CATEGORY[g.category];
-    return (
-      <View key={g.id} style={styles.row}>
-        <PhotoPlaceholder size={size.field.height} />
-        <View style={styles.text}>
-          <View style={styles.nameRow}>
-            <Text variant="label" truncate="name" style={styles.name}>
-              {g.name}
-            </Text>
-            {g.is_default ? <Badge label="Default" tone="selected" /> : null}
-          </View>
-          <Text variant="bodySm" color="muted" truncate="meta">
-            {line}
-          </Text>
-        </View>
-      </View>
+function GearRow({ gear: g, first }) {
+  let status = null;
+  if (onCups(g.category)) {
+    status = g.cups ? (
+      <Status word={g.cups === 1 ? '1 cup' : `${g.cups} cups`} wordColor="primary" line={g.last_used_at != null ? `Last · ${formatLastUsed(g.last_used_at)}` : null} />
+    ) : (
+      <Status word="Not used" wordColor="muted" line="Add to a cup" />
     );
-  });
+  }
+  return <Row first={first} name={g.name} badge={g.is_default ? 'Default' : null} meta={GEAR_CATEGORY[g.category]} status={status} />;
+}
+
+function BeanRow({ bag, first }) {
+  const meta = [bag.roaster, bag.size_g ? `${bag.size_g} g` : null].filter(Boolean).join(' · ') || ' ';
+  let status = null;
+  if (!bag.opened_at) {
+    status = <Status word="Sealed" wordColor={component.beanFreshness.sealed.label} />;
+  } else {
+    const f = freshnessOf(bag.roasted_at);
+    if (f) status = <Status word={FRESHNESS_WORDS[f.state]} wordColor={component.beanFreshness[f.state].label} track={f} />;
+  }
+  return <Row first={first} name={bag.name} meta={meta} status={status} />;
+}
+
+function Row({ first, name, badge, meta, status }) {
   return (
-    <>
-      {rows}
-      <Manage label="Manage my gear" count={`${gear.length} / ${GEAR_LIMIT}`} onPress={onManage} />
-    </>
+    <View style={[styles.row, first && styles.rowFirst]}>
+      <PhotoPlaceholder size={size.thumbnail.compact} />
+      <View style={styles.text}>
+        <View style={styles.nameRow}>
+          <Text variant="label" truncate="shelf" style={styles.name}>
+            {name}
+          </Text>
+          {badge ? <Badge label={badge} tone="selected" /> : null}
+        </View>
+        <Text variant="bodySm" color="muted" truncate="meta">
+          {meta}
+        </Text>
+      </View>
+      {status}
+    </View>
   );
 }
 
 /**
- * "Manage my beans   2 / 5  ›" — a whole row, so a chevron (§1 Tap
- * affordance). Pressed (state.pressed.row, 2026-10-18): the fill bleeds
- * through the card's padding to its frame, sides and bottom, past the label.
+ * The status column: a word (meterLabel) over a line (bodySm, muted) or a
+ * freshness bar. Without either under it the word sits alone, centred.
  */
-function Manage({ label, count, onPress }) {
+function Status({ word, wordColor, line, track }) {
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label}, ${count}`} style={({ pressed }) => [styles.manage, pressed && styles.managePressed]}>
-      <Text variant="labelCaps" color="primary">
-        {label}
+    <View style={styles.status}>
+      <Text variant="meterLabel" color={wordColor}>
+        {word}
       </Text>
-      <View style={styles.manageEnd}>
-        <Text variant="labelCaps" color="muted">
-          {count}
+      {line ? (
+        <Text variant="bodySm" color="muted">
+          {line}
         </Text>
-        <Chevron />
-      </View>
-    </Pressable>
+      ) : null}
+      {track ? <FreshnessTrack freshness={track} style={styles.track} /> : null}
+    </View>
+  );
+}
+
+const indicatorEasing = Easing.bezier(...motion.expand.controlPoints);
+const dots = component.pageIndicator;
+
+/** Two bars: the open side's longer and in ink (component.pageIndicator). */
+function PageIndicator({ side }) {
+  const at = useRef(new Animated.Value(side === 'beans' ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.timing(at, { toValue: side === 'beans' ? 1 : 0, duration: motion.expand.duration, easing: indicatorEasing, useNativeDriver: false }).start();
+  }, [at, side]);
+  const bar = (open) => ({
+    width: at.interpolate({ inputRange: [0, 1], outputRange: open ? [dots.inactive.w, dots.active.w] : [dots.active.w, dots.inactive.w] }),
+    backgroundColor: at.interpolate({ inputRange: [0, 1], outputRange: open ? [dots.inactive.color, dots.active.color] : [dots.active.color, dots.inactive.color] }),
+  });
+  return (
+    <View style={styles.indicator} accessible accessibilityLabel={side === 'beans' ? 'My beans, 2 of 2' : 'My gear, 1 of 2'}>
+      <Animated.View style={[styles.indicatorBar, bar(false)]} />
+      <Animated.View style={[styles.indicatorBar, bar(true)]} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  tabs: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    // The tabs overlap the card's top border, so the selected one joins it.
-    marginBottom: -shape.borderWidth.box,
-    zIndex: 1,
+  // Out to the screen's edges: the closed side is cut by them.
+  pages: {
+    marginHorizontal: -layout.gutter,
   },
-  tab: {
-    minHeight: size.tapTarget,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.inset.control.h,
-    borderWidth: shape.borderWidth.box,
-    borderBottomWidth: 0,
-    borderColor: color.border.strong,
+  pagesContent: {
+    paddingHorizontal: layout.gutter,
+    gap: space[20],
   },
-  tabNext: {
-    borderLeftWidth: 0,
-  },
-  tabOn: {
-    backgroundColor: color.surface.raised,
-    // Covers the card's top border under the selected tab.
-    paddingBottom: shape.borderWidth.box,
-  },
-  tabOff: {
-    backgroundColor: color.badge.bg.neutral,
-    borderBottomWidth: shape.borderWidth.box,
-  },
-  pressed: {
-    backgroundColor: state.pressed.surface,
-  },
-  card: {
-    borderWidth: shape.borderWidth.box,
-    borderColor: color.border.strong,
-    backgroundColor: color.surface.raised,
-    paddingHorizontal: spacing.inset.container.h,
-    paddingVertical: spacing.gap.row,
+  page: {
+    flexDirection: 'column',
   },
   row: {
     flexDirection: 'row',
@@ -202,15 +233,9 @@ const styles = StyleSheet.create({
     gap: space[12],
     paddingVertical: spacing.inset.listRow.v,
   },
-  // 4b: the bag row over its freshness (gap 9 in the mock; gap.row).
-  bag: {
-    gap: spacing.gap.row,
-    paddingVertical: spacing.inset.listRow.v,
-  },
-  bagTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space[12],
+  rowFirst: {
+    borderTopWidth: shape.borderWidth.divider,
+    borderTopColor: color.divider.hairlineStrong,
   },
   text: {
     flex: 1,
@@ -220,30 +245,34 @@ const styles = StyleSheet.create({
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
     gap: spacing.gap.row,
   },
   name: {
     flexShrink: 1,
   },
-  // Out through the card's padding to its frame (sides and bottom), padded
-  // back in: the content stays put, the 44 row keeps its height.
-  manage: {
-    minHeight: size.tapTarget + spacing.gap.row,
-    marginHorizontal: -spacing.inset.container.h,
-    paddingHorizontal: spacing.inset.container.h,
-    marginBottom: -spacing.gap.row,
-    paddingBottom: spacing.gap.row,
+  status: {
+    flexShrink: 0,
+    minWidth: size.statusColumn,
+    alignItems: 'flex-end',
+    gap: space[6],
+  },
+  track: {
+    width: size.statusColumn,
+  },
+  foot: {
+    minHeight: size.tapTarget,
+    paddingTop: space[6],
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: spacing.gap.section,
   },
-  managePressed: {
-    backgroundColor: state.pressed.row,
-  },
-  manageEnd: {
+  indicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.gap.row,
+    gap: dots.gap,
+  },
+  indicatorBar: {
+    height: dots.height,
   },
 });

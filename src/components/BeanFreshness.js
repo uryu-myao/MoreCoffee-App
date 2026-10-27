@@ -36,19 +36,32 @@ export default function BeanFreshness({ roastedAt, sealed = false }) {
   const f = freshnessOf(roastedAt);
   if (!f) return null;
   const tone = meter[f.state];
-  const at = `${f.elapsed * 100}%`;
   const label = `Day ${f.day} · ${FRESHNESS_WORDS[f.state]}`;
   return (
     <View style={styles.row} accessible accessibilityLabel={label}>
       <Glyph name="clock" token={icon.sm} color={tone.elapsed} />
-      <View style={[styles.track, { backgroundColor: meter.track }]}>
-        <View style={[styles.fill, BAND, { backgroundColor: tone.peakBand }]} />
-        <View style={[styles.fill, { left: 0, width: at, backgroundColor: tone.elapsed }]} />
-        <View style={[styles.marker, { left: at, backgroundColor: tone.todayMarker }]} />
-      </View>
+      <FreshnessTrack freshness={f} style={styles.grow} />
       <Text variant="meterLabel" color={tone.label}>
         {label}
       </Text>
+    </View>
+  );
+}
+
+/**
+ * The bar alone, for a freshness from freshnessOf(): Home's shelf rows draw
+ * it short (size.statusColumn) under the state word (Round 14, 17b), with
+ * the same colours and marker as here (component.beanFreshness).
+ *   style  layout only: the bar's width (flex here, a fixed width on Home)
+ */
+export function FreshnessTrack({ freshness, style }) {
+  const tone = meter[freshness.state];
+  const at = `${freshness.elapsed * 100}%`;
+  return (
+    <View style={[styles.track, { backgroundColor: meter.track }, style]}>
+      <View style={[styles.fill, BAND, { backgroundColor: tone.peakBand }]} />
+      <View style={[styles.fill, { left: 0, width: at, backgroundColor: tone.elapsed }]} />
+      <View style={[styles.marker, { left: at, backgroundColor: tone.todayMarker }]} />
     </View>
   );
 }
@@ -62,8 +75,10 @@ const styles = StyleSheet.create({
   sealedLabel: {
     flexShrink: 1,
   },
-  track: {
+  grow: {
     flex: 1,
+  },
+  track: {
     height: meter.height,
   },
   fill: {

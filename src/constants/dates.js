@@ -37,3 +37,16 @@ export function partOfDay(date) {
 
 /** Whole calendar days from the day `fromMs` falls on to the day `toMs` falls on. */
 export const daysBetween = (fromMs, toMs) => Math.round((startOfDay(new Date(toMs)) - startOfDay(new Date(fromMs))) / DAY_MS);
+
+/**
+ * When gear was last used, as Home's shelf words it after "Last · " (Round
+ * 14 §4), by calendar days: "today", "yesterday", "6 days ago", then the day
+ * ("Apr 12"; "Apr 12, 2025" in another year). TODO(i18n): plural rules.
+ */
+export function formatLastUsed(ms) {
+  const days = Math.max(0, daysSince(ms));
+  if (days === 0) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days < 7) return `${days} days ago`;
+  return formatDay(ms);
+}

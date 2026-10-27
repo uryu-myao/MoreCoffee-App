@@ -23,14 +23,16 @@ import ScreenFrame from './ScreenFrame';
  *   - the Taste DNA card; its stamp opens 15b's sheet (over the bar, so
  *     AppShell hosts it: DnaInfoHost); its foot row "Open my taste DNA ›"
  *     opens 8f (Design Round 11, B)
- *   - "Recently sipped" (display.sm) with "See all" (→ Records) and the three
+ *   - "Recently sipped" (display.sm) with "See all ›" (to Records; the ›
+ *     since Design Round 15, B4, as the shelf's action) and the three
  *     latest cups as list rows (title, mode badge, rating, date) → their 2c
- *   - My gear / My beans
+ *   - My gear / My beans (Round 14, 17a / 17b: three rows a side, swiped
+ *     or tabbed; "See all gear & beans ›" opens 17c / 17d on that side)
  * Not shown: Try next's box (V2), the line under the counts (dropped for V1,
  * Design Round 10, C10).
  *
- * Screens opened from Home — 3d (Manage my beans), 3c (Add a bag), 3a (Add
- * gear) — are pushed over Home and the bottom bar (ShellStack; their mocks
+ * Screens opened from Home — Gear & beans (17c / 17d), 3c (Add a bag), 3a
+ * (Add gear) — are pushed over Home and the bottom bar (ShellStack; their mocks
  * draw no bar). Back or a swipe from the left edge returns.
  * Everything is read on open and again whenever a cup is saved.
  */
@@ -80,7 +82,7 @@ export default function HomeTabScreen() {
                     Recently sipped
                   </Text>
                   <View style={styles.seeAll}>
-                    <Button variant="text" label="See all" trailingIcon="arrowRight" onPress={() => requestShell({ tab: 'records' })} />
+                    <Button variant="text" label="See all" trailingIcon="chevronRight" onPress={() => requestShell({ tab: 'records' })} />
                   </View>
                 </View>
                 {data.recent.map((cup, i) => (
@@ -99,7 +101,7 @@ export default function HomeTabScreen() {
                 ))}
               </View>
             ) : null}
-            <ShelfBlock onManageBeans={() => push('beans')} onManageGear={() => push('gear')} onAddBag={() => push('addBag')} onAddGear={() => push('addGear')} />
+            <ShelfBlock onSeeAll={(side) => requestPush({ name: 'shelf', side })} onAddBag={() => push('addBag')} onAddGear={() => push('addGear')} />
           </View>
         ) : null}
       </ScreenFrame>
@@ -117,12 +119,14 @@ const styles = StyleSheet.create({
     // Room under the last block so the bottom bar never covers it (as 2a).
     paddingBottom: layout.empty.block,
   },
+  // space.2 under it (Round 14, was 14), so "Recently sipped" and the
+  // shelf's tabs sit the same distance from their rows.
   recentHead: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.gap.section,
-    paddingBottom: space[14],
+    paddingBottom: space[2],
   },
   // Optical (on device, 2026-10-18): centred on the title's box, the caps
   // read high beside a mostly lowercase serif. Its cap centre sits 0.5 under

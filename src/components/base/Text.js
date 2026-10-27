@@ -9,6 +9,10 @@ import { color as colorTokens, textStyle } from '../../theme/tokens';
  * would patch the composite text style, and never a silent parent clip.
  *
  *   name   2 lines  user-supplied names: café, bean, roaster, gear, drink, profile
+ *   shelf  1 line   names in Home's shelf rows, the one exception to `name`
+ *                   (Design Round 15, B3): a second line would break the equal
+ *                   heights the swipe depends on; "See all gear & beans" has
+ *                   the full names
  *   meta   1 line   provenance / secondary line under a name
  *   note   3 lines  tasting-note and memo previews
  *   none   —        fixed copy, and detail screens where the full text belongs
@@ -18,6 +22,7 @@ import { color as colorTokens, textStyle } from '../../theme/tokens';
  */
 export const TRUNCATION = {
   name: 2,
+  shelf: 1,
   meta: 1,
   note: 3,
   none: undefined,

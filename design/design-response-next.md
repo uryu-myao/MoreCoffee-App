@@ -1,5 +1,115 @@
 # Design response — design-missing.md
 
+## Round 15 · addendum (2026-10-27)
+
+Answers the items collected after Round 15 went out, so they can leave `design-brief-next.md`.
+
+**C8, as rewritten: accepted. 17c / 17d now follow it.**
+- Gear's first-row rule is gone. The rows start right under the underline on their own padding.
+- Beans' first card sits `gap.section` (12) under the underline.
+- 17c's thumbnails are 46.
+- Underlines fading with the scroll, labels switching at the midpoint, and the slot count crossfading over `motion.expand` are all right. A two-state tab that flickers on tap was a real defect.
+- I see no problem.
+
+**B3: the conclusion holds, the reason is corrected.**
+- Home's shelf rows are information and open nothing. That is right: they are recognition rows, not a list to work from.
+- Full names are one tap away through "See all gear & beans ›", which sits right under the rows. That is enough reach for the one-line exception.
+- Don't add a row affordance.
+
+**B4: yes, I meant Round 11 C.** There is no Round 16 rule; that was my error.
+- The chevron is the only "opens something" sign. It now also covers text actions beside a title (1b's See all, the shelf's See all gear & beans).
+- **5a's "Add tasting note →" keeps →.** It is a button that advances the same sheet, not a link to another place. → is "next step" and › is "go there", so the two stay distinct.
+
+**17a / 17b "Recently sipped" badges: fixed.**
+- The 12 mode and source badges are now `Badge` (`labelEyebrow`, 10 / .16em, 4 / 8 padding).
+- "Ready-to-drink" now reads "Packaged" (D-14).
+- The rest of those rows (58 thumbnail, 16 title) is still the old 2a style. The app's Round 9 rows win, and the redraw is still open.
+
+**Round 13 E1: note added there.**
+
+---
+
+## Round 15 (2026-10-27)
+
+Responds to `uploads/design-brief-round-15.md`. The mock (17a–17d) now follows A, C and E. Changes are listed at the end.
+
+### A. §0 token check
+1. Noted.
+2. **Agreed: `space.20`.** The mock now uses 20.
+3. **Agreed: all three names**, including `component.pageIndicator`. D-51 stays open for 3b / 3d.
+4. **Agreed: all five as built.**
+   - The tab count on `labelCaps` is better than my `meta` (same weight, same baseline).
+   - The status word on `meterLabel` is correct: it *is* the freshness state word.
+5. **Agreed.**
+
+### B. Questions
+**1. Round 7 is right. Round 14's table was my error, not a new decision.** I took the colours from the old 4b drawing and did not check them against 14a.
+- Home uses `component.beanFreshness` as it stands:
+  - The peak band is mint (`#CFDCC8`) in every state.
+  - Resting and past peak share the neutral pair, with a `text.secondary` word.
+  - Green means only "drink now", and past peak is not a warning.
+- 17a / 17b / 17d are redrawn to match.
+
+**2. Agreed: both, and the order.**
+- **Sealed**: the word "Sealed" alone, `beanFreshness.sealed.label`, with no bar.
+- **No roast date**: an empty column.
+- **Order**: after Resting, opened bags first, then oldest added.
+- The TODOs can close.
+
+**3. The shelf rows are an exception to §3.1: one line, with ellipsis.**
+- What Round 14 gets out of this block is that both sides are the same height, so the swipe doesn't jump. A row that grows to two lines breaks that.
+- The shelf only needs a name you can recognise. Tapping the row or "See all gear & beans" shows the full name, and on 17c / 3b / 3d names keep §3.1's 2 lines.
+- For §3.1: add "Home's shelf rows: 1 line."
+
+**4. Yes, switch "See all" to ›.**
+- Round 16's rule says every "go there" action becomes the chevron, and 1b's → was missed.
+- Two actions on one screen should not use two glyphs.
+
+**5. OK: empty, with no Add to a cup.** A cup can't hold a kettle or a scale, so the line would promise something impossible. "Not used" / "Add to a cup" stays for brewers and grinders only (cup count = 0).
+
+### C. Built differently: all accepted
+1. **Accepted: the column grows, with a least width of 84.** The bar stays 84. The mock now uses `min-width`.
+2. Accepted: `gap.tight`.
+3. Accepted: the existing `Badge`.
+4. Accepted: the marker is 2 × 14.
+5. Accepted: `motion.expand`.
+6. **Accepted.** The compact, pinned, collapsing header is right for a pushed screen. 17c / 17d's scrolling-away header is a mock simplification.
+7. **Accepted.** Each side keeps its own height on the full screen. Fixed heights only matter on Home, where the block sits above the nav.
+8. Accepted: 46 thumbnails and 3b's first-row rule.
+9. **Accepted: always gear.** Remembering the side would make Home open in a different state from day to day for little gain.
+10. **Accepted.** An empty side shows its add button in place of the three rows. The indicator and "See all gear & beans" stay.
+
+### D. §4 gear usage
+Confirmed. No issues.
+
+### E. Mock fixes
+- **17c note**: "3px" is now "2px", and "4 / 5 open" is now "3 / 5 on the shelf". Fixed.
+- **17b bars**: the window is now mint (see B1). Fixed.
+- **17a "Recently sipped" rows**: agreed, these are stale. The app's Round 9 rows win. Not redrawn this round.
+
+### F. Reports
+1. **2a pinned chips and headings: no problem.**
+   - Filling the pinned block with `surface.ground` plus the dot pattern, aligned to the page, is the right answer. It reads as the page, not as a new band.
+   - The heading owning its hairline is also right.
+2. **No header rule: matches the Round 14 mock.** No problem.
+3. **Compact chips at 32 with hit-slop: no problem.**
+   - The 44 touch target is kept, and one line at 375 / 402 is worth it.
+   - `inset.controlCompact` and `gap.controlCompact` should go into `tokens.ts` with a note: "chip rows that must hold one line". Otherwise the next chip row won't know which inset to pick.
+   - This changes Round 13 E1. I'll note it there.
+
+### Mock changes this round (17a–17d)
+- Tab gap is 20. Label-to-count gap is 4.
+- Tab label and count are `labelCaps`. Inactive count is `text.muted`.
+- Slot count is `labelCaps` / `meterLabel`.
+- The status column is `min-width: 84`. Status word is `meterLabel`. Gear line 2 is `bodySm`.
+- The Default badge is `Badge` (`labelEyebrow`, 4 / 8).
+- The marker is 2 × 14. The indicator transition is `motion.expand`.
+- Bean colours are Round 7 (B1).
+- The kettle's status column is empty (B5).
+- 17c / 17b notes are corrected (E).
+
+---
+
 ## Round 13 (2026-10-23)
 
 ### A. Round 12 build
@@ -22,7 +132,7 @@ Noted. Dropping 8l's matched tag is fine: the row's lines carry the match. 6a at
 ### E. 2a's category chips
 1. **All OK as listed.**
    - Labels: All / I made it / Barista / Packaged.
-   - `SegmentedControl`, 44 tall, the same row as 8l's.
+   - `SegmentedControl`, 44 tall, the same row as 8l's. **Superseded by Round 15 F3:** 2a's chips (and 2b's Group by) are compact chips, 32 tall, using `inset.controlCompact`, `gap.controlCompact` and a 6pt hit-slop to keep 44. 8l's scopes stay at 44.
    - One at a time. Each launch starts from All.
    - The chips and 2b combine. 8l doesn't take the chip.
    - One addition: when switching chips, keep the list's scroll position at the top. Each chip shows a different list.

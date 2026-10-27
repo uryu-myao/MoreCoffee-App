@@ -294,11 +294,19 @@ export async function listProductHistory(db: SQLiteDatabase): Promise<{ name: st
   );
 }
 
-/** Every piece of gear with the cups logged with it (4a: "Brewer · 2 cups"); defaults first. */
-export async function listGearWithUse(db: SQLiteDatabase): Promise<(Gear & { cups: number })[]> {
-  return db.getAllAsync<Gear & { cups: number }>(
-    `SELECT g.*, (SELECT COUNT(*) FROM cups c WHERE c.brewer_id = g.id OR c.grinder_id = g.id) AS cups
-       FROM gear g ORDER BY g.is_default DESC, g.added_at, g.id`
+export type GearWithUse = Gear & { cups: number; last_used_at: number | null };
+
+/**
+ * Every piece of gear with the cups logged with it and the latest one's
+ * logged_at (Home's status column, Round 14 §4: "2 cups · Last · today");
+ * defaults first, then oldest added (3b's order).
+ */
+export async function listGearWithUse(db: SQLiteDatabase): Promise<GearWithUse[]> {
+  return db.getAllAsync<GearWithUse>(
+    `SELECT g.*, COUNT(c.id) AS cups, MAX(c.logged_at) AS last_used_at
+       FROM gear g LEFT JOIN cups c ON c.brewer_id = g.id OR c.grinder_id = g.id
+      GROUP BY g.id
+      ORDER BY g.is_default DESC, g.added_at, g.id`
   );
 }
 

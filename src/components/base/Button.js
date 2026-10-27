@@ -27,10 +27,11 @@ import Text from './Text';
  *              keeps clear of the button above and its hard shadow
  *              (decided on device 2026-10-13, for every such stack).
  *              trailingIcon: a text action that leads somewhere, beside a
- *              section title (1b's See all, redrawn 2026-10-18): the label
- *              then the glyph (icon.sm, gap.tight), both text.secondary, NO
- *              underline — §1 lets it go where the position already says
- *              "action", and the arrow says it too.
+ *              section title (1b's See all, redrawn 2026-10-18; Home's "See
+ *              all gear & beans"): the label then the glyph (icon.sm,
+ *              gap.tight), both text.secondary, NO underline — §1 lets it go
+ *              where the position already says "action", and the glyph says
+ *              it too. The glyph is the › chevron (Design Round 15, B4).
  *   disabled   either variant: ground fill, border.muted outline, text.muted
  *              label, no shadow (5d)
  *   pressed    the fill darkens (state.pressed.action / .surface); outline,

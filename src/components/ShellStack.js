@@ -5,8 +5,7 @@ import EditBagScreen from '../screens/EditBagScreen';
 import EditCupScreen from '../screens/EditCupScreen';
 import EditGearScreen from '../screens/EditGearScreen';
 import FinishedBagsScreen from '../screens/FinishedBagsScreen';
-import MyBeansScreen from '../screens/MyBeansScreen';
-import MyGearScreen from '../screens/MyGearScreen';
+import GearBeansScreen from '../screens/GearBeansScreen';
 import TasteDnaScreen from '../screens/TasteDnaScreen';
 import { ScreenBackdropContext } from '../screens/ScreenFrame';
 import { cupTitle } from '../constants/cups';
@@ -15,7 +14,7 @@ import PushedScreen from './PushedScreen';
 
 /**
  * Screens pushed over the tabs AND the bottom bar (AppShell mounts this after
- * FooterNav): the mocks of 3d (My beans), 3c (Add a bag), 3a (Add gear) and
+ * FooterNav): the mocks of 3d (My beans; 17c / 17d since Round 14), 3c (Add a bag), 3a (Add gear) and
  * 11a (Edit cup) draw no bar, and their footer buttons sat under it
  * (device, 2026-10-13). 2c stays inside Records, under the bar (its mock has
  * one). Screens ask with requestPush({ name, ... }) (navigation.js).
@@ -25,16 +24,17 @@ import PushedScreen from './PushedScreen';
  * leaving the moment Back or a swipe commits, so a tap on "Manage my beans"
  * while 3d is still sliding out opens a new 3d (on device 2026-10-14 that
  * tap was swallowed). Each entry has its own key and pops itself by it.
- *   beans     3d
- *   addBag    3c — after adding, lands on My beans (2026-10-12): My beans
- *             goes under it if not there yet, then it slides out
- *   finished  3f, from 3d's foot
- *   editBag   3g ({ bag }), from a 3d card; a delete returns to 3d with
- *             13b's notice
+ *   shelf     Gear & beans, 17c / 17d ({ side: 'gear' | 'beans' }; Round
+ *             14 merged 3b and 3d), from Home's "See all gear & beans" and
+ *             Profile's My gear / My beans
+ *   addBag    3c — after adding, lands on the beans side (2026-10-12): Gear &
+ *             beans goes under it if not there yet, then it slides out
+ *   finished  3f, from the beans side's foot
+ *   editBag   3g ({ bag }), from a bean card; a delete returns to Gear &
+ *             beans with 13b's notice
  *   addGear   3a
- *   gear      3b, from Home's "Manage my gear" and Profile's My gear
- *   editGear  3e ({ gear }), from a 3b row; a removal returns to 3b with
- *             13b's notice ("‹name› removed.")
+ *   editGear  3e ({ gear }), from a gear row; a removal returns to Gear &
+ *             beans with 13b's notice ("‹name› removed.")
  *   editCup   11a ({ cup }); a delete also closes the cup in Records and
  *             shows 13b's notice ("‹title› deleted.")
  *   dna       8f, from Profile and 2c's "Feeds my taste DNA"
@@ -51,10 +51,13 @@ export default function ShellStack() {
 
   const render = (entry, goBack, guardLeave) => {
     switch (entry.name) {
-      case 'beans':
+      case 'shelf':
         return (
-          <MyBeansScreen
+          <GearBeansScreen
+            side={entry.side}
             onBack={goBack}
+            onAddGear={() => push({ name: 'addGear' })}
+            onEditGear={(gear) => push({ name: 'editGear', gear })}
             onAddBag={() => push({ name: 'addBag' })}
             onFinished={() => push({ name: 'finished' })}
             onEditBag={(bag) => push({ name: 'editBag', bag })}
@@ -76,8 +79,6 @@ export default function ShellStack() {
         return <FinishedBagsScreen onBack={goBack} />;
       case 'addGear':
         return <AddGearScreen onBack={goBack} />;
-      case 'gear':
-        return <MyGearScreen onBack={goBack} onAddGear={() => push({ name: 'addGear' })} onEditGear={(gear) => push({ name: 'editGear', gear })} />;
       case 'editGear':
         return (
           <EditGearScreen
@@ -97,7 +98,7 @@ export default function ShellStack() {
           <AddBagScreen
             onBack={goBack}
             onAdded={() => {
-              setStack((s) => (s.some((e) => e.name === 'beans' && !e.leaving) ? s : [{ name: 'beans', key: (nextKey.current += 1) }, ...s]));
+              setStack((s) => (s.some((e) => e.name === 'shelf' && !e.leaving) ? s : [{ name: 'shelf', side: 'beans', key: (nextKey.current += 1) }, ...s]));
               goBack();
             }}
           />
