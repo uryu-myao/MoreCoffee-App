@@ -1,45 +1,585 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { createContext, useContext, useMemo, useRef, useState } from 'react';
+import { Animated, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import DotTexture from '../components/base/DotTexture';
+import Text from '../components/base/Text';
+import { color, layout, shape, space, spacing, state, textStyle } from '../theme/tokens';
 
-export default function ScreenFrame({ title, subtitle }) {
+/**
+ * Whether ScreenFrame draws its own backdrop (ground + dot texture). AppShell's
+ * tab pager sets it to false and draws one backdrop behind all four pages:
+ * per-page textures would slide with their pages and break at the seam
+ * (390 / 7 is not a whole number of tiles). Screens outside the pager (the
+ * Record overlay, the database error screen) keep drawing their own.
+ */
+export const ScreenBackdropContext = createContext(true);
+
+/**
+ * Tab chrome that reacts to vertical scroll (the bottom bar's hide / reveal),
+ * provided by AppShell around the pager: { scrolledDown(), scrolledUp() }.
+ * Null outside it (the Record overlay), where scrolling drives nothing but the
+ * header.
+ */
+export const ScrollChromeContext = createContext(null);
+
+/**
+ * The scrolling page's movement, for pinned (sticky) blocks (2a's chips and
+ * group headings, 2026-10-24). Scroll variants only; null otherwise.
+ *   under    how far the content has moved up under the header's foot
+ *            (Animated). While the header collapses the foot rises with the
+ *            content, so this stays 0; it grows once the header is fully
+ *            collapsed. A block at page y reaches the foot once this passes y.
+ *   pageTop  the page's top in the screen's coordinates (Animated): where
+ *            AlignedDotTexture lines a pinned block's dots up with the page's.
+ */
+export const ContentScrollContext = createContext(null);
+
+/**
+ * Header collapse (design-system.md §9 Header collapse). Two tunables:
+ *   titleScale  the title's collapsed scale. displayLg shrinks to displaySm's
+ *               size (40 → 30), the scale's next display step, not a new size.
+ *   fadeBy      the share of the collapse over which the small labels (eyebrow,
+ *               the stat's label, the compact date) fade out. They never scale:
+ *               ×0.75 would take them to 7.5–9px.
+ * The distance is derived, not tuned: the collapsed title (or the compact row)
+ * starts at the safe-area top and the header's foot follows 1:1 with the content.
+ */
+const COLLAPSE = {
+  titleScale: textStyle.displaySm.fontSize / textStyle.displayLg.fontSize,
+  fadeBy: 0.5,
+};
+
+/**
+ * The stat's visible gap: the numeral's baseline to the label's cap top
+ * (revised on device, 2026-10-17). The source's gap.tight (4) sat between
+ * line boxes; on iOS's natural boxes that read as 15, too loose for one unit.
+ */
+const STAT_GAP = space[8];
+
+// A text line's foot (box bottom) to its baseline.
+const belowBaseline = (line) => line.height - line.ascender;
+
+/**
+ * Screen shell (design-system.md §9): header block — optional leading control
+ * (e.g. a close IconButton, as in 5a) above the display.lg title, optional
+ * right-aligned meta — open at its foot (no rule since 2026-10-26), then the
+ * screen body, then an optional footer. layout.gutter is the only horizontal padding.
+ *
+ * layout.screen.top / .bottom are measured from the screen edge, as in the
+ * source frames, so they already contain the status bar / home indicator; they
+ * never sit inside a taller safe-area inset.
+ *
+ * Props
+ *   title     screen title (display.lg)
+ *   userTitle the title is user data (2c's bean name): `name` truncation,
+ *             2 lines (§3.1). Fixed screen titles never truncate.
+ *   eyebrow   optional small label above the title (label.eyebrow, accent):
+ *             "The archive" (2a), "MoreCoffee" (1b). Fades out on collapse.
+ *   leading   optional control above the title (5b's back button). A control
+ *             never fades or moves on collapse; the title shrinks below it
+ *   meta      optional information, right-aligned at the foot of the header
+ *             (5b "Step 2 of 2 / Skippable"); fades out on collapse
+ *   stat      optional { value, label }, right-aligned in place of meta (2a's
+ *             cup count): the numeral in display.sm accent over the label in
+ *             label.eyebrow muted, the pair centred on the title's cap band
+ *             (2026-10-17). On collapse the numeral keeps its size and
+ *             settles on the title's baseline; the label fades out.
+ *   scroll    the page scrolls under a pinned header that collapses as it
+ *             scrolls (title shrinks, foot rises; §9 Header collapse)
+ *   footer    optional node in the footer panel at the end of the page; it sits at
+ *             the bottom when the content is short and follows it when it is long
+ *   trailing  compact only: a control at the row's right end (2c's edit
+ *             pencil). Moves with the row like `leading`; never fades
+ *   compact   Record flow header (Log a cup, Tasting note, 3c, 3a, 2c; revised 2026-10-07):
+ *             the leading control and the title on one row at the left, centred
+ *             on the title's cap band; meta as the standard right-aligned column.
+ *             A stat may take the meta's place (3c / 3a), fading with it.
+ *             On collapse the row rises to the safe-area top and the title
+ *             scales; the control moves with it (never fades); the meta fades
+ *   scrollRef     optional ref to the ScrollView (scroll variants), e.g. 5d's
+ *                 "Go to first"
+ *   footerTone    'error': the footer panel's top rule takes state.error.border
+ *                 (5d)
+ *   children  screen body
+ */
+export default function ScreenFrame({
+  title,
+  eyebrow,
+  leading,
+  trailing,
+  meta,
+  stat,
+  scroll = false,
+  compact = false,
+  footer,
+  footerTone,
+  userTitle = false,
+  scrollRef,
+  children,
+}) {
+  const insets = useSafeAreaInsets();
+  const ownBackdrop = useContext(ScreenBackdropContext);
+  const chrome = useContext(ScrollChromeContext);
+  const rootStyle = ownBackdrop ? styles.screen : styles.screenBare;
+  const texture = ownBackdrop ? <DotTexture /> : null;
+  const top = Math.max(insets.top, layout.screen.top);
+  const headerTop = { paddingTop: top };
+
+  // ── Collapse geometry (scroll variants only; design-system.md §9 Header
+  // collapse). Every part is measured once from layout (header-local y, which
+  // is screen y: the frame starts at the screen top), then handed to
+  // native-driver interpolations. Nothing runs in JS per frame.
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const parts = useRef({});
+  const [geo, setGeo] = useState(null);
+  const [range, setRange] = useState(0); // how far the content can scroll
+  const sizes = useRef({ content: 0, layout: 0 });
+
+  // Compact header: the control is centred on the title's cap band (cap top to
+  // baseline), not on its line box, whose empty ascent and descent area would
+  // put it visibly high. Measured from the title's own text layout, so it holds
+  // for any title and any font.
+  const [optical, setOptical] = useState(0);
+  const onCompactTitleText = (e) => {
+    const line = e.nativeEvent.lines[0];
+    if (!line) return;
+    const capCentre = line.y + line.ascender - line.capHeight / 2;
+    const next = Math.round((capCentre - line.height / 2 - line.y) * 10) / 10;
+    setOptical((prev) => (prev === next ? prev : next));
+  };
+
+  // Stat placement (2026-10-17): the numeral's cap top to the label's
+  // baseline is centred on the title's cap band, STAT_GAP between them. Cap
+  // heights and box offsets are measured from the three text layouts, as the
+  // compact control's offset is. Hidden until placed, so it never jumps.
+  const statLines = useRef({});
+  const [statPlace, setStatPlace] = useState(null);
+  const onStatLine = (name) => (e) => {
+    const { lines } = e.nativeEvent;
+    // The title's cap band is its last line's (a user title may wrap).
+    const line = name === 'title' ? lines[lines.length - 1] : lines[0];
+    if (!line) return;
+    statLines.current[name] = line;
+    const { title: t, number: n, label: l } = statLines.current;
+    if (!t || !n || !l) return;
+    // Heights above the header's foot.
+    const capCentre = styles.header.paddingBottom + belowBaseline(t) + t.capHeight / 2;
+    const labelBaseline = capCentre - (l.capHeight + STAT_GAP + n.capHeight) / 2;
+    const round = (v) => Math.round(v * 10) / 10;
+    const next = {
+      bottom: round(labelBaseline - belowBaseline(l)),
+      labelTop: round(STAT_GAP - belowBaseline(n) - (l.ascender - l.capHeight)),
+    };
+    setStatPlace((prev) => (prev && prev.bottom === next.bottom && prev.labelTop === next.labelTop ? prev : next));
+  };
+
+  const commit = () => {
+    const p = parts.current;
+    const s = COLLAPSE.titleScale;
+    const I = insets.top;
+    let next = null;
+    if (compact) {
+      if (!p.row || !p.title || (leading && !p.leading)) return;
+      const tH = p.title.height;
+      const titleTop = p.row.y + p.title.y;
+      // Collapsed row: the scaled title, or the control if taller, from the safe-area top.
+      const rowC = Math.max(s * tH, p.leading ? p.leading.height : 0);
+      const centreC = I + rowC / 2;
+      const leadingCentre = p.leading ? p.row.y + p.leading.y + p.leading.height / 2 : 0;
+      next = {
+        full: p.row.y + p.row.height - (I + rowC),
+        title: centreC - (titleTop + tH / 2), // origin: the title's left-centre
+        // Centre-to-centre move; the optical offset is added at interpolation.
+        leadingMove: centreC - leadingCentre,
+      };
+    } else {
+      if (!p.column || !p.title || p.baseline == null || (leading && !p.leading)) return;
+      if (stat && (!p.stat || !p.number || p.numberBaseline == null)) return;
+      const tH = p.title.height;
+      const titleTop = p.column.y + p.title.y;
+      // The collapsed title starts at the safe-area top, or under a leading
+      // control, which never moves or fades (Hard Rule, §1 Header collapse).
+      const topC = p.leading ? p.column.y + p.leading.y + p.leading.height + spacing.gap.row : I;
+      const baselineC = topC + s * p.baseline; // the collapsed title's baseline
+      next = {
+        full: p.column.y + p.column.height - (topC + s * tH),
+        title: baselineC - (titleTop + p.baseline), // origin: the title's left baseline
+        baseline: p.baseline,
+        above: topC - titleTop, // the eyebrow rides the title's top
+        // The stat's numeral keeps its size and lands on the title's baseline.
+        stat: stat ? baselineC - (p.stat.y + p.number.y + p.numberBaseline) : 0,
+      };
+    }
+    setGeo((prev) => (prev && Object.keys(next).every((k) => prev[k] === next[k]) ? prev : next));
+  };
+  const onPart = (name) =>
+    scroll
+      ? (e) => {
+          parts.current[name] = e.nativeEvent.layout;
+          commit();
+        }
+      : undefined;
+  const onBaseline = (name) =>
+    scroll
+      ? (e) => {
+          const line = e.nativeEvent.lines[0];
+          if (!line) return;
+          parts.current[name] = line.y + line.ascender;
+          commit();
+        }
+      : undefined;
+  const updateRange = () => setRange(Math.max(0, sizes.current.content - sizes.current.layout));
+
+  const full = scroll && geo ? geo.full : 0;
+  // A page that cannot scroll at all never collapses (a bounce must not move
+  // the header); one that scrolls less than `full` collapses only that far.
+  const distance = Math.min(full, range);
+
+  const anim = useMemo(() => {
+    if (!(distance > 0)) return null;
+    // Collapsed amount in points, clamped to [0, distance]: linear in scroll
+    // offset, so the header's foot stays glued to the content under the finger.
+    const shift = scrollY.interpolate({ inputRange: [0, distance], outputRange: [0, distance], extrapolate: 'clamp' });
+    const lerp = (to) => shift.interpolate({ inputRange: [0, full], outputRange: [0, to] });
+    return {
+      shift,
+      up: lerp(-full),
+      scale: shift.interpolate({ inputRange: [0, full], outputRange: [1, COLLAPSE.titleScale] }),
+      // Small labels never scale: they fade out over the first part of the collapse.
+      // Fully gone within the reachable collapse: a page that can scroll only
+      // a little must not rest with half-transparent labels.
+      fade: shift.interpolate({
+        inputRange: [0, Math.min(full * COLLAPSE.fadeBy, distance)],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+      }),
+      title: lerp(geo.title),
+      above: compact ? null : lerp(geo.above),
+      stat: compact ? null : lerp(geo.stat),
+      leading: compact
+        ? shift.interpolate({ inputRange: [0, full], outputRange: [optical, geo.leadingMove + optical * COLLAPSE.titleScale] })
+        : null,
+    };
+  }, [compact, distance, full, geo, optical, scrollY]);
+
+  // The content's own movement under the header: the scroll offset less the
+  // collapse (ContentScrollContext).
+  // The page's top on screen: the ScrollView's resting top less the scroll
+  // offset (the collapse moves the ScrollView up and its content down by the
+  // same amount, so they cancel).
+  const [scrollerTop, setScrollerTop] = useState(0);
+  const contentScroll = useMemo(
+    () => ({
+      under: anim ? Animated.subtract(scrollY, anim.shift) : scrollY,
+      pageTop: Animated.add(Animated.multiply(scrollY, -1), scrollerTop),
+    }),
+    [anim, scrollY, scrollerTop]
+  );
+
+  // Footer hide / reveal (tab screens): report the scroll direction. Any
+  // upward movement reveals at once. The top and bottom bounce are ignored.
+  const lastY = useRef(0);
+  const onScroll = useMemo(
+    () =>
+      Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+        useNativeDriver: true,
+        listener: chrome
+          ? (e) => {
+              const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+              const y = contentOffset.y;
+              const dy = y - lastY.current;
+              lastY.current = y;
+              const max = contentSize.height - layoutMeasurement.height;
+              // y > max is the bottom bounce; its way back (and the top
+              // bounce) is not the reader scrolling up.
+              if (y <= 0) return;
+              if (dy > 0 && y <= max) chrome.scrolledDown();
+              else if (dy < 0 && y < max) chrome.scrolledUp();
+            }
+          : undefined,
+      }),
+    [chrome, scrollY]
+  );
+
+  const onTitleText = compact ? onCompactTitleText : onBaseline('baseline');
+  const titleText = (
+    <Text
+      variant="displayLg"
+      truncate={userTitle ? 'name' : 'none'}
+      accessibilityRole="header"
+      onTextLayout={(e) => {
+        onTitleText?.(e);
+        // Always: a stat that arrives with later data (a count read from the
+        // database) finds the title already laid out, and it is not laid out again.
+        onStatLine('title')(e);
+      }}>
+      {title}
+    </Text>
+  );
+
+  const statPlaced = [styles.stat, statPlace ? { bottom: statPlace.bottom } : styles.statUnplaced];
+  const statLabelPlaced = statPlace && { marginTop: statPlace.labelTop };
+
+  // Compact (2026-10-07): the control and the title share one row on the left;
+  // the meta is the standard right-aligned column. Same geometry as the
+  // standard header otherwise (padding, meta 20 above the foot).
+  const header = compact ? (
+    <View style={[styles.header, headerTop]}>
+      <View style={[styles.compactRow, trailing && styles.compactRowFull]} onLayout={onPart('row')}>
+        {leading ? (
+          <Animated.View onLayout={onPart('leading')} style={{ transform: [{ translateY: anim ? anim.leading : optical }] }}>
+            {leading}
+          </Animated.View>
+        ) : null}
+        <Animated.View
+          onLayout={onPart('title')}
+          style={[
+            styles.compactTitle,
+            anim && { transformOrigin: 'left center', transform: [{ translateY: anim.title }, { scale: anim.scale }] },
+          ]}>
+          {titleText}
+        </Animated.View>
+        {trailing ? (
+          <Animated.View style={[styles.trailing, { transform: [{ translateY: anim ? anim.leading : optical }] }]}>{trailing}</Animated.View>
+        ) : null}
+      </View>
+      {stat ? (
+        // Compact + stat (3c / 3a, 2026-10-11): the stat sits where the
+        // standard header's does — out of flow, centred on the title's cap
+        // band (2026-10-17) — and on collapse fades with the meta (no settling
+        // on the title's baseline: the compact title scales from its own row).
+        <View style={statPlaced}>
+          <Animated.View style={[styles.statStack, anim && { opacity: anim.fade, transform: [{ translateY: anim.up }] }]}>
+            <Text variant="displaySm" color="accent" onTextLayout={onStatLine('number')}>
+              {stat.value}
+            </Text>
+            <View style={statLabelPlaced}>
+              <Text variant="labelEyebrow" color="muted" onTextLayout={onStatLine('label')}>
+                {stat.label}
+              </Text>
+            </View>
+          </Animated.View>
+        </View>
+      ) : meta ? (
+        <Animated.View style={[styles.meta, anim && { opacity: anim.fade, transform: [{ translateY: anim.up }] }]}>
+          {meta}
+        </Animated.View>
+      ) : null}
+    </View>
+  ) : (
+    <View style={[styles.header, headerTop]}>
+      <View style={styles.titleColumn} onLayout={onPart('column')}>
+        {/* A control: stays put, fully visible and pressable while collapsing. */}
+        {leading ? (
+          <View style={styles.leading} onLayout={onPart('leading')}>
+            {leading}
+          </View>
+        ) : null}
+        {/* Information: fades out, riding the title's top. */}
+        {eyebrow ? (
+          <Animated.View style={anim && { opacity: anim.fade, transform: [{ translateY: anim.above }] }}>
+            <Text variant="labelEyebrow" color="accent">
+              {eyebrow}
+            </Text>
+          </Animated.View>
+        ) : null}
+        <Animated.View
+          onLayout={onPart('title')}
+          style={
+            anim && {
+              transformOrigin: [0, geo.baseline, 0],
+              transform: [{ translateY: anim.title }, { scale: anim.scale }],
+            }
+          }>
+          {titleText}
+        </Animated.View>
+      </View>
+      {stat ? (
+        <View style={statPlaced} onLayout={onPart('stat')}>
+          <Animated.View onLayout={onPart('number')} style={anim && { transform: [{ translateY: anim.stat }] }}>
+            <Text
+              variant="displaySm"
+              color="accent"
+              onTextLayout={(e) => {
+                onBaseline('numberBaseline')?.(e);
+                onStatLine('number')(e);
+              }}>
+              {stat.value}
+            </Text>
+          </Animated.View>
+          <Animated.View style={[statLabelPlaced, anim && { opacity: anim.fade, transform: [{ translateY: anim.stat }] }]}>
+            <Text variant="labelEyebrow" color="muted" onTextLayout={onStatLine('label')}>
+              {stat.label}
+            </Text>
+          </Animated.View>
+        </View>
+      ) : meta ? (
+        <Animated.View style={[styles.meta, anim && { opacity: anim.fade, transform: [{ translateY: anim.up }] }]}>
+          {meta}
+        </Animated.View>
+      ) : null}
+    </View>
+  );
+
+  const page = (
+    <>
+      <View style={[styles.body, footer && styles.bodyAboveFooter]}>{children}</View>
+      {footer ? (
+        <View style={[styles.footer, footerTone === 'error' && styles.footerError, { paddingBottom: Math.max(insets.bottom, layout.screen.bottom) }]}>
+          {footer}
+        </View>
+      ) : null}
+    </>
+  );
+
+  // Every variant: a fixed root holding the dot texture (or, inside the tab
+  // pager, transparent over AppShell's), with any ScrollView above it — so the
+  // texture never scrolls and never re-renders on scroll.
+  if (!scroll) {
+    return (
+      <View style={rootStyle}>
+        {texture}
+        {header}
+        {page}
+      </View>
+    );
+  }
+
+  // Scroll variants: the header is pinned and collapses; the ScrollView starts
+  // at the header's foot and clips there, so content passes beneath the
+  // header, never beside it. As the header collapses by `shift`, the
+  // ScrollView moves up by it (the ScrollView reaches `distance`
+  // past the screen bottom to stay flush) and the content inside moves back
+  // down by it, so the content still tracks the finger 1:1. A spacer of
+  // `distance` keeps the end of the content reachable.
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{title}</Text>
-      </View>
-
-      <View style={styles.pageWrap}>
-        <Text style={styles.pageSubtitle}>{subtitle}</Text>
-      </View>
+    <View style={rootStyle}>
+      {texture}
+      {header}
+      <Animated.ScrollView
+        ref={scrollRef}
+        style={[styles.scroller, anim && { marginBottom: -distance, transform: [{ translateY: anim.up }] }]}
+        contentContainerStyle={styles.scrollContent}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        // A focused field (5b My words) stays above the keyboard; a tap on
+        // another control while typing still lands.
+        automaticallyAdjustKeyboardInsets
+        keyboardShouldPersistTaps="handled"
+        onLayout={(e) => {
+          sizes.current.layout = e.nativeEvent.layout.height;
+          const at = e.nativeEvent.layout.y;
+          setScrollerTop((prev) => (prev === at ? prev : at));
+          updateRange();
+        }}
+        onContentSizeChange={(w, h) => {
+          sizes.current.content = h;
+          updateRange();
+        }}>
+        <Animated.View style={[styles.scrollPage, anim && { transform: [{ translateY: anim.shift }] }]}>
+          <ContentScrollContext.Provider value={contentScroll}>{page}</ContentScrollContext.Provider>
+        </Animated.View>
+        {anim ? <View style={{ height: distance }} /> : null}
+      </Animated.ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
+    backgroundColor: color.surface.ground,
+  },
+  screenBare: {
+    flex: 1,
+  },
+  scroller: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  scrollPage: {
+    flexGrow: 1,
   },
   header: {
-    height: 64,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e7ded6',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: '#fdfaf6',
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    gap: space[14],
+    paddingHorizontal: layout.gutter,
+    // The title-to-foot distance is this padding, not line-box leftover. The
+    // title renders on Instrument Serif's natural box (§3.2), which ends at the
+    // descender line, 12.4 below the baseline at 40. 12.4 + 8 = 20.4 from the
+    // baseline to the foot, the source's distance to its rule (40px box + 14px
+    // padding). The rule itself is gone (Uryu, 2026-10-26): an open header.
+    paddingBottom: space[8],
   },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#2f241f',
+  titleColumn: {
+    flexShrink: 1,
+    alignItems: 'flex-start',
   },
-  pageWrap: {
-    flex: 1,
+  leading: {
+    marginBottom: spacing.gap.row,
+  },
+  // Out of flow, so the header height stays the title column's (standard or
+  // compact) and the foot sits at the same height on every tab (a swipe shows
+  // no step). On iOS the display.sm numeral's natural box (39) would otherwise
+  // push it 3 lower. `bottom` is measured (onStatLine): the pair centres on
+  // the title's cap band.
+  stat: {
+    position: 'absolute',
+    right: layout.gutter,
+    alignItems: 'flex-end',
+  },
+  statUnplaced: {
+    opacity: 0,
+  },
+  statStack: {
+    alignItems: 'flex-end',
+  },
+  meta: {
+    alignItems: 'flex-end',
+    // The source sits the meta 6 above a header foot that was 14 above its rule
+    // (20 in all). The header padding is now 8, so the meta takes 12 to stay 20
+    // above the foot — its baseline lands 2.1 above the title's, as in the source.
+    paddingBottom: space[12],
+  },
+  compactRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
+    flexShrink: 1,
+    // Control → title: widened from gap.row (8) on review, 2026-10-05.
+    gap: space[12],
   },
-  pageSubtitle: {
-    fontSize: 16,
-    color: '#75635b',
-    textAlign: 'center',
+  compactTitle: {
+    flexShrink: 1,
+  },
+  compactRowFull: {
+    flexGrow: 1,
+  },
+  trailing: {
+    marginLeft: 'auto',
+  },
+  body: {
+    flexGrow: 1,
+    paddingHorizontal: layout.gutter,
+    paddingTop: spacing.inset.container.v,
+  },
+  bodyAboveFooter: {
+    // When the content is long, the footer follows it directly; keep one
+    // section gap so the last block never touches the footer rule.
+    paddingBottom: spacing.gap.section,
+  },
+  footer: {
+    gap: spacing.gap.section,
+    paddingTop: space[20],
+    paddingHorizontal: layout.gutter,
+    backgroundColor: color.surface.raised,
+    borderTopWidth: shape.borderWidth.box,
+    borderTopColor: color.border.strong,
+  },
+  footerError: {
+    borderTopColor: state.error.border,
   },
 });

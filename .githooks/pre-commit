@@ -1,0 +1,13 @@
+#!/bin/sh
+# Blocks a commit when the migrations and src/data/schema.ts disagree, or when
+# Taste DNA's arithmetic loses a property it depends on (design/taste-dna.md).
+# Installed by `npm install` (package.json "prepare" sets core.hooksPath).
+# Runs in well under a second; bypass only deliberately with --no-verify.
+npm run -s check:schema || {
+  echo "pre-commit: check:schema failed — migrations and src/data/schema.ts have drifted." >&2
+  exit 1
+}
+npm run -s check:dna || {
+  echo "pre-commit: check:dna failed — Taste DNA's arithmetic no longer holds its properties (design/taste-dna.md)." >&2
+  exit 1
+}

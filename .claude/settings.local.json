@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__claude_ai_Figma__get_design_context",
+      "Bash(find /Users/uryu/Github/MoreCoffee-App -maxdepth 2 -name *.png -o -name icon*.png)",
+      "Bash(ls -la /Users/uryu/Github/MoreCoffee-App/src/screens/Account*)",
+      "Bash(ls -la /Users/uryu/Github/MoreCoffee-App/src/screens/Profile*)",
+      "Bash(git -C /Users/uryu/Github/MoreCoffee-App status --short)",
+      "Bash(npx expo:*)"
+    ]
+  }
+}

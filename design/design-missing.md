@@ -1,0 +1,145 @@
+# V1 screens and states with no mock (updated 2026-10-11, after Design's report)
+
+Sent with `design-brief-next.md`. Each item says what is built today (if anything) and the conditions to design against.
+
+**Scope** (`v1-status.md`): what Uryu needs to log his own coffee every day — mostly I made it, sometimes Packaged. Items tied to screens outside that scope are kept here, marked **[not at this stage]**: not "not needed", only not now. **This round asks Design for the items marked [this round].**
+
+## Screens
+
+1. **[drawn 11a–11c, approved and built 2026-10-13] Cup edit** (2c's pencil)
+   - **Editable**: the bag, the gear, the date and time, My words; Packaged's product name. (Barista's café and drink: not at this stage.)
+   - **Shown but not editable**: the rating, the four axes, the flavours (Taste DNA's input: if they changed while each cup's stored change stayed, the history would become false). **Decided look: 2c's read-only display** — the entered (brown) AxisReadout, flavour Badges with no frame, stars that do not press. **Not** the disabled look, which is only for options in a set (§1 "Values that cannot be edited are displayed").
+   - **Date limits**: not in the future; not before the bag's roast date (when it has one).
+   - **Date wins over bag (decided 2026-10-11)**: a bag whose roast date is after the cup's date cannot be chosen. **Please design how the picker shows such a bag** (present but not selectable, and why).
+   - **"Delete this cup" (decided, in V1)**: on this screen only, never from the list. Confirmed in a **bottom sheet** (this design has no dialogs). The words say what is lost — this cup and its axes, flavours and My words — and that it cannot be undone. They also say ahead that **Taste DNA is recalculated without this cup** (its values will change; no notice afterwards).
+   - Reuse 5a / 5b, or a screen of its own?
+   - Leaving with unsaved changes (`gaps.md` 20) applies here too.
+2. **2c for Packaged and Barista cups**: 2c is drawn for I made it only (bag + method).
+   - **[this round] Packaged**: what replaces "What I logged" for a packaged cup, which records only a product name (item 6)?
+   - **[not at this stage] Barista** (café, drink).
+3. **[this round, built — please check] Bag / gear picker**: a bottom sheet with §9's square radio rows; **the field's name is the sheet title in `display.sm`** (fixed 2026-10-11: as an eyebrow it stacked over Method's "Brewer" / "Grinder" eyebrows); "Add a bag" / "Add gear" last. A single-select row's **marker** shows selection (§1 Tap affordance, scope added 2026-10-11).
+4. **[this round, built — please check] Flavour search sheet** (§9 Bottom sheet, `full` variant). **Hard constraint — measured on an SE (375 × 667):**
+   - sheet top at 32; handle, search field (46) and Done take it to **125, where the list starts**;
+   - rows: the first 52 (+ the list's 2px frame), each next one **53.5**; the **"Add \"Word\"" row is the same** (52 / 53.5);
+   - with the keyboard up (260 incl. the predictive bar) the list has **270pt: 5 full rows** — the 270 is counted **from the list's top (below the search field) to 12 above the keyboard**, not from the sheet's top;
+   - keyboard closed: about 9.5 rows. Confirmed on a device.
+   - Also undrawn: the "Add \"Word\"" row; "Done" in place of 8l's "Cancel".
+5. **[this round, built — please check] Date sheet**: iOS spinner in the bottom sheet; the only option without OS round shapes (compact and inline bring a pill and a round selected day).
+6. **[built 2026-10-15] Packaged: the product name** (5a, Packaged selected)
+   - **One FieldRow**, like 5a's Bag row: the product name only. No brand, container or where bought (there is no built-in brand table, and none is planned: the long tail is endless).
+   - **Free text + completion from the user's own past products** (as the flavour Search sheet completes from history).
+   - The rating, axes and flavours work as for any cup.
+   - With no product yet, the row is an invitation, without a required mark (§1 Required marks: a mark promises "always filled").
+   - **Brand stays empty at this stage**: 2a's list row has brand on line 2 for Packaged (§9 List row). **Please design how a row looks with line 2 empty.**
+   - **Bought at: [not at this stage]** (§9 keeps the row, marked).
+
+## States
+
+7. **[drawn 2026-10-12 (10a), built] Photo placeholder**, one visual for 2c's 210pt photo area and the small thumbnails (2a, the picker, 5a's Bag row). There is no camera in V1, so this is what every cup and bag looks like. Square corners. (Design's hand-made work.)
+   - **Photo slots are not shown at this stage** (decided 2026-10-11): 5a's "Add a photo" and 3c's 76px slot are gone, since nothing can be added. The placeholder is still needed: it is how "no photo" looks wherever a thumbnail is.
+8. **[drawn 2026-10-12, 10b chosen (option A), built] Taste DNA card, axes with no value**: after a first cup, a new user has values on 1–2 of 4 axes. Today all four are shown, an empty one as a bare track with "Not noted" (four kept so the card's height never changes). How should three empty axes look? We propose nothing.
+9. **[drawn 2026-10-12, 10c, built] Taste DNA card with nothing noted**: no badge, a provisional line.
+
+## Copy
+
+10. **[this round] 5a's intro lines that are no longer true**:
+    - I made it on an empty shelf: it says "all of them start pre-filled" when nothing is;
+    - Packaged and Barista: "— two fields left." while those fields cannot be filled yet (Packaged until its product-name row; Barista not at this stage).
+11. **[this round] 5d** (rating only in V1):
+    - the reminder's second line, **promising no draft** (V1 has none): say why it can't be saved; input stays while on the screen; closing loses it;
+    - the title for **one** missing item: don't count, don't repeat the star card's "Tap a star — this is the one thing the app can't guess.";
+    - the footer line for one missing item (the mock: "Rating and café are still empty.").
+12. **[this round] 5c**:
+    - an axis's **first** value: a start, not a movement. The provisional line "First note on Light roast / Dark roast." names the **axis** (both poles), not a **direction**: a first record has no direction. The line must say "this axis has begun", without pointing either way;
+    - the **summary sentence** ("This cup pushed you brighter and lighter."): 8 comparatives (Body and Roast both start "light"); not shown until written;
+    - **nothing moved**.
+13. **[this round] 1b's "N more cups to lock it in"** (D-47): lock-in is 10, counted per axis; N counts the least-noted axis. **Once locked, it stays locked**: a first note on a new axis does not un-lock it (decided 2026-10-11). Try next's 5 is separate; 1b's "3 OF 5 CUPS" is not shown at this stage.
+16. **[this round] 1b's greeting**: the mock says "Good morning". We show "Good afternoon" / "Good evening" (evening also at night) by part of day — ours, to confirm or replace.
+17. ~~**1b's line under the counts**~~ ("A slow start is still a start."): **CLOSED 2026-10-23: dropped for V1** (Design Round 10, C10). The counts and the strip already say how the week is going, and a line with no rule would only repeat them.
+14. **[this round] Save failure** (today a plain alert with the technical error). What it cannot promise yet — a retry, and that closing loses the input — belongs with `gaps.md` 30 (no drafts).
+15. **[this round] 3c's Bean name error** (built with 5d's vocabulary: "Bean name · required", error-coloured label and underline). Within the existing error set, or new?
+
+18. **[this round] Adding a bag without opening it** (decided 2026-10-12, built): 3c has a second button, **"Add without opening"** (secondary, under "Open this bag"; the label is ours). An unopened bag **takes one of the 5 slots**, reads "not opened yet" on Home and 3d, is not offered when logging a cup, and **3d shows "Open this bag" in Finish bag's place**. Please check the copy, and whether 3c / 3d's "Bags open" stat should change now that it counts unopened bags too.
+
+## 11a, as built: open points (added 2026-10-13) — answered (Design Round 4) and built 2026-10-13
+
+11a / 11b / 11c are built as drawn (`EditCupScreen.js`). These cases are not drawn; each says what the app does today, marked TODO in the code. Every value stays a token; no new components unless one is needed.
+
+19. **Leaving with unsaved changes** (`gaps.md` 20). Today Back and the left-edge swipe **discard silently**. 11a is the first edit form built, so the answer becomes the pattern for 3e / 3g / 6d. Conditions: no dialogs (a bottom sheet, as 11b); the swipe must be covered too, not only Back; say what is lost.
+20. **A cup with no bag** (I made it, logged from an empty shelf). The Bag row reads **"No bag noted"** in the placeholder look and opens the picker. **Once a bag is chosen there is no way back to "no bag".** Should the picker offer it, and how? (A wrongly chosen bag can only be swapped, not removed.)
+21. **No gear**: the Method row reads **"No gear noted"**, the same way; the brewer and grinder can be swapped but not cleared. The Method picker here has **no "Add gear"** (as 11c drops "Add a bag"); confirm, or say where adding gear from 11a should lead.
+22. **The date row's limit line without a roast date.** Drawn: "From Mar 28, the bag's roast date, to today". With no bag, or a bag with no roast date, the only limit is "not in the future", and **the row has no second line today**. Is a line needed ("Up to today"?), or is none right?
+23. **The cup's own bag after it was finished.** The picker lists open bags; a cup whose bag has been finished still shows it, **first, looking like any open bag**. Does it need a mark ("finished")?
+24. **Packaged and Barista.** 11a's caption: "For a Packaged cup, the shelf block becomes a single Product row." The product name can't be edited until item 6 (Packaged input) is drawn and built, so **the block is left out for both modes**: they show only When, My words and As logged. Confirm, or draw the Product row read only.
+25. **"Save changes" when nothing changed**: always pressable; it saves and returns to 2c. Disabled until something changes, or as is? (5a's Save is always pressable, §1.)
+26. **Changing the date and Taste DNA.** The profile is computed from every cup's date (newer cups weigh more), so a new date shifts it slightly, at once. The cup's stored "what this cup changed" (2c's Feeds my taste DNA) is **not** recomputed: it stays as at save, like the rating and axes. Does 11a need to say so near the date row, or does "Your Taste DNA counted these when you saved" cover it?
+
+Also still open from Round 3: 2c with **neither bag nor gear** (Method reads "—"; `design-reply-2026-10-13.md`).
+
+## 3f and 3g, minimal (added 2026-10-14) [this round]
+
+Decided 2026-10-14: **3f (Finished bags) first, then 3g (Edit bag)**, both minimal, into V1.
+- Why 3f: Finish bag has no confirmation, and its recovery (gaps.md 17 / 18, settled 2026-10-09) is 3f's "Reopen bag", which wasn't built. A finished bag now leaves 3d with no trace and can't come back. 3f restores the settled answer; **Finish stays unconfirmed**.
+- Why 3g: 11a corrects one cup; a typo in a bag's name or a missing roast date sits in the bag and in every cup copied from it. 3g also gives D-29's card link (the upper half, with a chevron) somewhere to go; until then 3d's cards stay not pressable, as built.
+
+Each item says what would be built; every value stays a token.
+
+### 3f — Finished bags
+27. **The entry from 3d.** 3d has no "Finished bags" entry today. 3f's mock shows "My beans / Finished bags" at its top, but 3d draws no entry. Where does it go (under the bag cards, by the "Add a bag" slot?), and what does it look like (§1: it must read pressable)? Is it hidden while no bag is finished, or shown with an empty 3f?
+28. **"Reopen bag" with 5 / 5 slots taken.** Reopening takes a slot. With none free the button can't work. §1 now requires every disabled control to show why on screen: what does it say ("Finish a bag to free a slot"?), and where?
+29. **The row, with V1's data.** V1 bags have a name, roaster, roast date, opened and finished dates; **no size or roast level** (3c minimal). Built row: name, "roaster · opened Mar 2 → finished Mar 21", cups logged and their average rating, "Reopen bag". Not built: the sort chips (Newest / Best rated / Most cups) and the "From archived bags" summary. Confirm, or say what's essential.
+30. **After Reopen.** The bag returns to 3d (and Home) with its original opened date, so its "Day N" carries on. Any feedback, like 13b's notice ("Kenya Kirinyaga reopened.")? Does 3f stay open or go back to 3d?
+31. **After Finish.** Today the card just disappears from 3d. Should Finish show 13b's notice too ("Ethiopia Guji finished." — and where it went), so the bag doesn't seem to vanish?
+
+### 3g — Edit bag
+32. **Fields in V1.** 3c minimal has name, roaster, roasted on. 3g's mock adds photo, origin, region, roast level, process, opened on and size. Built: **name, roaster, roasted on**. Is **opened on** in too? The rest stay out (no inputs for them yet), and the photo stays hidden (no camera). The "Day 7 · drink now" line: 3d shows "Day N" with no freshness word (gaps.md 8); the same here?
+33. **The roast date against cups already logged.** 11c's rule is "the date wins": a cup can't predate its bag's roast. Editing the bag goes the other way: moving the roast date after a cup logged from it. Proposal: the date sheet stops at the earliest such cup's day, and the row says so, as 11a's date row does ("Up to Apr 8, your first cup from it"). Or allow it and warn?
+34. **Opened on**, if in: limited to roast date … today. Should it also stop at the first cup's day?
+35. **"Edits apply to the 3 cups already logged from this bag."** (3g's footer line). Adopted as written, with the count. Hidden when no cup is logged from the bag?
+36. **"Delete this bag": in V1's 3g or not?** Deleting is now safe for the cups: each cup keeps its own copy of the bag's details from when it was logged (decided 2026-10-09, built), so a deleted bag's cups keep their name, roaster and process, and Taste DNA is unchanged. They lose only the link: 2c's "from my shelf" goes, and 11a's picker can't list the bag. What's open is design only:
+    - **Confirmation**: it can't be undone, so 11b's sheet shape? Its copy should say the cups stay, as 3e does for gear ("Your 2 logged cups keep this grinder").
+    - **Telling it apart from Finish**: Finish = drunk, it goes to 3f and can reopen; Delete = added by mistake, gone. How does 3g make that clear (3g's mock: "Not finish — erases it")?
+    - **Feedback**: 13b's notice ("Ethiopia Guji deleted.") after it, as for cups?
+    If it stays out of V1, a bag added by mistake can only be finished (it then sits in 3f).
+37. **Which bags open 3g.** 3d's cards, unopened ones included. Finished bags in 3f too (a row tap), or 3f only reopens?
+38. **Leaving with changes**: Round 4's sheet applies to 3g. The body for a bag: "Your edits to this bag won't be saved. The bag stays as it was."?
+
+## Bean freshness (added 2026-10-14) — answered (Design Round 7, 14a) and built 2026-10-14 (42 with 3g)
+
+Rules decided (data-model.md "Freshness"): counted from the roast date — **resting** day 0–6, **drink now** 7–21, **past peak** 22+; a 42-day bar, peak band 17%–50%; nothing shown without a roast date. Built on 3d and 4b.
+
+39. **The resting look.** The mocks have drinkNow and pastPeak only.
+    - Label in the existing form: **"Day 3 · resting"**.
+    - The existing two: drinkNow peakBand `#CFDCC8` / elapsed `#7E9675` / marker `#4A6640`; pastPeak peakBand `#E4D6CC` / elapsed `#C2B4AB` / marker `#8C7E76`.
+    - In resting the elapsed fill hasn't reached the peak band yet (left of 17%).
+    - It means "not yet", not "bad": **no warning colour**. Choose from existing tokens.
+    - **Also settle OQ-3** (design-system.md): pastPeak changes peakBand's colour (mint → beige), and we can't tell intent from drift. With resting added, please look at all three states together and say whether the band changes with the state or stays the bag's.
+    - Built today: resting uses drinkNow's colours, marked PROVISIONAL.
+40. **Saying it's a guide.** The app knows neither storage nor brew method, so it must not sound certain. A short line, **once** on 3d or 3g (not on every card), saying the window is a guide and that the user's own taste is the better judge. Please write it and say where it goes.
+
+41. **3c's Roasted on line: say what it gives.** Today the empty field reads "Optional — for freshness": it leads with "optional" and puts the benefit last. Turn it round, in the direction of "Add it to see when it's best" — **please write your own line; don't take ours as is.**
+    - Only on 3c's Roasted on row. **Not on Roaster**: adding a roaster changes nothing on screen, so the same form would be untrue there. Not on 3g either (3g corrects; it doesn't ask).
+    - Short: it must fit FieldRow's second line.
+    - It stays optional, with no required mark (§1 Required marks: a mark only where the field can be filled every time).
+    - **Also check, decided 2026-10-14**: a bag with no roast date shows **no beanFreshness row at all** (no day, no state, no bar). Please look at how such a bag reads on 3d (its card), 5a (its Bag row: the roaster alone) and 2c (no "day N when brewed"), with the bar row gone.
+
+42. **3g's line under Roasted on.** 3g's mock says "Recounted from the roast date when you change it." That speaks only to changing a date already there. A bag whose roast date was skipped in 3c can only get one in 3g, and then the line doesn't fit. 3g corrects, it doesn't ask, so **no nudge** — but the user should see that a date can go in and what it does. Proposal: one plain line that fits both cases, empty or filled, e.g. "Freshness on My beans counts from this date." Please write it.
+
+43. **For information (decided 2026-10-14, built): "Not noted" on a cup's own axes.** 10b's empty-axis label "Not noted yet" stays on the Taste DNA card and 5c (a profile: a later cup can still note the axis). On 2c's "Where it sat" and 11a's "As logged" — one cup's values, which can't change — it reads **"Not noted"**: "yet" promised a note that can't come. Please check and say if you'd word it differently.
+
+44. **Packaged's product name, built (2026-10-15): copy that is ours.** 5a's empty row "Add a product" (5a's "Add a bag" pattern); the search sheet's placeholder "Product name"; 11a's empty row "No product noted" (12a's "No bag noted" pattern); the sheet's new-name row reuses 5b's Add "‹typed›". The section heading "Product" has no mark (not required). A packaged cup with no name is still titled "—" (Round 3 offered the daypart title for Packaged too; not decided). Please check the copy and say whether the daypart title should apply.
+
+**3g, item 33 decided (2026-10-14)**: the roast date can't move past the first cup logged from the bag. The date sheet stops at that cup's day, and the field's limit line says so, as 11a's: "Up to Apr 6, your first cup from it." (with no cups: up to today, no line).
+
+## Copy: Design's proposals (report of 2026-10-11) — adopted, in the app
+
+- **10 (5a, empty shelf)**: "Marked fields are required. Add a bag and your gear once — after that they start pre-filled."
+- **11 (5d, rating only)**: title "Still needs a rating"; second line "A cup can't be saved without one. What you've entered stays while you're here; closing loses it."; footer "No rating yet."
+- **12 (5c / 2c)**:
+  - first value: "Starts at ‹step name›" (a position, not a direction);
+  - summary: "This cup pushed you ‹phrases›." — the **two** axes that moved most, joined with "and" (Design Round 12, built 2026-10-23; before, every moved axis, with commas). The rest are on their own lines below. Phrases: Acid ↔ Bitter brighter / more bitter; Body lighter-bodied / fuller-bodied; Roast toward lighter roasts / toward darker roasts; Sweetness less sweet / sweeter;
+  - nothing moved: "Your Taste DNA stays where it was — nothing on this cup moves it." **A move that rounds to 0 points is "nothing moved"**; no separate wording (such as "held").
+- **13 (1b)**: "Body needs 3 more notes to lock in." / **"Body and Roast need 3 more notes each to lock in."** (15b's progress box since Round 8; Round 8's sheet dropped "to lock in" and the app followed without saying so, put back 2026-10-23 by Uryu. Corrected 2026-10-12: "to lock in" also when tied, as your 10b / 10c draw it — "each" alone does not say what the count is for) / "1 more note". Notes, not cups: a cup that skips an axis does not count for it. **Locked in, once reached, stays; it can return to early signs only if deleting cups means the condition was never met.** The delete confirmation says Taste DNA is recalculated, so it is announced.
+- **14 (save failure)**: "Couldn't save this cup" / "Your phone couldn't store it. Everything you entered is still here — try again." / "Try again" (primary). Open points (retry any number of times; closing after a failure loses the input): `gaps.md` 30. Today an iOS alert, with iOS's own Cancel beside "Try again" so a lasting failure does not trap the user.
+- **15 (3c's Bean name error)**: within the existing set — label and underline in `state.error.text` / `state.error.border`, the field's own 2px underline in colour only. New is where it applies: the first text input with an error (§9).
+- **Still provisional (no copy yet)**: the Taste DNA card's line for "Locked in" (8f's "From N cups"). "Nothing noted": "Rate a cup and note one taste to start." on 8f and Home's card (Design Rounds 11 and 12).
