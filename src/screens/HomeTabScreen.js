@@ -101,7 +101,13 @@ export default function HomeTabScreen() {
                 ))}
               </View>
             ) : null}
-            <ShelfBlock onSeeAll={(side) => requestPush({ name: 'shelf', side })} onAddBag={() => push('addBag')} onAddGear={() => push('addGear')} />
+            <ShelfBlock
+              onSeeAll={(side) => requestPush({ name: 'shelf', side })}
+              onAddBag={() => push('addBag')}
+              onAddGear={() => push('addGear')}
+              onOpenBag={(bag) => requestPush({ name: 'editBag', bag })}
+              onOpenGear={(gear) => requestPush({ name: 'editGear', gear })}
+            />
           </View>
         ) : null}
       </ScreenFrame>

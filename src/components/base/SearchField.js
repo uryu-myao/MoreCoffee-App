@@ -20,28 +20,40 @@ import Glyph from './Glyph';
  * iOS's own clear button stays off (clearButtonMode never), so the × is drawn
  * like the app's other glyphs.
  *
- * Props: value, onChangeText, placeholder, autoFocus, accessibilityLabel
+ * Search (Design Round 15, 18x): the field can hold a block (FilterToken)
+ * before the input; while it does, the placeholder is hidden and the block's
+ * own × takes the clear's place. The keyboard's key reads "Search" there.
+ *
+ * Props: value, onChangeText, placeholder, autoFocus, accessibilityLabel,
+ *        token (a FilterToken, optional), onSubmitEditing, onKeyPress,
+ *        returnKeyType (default 'done')
  */
-const SearchField = forwardRef(function SearchField({ value, onChangeText, placeholder, autoFocus, accessibilityLabel }, ref) {
+const SearchField = forwardRef(function SearchField(
+  { value, onChangeText, placeholder, autoFocus, accessibilityLabel, token, onSubmitEditing, onKeyPress, returnKeyType = 'done' },
+  ref
+) {
   return (
     <View style={styles.frame}>
       <Glyph name="search" token={icon.md} color={color.text.primary} />
+      {token}
       <TextInput
         ref={ref}
         value={value}
         onChangeText={onChangeText}
-        placeholder={placeholder}
+        placeholder={token ? undefined : placeholder}
         placeholderTextColor={color.text.placeholder}
         autoFocus={autoFocus}
         autoCorrect={false}
         autoCapitalize="none"
-        returnKeyType="done"
+        returnKeyType={returnKeyType}
+        onSubmitEditing={onSubmitEditing}
+        onKeyPress={onKeyPress}
         clearButtonMode="never"
         selectionColor={color.caret}
         accessibilityLabel={accessibilityLabel ?? placeholder}
         style={styles.input}
       />
-      {value ? <ClearButton onPress={() => onChangeText('')} /> : null}
+      {value && !token ? <ClearButton onPress={() => onChangeText('')} /> : null}
     </View>
   );
 });

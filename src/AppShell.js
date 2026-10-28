@@ -3,7 +3,7 @@ import { Animated, StyleSheet, View, useWindowDimensions } from 'react-native';
 import AddCoffeeOverlay from './components/AddCoffeeOverlay';
 import { DnaInfoHost } from './components/DnaInfoSheet';
 import { SortSheetHost } from './components/SortSheet';
-import { onShellRequest, requestOpenCup, requestTabReset } from './navigation';
+import { onShellRequest, requestOpenCup, requestTabLeave, requestTabReset } from './navigation';
 import DotTexture from './components/base/DotTexture';
 import FooterNav from './components/FooterNav';
 import Notice from './components/Notice';
@@ -39,6 +39,12 @@ export default function AppShell() {
   const { width } = useWindowDimensions();
   const [activeTab, setActiveTab] = useState('home');
   const [showAddCoffee, setShowAddCoffee] = useState(false);
+  // The bag or gear a page's "Log a cup with it" logs with (null: the shelf's defaults).
+  const [recordPreset, setRecordPreset] = useState(null);
+  const openRecord = (preset = null) => {
+    setRecordPreset(preset);
+    setShowAddCoffee(true);
+  };
   const pager = useRef(null);
   const scrollX = useRef(new Animated.Value(0)).current;
   const position = useMemo(() => Animated.divide(scrollX, width), [scrollX, width]);
@@ -52,6 +58,7 @@ export default function AppShell() {
   const selectTab = (key) => {
     // Pressing the tab that is already showing returns it to its root.
     if (key === activeRef.current) requestTabReset(key);
+    else requestTabLeave(activeRef.current);
     setActiveTab(key);
     pager.current?.scrollTo({ x: PAGES.indexOf(key) * width, animated: false });
   };
@@ -61,7 +68,8 @@ export default function AppShell() {
     () =>
       onShellRequest(({ tab, record }) => {
         if (tab) selectTab(tab);
-        if (record) setShowAddCoffee(true);
+        // { record: true }, or { record: { bag } | { brewer } | { grinder } }.
+        if (record) openRecord(record === true ? null : record);
       }),
     // selectTab reads the latest width through its closure; re-subscribe with it.
     [width]
@@ -105,7 +113,7 @@ export default function AppShell() {
           </Animated.ScrollView>
         </>
       </ScreenBackdropContext.Provider>
-      <FooterNav activeTab={activeTab} position={position} onTabPress={selectTab} onAddPress={() => setShowAddCoffee(true)} />
+      <FooterNav activeTab={activeTab} position={position} onTabPress={selectTab} onAddPress={() => openRecord()} />
       {/* 3d / 3c / 3a / 11a, pushed over the tabs and the bar (their mocks have none). */}
       <ShellStack />
       {/* 13b: "‹cup› deleted." above the bar, over Records. */}
@@ -116,6 +124,7 @@ export default function AppShell() {
       <SortSheetHost />
       <AddCoffeeOverlay
         visible={showAddCoffee}
+        preset={recordPreset}
         onClose={() => setShowAddCoffee(false)}
         // 5c's buttons: Home, or the saved cup's record (2c) in Records.
         onNavigate={({ tab, cupId }) => {

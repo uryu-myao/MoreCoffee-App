@@ -38,7 +38,8 @@ const stepEasing = REasing.bezier(...motion.expand.controlPoints);
  * and goes back past 25% or on a flick. Step 1 stays mounted, so its rating
  * and fields survive; it is never swiped to step 2.
  */
-export default function AddCoffeeOverlay({ visible, onClose, onNavigate }) {
+/** preset: the bag or gear to log this cup with (RecordDraftProvider), or null. */
+export default function AddCoffeeOverlay({ visible, preset, onClose, onNavigate }) {
   const { width, height } = useWindowDimensions();
   const [mounted, setMounted] = useState(false);
   // The second page: 5b ('note'), 3c minimal ('bag') or 3a minimal ('gear'), all pushed from 5a.
@@ -168,7 +169,7 @@ export default function AddCoffeeOverlay({ visible, onClose, onNavigate }) {
       }>
       {/* The cup being recorded, shared by both steps; discarded when the sheet
           closes (it unmounts with it). Saving shows 5c over the steps. */}
-      <RecordDraftProvider onSaved={onSaved}>
+      <RecordDraftProvider onSaved={onSaved} preset={preset}>
         <Reanimated.View style={[StyleSheet.absoluteFill, recordStyle]}>
           <RecordCoffeeScreen onClose={dismiss} onAddNote={openNote} onAddBag={openBag} onAddGear={openGear} />
         </Reanimated.View>

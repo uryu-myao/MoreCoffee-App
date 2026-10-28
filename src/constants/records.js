@@ -1,34 +1,14 @@
 /**
- * Records' order, groups (2b) and search (8l): pure functions over the list
- * listCups reads. Everything runs in memory: a few hundred cups a year.
+ * Records' order and groups (2b): pure functions over the list listCups
+ * reads. Everything runs in memory: a few hundred cups a year. Search
+ * (Design Round 15) is constants/search.js.
  *
- * Neither the sort nor the search is remembered: each launch starts from
- * the defaults (data-model.md, V1 migration scope g). Nor is 2a's category.
+ * The sort is not remembered: each launch starts from the defaults
+ * (data-model.md, V1 migration scope g).
+ *
+ * 2a's category chips (Round 13, E1) are gone with Round 15: search's Kind
+ * chips filter by mode (18a), and 2a is the archive itself.
  */
-import { MODE_LABEL } from './cups';
-
-/**
- * 2a's category chips (built 2026-10-23; Round 13, E1): All, then one per
- * mode, in 5a's maker order. The board's "Ready-to-drink" is Packaged (the
- * 2026-10-04 rename). One at a time; All shows every cup.
- */
-export const CATEGORIES = [{ value: 'all', label: 'All' }, ...Object.entries(MODE_LABEL).map(([value, label]) => ({ value, label }))];
-export const DEFAULT_CATEGORY = 'all';
-
-/**
- * A chip with no cups (Design Round 13, E4): one line per type, the fact
- * only, no invitation to log one ("yet" says the list will fill).
- */
-export const CATEGORY_EMPTY = {
-  made_it: 'No home brews yet.',
-  barista: 'No café cups yet.',
-  packaged: 'No cans or bottles yet.',
-};
-
-/** The cups of one category, in the order given; All returns the list as is. */
-export function cupsInCategory(cups, category) {
-  return category === 'all' ? cups : cups.filter((cup) => cup.mode === category);
-}
 
 export const SORTS = [
   { key: 'newest', label: 'Newest first' },
@@ -123,94 +103,4 @@ export function arrangeCups(cups, sort, group, monthFormat) {
     list.sort((a, b) => (TAIL[a.key] ?? 0) - (TAIL[b.key] ?? 0));
   }
   return list;
-}
-
-// Gear was hidden until 3b / 3e let gear be renamed (Design Round 10, 21);
-// back 2026-10-22. Gear added from 3a keeps its generic name ("Hand
-// grinder") until it is renamed in 3e, so a model finds it only after that.
-export const SCOPES = [
-  { value: 'words', label: 'Words' },
-  { value: 'beans', label: 'Beans' },
-  { value: 'gear', label: 'Gear' },
-];
-
-/** The whole word around a match in free text: "so jui" → "juicy". */
-function wordAround(text, at, length) {
-  let start = at;
-  let end = at + length;
-  while (start > 0 && !/\s/.test(text[start - 1])) start -= 1;
-  while (end < text.length && !/\s/.test(text[end])) end += 1;
-  return text.slice(start, end).replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '') || text.slice(at, at + length);
-}
-
-/** The first field of `values` that contains q, as the row's tag shows it. */
-function firstMatch(values, q) {
-  for (const value of values) {
-    if (value && value.toLowerCase().includes(q)) return value;
-  }
-  return null;
-}
-
-/**
- * 8l: the cups matching the query in a scope, newest first, each with the
- * text that matched: [{ cup, match }]. The results don't show `match`
- * (Uryu, 2026-10-23; RecordsSearch).
- *   words  My words (the whole word around the match) and the flavour tags
- *          (Design Round 10, 20); a cup matching both is listed once.
- *   beans  bean name, roaster
- *   gear   brewer, grinder
- * fourUp (4★ and up): a switch, rating ≥ 4, with any scope (Design Round
- * 10, 23). With no query it lists every 4★+ cup, untagged. Matching is a
- * plain case-insensitive substring.
- */
-export function searchCups(cups, { query, scope, fourUp }) {
-  const q = query.trim().toLowerCase();
-  if (!q && !fourUp) return [];
-  const found = [];
-  for (const cup of [...cups].sort(byNewest)) {
-    if (fourUp && !(cup.rating >= 4)) continue;
-    if (!q) {
-      found.push({ cup, match: null });
-      continue;
-    }
-    let match = null;
-    if (scope === 'words') {
-      const at = cup.note ? cup.note.toLowerCase().indexOf(q) : -1;
-      match = at >= 0 ? wordAround(cup.note, at, q.length) : firstMatch(cup.flavours, q);
-    } else if (scope === 'beans') {
-      match = firstMatch([cup.bean_name, cup.bean_roaster], q);
-    } else {
-      match = firstMatch([cup.brew_method, cup.grinder], q);
-    }
-    if (match) found.push({ cup, match });
-  }
-  return found;
-}
-
-/**
- * The result heading (Design Round 10, 19; "q" is the typed text, curly-quoted):
- *   words  "9 cups say "q"" / "1 cup says "q""
- *   beans  "5 cups of "q""
- *   gear   "4 cups brewed with "q""
- *   4★ on, field empty  "12 cups rated 4★ and up"
- *   4★ on, with text    the line + " · 4★ and up"
- *   no results          "Nothing matches "q""
- * Two cases Design doesn't name are ours: no results with 4★ on also gets
- * " · 4★ and up" (it narrowed the search), and 4★ alone with no cups reads
- * "No cups rated 4★ and up". Design OK'd both (Round 11, A).
- */
-export function searchHeading(count, { query, scope, fourUp }) {
-  const q = query.trim();
-  const cups = count === 1 ? '1 cup' : `${count === 0 ? 'No' : count} cups`;
-  if (!q) return `${cups} rated 4★ and up`;
-  const quoted = `“${q}”`;
-  const line =
-    count === 0
-      ? `Nothing matches ${quoted}`
-      : scope === 'words'
-        ? `${cups} ${count === 1 ? 'says' : 'say'} ${quoted}`
-        : scope === 'beans'
-          ? `${cups} of ${quoted}`
-          : `${cups} brewed with ${quoted}`;
-  return fourUp ? `${line} · 4★ and up` : line;
 }

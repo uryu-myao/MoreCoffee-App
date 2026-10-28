@@ -396,6 +396,13 @@ Readers to switch to `cups.product_name` (all of them; check none is left):
 - 5b's summary (`TastingNoteScreen`);
 - `getCup` / `listCups` (the products join) and `NewCup.productId` / `RecordDraft`.
 
+## Migration 5 · search history (built 2026-10-28)
+
+Design Round 15 (Search, 18a) brings back "Recent searches", which Round 10, 22 had left out of V1. It is the one thing about a search that is kept; the sort and 2a's view still are not (scope g).
+- **`search_history`** (`id`, `term` TEXT, `searched_at` INTEGER): the terms typed, one row per term ignoring case. A term searched again moves to the top with its new spelling. Only the last 5 are kept (`addSearchTerm`); "Clear" deletes every row at once, with no confirm.
+- A term is kept when it is searched: the keyboard's Search, a term row, a recent search or a flavour chip. A Kind or Rating block is a filter, not a term, and is not kept.
+- No new lookups needed a migration: cups by bag and by gear read `bag_id` / `brewer_id` / `grinder_id`, now in `listCups`; the flavour chips count `flavours` in memory.
+
 ---
 
 ## Freshness (decided 2026-10-14)

@@ -56,7 +56,12 @@ export default function ShelfTabs({ active, progress, counts, onSelect, trailing
 
 const pressEasing = Easing.bezier(...motion.press.controlPoints);
 
-function Tab({ label, count, on, underline, onPress }) {
+/**
+ * One tab, also search's (Design Round 15, 18d: "Home's tab component").
+ * underline: its opacity, Animated (the shelf's scroll) or 0 / 1. count is
+ * optional (search's ALL has none).
+ */
+export function Tab({ label, count, on, underline, onPress }) {
   const scale = useRef(new Animated.Value(1)).current;
   const scaleTo = (toValue) =>
     Animated.timing(scale, { toValue, duration: motion.press.duration, easing: pressEasing, useNativeDriver: true }).start();
@@ -66,7 +71,7 @@ function Tab({ label, count, on, underline, onPress }) {
       onPressIn={() => scaleTo(state.pressed.scale)}
       onPressOut={() => scaleTo(1)}
       accessibilityRole="tab"
-      accessibilityLabel={`${label}, ${count}`}
+      accessibilityLabel={count == null ? label : `${label}, ${count}`}
       accessibilityState={{ selected: on }}
       style={styles.tab}>
       <Animated.View style={[styles.underline, { opacity: underline }]} />
@@ -74,9 +79,11 @@ function Tab({ label, count, on, underline, onPress }) {
         <Text variant="labelCaps" color={on ? 'primary' : 'muted'}>
           {label}
         </Text>
-        <Text variant="labelCaps" color={on ? 'accent' : 'muted'}>
-          {count}
-        </Text>
+        {count == null ? null : (
+          <Text variant="labelCaps" color={on ? 'accent' : 'muted'}>
+            {count}
+          </Text>
+        )}
       </Animated.View>
     </Pressable>
   );

@@ -233,7 +233,8 @@ export const spacing = {
      * Use for: chip rows that must hold one line (Design Round 15, F3).
      * Everything else keeps inset.control at 44 (5a's maker chips, 8l's
      * scopes). Pair with gap.controlCompact.
-     * Added 2026-10-26 (Uryu) for 2a's category chips and 2b's Group by,
+     * Added 2026-10-26 (Uryu) for 2a's category chips (gone with Design
+     * Round 15; search's Kind and flavour chips use it now) and 2b's Group by,
      * which took two lines on narrow phones. 32 tall; a hit-slop
      * of control.v − controlCompact.v above and below keeps the 44 target
      * (size.tapTarget). h 6 was too tight on device.
@@ -598,6 +599,20 @@ export const component = {
     gap: space[4],
     active: { w: 24, color: color.text.primary },
     inactive: { w: 10, color: color.border.muted },
+  },
+  /**
+   * Search's field block, FilterToken (Design Round 15, 18x): a filter held
+   * in the field (Kind, Rating, a bag, a piece of gear), removable only.
+   * 30 tall (the mock's; no size step fits), ink fill, label.caps on inverse,
+   * then the × (icon.xs), whose touch area is size.tapTarget.
+   */
+  filterToken: {
+    height: 30,
+    inset: { h: space[8] },
+    gap: space[6],
+    background: color.surface.inverse,
+    label: color.text.onInverse,
+    close: icon.xs,
   },
   /**
    * The chevron that says a whole row or block opens something

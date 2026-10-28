@@ -1,5 +1,88 @@
 # Design response — design-missing.md
 
+## Round 15 · Search and bag / gear pages (2026-10-28)
+
+Mock: Turn 18. 18a–18f and 18x are search; 19a–19c are the pages.
+
+### Part 1 · Search
+**1. Empty state (18a, 18b)**
+- **Group order:** Kind, Rating, Flavours I use most, then Recent searches.
+  - The two fixed groups come first, so they never move.
+  - The data-dependent groups go below them.
+- **Kind drops "All".** In search it would just be the archive, which 2a already is.
+- **Flavours:** the top 6 by count, with at least 2 cups each. Chips are lower case.
+- **History:** the last 5 typed terms, as rows (clock icon + term) rather than chips.
+  - "Clear" sits at the heading's right edge.
+  - It acts at once, with no confirm.
+- **First use:** groups with no content don't render, headings included.
+  - Kind and Rating are always there, so the screen is never blank.
+  - No hint line.
+
+**2. While typing (18c)**
+- **Hits:** up to 3, mixed kinds.
+  - Each is a 46 thumbnail + name + a meta line that starts with the kind (`Bag ·`, `Cup ·`, `Gear ·`), and ends in ›.
+- **Terms:** a magnifier + the term, with the typed part in ink and the completion muted. No ›.
+- A hairline separates the two halves. There are no headings.
+- **Term rows don't show a kind.** A term searches everything and lands on ALL.
+
+**3. Results (18d–18f)**
+- **Text query:** five tabs, using Home's tab component on a hairline.
+  - ALL has no count.
+  - Tabs with 0 still show their 0, so the tab row is stable.
+- **ALL order:** Beans, Gear, Words, Cups. Empty sections are omitted.
+  - Rows shown: Beans and Gear 2, Words and Cups 3.
+  - "More cups · N ›" switches tab; it does not push a new screen.
+- **BEANS includes finished bags,** marked `finished Mar 2` in the meta line.
+- **Rating:** no tabs. Confirmed.
+- **Kind: confirmed archive shape** (month groups, 2b's Sort / Group). Also **no tabs, not even CUPS alone**: one tab isn't a choice. Rating uses the same archive shape.
+
+**4. The field (18x)**
+- **Kind and Rating are a block that can only be removed.** They are filters; editable text would turn them into a string search.
+- **A flavour is plain, editable text.** It really is a word query.
+- **This needs a new component, a FilterToken:**
+  - 30 tall, ink fill, labelCaps, × with a 44 hit area.
+  - × or backspace removes it.
+  - Typing replaces it. One filter or one query at a time; no mixing this round.
+
+### Part 2 · Pages (19a–19c)
+**5. Title = name.** 40/41 serif, 2 lines, then an ellipsis, as on 2c.
+- A sub line goes under it: roaster · size, or category · added date.
+- The back button is ‹, not ×.
+- The header "Cups logged" count is removed; the cup list carries it.
+
+**6. Cup list.** Proposed order: status → cups → details → end actions. This differs from the brief's "list at the bottom":
+- The page is for looking.
+- The form is about 480px tall and would push the cups below the fold.
+
+List details:
+- 5 rows, then "All N cups ›". That opens search with the bag or gear as a block, in archive shape.
+- **Row:** 46 thumbnail; date · method as the title; flavours; then rating + time of day. The bean isn't repeated on its own page. Each row goes to 2c.
+- **Empty:** "No cups with this grinder yet." + "Log a cup with it ›" (Log a cup, with the item preselected).
+- **Kettles and scales have no cup list** (B5).
+
+**7. Save is absent until the first edit.**
+- On the first edit a pinned bar rises over `motion.expand`. Height leads and opacity follows.
+- The scroll area's bottom inset grows by the bar's height, so nothing is covered.
+- Reverting to the stored values removes the bar.
+- Back with unsaved edits → the existing discard sheet.
+
+**8. Bottom order:** Finish bag (2px, a normal step), then Delete this bag (hairline), then the Save bar outside the scroll. Gear: Remove from my gear · Frees 1 slot.
+
+### Round 13 E3 / E4
+- **E3: still applies, moved.** Search has no header, so Kind and Rating searches show a count line ("14 cups") next to Sort / Group. Text queries carry their counts in the tabs.
+- **E4: still applies.**
+  - Filter with no cups: "No 2★ cups yet." + "Ratings you've given most: 3★ and 4★."
+  - Text with no matches: no tabs, "Nothing matches “xyz”."
+  - Empty tab: "No gear matches “guji”."
+
+### For Code
+- **2a:** remove the chip row (header, search, list).
+- **New component:** FilterToken.
+- **New data:** history storage (last 5 typed terms), and flavour counts per user.
+- **New lookups:** cups by bag id and by gear id.
+
+---
+
 ## Round 15 · addendum (2026-10-27)
 
 Answers the items collected after Round 15 went out, so they can leave `design-brief-next.md`.

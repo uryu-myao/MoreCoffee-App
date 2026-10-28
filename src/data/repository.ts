@@ -176,6 +176,19 @@ export async function listShelfBags(db: SQLiteDatabase): Promise<Bag[]> {
   return rows.map((row) => ({ ...row, notes: JSON.parse(row.notes as unknown as string) }));
 }
 
+/**
+ * Every bag, finished ones too (search's BEANS, Design Round 15, 18d): the
+ * shelf's order (listShelfBags), then finished bags, the latest finished
+ * first.
+ */
+export async function listAllBags(db: SQLiteDatabase): Promise<Bag[]> {
+  const rows = await db.getAllAsync<Bag & { notes: string }>(
+    `SELECT * FROM bags
+      ORDER BY finished_at IS NOT NULL, finished_at DESC, opened_at IS NULL, opened_at DESC, id DESC`
+  );
+  return rows.map((row) => ({ ...row, notes: JSON.parse(row.notes as unknown as string) }));
+}
+
 /** Open a bag that was added without opening (3d "Open this bag"). */
 export async function openBag(db: SQLiteDatabase, id: number): Promise<void> {
   await db.runAsync('UPDATE bags SET opened_at = ? WHERE id = ? AND opened_at IS NULL', [Date.now(), id]);
@@ -218,15 +231,6 @@ export async function reopenBag(db: SQLiteDatabase, id: number): Promise<void> {
   if ((await countOpenBags(db)) >= OPEN_BAG_LIMIT) throw new Error(`All ${OPEN_BAG_LIMIT} slots are taken. Finish a bag to free one.`);
   await db.runAsync('UPDATE bags SET finished_at = NULL WHERE id = ? AND finished_at IS NOT NULL', [id]);
   notifyShelfChanged();
-}
-
-/** What 3g needs beside the bag: how many cups were logged from it, and the first one's time. */
-export async function bagUse(db: SQLiteDatabase, id: number): Promise<{ cups: number; firstCupAt: number | null }> {
-  const row = await db.getFirstAsync<{ cups: number; first: number | null }>(
-    'SELECT COUNT(*) AS cups, MIN(logged_at) AS first FROM cups WHERE bag_id = ?',
-    [id]
-  );
-  return { cups: row?.cups ?? 0, firstCupAt: row?.first ?? null };
 }
 
 /** What 3g (minimal) edits. */
@@ -318,12 +322,6 @@ export async function listGear(db: SQLiteDatabase, category: GearCategory): Prom
 /** Gear on the shelf: what takes 3a's 8 slots. */
 export async function countGear(db: SQLiteDatabase): Promise<number> {
   const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM gear');
-  return row?.n ?? 0;
-}
-
-/** What 3e needs beside the gear: how many cups were logged with it. */
-export async function gearUse(db: SQLiteDatabase, id: number): Promise<number> {
-  const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM cups WHERE brewer_id = ? OR grinder_id = ?', [id, id]);
   return row?.n ?? 0;
 }
 
@@ -622,8 +620,12 @@ export type CupListItem = {
   rating: number;
   mode: CupMode;
   note: string | null;
-  /** Flavour tags, parsed: 8l's Words search reads them with the note. */
+  /** Flavour tags, parsed: search's WORDS reads them with the note. */
   flavours: string[];
+  /** The links, for the bag and gear pages' cup lists (Design Round 15, 19a / 19c). */
+  bag_id: number | null;
+  brewer_id: number | null;
+  grinder_id: number | null;
   drink_type: string | null;
   bean_name: string | null;
   bean_roaster: string | null;
@@ -661,10 +663,41 @@ export async function listCups(db: SQLiteDatabase): Promise<CupListItem[]> {
   const rows = await db.getAllAsync<CupListItem>(
     `SELECT c.id, c.logged_at, c.rating, c.mode, c.note, c.flavours, c.drink_type,
             c.bean_name, c.bean_roaster, c.bean_process, c.brew_method, c.grinder,
+            c.bag_id, c.brewer_id, c.grinder_id,
             c.product_name, p.name AS place_name
        FROM cups c
        LEFT JOIN places p ON p.id = c.place_id
       ORDER BY c.logged_at DESC, c.id DESC`
   );
   return rows.map((row) => ({ ...row, flavours: JSON.parse(row.flavours as unknown as string) }));
+}
+
+/**
+ * Search's "Recent searches" (Design Round 15, 18a): the last terms typed,
+ * newest first. Kept to SEARCH_HISTORY rows; a term searched again (any
+ * case) moves to the top with the spelling just typed.
+ */
+export const SEARCH_HISTORY = 5;
+
+export async function listSearchTerms(db: SQLiteDatabase): Promise<string[]> {
+  const rows = await db.getAllAsync<{ term: string }>('SELECT term FROM search_history ORDER BY searched_at DESC, id DESC LIMIT ?', [SEARCH_HISTORY]);
+  return rows.map((r) => r.term);
+}
+
+export async function addSearchTerm(db: SQLiteDatabase, term: string): Promise<void> {
+  const t = term.trim();
+  if (!t) return;
+  await db.withExclusiveTransactionAsync(async (tx) => {
+    await tx.runAsync('DELETE FROM search_history WHERE lower(term) = lower(?)', [t]);
+    await tx.runAsync('INSERT INTO search_history (term, searched_at) VALUES (?, ?)', [t, Date.now()]);
+    await tx.runAsync(
+      'DELETE FROM search_history WHERE id NOT IN (SELECT id FROM search_history ORDER BY searched_at DESC, id DESC LIMIT ?)',
+      [SEARCH_HISTORY]
+    );
+  });
+}
+
+/** "Clear": at once, no confirm (18a: a typed term is cheap to lose). */
+export async function clearSearchTerms(db: SQLiteDatabase): Promise<void> {
+  await db.runAsync('DELETE FROM search_history');
 }

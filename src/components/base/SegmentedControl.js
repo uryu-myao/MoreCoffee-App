@@ -24,8 +24,9 @@ import Text from './Text';
  *             scopes, 2026-10-21). Same look; pressing it when on turns it
  *             off, so it responds in both states.
  *   compact   optional: inset.controlCompact and gap.controlCompact, so a row of
- *             four holds one line on narrow phones (2a's category chips, 2b's
- *             Group by; Uryu, 2026-10-26). 32 tall, with a hit-slop above and
+ *             four holds one line on narrow phones (2b's Group by; Uryu,
+ *             2026-10-26; search's Kind chips, Design Round 15, which took
+ *             over from 2a's category chips and 8l's scopes). 32 tall, with a hit-slop above and
  *             below back to 44 (size.tapTarget); never narrower than 44.
  *             Wraps as before past that.
  *   testOnly_pressedValue   force the pressed look on one option (dev harness)

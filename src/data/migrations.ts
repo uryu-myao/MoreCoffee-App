@@ -316,6 +316,23 @@ export const migrations: readonly Migration[] = [
       `CREATE INDEX cups_bought_at_place_id ON cups (bought_at_place_id)`,
     ],
   },
+  {
+    /*
+     * Search history (Design Round 15 · Search, 18a): the last terms typed
+     * into search, newest first. One row per term, ignoring case: a term
+     * searched again moves to the top (repository.ts addSearchTerm keeps 5).
+     * Overturns Design Round 10, 22 ("no recent searches in V1").
+     */
+    version: 5,
+    name: 'search history',
+    statements: [
+      `CREATE TABLE search_history (
+        id INTEGER PRIMARY KEY,
+        term TEXT NOT NULL,
+        searched_at INTEGER NOT NULL
+      )`,
+    ],
+  },
 ];
 
 /** The bookkeeping table. Created before any migration runs. */

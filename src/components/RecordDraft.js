@@ -53,7 +53,13 @@ function requiredFields(mode, defaults, rating, productName) {
   return fields;
 }
 
-export function RecordDraftProvider({ onSaved, children }) {
+/**
+ * preset: the bag or gear this cup is logged with, from a bag or gear page's
+ * "Log a cup with it ›" (Design Round 15, 19c): { bag } | { brewer } |
+ * { grinder }, laid over the shelf's defaults once they are read. This cup
+ * only; the shelf's defaults stay.
+ */
+export function RecordDraftProvider({ onSaved, preset, children }) {
   const db = useDatabase();
   const [defaults, setDefaults] = useState(null);
   const [rating, setRating] = useState(0);
@@ -75,7 +81,7 @@ export function RecordDraftProvider({ onSaved, children }) {
   useEffect(() => {
     let alive = true;
     loadRecordDefaults(db).then(
-      (d) => alive && setDefaults(d),
+      (d) => alive && setDefaults(preset ? { ...d, ...preset } : d),
       (error) => {
         console.error('[record] could not read defaults', error);
         if (!alive) return;

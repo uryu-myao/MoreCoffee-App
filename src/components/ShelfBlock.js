@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Animated, Easing, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { FreshnessTrack } from './BeanFreshness';
 import ShelfTabs, { useShelfPager } from './ShelfTabs';
 import { useDatabase } from '../data/DatabaseProvider';
@@ -7,7 +7,7 @@ import { FRESHNESS_WORDS, freshnessOf } from '../data/freshness';
 import { listGearWithUse, listShelfBags, onCupsChanged, onShelfChanged } from '../data/repository';
 import { formatLastUsed } from '../constants/dates';
 import { GEAR_CATEGORY, onCups } from '../constants/gear';
-import { color, component, icon, layout, motion, shape, size, space, spacing } from '../theme/tokens';
+import { color, component, icon, layout, motion, shape, size, space, spacing, state } from '../theme/tokens';
 import AddButton from './base/AddButton';
 import Badge from './base/Badge';
 import Button from './base/Button';
@@ -30,8 +30,11 @@ import Text from './base/Text';
  * below): thumbnail, name (label, one line: §3.1's shelf exception, Design
  * Round 15, B3) over one line (bodySm, muted), and a status
  * column at the right. Only the first row has a rule over it
- * (divider.hairlineStrong), which the open tab's underline lands on. Not
- * pressable: Home shows them; the whole list is one tap away.
+ * (divider.hairlineStrong), which the open tab's underline lands on.
+ * Pressable (Uryu, 2026-10-28; Round 15 B3 had them open nothing): a bean
+ * row opens its bag page (3g, 19a), a gear row its page (3e, 19c). The row
+ * darkens while pressed (state.pressed.row); no chevron, so the one-line
+ * row keeps its width. A swipe across the pages cancels the press.
  *   gear   "Brewer" (and a "Default" badge); status "2 cups" / "Last ·
  *          today", or "Not used" / "Add to a cup". A kettle or scale is never
  *          on a cup, so its status is empty (2026-10-27: "Add to a cup" would
@@ -51,11 +54,11 @@ import Text from './base/Text';
  * gear & beans ›", which opens Gear & beans on the open side.
  * An empty side: its add button (Add gear → 3a, Add a bag → 3c), as before.
  *
- * Props: onSeeAll(side), onAddBag, onAddGear
+ * Props: onSeeAll(side), onAddBag, onAddGear, onOpenBag(bag), onOpenGear(gear)
  */
 const ROWS = 3;
 
-export default function ShelfBlock({ onSeeAll, onAddBag, onAddGear }) {
+export default function ShelfBlock({ onSeeAll, onAddBag, onAddGear, onOpenBag, onOpenGear }) {
   const db = useDatabase();
   const [shelf, setShelf] = useState(null);
   const { width } = useWindowDimensions();
@@ -95,14 +98,14 @@ export default function ShelfBlock({ onSeeAll, onAddBag, onAddGear }) {
         contentContainerStyle={styles.pagesContent}>
         <View style={pageStyle}>
           {shelf.gear.length ? (
-            homeGear(shelf.gear).map((g, i) => <GearRow key={g.id} gear={g} first={i === 0} />)
+            homeGear(shelf.gear).map((g, i) => <GearRow key={g.id} gear={g} first={i === 0} onPress={() => onOpenGear(g)} />)
           ) : (
             <AddButton icon="plus" iconToken={icon.sm} label="Add gear" onPress={onAddGear} />
           )}
         </View>
         <View style={pageStyle}>
           {shelf.bags.length ? (
-            homeBeans(shelf.bags).map((b, i) => <BeanRow key={b.id} bag={b} first={i === 0} />)
+            homeBeans(shelf.bags).map((b, i) => <BeanRow key={b.id} bag={b} first={i === 0} onPress={() => onOpenBag(b)} />)
           ) : (
             <AddButton icon="plus" iconToken={icon.sm} label="Add a bag" onPress={onAddBag} />
           )}
@@ -130,7 +133,7 @@ function homeBeans(bags) {
     .slice(0, ROWS);
 }
 
-function GearRow({ gear: g, first }) {
+function GearRow({ gear: g, first, onPress }) {
   let status = null;
   if (onCups(g.category)) {
     status = g.cups ? (
@@ -139,10 +142,10 @@ function GearRow({ gear: g, first }) {
       <Status word="Not used" wordColor="muted" line="Add to a cup" />
     );
   }
-  return <Row first={first} name={g.name} badge={g.is_default ? 'Default' : null} meta={GEAR_CATEGORY[g.category]} status={status} />;
+  return <Row first={first} name={g.name} badge={g.is_default ? 'Default' : null} meta={GEAR_CATEGORY[g.category]} status={status} onPress={onPress} />;
 }
 
-function BeanRow({ bag, first }) {
+function BeanRow({ bag, first, onPress }) {
   const meta = [bag.roaster, bag.size_g ? `${bag.size_g} g` : null].filter(Boolean).join(' · ') || ' ';
   let status = null;
   if (!bag.opened_at) {
@@ -151,12 +154,15 @@ function BeanRow({ bag, first }) {
     const f = freshnessOf(bag.roasted_at);
     if (f) status = <Status word={FRESHNESS_WORDS[f.state]} wordColor={component.beanFreshness[f.state].label} track={f} />;
   }
-  return <Row first={first} name={bag.name} meta={meta} status={status} />;
+  return <Row first={first} name={bag.name} meta={meta} status={status} onPress={onPress} />;
 }
 
-function Row({ first, name, badge, meta, status }) {
+function Row({ first, name, badge, meta, status, onPress }) {
   return (
-    <View style={[styles.row, first && styles.rowFirst]}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      style={({ pressed }) => [styles.row, first && styles.rowFirst, pressed && styles.rowPressed]}>
       <PhotoPlaceholder size={size.thumbnail.compact} />
       <View style={styles.text}>
         <View style={styles.nameRow}>
@@ -170,7 +176,7 @@ function Row({ first, name, badge, meta, status }) {
         </Text>
       </View>
       {status}
-    </View>
+    </Pressable>
   );
 }
 
@@ -236,6 +242,9 @@ const styles = StyleSheet.create({
   rowFirst: {
     borderTopWidth: shape.borderWidth.divider,
     borderTopColor: color.divider.hairlineStrong,
+  },
+  rowPressed: {
+    backgroundColor: state.pressed.row,
   },
   text: {
     flex: 1,

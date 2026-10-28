@@ -185,6 +185,16 @@ export const schema = {
     /** 0 / 1: the first setup (8a / 8n / 8c / 8o) was finished or skipped. */
     setup_done: { type: 'INTEGER', nullable: false },
   },
+
+  /**
+   * Search's "Recent searches" (Design Round 15, 18a): the terms typed, the
+   * last 5 kept, one row per term ignoring case. Clear empties it.
+   */
+  search_history: {
+    id: { type: 'INTEGER', nullable: false, pk: true },
+    term: { type: 'TEXT', nullable: false },
+    searched_at: { type: 'INTEGER', nullable: false },
+  },
 } as const satisfies Record<string, Record<string, ColumnDef>>;
 
 export type TableName = keyof typeof schema;

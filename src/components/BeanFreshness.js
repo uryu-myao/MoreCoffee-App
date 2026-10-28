@@ -17,12 +17,15 @@ import Text from './base/Text';
  * sealed (3d, a bag not opened yet; 2026-10-17): in the bar's place, a
  * sealed-bag glyph and "Sealed · clock starts when opened", with or without
  * a roast date.
+ *
+ * stacked (the bag page, Design Round 15, 19a): "Day 7 · drink now" on its
+ * own line, the bar under it at the column's full width, no clock glyph.
  */
 const { drinkFrom, drinkUntil, span } = FRESHNESS_TUNING;
 const BAND = { left: `${(drinkFrom / span) * 100}%`, width: `${((drinkUntil - drinkFrom) / span) * 100}%` };
 const meter = component.beanFreshness;
 
-export default function BeanFreshness({ roastedAt, sealed = false }) {
+export default function BeanFreshness({ roastedAt, sealed = false, stacked = false }) {
   if (sealed) {
     return (
       <View style={styles.row}>
@@ -37,6 +40,16 @@ export default function BeanFreshness({ roastedAt, sealed = false }) {
   if (!f) return null;
   const tone = meter[f.state];
   const label = `Day ${f.day} · ${FRESHNESS_WORDS[f.state]}`;
+  if (stacked) {
+    return (
+      <View style={styles.stack} accessible accessibilityLabel={label}>
+        <Text variant="meterLabel" color={tone.label}>
+          {label}
+        </Text>
+        <FreshnessTrack freshness={f} />
+      </View>
+    );
+  }
   return (
     <View style={styles.row} accessible accessibilityLabel={label}>
       <Glyph name="clock" token={icon.sm} color={tone.elapsed} />
@@ -74,6 +87,9 @@ const styles = StyleSheet.create({
   },
   sealedLabel: {
     flexShrink: 1,
+  },
+  stack: {
+    gap: spacing.gap.row,
   },
   grow: {
     flex: 1,

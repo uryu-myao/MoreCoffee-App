@@ -4,10 +4,15 @@
  *   requestOpenCup(id)   Records opens one cup (2c) — 5c's "See this record",
  *                        Home's recently sipped rows
  *   requestShell(req)    AppShell: { tab } switches tab, { record: true }
- *                        opens the Record sheet (1b "Record a coffee")
+ *                        opens the Record sheet (1b "Record a coffee");
+ *                        { record: { bag } | { brewer } | { grinder } }
+ *                        opens it with that preselected (a bag or gear
+ *                        page's "Log a cup with it", Design Round 15)
  *   requestPush(entry)   ShellStack pushes a screen over everything, the
  *                        bottom bar included: { name: 'shelf', side } |
  *                        { name: 'addBag' | 'addGear' } from Home, { name: 'editCup', cup } from 2c,
+ *                        { name: 'editBag', bag } | { name: 'editGear', gear } from search,
+ *                        { name: 'cup', id } | { name: 'search', filter } from a bag / gear page,
  *                        { name: 'dna' } (8f) from Profile and 2c
  *   requestCloseCup()    Records closes its open cup (after a delete in 11a)
  *   requestNotice(text)  AppShell shows 13b's one-line notice above the bar
@@ -105,4 +110,20 @@ export function requestTabReset(tab) {
 export function onTabReset(listener) {
   tabResetListeners.add(listener);
   return () => tabResetListeners.delete(listener);
+}
+
+/**
+ * Another tab was chosen: `tab` is the one being left. Records closes its
+ * search then, so coming back shows the list (Uryu, 2026-10-28). Sent as
+ * the switch happens, so the page is back to its list before it shows again.
+ */
+const tabLeaveListeners = new Set();
+
+export function requestTabLeave(tab) {
+  tabLeaveListeners.forEach((l) => l(tab));
+}
+
+export function onTabLeave(listener) {
+  tabLeaveListeners.add(listener);
+  return () => tabLeaveListeners.delete(listener);
 }
