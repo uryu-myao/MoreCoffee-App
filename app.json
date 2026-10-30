@@ -11,7 +11,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.uryumyao.MoreCoffee-App"
+      "bundleIdentifier": "com.uryumyao.MoreCoffee-App",
+      "appleTeamId": "Y57C6973DT"
     },
     "android": {
       "adaptiveIcon": {
@@ -43,6 +44,14 @@
           "locationAlwaysPermission": false,
           "locationFullAccuracyPermission": false,
           "motionUsagePermission": false
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "17.0"
+          }
         }
       ]
     ]
