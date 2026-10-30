@@ -12,6 +12,11 @@ npx expo start
 npx expo start --ios
 npx expo start --android
 npx expo start --web
+
+# Release build onto Uryu's iPhone (JS bundled in, no Metro needed; free
+# provisioning, so it stops opening after 7 days until rebuilt). Phone
+# connected by cable or "Connect via network". Records survive a reinstall.
+npm run ios:device
 ```
 
 No test or lint scripts are configured yet.
