@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 // RNGH 3: the old ScrollView, which takes turns with the sheet's swipe (a
 // legacy Gesture.Pan) as before. Moves to the new one with the gestures.
 import { LegacyScrollView as ScrollView } from 'react-native-gesture-handler';
 import BottomSheet from './base/BottomSheet';
 import Button from './base/Button';
+import InlineAction from './base/InlineAction';
 import SearchField from './base/SearchField';
+import Text from './base/Text';
 import { color, shape, spacing } from '../theme/tokens';
 import CheckboxList from './CheckboxList';
 import RadioList from './RadioList';
@@ -44,8 +46,21 @@ import RadioList from './RadioList';
  *   onPick      single: (key) => void
  *   onAdd       optional (label) => void, with `normalize`
  *   normalize   (query) => label, for Add
+ *   match       (item, q) => 2 starts with / 1 contains / 0 no match;
+ *               default on label or searchText
+ *   onQueryChange  optional (query) => void, on every keystroke and with ''
+ *               on close: for results fetched as the user types (the café
+ *               sheet's map search, 2026-10-30). Such items pass `match`
+ *               (they matched already, often on what the label doesn't show)
+ *   status      optional line under the field (text.muted): the café
+ *               sheet's searching / can't search / location off (Design
+ *               Round 16, B2; the states are answered in words, not drawn)
+ *   statusSettings  true: the line ends in "Open Settings" (InlineAction),
+ *               the phone's settings for this app (Round 16, B2: location off)
+ *   addHint     single mode: a line under the Add row (Round 16, B1: the
+ *               café sheet's "Saved by name only")
  */
-const defaultMatch = (item, q) => {
+export const defaultMatch = (item, q) => {
   const hay = (item.searchText ?? item.label).toLowerCase();
   if (hay.startsWith(q)) return 2;
   return hay.includes(q) ? 1 : 0;
@@ -64,8 +79,16 @@ export default function SearchSheet({
   onAdd,
   normalize = (q) => q.trim(),
   match = defaultMatch,
+  onQueryChange,
+  status,
+  statusSettings = false,
+  addHint,
 }) {
-  const [query, setQuery] = useState('');
+  const [query, setQueryState] = useState('');
+  const setQuery = (next) => {
+    setQueryState(next);
+    onQueryChange?.(next);
+  };
   const q = query.trim().toLowerCase();
 
   const shown = useMemo(() => {
@@ -93,6 +116,14 @@ export default function SearchSheet({
         <SearchField value={query} onChangeText={setQuery} placeholder={placeholder} autoFocus={visible} />
         <Button variant="text" label="Done" onPress={close} />
       </View>
+      {status ? (
+        <View style={styles.status}>
+          <Text variant="meta" color="muted" style={styles.statusText}>
+            {status}
+          </Text>
+          {statusSettings ? <InlineAction label="Open Settings" onPress={() => Linking.openSettings()} /> : null}
+        </View>
+      ) : null}
       {/* The 2px frame stays whole around the list; only its inside scrolls
           (decided 2026-10-12: a frame cut by the sheet's edge breaks "the
           box's outline", §1). */}
@@ -111,6 +142,7 @@ export default function SearchSheet({
                 canAdd
                   ? {
                       label: `Add "${added}"`,
+                      meta: addHint,
                       onPress: () => {
                         onAdd(added);
                         close();
@@ -150,6 +182,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.gap.row,
+  },
+  status: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.gap.row,
+  },
+  statusText: {
+    flex: 1,
   },
   list: {
     flexShrink: 1,

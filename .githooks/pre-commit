@@ -1,6 +1,7 @@
 #!/bin/sh
-# Blocks a commit when the migrations and src/data/schema.ts disagree, or when
-# Taste DNA's arithmetic loses a property it depends on (design/taste-dna.md).
+# Blocks a commit when the migrations and src/data/schema.ts disagree, when
+# Taste DNA's arithmetic loses a property it depends on (design/taste-dna.md),
+# or when "Export my cups" stops writing a CSV a spreadsheet reads back.
 # Installed by `npm install` (package.json "prepare" sets core.hooksPath).
 # Runs in well under a second; bypass only deliberately with --no-verify.
 npm run -s check:schema || {
@@ -9,5 +10,9 @@ npm run -s check:schema || {
 }
 npm run -s check:dna || {
   echo "pre-commit: check:dna failed — Taste DNA's arithmetic no longer holds its properties (design/taste-dna.md)." >&2
+  exit 1
+}
+npm run -s check:csv || {
+  echo "pre-commit: check:csv failed — the CSV export no longer round-trips (src/data/csv.ts)." >&2
   exit 1
 }

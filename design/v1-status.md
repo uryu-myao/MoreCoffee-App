@@ -8,7 +8,7 @@ Scope test (2026-10-11): can Uryu use it every day himself? His cups are mostly 
 
 **In scope since 2026-10-14, after the above**: 3f (minimal: list + Reopen bag), then 3g (minimal: name, roaster, roasted on). Questions: design-missing.md 27–38.
 
-**Not now**: 8g · 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6b · 6c · 6d · Barista. The Try next tab stays a placeholder (decided before release); Profile is 6a's upper part (2026-10-21).
+**Not now**: 8g · 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6b · 6c · 6d. Barista came in 2026-10-30 (Uryu: dogfood café cups). The Try next tab stays a placeholder (decided before release); Profile is 6a's upper part (2026-10-21).
 
 **Next to fall due (recorded 2026-10-20): 2b (sort) and 8l (search)**, the next deadline we set ourselves after the five-bag problem. Dogfood has a few dozen cups today, so scrolling 2a still reaches them; at two a day that is several hundred within three months, and older cups stop being reachable. Home (1b / 4a / 4b) is already done, so this is the next thing to review.
 
@@ -18,7 +18,7 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 
 | Screen | V1 | Status | What is there / what is missing |
 |---|---|---|---|
-| 5a Log a cup | yes | **done (I made it)** | I made it fully; 5d's state; pickers. Packaged: minimal input in scope. Barista: not now (selectable, records no café / drink) |
+| 5a Log a cup | yes | **done (I made it)** | I made it fully; 5d's state; pickers. Packaged: minimal input in scope. Barista (2026-10-30, not yet seen on device): café required, from MapKit or typed; drink pre-filled with the café's last; sheets ours (`design-brief-next.md`). Needs a native rebuild (MapKit module, expo-location) |
 | 5b Tasting note | yes | **done** | axes, flavours + Search sheet, My words, three Save paths |
 | 5c Saved — what the cup changed | yes | **done** | over the steps after a save; moved axes from the stored `dna_change`; summary sentence and Try next parts not shown; first-value / nothing-moved lines provisional |
 | 5d Missing required fields | yes | **done (rating only)** | copy provisional (Design); café out of scope |
@@ -30,7 +30,7 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 2a Records | yes | **partial** | grouped list, count; rows open 2c; the search field opens 8l, the filter button 2b (2026-10-21). The category chips (All / I made it / Barista / Packaged; 2026-10-23, Round 13, E): built, checked on device (2026-10-23). Design's Round 13 answers built 2026-10-23, not yet seen on device: the list starts from the top on a switch, "N Cups" counts the cups shown, one empty line per type. 2026-10-24 (Uryu): the chips pin under the header, group headings pin under the chips. 2026-10-26 (Uryu): no rule under the header, on every screen. |
 | 2b Sort sheet | **yes (2026-10-21, with 8l)** | **built, not yet seen on device** | four sorts, four groups, Reset, Done; not remembered. Undrawn parts per Design's Round 10 reply (14–18); 14's I made it tail is ours, in the next brief |
 | 2c Record (one cup) | **yes** (decided 2026-10-11) | **done** | the pencil opens 11a; "Feeds my taste DNA" opens 8f (D-48, 2026-10-21); share, photo, "22 clicks" / "My default brewer" not shown |
-| 11a Edit cup · 11b Delete · 11c Bag picker | **yes** (approved 2026-10-13) | **done** | bag, method, date & time, My words; "As logged" read only; delete with 11b's sheet; the date wins over the bag. Round 4 built: the discard sheet on leaving with changes, "No bag" / "No brewer" / "No grinder", a finished own bag marked. Packaged / Barista: no shelf block until design-missing 6 |
+| 11a Edit cup · 11b Delete · 11c Bag picker | **yes** (approved 2026-10-13) | **done** | bag, method, date & time, My words; "As logged" read only; delete with 11b's sheet; the date wins over the bag. Round 4 built: the discard sheet on leaving with changes, "No bag" / "No brewer" / "No grinder", a finished own bag marked. Packaged: one Product row. Barista: café and drink (2026-10-30) |
 | 3b My gear / 3e Edit gear | **yes (2026-10-22)** | **built (3e minimal), not yet seen on device** | 3b from Home's "Manage my gear" and Profile's My gear; rows open 3e (D-26). 3e: Name (rewrites the cups' copies), Maker, default switch (turns off; a removed default passes to nothing), Remove (asks first; 13b "removed"). Not: photo, Category, Added on, My settings note (T-11). Resolves `gaps.md` 25 2026-10-23 (Design Round 12): 3e shows its category as a line over the card; Design's default remove line; counts grouped from 1,000. |
 | 3d My beans | **yes** | **done** | open bags, "Day N", Finish bag (no confirm, no undo at this stage), Add a bag → 3c. Card tap (3g) and Finished bags (3f) not at this stage |
 | 3g Edit bag / 3f Finished bags | **yes, minimal (2026-10-14)**: 3f first, then 3g | **3f done** (entry at 3d's foot, rows, Reopen, the 5 / 5 line, the reopened notice); **3g done** (minimal: name, roaster, roasted on, opened on; limits; freshness; Delete; from a 3d card) | 3f's Reopen is the recovery for Finish (gaps 17 / 18), which stays unconfirmed; questions to Design: design-missing.md 27–38 |

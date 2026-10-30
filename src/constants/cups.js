@@ -1,4 +1,4 @@
-import { partOfDay } from './dates';
+import { partOfDay } from './dates.js';
 
 /**
  * How a cup is named in lists and on its own page, degrading by mode (drift.md
@@ -26,7 +26,8 @@ const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
  *   grinder  grinder · "No bag"
  *   neither  "Morning cup" (the daypart 2c shows) · "No bag or gear noted"
  * noBag: how 2c says the absence, once, under its title (12a).
- * Barista / Packaged stay "—" until they have inputs.
+ * Barista: the drink · the café; Packaged: the product. "—" for a cup saved
+ * without one (Barista cups logged before 2026-10-30 have neither).
  */
 export function cupTitle(cup) {
   if (cup.mode === 'made_it') {

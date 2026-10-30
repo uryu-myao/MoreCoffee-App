@@ -63,7 +63,7 @@ The database runs in WAL mode (`migrate.ts`). It lives at `Documents/SQLite/more
 | grind_setting | REAL | null | made_it · **V1.5, no UI in V1** |
 | water_temp_c | REAL | null | made_it · **V1.5, no UI in V1** |
 | ratio | REAL | null | made_it · water : coffee by weight (16 = 1:16) · **V1.5, no UI in V1** |
-| place_id | INTEGER | null | → places · barista |
+| place_id | INTEGER | null | → places · barista; required on Save since 2026-10-30 (earlier Barista cups have none) |
 | drink_type | TEXT | null | barista (e.g. "Flat white") |
 | product_id | INTEGER | null | → products · packaged |
 | bought_at_place_id | INTEGER | null | → places · packaged |
@@ -104,8 +104,11 @@ The database runs in WAL mode (`migrate.ts`). It lives at `Documents/SQLite/more
 | lng | REAL | null | |
 | external_id | TEXT | null, unique | MapKit identifier |
 
-- **One table for cafés and stores**: a convenience store and a café differ only by `kind`. Barista cups point at a café (`place_id`); packaged cups point at where they were bought (`bought_at_place_id`). The same 7-Eleven can be both, depending on the cup.
-- **`external_id`** holds the MapKit identifier, so a later visit matches the existing place instead of creating a duplicate. It is unique when present; places entered by hand have none.
+- **One table for cafés and stores**: a convenience store and a café differ only by `kind`. Barista cups point at a café (`place_id`); packaged cups point at where they were bought (`bought_at_place_id`).
+- **One row per MapKit place, whatever its kind** (corrected 2026-10-30; this said "the same 7-Eleven can be both", which the table cannot hold: `kind` is not null and `external_id` unique, so a place has one row and one kind). A café picked from the map whose identifier is already stored uses that row as it is, even if it was stored as a `store`. `kind` is the kind of the first cup that stored it; nothing reads it yet. No migration (decided 2026-10-30).
+- **`external_id`** holds the MapKit identifier (`MKMapItem.identifier`, iOS 18+), so a later visit matches the existing place instead of creating a duplicate. It is unique when present. Places typed by hand have none; a typed name matches an earlier typed place with the same name (ignoring case), so a café typed twice has one history.
+- **A places row is created on Save, never on a pick** (`repository.ts` `placeIdFor`): a café picked and not saved leaves nothing behind. **And it is never renamed**: cups read the café's name through `place_id` (it is not copied onto the cup, unlike the bag), so renaming a row would rename it on every past cup. A later visit under a new MapKit name keeps the stored one. 11a's café edit changes which row a cup points at, never a row. Whether to copy the name onto cups as the bag is: open, `todo.md` T-13.
+- **No address column** (decided 2026-10-30): no screen shows a stored place's address; the café sheet shows the map's address from the live result. **Reopened the same day**: Design Round 16, B5 has 11a's café line show the short address, which is a screen that does. Pending, `todo.md` T-15.
 
 ### products
 

@@ -7,7 +7,7 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
 ## Screens
 
 1. **[drawn 11a–11c, approved and built 2026-10-13] Cup edit** (2c's pencil)
-   - **Editable**: the bag, the gear, the date and time, My words; Packaged's product name. (Barista's café and drink: not at this stage.)
+   - **Editable**: the bag, the gear, the date and time, My words; Packaged's product name; Barista's café and drink (2026-10-30).
    - **Shown but not editable**: the rating, the four axes, the flavours (Taste DNA's input: if they changed while each cup's stored change stayed, the history would become false). **Decided look: 2c's read-only display** — the entered (brown) AxisReadout, flavour Badges with no frame, stars that do not press. **Not** the disabled look, which is only for options in a set (§1 "Values that cannot be edited are displayed").
    - **Date limits**: not in the future; not before the bag's roast date (when it has one).
    - **Date wins over bag (decided 2026-10-11)**: a bag whose roast date is after the cup's date cannot be chosen. **Please design how the picker shows such a bag** (present but not selectable, and why).
@@ -16,7 +16,7 @@ Sent with `design-brief-next.md`. Each item says what is built today (if anythin
    - Leaving with unsaved changes (`gaps.md` 20) applies here too.
 2. **2c for Packaged and Barista cups**: 2c is drawn for I made it only (bag + method).
    - **[this round] Packaged**: what replaces "What I logged" for a packaged cup, which records only a product name (item 6)?
-   - **[not at this stage] Barista** (café, drink).
+   - **Barista** (café, drink): answered in words, Design Round 16 B4 — "What I logged" is removed, as for Packaged (built 2026-10-30). The full screen is still not drawn.
 3. **[this round, built — please check] Bag / gear picker**: a bottom sheet with §9's square radio rows; **the field's name is the sheet title in `display.sm`** (fixed 2026-10-11: as an eyebrow it stacked over Method's "Brewer" / "Grinder" eyebrows); "Add a bag" / "Add gear" last. A single-select row's **marker** shows selection (§1 Tap affordance, scope added 2026-10-11).
 4. **[this round, built — please check] Flavour search sheet** (§9 Bottom sheet, `full` variant). **Hard constraint — measured on an SE (375 × 667):**
    - sheet top at 32; handle, search field (46) and Done take it to **125, where the list starts**;

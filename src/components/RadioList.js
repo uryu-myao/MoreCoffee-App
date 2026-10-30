@@ -33,7 +33,9 @@ import Text from './base/Text';
  *             disabled option shows its reason), disabledHint for VoiceOver.
  *   selected  key or null
  *   onPick    (key) => void
- *   add       optional { label, onPress }
+ *   add       optional { label, meta?, onPress }: meta, a line under the
+ *             label as an item's (the café sheet's "Saved by name only",
+ *             Design Round 16, B1)
  *   framed    false when the container draws the frame (the search sheet)
  */
 const MARK = size.checkbox - 2 * shape.borderWidth.box - 2 * space[4];
@@ -77,14 +79,21 @@ export default function RadioList({ items, selected, onPick, add, framed = true 
         <Pressable
           onPress={add.onPress}
           accessibilityRole="button"
-          accessibilityLabel={add.label}
+          accessibilityLabel={add.meta ? `${add.label}, ${add.meta}` : add.label}
           style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
           <View style={styles.addMark}>
             <Glyph name="plus" token={icon.sm} color={color.text.primary} />
           </View>
-          <Text variant="title" color="primary" style={styles.text} truncate="name">
-            {add.label}
-          </Text>
+          <View style={styles.text}>
+            <Text variant="title" color="primary" truncate="name">
+              {add.label}
+            </Text>
+            {add.meta ? (
+              <Text variant="meta" color="muted" truncate="meta">
+                {add.meta}
+              </Text>
+            ) : null}
+          </View>
         </Pressable>
       ) : null}
     </View>

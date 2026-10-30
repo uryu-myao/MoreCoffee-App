@@ -120,6 +120,7 @@ Plus, globally:
 - **Disabled — decided for Button only** (§9). Still undesigned for chips, rows and fields.
 - **Button secondary height (2026-10-06)**: the mocks draw every full-width secondary at 52 (primary 56). `Button` renders both at 56. Pending: which token the secondary takes (`size.control.row` is 52 but named for list rows), then the fix. `drift.md` D-17 was withdrawn for this.
 - **Loading — deliberately not needed.** This is not deferred pending design. Saves write to local SQLite and are instant, so there is no in-flight state to show. Revisit only when Step 5 introduces real async (MapKit lookup, barcode lookup).
+  - **Update 2026-10-30**: MapKit lookup is here (Barista's café sheet). Its one in-flight state is a muted line under the search field ("Searching the map…", `CafeSheet.js`), ours until Design draws it (`design-brief-next.md`). Saves stay instant.
 
 ---
 

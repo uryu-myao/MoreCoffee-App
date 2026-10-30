@@ -33,8 +33,8 @@ import Text from './base/Text';
  * (divider.hairlineStrong), which the open tab's underline lands on.
  * Pressable (Uryu, 2026-10-28; Round 15 B3 had them open nothing): a bean
  * row opens its bag page (3g, 19a), a gear row its page (3e, 19c). The row
- * darkens while pressed (state.pressed.row); no chevron, so the one-line
- * row keeps its width. A swipe across the pages cancels the press.
+ * darkens while pressed (state.pressed.row); no chevron (Design Round 16,
+ * B7: they are list items, like Records rows). A swipe across the pages cancels the press.
  *   gear   "Brewer" (and a "Default" badge); status "2 cups" / "Last ·
  *          today", or "Not used" / "Add to a cup". A kettle or scale is never
  *          on a cup, so its status is empty (2026-10-27: "Add to a cup" would

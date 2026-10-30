@@ -10,7 +10,7 @@ import { GEAR_LIMIT } from '../constants/gear';
 import { daysBetween } from '../constants/dates';
 import { TASTE_AXES } from '../constants/tasteAxes';
 import { useDatabase } from '../data/DatabaseProvider';
-import { shareExport } from '../data/export';
+import { shareBackup, shareCupsCsv } from '../data/export';
 import { OPEN_BAG_LIMIT, countGear, countOpenBags, loadDnaPage, loadProfile, onCupsChanged, onShelfChanged } from '../data/repository';
 import { bandOf } from '../data/tasteDna';
 import { requestPush } from '../navigation';
@@ -48,8 +48,13 @@ import { cupsLabel, dnaSummary, shiftedLabel } from './TasteDnaScreen';
  *                holds gear and beans only, which "shelf" means (§1 Words).
  *                When 8h comes, My words gets its own heading, "My words"
  *                (Design Round 11, D1).
- *   My data      6b's "Export my cups" row, alone (todo.md T-8): the only way
- *                to get the data out. JSON of every table, not 6b's CSV.
+ *   My data      6b's two rows (2026-10-28): "Export my cups", the cups as
+ *                CSV ("N cups as CSV, notes included", 6b's line), and in
+ *                the Backup row's place "Export everything" / "Cups, bags
+ *                and gear, as JSON" (Design Round 16, B8: "Back up" would
+ *                promise a restore that doesn't exist). INTERIM (todo.md
+ *                T-8): 6b's Backup saves by itself; this is a manual export
+ *                until it is built.
  *
  * Each section: label.eyebrow heading (muted) over a 2px ink frame on raised;
  * rows are MenuRow.
@@ -185,11 +190,11 @@ export default function ProfileTabScreen() {
     };
   }, [db]);
 
-  // TODO(design): 6b replaces this row's interim form; failure copy is ours.
-  const onExport = async () => {
+  // Failure copy is ours.
+  const onExport = (share) => async () => {
     setBusy(true);
     try {
-      await shareExport(db);
+      await share(db);
     } catch (error) {
       console.error('[export] failed', error);
       Alert.alert("Couldn't export", String(error?.message ?? error));
@@ -212,10 +217,13 @@ export default function ProfileTabScreen() {
             <MenuRow
               icon="download"
               label="Export my cups"
-              sub={`${cupsLabel(data.profile.cupTimes.length)} as JSON, notes included`}
-              onPress={onExport}
+              sub={`${cupsLabel(data.profile.cupTimes.length)} as CSV, notes included`}
+              onPress={onExport(shareCupsCsv)}
               disabled={busy}
             />
+            {/* INTERIM (todo.md T-8): a manual JSON of everything in 6b's
+                Backup row, until the real backup (Round 16, B8). */}
+            <MenuRow icon="download" label="Export everything" sub="Cups, bags and gear, as JSON" onPress={onExport(shareBackup)} disabled={busy} />
           </Section>
         </View>
       ) : null}

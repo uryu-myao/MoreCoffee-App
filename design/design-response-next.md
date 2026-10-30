@@ -1,5 +1,86 @@
 # Design response — design-missing.md
 
+## Round 16 · Barista (2026-10-30)
+
+Mock: Turn 19, 20a–20g.
+
+### A. Report
+1. **One problem, in the mock: 5d's café meta.** It read "Fuglen Tomigaya is 250 m away — or type a new one.", which is the nearby guess A2 rules out. Now: **"Pick it from the map or type its name."** The rest of A1 is OK.
+2. **OK.** 5a's Café details heading now reads SET in the mock.
+3. **OK.**
+4. **OK, for 5a only.** 11a's Café row shows the short address instead (see B5).
+5. **OK.**
+6. **OK, with one order:** open the sheet first, then the system prompt over it. The café list is then the reason in view.
+7. **OK.**
+
+### B. Answers
+**1. Café sheet (20a, 20b): confirmed as built.**
+- Rows and meta: as listed. Nothing is selected on a new cup.
+- **No headings.** The first part of the meta tells them apart: a visit count leads my rows, an address leads the map's.
+- My cafés stay latest visit first, never re-sorted by distance.
+- Add row: a + marker in place of the radio, with the meta **"Saved by name only"**.
+- Placeholder **"Café name": OK.**
+
+**2. When the map can't help (20c–20e).** One muted line under the field: body.sm, `text.secondary`.
+- Searching: "Searching the map…" **OK.** Show it after about 300 ms. My matches and the Add row show under it at once.
+- Can't search: **"Can't search the map right now. Add it by name below."** The line only shows after typing, so "Type the café's name" pointed at a step already done.
+- Location off: **OK, plus an InlineAction "Open Settings"** at the end of the line. After a No, Settings is the only way back. With Restricted, show the line without the link. My rows drop the distance.
+- Prompt: **"Shows the cafés around you first when you pick one. Your location is never stored."** iOS already titles the prompt with the app's name.
+
+**3. Drink sheet (20f): OK**, with one change. The placeholder is **"Drink name"**, to pair with "Café name". "Add a drink" and "Last time here" are OK. Only the first row has a meta. The pre-filled drink shows selected.
+
+**4. 2c for a Barista cup: show nothing. Remove "What I logged"**, as for Packaged (Round 7). The title and sub line already say the drink and the café.
+
+**5. 11a (20g): confirmed**, with one change. The Café row's meta is the **short address only**. Distance from where the phone is now says nothing about a past cup, and "Nth visit" changes meaning once the café changes. The Drink row has no meta. An older cup with no café saves without one.
+
+**6. 2b: yes, group by café under Group by Roaster.**
+- A café is who made the cup, as a roaster is who made the beans. Café groups take their place among the roaster groups by the same rule (first cup under the sort), and sort by name under "Roaster A–Z".
+- Barista cups with no café go into **"No café"**, next to "No roaster".
+- Under Group by Brewer, Barista cups stay one "Barista" group.
+- Packaged stays last.
+
+**7. Shelf rows: no chevron.** The chevron rule covers blocks. A shelf row is an item in a list of things, like a Records row or a My beans row, and these open their thing with no chevron. Add the case to §1 next to §3.1's two lines. "See all gear & beans ›" keeps its chevron.
+
+**8. Backup row: "Export everything" / "Cups, bags and gear, as JSON".** "Back up" promises a restore that doesn't exist. Use the drawn "Last saved…" line when the real backup comes.
+
+### For Code
+- 5d: the café meta copy (A1).
+- Café sheet: + marker and meta on the Add row. Copy in B2 and the Settings link.
+- Drink placeholder: "Drink name".
+- 2c: drop "What I logged" for Barista.
+- 11a: Café meta = short address.
+- 2b: café groups and "No café".
+- 6b: Backup copy.
+
+---
+
+## Round 16 · Barista (2026-10-30)
+
+As received (answers `design-brief-round-16.md`). The mock was changed for A only; everything in B is answered in words.
+
+**A (report)**: One problem, in the mock. 5d's café line ("Fuglen Tomigaya is 250 m away…") was the nearby-café guess A2 rules out. It now reads "Pick it from the map or type its name." 5a's Café details heading now reads SET.
+
+**B (answers)**
+1. Café sheet: confirmed as one list with no headings. Only two additions: the Add row gets a + marker and the line "Saved by name only".
+2. Map states: "Can't search the map right now. Add it by name below." Location off gets an "Open Settings" link. New prompt copy: "Shows the cafés around you first when you pick one. Your location is never stored."
+3. Drink sheet: the placeholder becomes "Drink name", to pair with "Café name".
+4. 2c: remove "What I logged" for Barista cups, as was done for Packaged.
+5. 11a: the café line shows the short address only, with no distance or visit count.
+6. 2b: under Group by Roaster, Barista cups group by café, and cups with no café go under "No café".
+7. Shelf rows: no chevron. They're list items, like Records rows.
+8. Backup row: "Export everything" / "Cups, bags and gear, as JSON". "Back up" would promise a restore that doesn't exist.
+
+2c for a Barista cup still isn't drawn as a full screen. I only answered it in text.
+
+**How it was built (2026-10-30)**
+- A: 5d's line is the empty Café row's meta in 5d's error state only (the mock is 5d; 5a's empty row is undrawn). SET was already built.
+- B1: the + marker was already there (the search sheet's Add row has drawn it since Round 4's sheets); the line is new, the café sheet's only.
+- B2: the "searching" and "location off" lines stay as briefed (not commented). "Open Settings" is an InlineAction after the line, opening the app's page in Settings. The prompt copy needs a new native build to show.
+- B3: 5a's and 11a's drink sheets. "Add a drink" and "Last time here" were not commented; kept.
+- B5: **not built.** No address is stored (`data-model.md`, places: "no screen shows a stored place's address" — this answer makes one). Waits on Uryu (`todo.md` T-15). 11a shows no café meta meanwhile, which matches "no distance or visit count".
+- B6: the café groups take Barista's old place in the tail (after Packaged), in the order of their first cup, "No café" last. Where they go was not said; this keeps Round 10's "Packaged first, then Barista". A café whose name is also a roaster's (Fuglen) gets two groups with the same heading, one in the roasters and one in the tail.
+- B7: as built. B8: built.
+
 ## Round 15 · Search and bag / gear pages (2026-10-28)
 
 Mock: Turn 18. 18a–18f and 18x are search; 19a–19c are the pages.

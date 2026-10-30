@@ -31,18 +31,23 @@ export const sortLabel = (key) => SORTS.find((s) => s.key === key).label;
 
 /**
  * Cups with no roaster / no brewer go last (Design Round 10, 14), named by
- * what they are: "Packaged", then "Barista" (no café grouping in V1: the
- * café can't be entered yet). An I made it cup can have neither too (a bag
+ * what they are: "Packaged", then "Barista". Under Group by Roaster, Barista
+ * cups group by café instead, and those with no café (logged before
+ * 2026-10-30) go under "No café" (Design Round 16, B6). The café groups take
+ * Barista's place in the tail, in the order of their first cup, "No café"
+ * last. TODO(Design): Round 16 did not say where they go; this keeps Round
+ * 10's "Packaged first, then Barista". An I made it cup can have neither too (a bag
  * with no roaster; a cup logged from an empty shelf, which requires no bag
  * or gear). It is neither of those, so it keeps "No roaster" / "No brewer"
  * and comes first of the three (Uryu, 2026-10-21; Design Round 11, A: OK,
  * the same order after Z).
  */
-const TAIL = { none: 1, packaged: 2, barista: 3 };
+const TAIL = { none: 1, packaged: 2, barista: 3, noCafe: 4 };
 const tailKey = (cup) => (cup.mode === 'made_it' ? 'none' : cup.mode);
 const TAIL_LABEL = { packaged: 'Packaged', barista: 'Barista' };
 const NO_ROASTER = 'No roaster';
 const NO_BREWER = 'No brewer';
+const NO_CAFE = 'No café';
 
 const byNewest = (a, b) => b.logged_at - a.logged_at || b.id - a.id;
 const compareText = (a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' });
@@ -50,6 +55,12 @@ const compareText = (a, b) => a.localeCompare(b, undefined, { sensitivity: 'base
 const tailGroup = (cup, noneLabel) => {
   const key = tailKey(cup);
   return { key, label: TAIL_LABEL[key] ?? noneLabel };
+};
+/** Group by Roaster's group for a cup with no roaster: a Barista cup's café (Round 16, B6). */
+const roasterTail = (cup) => {
+  if (cup.mode !== 'barista') return tailGroup(cup, NO_ROASTER);
+  if (!cup.place_name) return { key: 'noCafe', label: NO_CAFE, rank: TAIL.noCafe };
+  return { key: `c:${cup.place_name.toLowerCase()}`, label: cup.place_name, rank: TAIL.barista };
 };
 /** 0 for a cup with a roaster, else its place in the tail. */
 const roasterRank = (cup) => (cup.bean_roaster ? 0 : TAIL[tailKey(cup)]);
@@ -85,13 +96,13 @@ export function arrangeCups(cups, sort, group, monthFormat) {
       return { key: `${d.getFullYear()}-${String(d.getMonth()).padStart(2, '0')}`, label: monthFormat.format(d) };
     },
     method: (cup) => (cup.brew_method ? { key: `m:${cup.brew_method}`, label: cup.brew_method } : tailGroup(cup, NO_BREWER)),
-    roaster: (cup) => (cup.bean_roaster ? { key: `r:${cup.bean_roaster.toLowerCase()}`, label: cup.bean_roaster } : tailGroup(cup, NO_ROASTER)),
+    roaster: (cup) => (cup.bean_roaster ? { key: `r:${cup.bean_roaster.toLowerCase()}`, label: cup.bean_roaster } : roasterTail(cup)),
   }[group];
 
   const groups = new Map();
   for (const cup of sorted) {
-    const { key, label } = keyOf(cup);
-    if (!groups.has(key)) groups.set(key, { key, label, cups: [] });
+    const { key, label, rank = TAIL[key] ?? 0 } = keyOf(cup);
+    if (!groups.has(key)) groups.set(key, { key, label, rank, cups: [] });
     groups.get(key).cups.push(cup);
   }
   const list = [...groups.values()];
@@ -100,7 +111,7 @@ export function arrangeCups(cups, sort, group, monthFormat) {
   } else {
     // Map order is already "first cup under the sort"; only the tail moves
     // (a stable sort keeps the rest as they are).
-    list.sort((a, b) => (TAIL[a.key] ?? 0) - (TAIL[b.key] ?? 0));
+    list.sort((a, b) => a.rank - b.rank);
   }
-  return list;
+  return list.map(({ rank, ...g }) => g);
 }

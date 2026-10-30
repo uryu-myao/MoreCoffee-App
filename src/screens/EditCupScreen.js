@@ -9,6 +9,7 @@ import FieldRow from '../components/base/FieldRow';
 import IconButton from '../components/base/IconButton';
 import SectionLabel from '../components/base/SectionLabel';
 import Text from '../components/base/Text';
+import CafeSheet from '../components/CafeSheet';
 import DateSheet from '../components/DateSheet';
 import DiscardSheet from '../components/DiscardSheet';
 import NoteField from '../components/NoteField';
@@ -17,9 +18,10 @@ import SearchSheet from '../components/SearchSheet';
 import { dayLine, dayTimeLine } from '../components/WhenMeta';
 import { cupTitle } from '../constants/cups';
 import { formatDay, startOfDay } from '../constants/dates';
+import { drinkItems } from '../constants/drinks';
 import { TASTE_AXES } from '../constants/tasteAxes';
 import { useDatabase } from '../data/DatabaseProvider';
-import { deleteCup, deleteDropsLockIn, getBag, listGear, listOpenBags, listProductHistory, updateCup } from '../data/repository';
+import { deleteCup, deleteDropsLockIn, getBag, listDrinkHistory, listGear, listOpenBags, listProductHistory, updateCup } from '../data/repository';
 import { color, dashed, shape, space, spacing } from '../theme/tokens';
 import { Stars } from './CupRecordScreen';
 import { RATING_COPY } from './RecordCoffeeScreen';
@@ -52,8 +54,13 @@ import ScreenFrame from './ScreenFrame';
  *   - the date row's second line only with a roast date
  *   - this cup's own bag, if finished: listed first, selectable, its meta
  *     starting "Finished ‹day› ·"
- *   - Barista: no shelf block. Packaged: one Product row (11a's caption),
- *     the same search sheet as 5a's (built with design-missing 6, 2026-10-15)
+ *   - Packaged: one Product row (11a's caption), the same search sheet as
+ *     5a's (built with design-missing 6, 2026-10-15)
+ *   - Barista (2026-10-30, overturning 24 — brief "Barista: café and drink
+ *     can be entered"): 5a's Café and Drink rows and sheets, so a café picked
+ *     wrongly from the map can be corrected. Changing the café changes which
+ *     café the cup points at, never a café's name, and leaves the drink as
+ *     it is (no pre-fill here: editing corrects a record)
  *   - Save is always pressable (§1); with nothing changed it writes nothing
  */
 const bagMeta = (bag) => [bag.roaster, bag.roasted_at != null ? `roasted ${formatDay(bag.roasted_at)}` : null].filter(Boolean).join(' · ') || undefined;
@@ -171,6 +178,10 @@ export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
   const [note, setNote] = useState(cup.note ?? '');
   const [productName, setProductName] = useState(cup.product_name);
   const [products, setProducts] = useState([]);
+  // Barista: the cup's café (a CafeChoice; id null for one just picked) and drink.
+  const [cafe, setCafe] = useState(() => (cup.place_id != null ? { id: cup.place_id, name: cup.place_name, externalId: null, lat: null, lng: null } : null));
+  const [drinkType, setDrinkType] = useState(cup.drink_type);
+  const [drinks, setDrinks] = useState([]);
   // 'bag' | 'gear' | 'date' | 'delete' | 'discard' | null
   const [sheet, setSheet] = useState(null);
   const [shelf, setShelf] = useState({ bags: [], brewers: [], grinders: [] });
@@ -195,6 +206,8 @@ export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
   }, [db, cup.bag_id]);
 
   const madeIt = cup.mode === 'made_it';
+  const barista = cup.mode === 'barista';
+  const cafeChanged = (cafe?.id ?? null) !== cup.place_id || (cafe != null && cafe.id == null);
   const method = [brewer?.name, grinder?.name].filter(Boolean).join(' · ');
   const roastDay = madeIt && bag?.roasted_at != null ? bag.roasted_at : null;
   const noteValue = note.trim() ? note : null;
@@ -207,6 +220,8 @@ export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
     (grinder?.name ?? null) !== cup.grinder ||
     loggedAt !== cup.logged_at ||
     productName !== cup.product_name ||
+    cafeChanged ||
+    drinkType !== cup.drink_type ||
     noteValue !== (cup.note ?? null);
 
   // Back and the edge swipe ask first while there are changes (19).
@@ -233,6 +248,8 @@ export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
         loggedAt,
         note: noteValue,
         productName: cup.mode === 'packaged' ? productName : cup.product_name,
+        cafe: barista && cafeChanged ? cafe : undefined,
+        drinkType: barista ? drinkType : cup.drink_type,
       });
       leave();
     } catch (error) {
@@ -312,6 +329,31 @@ export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
                       console.error('[edit] could not read past products', error);
                     }
                     setSheet('product');
+                  }}
+                />
+              </View>
+            </Section>
+          ) : null}
+
+          {barista ? (
+            <Section label="Café details" variant="plain">
+              <View style={styles.card}>
+                {/* TODO(Design Round 16, B5): the short address as meta. None
+                    is stored yet (todo.md T-15); no distance or visit count. */}
+                <FieldRow icon="pin" label="Café" value={cafe?.name ?? 'No café noted'} placeholder={!cafe} onPress={() => setSheet('cafe')} />
+                <FieldRow
+                  divided
+                  label="Drink"
+                  value={drinkType ?? 'No drink noted'}
+                  placeholder={!drinkType}
+                  onPress={async () => {
+                    try {
+                      setDrinks(drinkItems(await listDrinkHistory(db, cafe?.id ?? null)));
+                    } catch (error) {
+                      console.error('[edit] could not read past drinks', error);
+                      setDrinks(drinkItems({ here: [], all: [] }));
+                    }
+                    setSheet('drink');
                   }}
                 />
               </View>
@@ -399,6 +441,17 @@ export default function EditCupScreen({ cup, onBack, onDeleted, guardLeave }) {
         selected={productName}
         onPick={setProductName}
         onAdd={setProductName}
+      />
+      <CafeSheet visible={sheet === 'cafe'} onClose={() => setSheet(null)} selected={cafe} onPick={setCafe} />
+      <SearchSheet
+        visible={sheet === 'drink'}
+        onClose={() => setSheet(null)}
+        mode="single"
+        placeholder="Drink name"
+        items={drinks}
+        selected={drinkType}
+        onPick={setDrinkType}
+        onAdd={setDrinkType}
       />
       <DateSheet
         visible={sheet === 'date'}

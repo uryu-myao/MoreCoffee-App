@@ -10,13 +10,16 @@ import SectionLabel from '../components/base/SectionLabel';
 import SegmentedControl from '../components/base/SegmentedControl';
 import StarRating from '../components/base/StarRating';
 import Text from '../components/base/Text';
+import CafeSheet from '../components/CafeSheet';
 import PickerSheet from '../components/PickerSheet';
 import RequiredBar from '../components/RequiredBar';
 import SearchSheet from '../components/SearchSheet';
 import { useRecordDraft } from '../components/RecordDraft';
 import WhenMeta from '../components/WhenMeta';
 import { useDatabase } from '../data/DatabaseProvider';
-import { listGear, listOpenBags, listProductHistory } from '../data/repository';
+import { listDrinkHistory, listGear, listOpenBags, listProductHistory } from '../data/repository';
+import { drinkItems } from '../constants/drinks';
+import { distanceLine, visitLine } from '../constants/places';
 import { color, icon, motion, shape, size, space, spacing, state } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 import { FRESHNESS_WORDS, freshnessOf } from '../data/freshness';
@@ -25,8 +28,8 @@ import { FRESHNESS_WORDS, freshnessOf } from '../data/freshness';
  * Record coffee — 5a "Log a cup". All three maker modes. The cup being
  * recorded is the Record sheet's draft (components/RecordDraft.js), shared
  * with 5b. Field sets show the latest open bag and the default gear (I made
- * it), or the most recent café / product / store; rows render a chevron and do
- * nothing yet (pickers: stage 3).
+ * it); Barista's café and drink and Packaged's product start empty. Every
+ * row opens its picker or search sheet.
  * SAVE THIS CUP saves everything entered so far — including anything entered
  * in 5b before coming back (design-system.md §1 Saving a cup) — and dismisses.
  * A genuine failure is shown plainly and the sheet stays open.
@@ -86,16 +89,11 @@ function Section({ label, status, plain, children }) {
   );
 }
 
-
-/** Shown for a field with no row behind it (an empty database). TODO(Step 5): pickers. */
-const NONE = '—';
-
 /*
- * Meta lines: only what the stored rows can back. The mock's history- and
- * location-derived lines ("drink now", "250 m away · your 4th visit", "What you
- * ordered here last time", "Bought twice in the last month") and 5e's
- * "Chilled, unsweetened" (not in the schema) wait for the features behind them.
- * TODO(Step 5): rows open their pickers; tapping does nothing yet.
+ * Meta lines: only what the stored rows can back. Barista's "250 m away · your
+ * 4th visit" and "What you ordered here last time" are built (2026-10-30); the
+ * mock's "Bought twice in the last month" and 5e's "Chilled, unsweetened" (not
+ * in the schema) wait for the features behind them.
  */
 /** "Blue Bottle · day 7, drink now" (5a's mock): the day and state from the roast date (data/freshness.ts); roaster alone without one. */
 function bagMeta(bag) {
@@ -134,18 +132,43 @@ function MadeItFields({ defaults, onAddBag, onAddGear, onPick }) {
 }
 
 /**
- * Barista (not at this stage): selectable, but nothing to enter yet — the
- * café and drink stay empty ("—") and are saved empty. No required mark and no
- * "Pre-filled": nothing here can be filled (§1 Required marks).
+ * Barista (built 2026-10-30; 5a / 5d as drawn, the sheets ours — brief
+ * "Barista: café and drink can be entered"). Café: required, so the heading
+ * is always marked (a name can always be typed: §1 Required marks), SET once
+ * chosen, REQUIRED in 5d's state, where the empty row takes 5d's error look
+ * and "Which café?" over 5d's line "Pick it from the map or type its name."
+ * (Design Round 16, A: the mock's "Fuglen Tomigaya is 250 m away" was the
+ * nearby guess the rules exclude). Never pre-filled from where the phone is,
+ * so never "Pre-filled"; SET once chosen (Round 16, A: 5a's heading too). Its meta is 5a's "250 m away · your 4th visit", each part
+ * only when known. Drink: optional; pre-filled with the café's last drink,
+ * meta "What you ordered here last time" (5a). Both rows open search sheets
+ * (components/CafeSheet.js; the drink sheet below). "Add a drink" is ours
+ * (5a's "Add a bag" pattern); Round 16 left it as built.
  */
-function BaristaFields({ defaults }) {
-  const filled = Boolean(defaults.cafe);
+function BaristaFields({ cafe, drink, onPickCafe, onPickDrink, missing }) {
+  const error = missing && !cafe;
+  const cafeMeta = cafe ? [distanceLine(cafe.distance), visitLine(cafe.visits)].filter(Boolean).join(' · ') || undefined : undefined;
   return (
-    <Section label="Café details" status={filled ? 'prefilled' : undefined} plain={!filled}>
+    <Section label="Café details" status={cafe ? 'set' : error ? 'required' : undefined}>
       <View style={styles.card}>
-        {/* readOnly: no picker yet, so no chevron (§1 Tap affordance). */}
-        <FieldRow readOnly icon="pin" label="Café" value={defaults.cafe?.name ?? NONE} />
-        <FieldRow readOnly divided label="Drink" value={NONE} />
+        {cafe ? (
+          <FieldRow icon="pin" label="Café" value={cafe.name} meta={cafeMeta} onPress={onPickCafe} />
+        ) : (
+          <FieldRow
+            icon="pin"
+            label="Café"
+            value="Which café?"
+            meta={error ? 'Pick it from the map or type its name.' : undefined}
+            placeholder
+            error={error}
+            onPress={onPickCafe}
+          />
+        )}
+        {drink.name ? (
+          <FieldRow divided label="Drink" value={drink.name} meta={drink.prefilled ? 'What you ordered here last time' : undefined} onPress={onPickDrink} />
+        ) : (
+          <FieldRow divided label="Drink" value="Add a drink" placeholder onPress={onPickDrink} />
+        )}
       </View>
     </Section>
   );
@@ -251,16 +274,18 @@ function useMinuteClock() {
 
 /**
  * 5d in V1 (design/components.md "5d in V1"): Save pressed with a required
- * field empty — the rating, and since Round 9 Packaged's product (the bag and
- * the method are never empty when required). The mock's café is out of
- * scope. No "Keep as draft" (no drafts in V1, gaps.md 30).
+ * field empty — the rating, since Round 9 Packaged's product and since
+ * 2026-10-30 Barista's café (the bag and the method are never empty when
+ * required). Rating and café can be missing together: 5d's two-item state,
+ * the shape the mock drew ("Rating and café are still empty."). No "Keep as
+ * draft" (no drafts in V1, gaps.md 30).
  *
  * Copy: Design, 2026-10-11 (design-missing.md 11) for the rating — promises
  * no draft, does not count, does not repeat the star card's line. The
  * product's and the two-field wording follow it ("one" → "them"), confirmed
  * in Design's Round 9 copy check (2026-10-18).
  */
-const NOUN = { rating: 'rating', product: 'product' };
+const NOUN = { rating: 'rating', product: 'product', cafe: 'café' };
 function missingCopy(fields) {
   const nouns = fields.map((f) => NOUN[f.key] ?? f.label.toLowerCase());
   return {
@@ -314,7 +339,25 @@ function MissingLine({ fields, onGoToFirst }) {
 }
 
 export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAddGear }) {
-  const { defaults, chooseBag, chooseGear, productName, setProductName, rating, setRating, mode: maker, setMode: setMaker, required, missing, missingFields, save } = useRecordDraft();
+  const {
+    defaults,
+    chooseBag,
+    chooseGear,
+    productName,
+    setProductName,
+    cafe,
+    chooseCafe,
+    drink,
+    chooseDrink,
+    rating,
+    setRating,
+    mode: maker,
+    setMode: setMaker,
+    required,
+    missing,
+    missingFields,
+    save,
+  } = useRecordDraft();
   const db = useDatabase();
   // Stage 3's picker (decided 2026-10-11): the Bag / Method rows open the
   // shelf's open bags / gear for this cup. 'bag' | 'gear' | null.
@@ -342,16 +385,27 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
     }
     setPicking('product');
   }, [db]);
+  // Barista's drink sheet: this café's drinks, every drink logged, the bundled list.
+  const [drinks, setDrinks] = useState([]);
+  const openDrinks = useCallback(async () => {
+    try {
+      setDrinks(drinkItems(await listDrinkHistory(db, cafe?.id ?? null)));
+    } catch (error) {
+      console.error('[record] could not read past drinks', error);
+      setDrinks(drinkItems({ here: [], all: [] }));
+    }
+    setPicking('drink');
+  }, [db, cafe]);
   const now = useMinuteClock();
   const Fields = FIELD_SETS[maker];
   const scrollRef = useRef(null);
   // 5d: whenever the state starts (Save here, or a bounce back from 5b), bring
   // the first missing field into view — the automatic "Go to first". The
-  // rating is at the top; the product, the only other one that can be
-  // missing, is the last section, so the end.
+  // rating is at the top; the product and the café, the others that can be
+  // missing, are in the last section, so the end.
   const firstMissing = missingFields[0]?.key;
   const goToFirst = useCallback(() => {
-    if (firstMissing === 'product') scrollRef.current?.scrollToEnd({ animated: true });
+    if (firstMissing === 'product' || firstMissing === 'cafe') scrollRef.current?.scrollToEnd({ animated: true });
     else scrollRef.current?.scrollTo({ y: 0, animated: true });
   }, [firstMissing]);
   useEffect(() => {
@@ -417,6 +471,10 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
               onPick={openPicker}
               productName={productName}
               onPickProduct={openProducts}
+              cafe={cafe}
+              drink={drink}
+              onPickCafe={() => setPicking('cafe')}
+              onPickDrink={openDrinks}
               missing={missing}
             />
           </ExpandingBlock>
@@ -487,6 +545,18 @@ export default function RecordCoffeeScreen({ onClose, onAddNote, onAddBag, onAdd
         selected={productName}
         onPick={setProductName}
         onAdd={setProductName}
+      />
+      <CafeSheet visible={picking === 'cafe'} onClose={() => setPicking(null)} selected={cafe} onPick={chooseCafe} />
+      {/* "Drink name", to pair with "Café name" (Design Round 16, B3). */}
+      <SearchSheet
+        visible={picking === 'drink'}
+        onClose={() => setPicking(null)}
+        mode="single"
+        placeholder="Drink name"
+        items={drinks}
+        selected={drink.name}
+        onPick={chooseDrink}
+        onAdd={chooseDrink}
       />
     </View>
   );

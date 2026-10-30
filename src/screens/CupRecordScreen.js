@@ -80,35 +80,25 @@ export function Stars({ rating, size = 'md' }) {
   );
 }
 
-/** "What I logged": the shelf part for I made it; Barista / Packaged rows until Design draws them. */
+/** "What I logged": the shelf part, I made it only (Packaged: Round 7; Barista: Round 16, B4). */
 function Logged({ cup }) {
-  if (cup.mode === 'made_it') {
-    const method = [cup.brew_method, cup.grinder].filter(Boolean).join(' · ');
-    return (
-      <View style={styles.card}>
-        {/* No bag: the Bag row is hidden, since a row reading "—" looks like
-            missing data (12a). Method stays even when it repeats the title:
-            it is the record, with the grinder. */}
-        {cup.bean_name ? (
-          <FieldRow
-            readOnly
-            swatch
-            label="Bag"
-            value={cup.bean_name}
-            // "from my shelf": the cup still points at a bag on the shelf.
-            meta={[cup.bean_roaster, cup.bag_id != null ? 'from my shelf' : null].filter(Boolean).join(' · ') || undefined}
-          />
-        ) : null}
-        <FieldRow readOnly divided={Boolean(cup.bean_name)} label="Method" value={method || NONE} />
-      </View>
-    );
-  }
-  // Barista (not at this stage, undrawn): 5a's fields for the mode.
-  // Packaged never gets here: its "What I logged" is hidden (Design Round 7).
+  const method = [cup.brew_method, cup.grinder].filter(Boolean).join(' · ');
   return (
     <View style={styles.card}>
-      <FieldRow readOnly icon="pin" label="Café" value={cup.place_name ?? NONE} />
-      <FieldRow readOnly divided label="Drink" value={cup.drink_type ?? NONE} />
+      {/* No bag: the Bag row is hidden, since a row reading "—" looks like
+          missing data (12a). Method stays even when it repeats the title:
+          it is the record, with the grinder. */}
+      {cup.bean_name ? (
+        <FieldRow
+          readOnly
+          swatch
+          label="Bag"
+          value={cup.bean_name}
+          // "from my shelf": the cup still points at a bag on the shelf.
+          meta={[cup.bean_roaster, cup.bag_id != null ? 'from my shelf' : null].filter(Boolean).join(' · ') || undefined}
+        />
+      ) : null}
+      <FieldRow readOnly divided={Boolean(cup.bean_name)} label="Method" value={method || NONE} />
     </View>
   );
 }
@@ -166,9 +156,10 @@ export default function CupRecordScreen({ id, onBack, onEdit }) {
 
         {/* Neither bag nor gear: the whole section goes (Design Round 4); the
             title and "No bag or gear noted" under it say what's missing. */}
-        {/* Packaged: hidden too — it would only repeat the title (Design
-            Round 7, 14b). */}
-        {cup.mode === 'barista' || (cup.mode === 'made_it' && (cup.bean_name || cup.brew_method || cup.grinder)) ? (
+        {/* Packaged and Barista: hidden too — it would only repeat the
+            title and the line under it (Design Round 7, 14b; Round 16, B4).
+            2c for a Barista cup is answered in words, not drawn. */}
+        {cup.mode === 'made_it' && (cup.bean_name || cup.brew_method || cup.grinder) ? (
           <View style={styles.section}>
             <SectionLabel variant="plain" label="What I logged" />
             <Logged cup={cup} />

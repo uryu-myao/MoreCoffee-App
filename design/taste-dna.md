@@ -91,6 +91,7 @@ With the old cups spread over 335–365 days instead, the old share is 60% / 30%
   - **"Locked in"** (8f, "From 147 cups · shifted 4 days ago").
 
 **Try next opens at 5 cups**: 1b / 4a / 4b "Opens at 5 cups". 5c: "4 of 5 cups. One more cup and Try next opens up." This is a second threshold, separate from locking in.
+- **The 5 has no stated reason any more (recorded 2026-10-30).** The only reason the mocks ever gave is 15b's earlier info sheet: "At 5 cups it locks in. From then on it moves slowly, and Try next starts using it." — Try next opened when the profile locked in, and lock-in was 5. Lock-in is now 10 (D-47, 8g), so that reason is gone, and no other is written anywhere in the mocks or these files. Decide the threshold afresh with Try next (`todo.md` T-14), not by keeping 5.
 
 **Per-cup change** (5c): "Moved 6 points brighter", "Moved 4 points lighter": the profile after this cup minus before, on the 0–100 scale. "This cup pushed you brighter and lighter."
 
