@@ -52,7 +52,8 @@ import Text from './base/Text';
  *
  * Under the pages: the page indicator (component.pageIndicator) and "See all
  * gear & beans ›", which opens Gear & beans on the open side.
- * An empty side: its add button (Add gear → 3a, Add a bag → 3c), as before.
+ * An empty side: its add button (Add gear → 3a, Add a bag → 3c), under the
+ * first row's rule and padding (EmptySide).
  *
  * Props: onSeeAll(side), onAddBag, onAddGear, onOpenBag(bag), onOpenGear(gear)
  */
@@ -100,14 +101,18 @@ export default function ShelfBlock({ onSeeAll, onAddBag, onAddGear, onOpenBag, o
           {shelf.gear.length ? (
             homeGear(shelf.gear).map((g, i) => <GearRow key={g.id} gear={g} first={i === 0} onPress={() => onOpenGear(g)} />)
           ) : (
-            <AddButton icon="plus" iconToken={icon.sm} label="Add gear" onPress={onAddGear} />
+            <EmptySide>
+              <AddButton icon="plus" iconToken={icon.sm} label="Add gear" onPress={onAddGear} />
+            </EmptySide>
           )}
         </View>
         <View style={pageStyle}>
           {shelf.bags.length ? (
             homeBeans(shelf.bags).map((b, i) => <BeanRow key={b.id} bag={b} first={i === 0} onPress={() => onOpenBag(b)} />)
           ) : (
-            <AddButton icon="plus" iconToken={icon.sm} label="Add a bag" onPress={onAddBag} />
+            <EmptySide>
+              <AddButton icon="plus" iconToken={icon.sm} label="Add a bag" onPress={onAddBag} />
+            </EmptySide>
           )}
         </View>
       </Animated.ScrollView>
@@ -181,6 +186,15 @@ function Row({ first, name, badge, meta, status, onPress }) {
 }
 
 /**
+ * An empty side's add button, under the same rule and in the same room as a
+ * first row (on device, 2026-10-30): without them the button's frame sat
+ * right under the tabs and the open tab's underline ran into it.
+ */
+function EmptySide({ children }) {
+  return <View style={[styles.rowFirst, styles.empty]}>{children}</View>;
+}
+
+/**
  * The status column: a word (meterLabel) over a line (bodySm, muted) or a
  * freshness bar. Without either under it the word sits alone, centred.
  */
@@ -245,6 +259,9 @@ const styles = StyleSheet.create({
   },
   rowPressed: {
     backgroundColor: state.pressed.row,
+  },
+  empty: {
+    paddingVertical: spacing.inset.listRow.v,
   },
   text: {
     flex: 1,
