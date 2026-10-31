@@ -131,6 +131,25 @@ export async function loadDnaPage(
 }
 
 /**
+ * 8g (How my DNA is built): the profile, and how many cups since the reset
+ * count for nothing (no axis noted, no bundled tag). Every V1 cup has a
+ * rating, so "nothing noted" is the only reason a cup is left out.
+ */
+export async function loadDnaBuilt(db: SQLiteDatabase): Promise<{ dna: Dna; idle: number }> {
+  const settings = await db.getFirstAsync<{ reset_at: number | null }>('SELECT reset_at FROM settings');
+  const resetAt = settings?.reset_at ?? null;
+  const [dna, all] = await Promise.all([
+    loadTasteDna(db),
+    db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM cups WHERE (? IS NULL OR logged_at >= ?) AND logged_at <= ?', [
+      resetAt,
+      resetAt,
+      Date.now(),
+    ]),
+  ]);
+  return { dna, idle: Math.max(0, (all?.n ?? 0) - dna.cups) };
+}
+
+/**
  * 6a's personal card: every bag ever added (finished ones too, beside the
  * all-time cup count) and every cup's time (the first gives "Logging
  * since", all of them the week streak).

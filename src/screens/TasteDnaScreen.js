@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import IconButton from '../components/base/IconButton';
+import InlineAction from '../components/base/InlineAction';
 import SectionLabel from '../components/base/SectionLabel';
 import Text from '../components/base/Text';
 import { DnaAxes, DnaStamp } from '../components/TasteDnaCard';
@@ -9,8 +10,8 @@ import { TASTE_AXES } from '../constants/tasteAxes';
 import { useDatabase } from '../data/DatabaseProvider';
 import { loadDnaPage, onCupsChanged } from '../data/repository';
 import { bandOf } from '../data/tasteDna';
-import { requestDnaInfo } from '../navigation';
-import { color, layout, shape, space, spacing } from '../theme/tokens';
+import { requestDnaInfo, requestPush } from '../navigation';
+import { color, shape, space, spacing } from '../theme/tokens';
 import ScreenFrame from './ScreenFrame';
 
 /**
@@ -37,6 +38,10 @@ import ScreenFrame from './ScreenFrame';
  *            Hidden until a tag has been picked. When 8h brings "What you
  *            keep saying" under it, each block gets its sub-heading ("From
  *            the flavour list" / "In my own words"); alone, it needs none.
+ *   footer   8f's bar (ScreenFrame's footer panel) with "How it is built"
+ *            alone, which opens 8g (2026-10-30). Try next (8d) is V2; the bar
+ *            keeps its place. The link is InlineAction (§1's one tappable-text
+ *            style), not the mock's 13pt sentence case (Design Round 17, B3).
  *   Last shift  one line per axis that moved: "Sweetness moved from Lightly
  *            sweet to Medium sweet on Oct 17." Band names, not the mock's "low
  *            to medium" (written before the bands were). The mock's cause
@@ -47,8 +52,7 @@ import ScreenFrame from './ScreenFrame';
  * Not built in V1:
  *   - "What you keep saying": My words' counts (8h); it comes with 8h.
  *     Tapping a word will open 8l's Words search for it.
- *   - the footer's "How it is built" (8g) and "Try next" (8d): out of V1, so
- *     no footer; the page ends after its last block.
+ *   - the footer's "Try next" (8d): V2.
  *
  * The shift is read from the stored changes (taste-dna.md item 5), so its
  * "to" band can differ from today's: the profile is computed on read.
@@ -112,7 +116,12 @@ export default function TasteDnaScreen({ onBack }) {
       compact
       title="My taste DNA"
       leading={<IconButton icon="chevronLeft" accessibilityLabel="Back" onPress={onBack} />}
-      trailing={dna ? <DnaStamp state={dna.state} onPress={() => requestDnaInfo(dna)} /> : undefined}>
+      trailing={dna ? <DnaStamp state={dna.state} onPress={() => requestDnaInfo(dna)} /> : undefined}
+      footer={
+        <View style={styles.footer}>
+          <InlineAction label="How it is built" onPress={() => requestPush({ name: 'dnaBuilt' })} />
+        </View>
+      }>
       {dna ? (
         <View style={styles.body}>
           <View style={styles.head}>
@@ -171,7 +180,10 @@ export default function TasteDnaScreen({ onBack }) {
 const styles = StyleSheet.create({
   body: {
     gap: spacing.gap.axis,
-    paddingBottom: layout.screen.bottom,
+  },
+  // 8f: the action at the bar's left; Try next will take its right.
+  footer: {
+    flexDirection: 'row',
   },
   card: {
     borderWidth: shape.borderWidth.box,

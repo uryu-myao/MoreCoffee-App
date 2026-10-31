@@ -591,6 +591,7 @@ The user sees the past rewritten.
 **What**: only the ten bundled flavour words have a word → axis entry. My words (free text) and words users add are not matched in V1: matching free text needs normalising, synonyms and negation ("not too bitter"). "Read my words" (8g) does not exist in V1, which is the same as it being off.
 
 **Copy to adjust when 8g is built**: 8g's "Your words are matched, not read — 'juicy' maps to acidity and sweetness" and 7a's "Taste DNA now reads your notes" describe more than V1 does. Even 8g's example word, "juicy", is not a bundled word, so it has no entry.
+- **8g, built 2026-10-30**: its words line now reads "Flavour tags nudge, sliders decide — Peach leans brighter and sweeter. Tags make up at most a third of an axis. Your own words don't count." (PROVISIONAL, Design Round 17, B1). The switch is not built. 7a is still not built.
 
 ---
 

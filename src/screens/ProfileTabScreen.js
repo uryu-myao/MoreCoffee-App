@@ -21,7 +21,7 @@ import { cupsLabel, dnaSummary, shiftedLabel } from './TasteDnaScreen';
 /**
  * 6a — Profile, the upper part (2026-10-21). 6b (the lower part: DNA
  * settings, My data, Reset, Account) and 6c are not built, except 6b's
- * "Export my cups" row (below).
+ * "How my DNA is built" and My data's rows (below).
  *
  *   header       "Morecoffee" over "My profile". 6a's "Edit" leads to 6d (Edit
  *                profile), not built: not shown.
@@ -48,6 +48,10 @@ import { cupsLabel, dnaSummary, shiftedLabel } from './TasteDnaScreen';
  *                holds gear and beans only, which "shelf" means (§1 Words).
  *                When 8h comes, My words gets its own heading, "My words"
  *                (Design Round 11, D1).
+ *   Taste DNA    6b's section with only "How my DNA is built" (6b's row and
+ *                glyph) → 8g (2026-10-30). PROVISIONAL: 6b is otherwise not
+ *                built; "How adventurous" is Try next's setting, V2 (Design
+ *                Round 17, A4).
  *   My data      6b's two rows (2026-10-28): "Export my cups", the cups as
  *                CSV ("N cups as CSV, notes included", 6b's line), and in
  *                the Backup row's place "Export everything" / "Cups, bags
@@ -212,6 +216,9 @@ export default function ProfileTabScreen() {
           <Section title="My shelf" caption="The shelf is what keeps a log down to 15 seconds.">
             <MenuRow icon="dripper" label="My gear" value={`${data.gear} of ${GEAR_LIMIT}`} onPress={() => requestPush({ name: 'shelf', side: 'gear' })} />
             <MenuRow icon="beanBag" label="My beans" value={`${data.bags} of ${OPEN_BAG_LIMIT}`} onPress={() => requestPush({ name: 'shelf', side: 'beans' })} />
+          </Section>
+          <Section title="Taste DNA">
+            <MenuRow icon="asterisk" label="How my DNA is built" onPress={() => requestPush({ name: 'dnaBuilt' })} />
           </Section>
           <Section title="My data">
             <MenuRow

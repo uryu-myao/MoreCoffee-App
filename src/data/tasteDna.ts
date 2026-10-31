@@ -88,6 +88,8 @@ export type AxisDna = {
   /** total weight from sliders and from words: the words' share = words / (slider + words) */
   sliderWeight: number;
   wordWeight: number;
+  /** the words reached wordShareCap and were scaled down (8g's "at their limit") */
+  capped: boolean;
 };
 
 export type Dna = {
@@ -139,7 +141,7 @@ export function computeDna(cups: readonly DnaCup[], asOf: number, resetAt: numbe
       const k = s.wordW > allowed ? allowed / s.wordW : 1;
       const wordW = s.wordW * k;
       const total = s.sliderW + wordW;
-      return [a, { value: total > 0 ? (s.sliderWV + k * s.wordWV) / total : null, n: s.n, sliderWeight: s.sliderW, wordWeight: wordW }];
+      return [a, { value: total > 0 ? (s.sliderWV + k * s.wordWV) / total : null, n: s.n, sliderWeight: s.sliderW, wordWeight: wordW, capped: k < 1 }];
     })
   ) as Record<AxisKey, AxisDna>;
 

@@ -8,7 +8,7 @@ Scope test (2026-10-11): can Uryu use it every day himself? His cups are mostly 
 
 **In scope since 2026-10-14, after the above**: 3f (minimal: list + Reopen bag), then 3g (minimal: name, roaster, roasted on). Questions: design-missing.md 27–38.
 
-**Not now**: 8g · 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6b · 6c · 6d. Barista came in 2026-10-30 (Uryu: dogfood café cups). The Try next tab stays a placeholder (decided before release); Profile is 6a's upper part (2026-10-21).
+**Not now**: 8n · 8c · 8o · 7a · 7b · 8i · 8m · 8j · 6b · 6c · 6d. Barista came in 2026-10-30 (Uryu: dogfood café cups), and 8g the same day (8f's footer led nowhere; Try next stands on it). The Try next tab stays a placeholder (decided before release); Profile is 6a's upper part (2026-10-21).
 
 **Next to fall due (recorded 2026-10-20): 2b (sort) and 8l (search)**, the next deadline we set ourselves after the five-bag problem. Dogfood has a few dozen cups today, so scrolling 2a still reaches them; at two a day that is several hundred within three months, and older cups stop being reachable. Home (1b / 4a / 4b) is already done, so this is the next thing to review.
 
@@ -37,7 +37,7 @@ Status: **done** (built from the mock, checked on the simulator) · **partial** 
 | 6a / 6b / 6c Profile | **6a upper part: yes (2026-10-21)** | **6a upper part built, not yet seen on device**; 6b / 6c not started | personal card without name / avatar / badge (6d): "Logging since" over Cups / Bags / Week streak (our rule); Taste DNA card → 8f (the summary line, D12; band-name Badges); My shelf: My gear → 3b (2026-10-22), My beans → 3d; 6b's "Export my cups" row alone under My data (T-8). Not: Edit (6d), My words (8h), "1 stale" |
 | 6d Edit profile | not now | not started | |
 | 8f My taste DNA | **yes (2026-10-21)** | **built, not yet seen on device** | stamp (ⓘ → 15b), the summary line (Round 10, D12; 2026-10-23), "From N cups · shifted N days ago" (with nothing noted, "Rate a cup and note one taste to start."), four axes with band names, "Flavours I pick most" (top 4 tags, Round 11, B), Last shift (band names + date, no cause). From 6a's card, 2c's "Feeds my taste DNA" and Home's card foot. Not: "What you keep saying" (waits for 8h, T-9), the footer (8g / 8d out of V1) |
-| 8g How my DNA is built | not now | not started | copy to adjust for V1 (`gaps.md` 31) |
+| 8g How my DNA is built | **yes (2026-10-30)** | **built, not yet seen on device** | 8g's opening lines; "My numbers" (per axis notes and what's left to lock in, tags at their limit, cups counted and not; not in the mock); five rules in our words (8g's described rules V1 doesn't have). From 8f's footer (link alone; Try next V2), 6b's row on Profile (PROVISIONAL), 15b's way on (Home, 8f; not 5c). Not: Read my words, Reset. Copy PROVISIONAL: Design Round 17 (`design-brief-round-17.md`) |
 | 8n / 8c / 8o First setup | not now | not started | `settings.setup_done` ready; 8o reuses the Bag form |
 | 8a / 9a / 9b Welcome | out of the token set | not started | designed separately |
 | 8b / 8k Sign-in / account | held | not started | |

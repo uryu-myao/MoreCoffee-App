@@ -5,10 +5,11 @@ import { StyleSheet, View } from 'react-native';
 import { LegacyScrollView as ScrollView } from 'react-native-gesture-handler';
 import { TASTE_AXES } from '../constants/tasteAxes';
 import { DNA_TUNING } from '../data/tasteDna';
-import { onDnaInfoRequest } from '../navigation';
+import { onDnaInfoRequest, requestPush } from '../navigation';
 import { color, size, space, spacing } from '../theme/tokens';
 import BottomSheet from './base/BottomSheet';
 import Button from './base/Button';
+import InlineAction from './base/InlineAction';
 import Text from './base/Text';
 
 /**
@@ -34,6 +35,11 @@ import Text from './base/Text';
  * TODO(V2): the box's first row, "3 of 5 cups" + five cup glyphs, is Try
  * next's threshold — not shown at this stage (design-missing.md 13), so the
  * box holds the sentence alone.
+ *
+ * Way on (2026-10-30, Uryu): "How it is built" (InlineAction) under the
+ * progress box opens 8g. Only where 8g can be pushed: Home's and 8f's sheet
+ * (DnaInfoHost), never 5c's, which is inside the Record sheet. PROVISIONAL
+ * placement (Design Round 17, B4).
  *
  * Title: display.sm, as every sheet title (§9 Bottom sheet). The mock's 34 is
  * not in the type scale.
@@ -77,8 +83,9 @@ const COPY = {
  *   visible, onClose
  *   dna      the profile (loadTasteDna); its state picks the copy. Kept while
  *            the sheet animates out.
+ *   onHowBuilt  shows the way on to 8g; omitted on 5c
  */
-export default function DnaInfoSheet({ visible, onClose, dna }) {
+export default function DnaInfoSheet({ visible, onClose, dna, onHowBuilt }) {
   // The body scrolls only when it doesn't fit; otherwise the whole sheet
   // takes the swipe down.
   const [frame, setFrame] = useState(0);
@@ -112,6 +119,11 @@ export default function DnaInfoSheet({ visible, onClose, dna }) {
                 {copy.progress(dna)}
               </Text>
             </View>
+            {onHowBuilt ? (
+              <View style={styles.howBuilt}>
+                <InlineAction label="How it is built" onPress={onHowBuilt} />
+              </View>
+            ) : null}
           </ScrollView>
           <View style={styles.action}>
             <Button variant="secondary" label="Got it" onPress={onClose} />
@@ -138,6 +150,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.inset.container.v,
     paddingHorizontal: spacing.inset.container.h,
   },
+  howBuilt: {
+    flexDirection: 'row',
+  },
   // 15b: the button sits 4 further down than the sheet's gap.
   action: {
     marginTop: space[4],
@@ -148,5 +163,16 @@ const styles = StyleSheet.create({
 export function DnaInfoHost() {
   const [shown, setShown] = useState({ visible: false, dna: null });
   useEffect(() => onDnaInfoRequest((dna) => setShown({ visible: true, dna })), []);
-  return <DnaInfoSheet visible={shown.visible} dna={shown.dna} onClose={() => setShown((s) => ({ ...s, visible: false }))} />;
+  const close = () => setShown((s) => ({ ...s, visible: false }));
+  return (
+    <DnaInfoSheet
+      visible={shown.visible}
+      dna={shown.dna}
+      onClose={close}
+      onHowBuilt={() => {
+        close();
+        requestPush({ name: 'dnaBuilt' });
+      }}
+    />
+  );
 }

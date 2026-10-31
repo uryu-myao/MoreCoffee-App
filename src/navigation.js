@@ -13,7 +13,8 @@
  *                        { name: 'addBag' | 'addGear' } from Home, { name: 'editCup', cup } from 2c,
  *                        { name: 'editBag', bag } | { name: 'editGear', gear } from search,
  *                        { name: 'cup', id } | { name: 'search', filter } from a bag / gear page,
- *                        { name: 'dna' } (8f) from Profile and 2c
+ *                        { name: 'dna' } (8f) from Profile and 2c,
+ *                        { name: 'dnaBuilt' } (8g) from 8f, Profile and 15b
  *   requestCloseCup()    Records closes its open cup (after a delete in 11a)
  *   requestNotice(text)  AppShell shows 13b's one-line notice above the bar
  *   requestDnaInfo(dna)  AppShell shows 15b's Taste DNA info sheet over the

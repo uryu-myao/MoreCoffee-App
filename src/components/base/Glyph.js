@@ -46,6 +46,8 @@ const SHAPES = {
   trash: [<Path key="a" d="M5 7h14" />, <Path key="b" d="M9 7V4h6v3" />, <Path key="c" d="M7 7l1 13h8l1-13" />],
   // 2c's edit button (the pencil), verbatim.
   pencil: [<Path key="a" d="M4 20h4l10-10-4-4L4 16z" />, <Path key="b" d="M14 6l4 4" />],
+  // 6b's "How my DNA is built" (the six-point asterisk), verbatim.
+  asterisk: [<Path key="a" d="M12 3v18" />, <Path key="b" d="M5 8l14 8" />, <Path key="c" d="M19 8L5 16" />],
 };
 
 export const GLYPH_NAMES = Object.keys(SHAPES);
